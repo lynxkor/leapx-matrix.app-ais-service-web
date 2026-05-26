@@ -66,6 +66,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -78,6 +79,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -137,7 +139,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, applyRequest, agreeRequest, rejectRequest, outbound, applyReturn, rejectReturn, inbound, agreeReturn } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
@@ -221,7 +223,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
@@ -237,6 +250,7 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '打印出库单',
+              show: (row) => this.permissions.has('AISPART-dealerOutboundOrder-printOutbound'),
               click: (rowIndex, row) => {
                 this.handlePrint(row);
               },
@@ -250,7 +264,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/outbound/dealerOutboundOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
@@ -282,7 +297,7 @@ export default {
               name: '申请领料',
               popconfirmTitle: '是否申请领料?',
               show: (row) => {
-                return row.orderStatus === '10' || row.orderStatus === '30';
+                return (row.orderStatus === '10' || row.orderStatus === '30') && this.permissions.has('AISPART-dealerOutboundOrder-applyRequest');
               },
               click: (rowIndex, row) => {
                 applyRequest({ id: row.id }).then(() => {
@@ -299,7 +314,7 @@ export default {
               name: '同意领料',
               popconfirmTitle: '是否同意领料?',
               show: (row) => {
-                return row.orderStatus === '20';
+                return row.orderStatus === '20' && this.permissions.has('AISPART-dealerOutboundOrder-agreeRequest');
               },
               click: (rowIndex, row) => {
                 agreeRequest({ id: row.id }).then(() => {
@@ -315,7 +330,7 @@ export default {
             }, {
               name: '驳回领料',
               show: (row) => {
-                return row.orderStatus === '20';
+                return row.orderStatus === '20' && this.permissions.has('AISPART-dealerOutboundOrder-rejectRequest');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入驳回原因', '驳回领料', {
@@ -343,7 +358,7 @@ export default {
               name: '出库',
               popconfirmTitle: '是否出库?',
               show: (row) => {
-                return row.orderStatus === '40' && row.outboundStatus === '0';
+                return row.orderStatus === '40' && row.outboundStatus === '0' && this.permissions.has('AISPART-dealerOutboundOrder-outbound');
               },
               click: (rowIndex, row) => {
                 outbound({ id: row.id }).then(() => {
@@ -359,7 +374,7 @@ export default {
             }, {
               name: '申请退料',
               show: (row) => {
-                return (row.orderStatus === '40' || row.outboundStatus === '60') && row.outboundStatus === '1';
+                return (row.orderStatus === '40' || row.outboundStatus === '60') && row.outboundStatus === '1' && this.permissions.has('AISPART-dealerOutboundOrder-applyReturn');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入申请退料原因', '申请退料', {
@@ -387,7 +402,7 @@ export default {
               name: '同意退料',
               popconfirmTitle: '是否同意退料?',
               show: (row) => {
-                return row.orderStatus === '50';
+                return row.orderStatus === '50' && this.permissions.has('AISPART-dealerOutboundOrder-agreeReturn');
               },
               click: (rowIndex, row) => {
                 agreeReturn({ id: row.id }).then(() => {
@@ -403,7 +418,7 @@ export default {
             }, {
               name: '驳回退料',
               show: (row) => {
-                return row.orderStatus === '50';
+                return row.orderStatus === '50' && this.permissions.has('AISPART-dealerOutboundOrder-rejectReturn');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入驳回退料原因', '驳回退料', {
@@ -431,7 +446,7 @@ export default {
               name: '入库',
               popconfirmTitle: '是否入库?',
               show: (row) => {
-                return row.orderStatus === '70' && row.inboundStatus === '0';
+                return row.orderStatus === '70' && row.inboundStatus === '0' && this.permissions.has('AISPART-dealerOutboundOrder-inbound');
               },
               click: (rowIndex, row) => {
                 inbound({ id: row.id }).then(() => {

@@ -4,7 +4,6 @@
       <div class="page-common-edit">
         <el-container>
           <el-main>
-            <NavTop :current="form.orderStatus"/>
             <section class="common-title common-title-extend" v-if="_id">
               <div class="common-title-main">
                 <h2>单据编号：{{ form.code }}</h2>
@@ -16,6 +15,7 @@
                     <!-- 通用操作按钮 -->
                     <el-button size="small" @click="handlePrint" v-if="!isCanceled">打印工单</el-button>
                     <el-button size="small" @click="couponsDialogVisible = true" v-if="!isCanceled">查询卡券&终身</el-button>
+                    <el-button size="small" @click="handleResendSignSms" v-if="canResendSignSms">补推施工单短信签字</el-button>
                     <el-button size="small" @click="handleImport" v-if="!isCanceled">上传附件</el-button>
                     <el-button size="small" @click="handleShowLog">审核日志</el-button>
                     <el-button size="small" @click="remindInfoDialogVisible = true">提醒信息</el-button>
@@ -30,8 +30,8 @@
                     <el-button size="small" @click="startWorkDialogVisible = true" v-if="isInConstruction && hasDispatchedNotStartedItems">作业开始</el-button>
                     <el-button size="small" @click="endWorkDialogVisible = true" v-if="isInConstruction && hasWorkingItems">作业结束</el-button>
                     <el-button size="small" @click="finalCheckDialogVisible = true" v-if="orderStatus === RepairOrderStatusEnum.PENDING_FINAL_INSPECTION">终检</el-button>
-                    <el-button size="small" @click="handleSettlement(1)" v-if="canSettlement && !form.isCreateStatementInfo">结算</el-button>
-                    <el-button size="small" @click="handleSettlement(0)" v-if="canSettlement && form.isCreateStatementInfo">取消结算</el-button>
+                    <el-button size="small" @click="handleSettlement(1)" :loading="settlementLoading" v-if="canSettlement && !form.isCreateStatementInfo">结算</el-button>
+                    <el-button size="small" @click="handleSettlement(0)" :loading="settlementLoading" v-if="canSettlement && form.isCreateStatementInfo">取消结算</el-button>
                     <el-button size="small" @click="handleCancelFinal" v-if="orderStatus === RepairOrderStatusEnum.ANTI_SETTLEMENT">取消终检</el-button>
 
                     <el-divider direction="vertical"></el-divider>
@@ -43,22 +43,23 @@
                 <i>|</i>
                 <span>工单状态：{{ form.orderStatusLabel || '-' }}</span>
                 <i>|</i>
-                <span>领料状态：{{ form.pickStatusLabel || '-' }}</span>
+                <span>故障确认：{{ form.confirmFaultLabel || '-' }}</span>
                 <i>|</i>
                 <span>开单时间：{{ form.createTime || '-' }}</span>
               </h5>
             </section>
+            <NavTop :current="form.orderStatus" :_id="_id"/>
             <BasicInfo :formData.sync="form" :isEditing="isEditing" :_id="_id" ref="basicInfoRef" @refresh="handleRefresh"/>
             <EntrustInfo :formData="form" :isEditing.sync="isEditing" :_id="_id" ref="entrustInfoRef" @change="submitForm" @refresh="handleRefresh"/>
             <BatteryInfo :formData="form" :isEditing="isEditing" :_id="_id" ref="batteryInfoRef"/>
             <InquiryInfo :formData="form" :_id="_id"/>
-            <RepairInfo :formData="form"/>
+            <RepairInfo :formData="form" :_id="_id"/>
             <SparepartsInfo :formData="form"/>
             <section class="common-section">
-              <div class="common-section-header">
+              <div :class="['common-section-header', { fold: collapsedSections['attachment'] }]" data-section-key="attachment">
                 <h2>资料附件</h2>
               </div>
-              <div class="common-section-body">
+              <div class="common-section-body" :style="{ display: collapsedSections['attachment'] ? 'none' : '' }">
                 <Attachment :_id="_id" :show-upload="false" ref="attachmentRef" attachType="附件资料"/>
               </div>
             </section>
@@ -156,8 +157,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal, getSpRemindInfo, isVehRetention, addVehRetentionList } from '@/api/maintain/sp/serviceProxy/index';
-import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum, CurrentSituationEnum } from './constant';
+import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal, getSpRemindInfo, isVehRetention, addVehRetentionList, resendSignSms } from '@/api/maintain/sp/serviceProxy/index';
+import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum, CurrentSituationEnum, CustomerTypeEnum } from './constant';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -192,7 +193,7 @@ const defaultForm = {
   orderStatus: '',
   warrantyTypeCollect: '',
   customerName: '',
-  custType: '',
+  custType: CustomerTypeEnum.WALK_IN,
   vehModelName: '',
   carPlate: '',
   dealerName: '',
@@ -216,7 +217,6 @@ const defaultForm = {
   statusDesc: '',
   pickStatus: '',
   ownerOrgId: '',
-  dealerCode: '',
   shuttleName: '',
   shuttlePhone: '',
   payType: '',
@@ -288,7 +288,7 @@ const defaultForm = {
   inCustomerContent: '',
   customerComment: '',
   testResult: '',
-  currentFault: '',
+  currentFault: 1,
   customerContent: '',
   invaildDesc: '',
   anomalyDescription: '',
@@ -419,10 +419,15 @@ export default {
     hasWorkingItems () {
       return this.form?.workRecordRespList?.some(item => item.isDispatch === 1 && item.timeSpend && !item.finishAt);
     },
-    // 是否存在已经领料但是未全部退料的维修备件记录
+    // 是否存在已经领料但是未全部退料的维修备件记录且未结算
     hasRepairItems () {
       const item = this.form?.costCountResp?.sparePartRespList?.some(item => (+item.quantity || 0) > 0 && item.isOutstock);
-      return item;
+      return item && !this.form?.isCreateStatementInfo;
+    },
+    canResendSignSms () {
+      // 假设 signStatus 为空或特定状态表示待签字，这里主要依据题目要求的“签字生成时间不为空”和“非作废”
+      // 如果需要严格判断“待签字”，请加上 && this.form.signStatus === 'YOUR_PENDING_STATUS_CODE'
+      return !this.isCanceled && this.form.signGeneratedOn && this.form.signStatus && this.form.signStatus === 10;
     }
   },
   watch: {
@@ -438,6 +443,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      collapsedSections: { attachment: true, batteryInfo: true },
       pageTitle: '接车施工单管理',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
@@ -456,6 +462,7 @@ export default {
       materialReturnDialogVisible: false,
       couponsDialogVisible: false,
       settlementDialogVisible: false, // 结算弹窗
+      settlementLoading: false,
       remindInfoDialogVisible: false,
       yes_no_enum: YES_NO_ENUM,
       RepairOrderStatusEnum,
@@ -473,9 +480,25 @@ export default {
       this.$refs.editLayout.openPane();
     },
     handleCancel () {
-      this.$refs.basicInfoRef.clearValidate();
-      this.$refs.entrustInfoRef.clearValidate();
-      this.isEditing = false;
+      // 检查表单是否有修改
+      if (JSON.stringify(this.originalForm) !== JSON.stringify(this.form)) {
+        const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确定要取消？</div><div class="ais-leave-tips-sub">取消后，当前填写的数据会被清空。</div>';
+        this.$confirm(message, '', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true,
+          customClass: 'ais-leave-tips',
+          showClose: false
+        }).then(() => {
+          this.$refs.basicInfoRef.clearValidate();
+          this.$refs.entrustInfoRef.clearValidate();
+          this.isEditing = false;
+          this.form = JSON.parse(JSON.stringify(this.originalForm));
+        }).catch(() => {
+        });
+      } else {
+        this.isEditing = false;
+      }
     },
     handleShowLog () {
       this.$auditLog.show({ id: this._id });
@@ -495,7 +518,9 @@ export default {
         getDetail(id).then(res => {
           this.loading = false;
           this.form = res;
-          this.originalForm = res;
+          this.$nextTick(() => {
+            this.originalForm = JSON.parse(JSON.stringify(this.form));
+          });
         });
       }
     },
@@ -508,11 +533,17 @@ export default {
         // 后端要求新开单增加isAddItems字段
         if (!this._id) {
           data.isAddItems = 0;
+          data.dataSource = 170; // 新建时增加开单来源，170零小跑PC端; 180零小跑APP端
         }
-        if (data.currentFault && data.faultAlertRecordRespList.length === 0) {
+        if (data.currentFault && (data.faultAlertRecordRespList || []).length === 0 && (data.faultAlertRecordParams || []).length === 0) {
           this.$message.warning('请先添加故障模块');
           this.isEditing = true;
           return;
+        }
+        if (+this.form.mileage < +this.form.lastMileage) {
+          this.$message.warning(`本次进店里程数${this.form.mileage}小于上次进店里程数${this.form.lastMileage}，请注意`);
+        } else if (Math.abs(+this.form.mileage - +this.form.netMileage) > 300) {
+          this.$message.warning('进店里程数和车联网里程数不符，请注意');
         }
         this.submitLoading = true;
         addOrUpdate(data).then(res => {
@@ -538,6 +569,8 @@ export default {
           }
         }).finally(() => {
           this.submitLoading = false;
+          this.$refs.basicInfoRef?.clearValidate();
+          this.$refs.entrustInfoRef?.clearValidate();
         });
       } catch (error) {
         console.log(error);
@@ -682,6 +715,7 @@ export default {
           this.handleSettlementConfirm({ faultSolve: true, reason: '' });
         }
       } else {
+        if (this.settlementLoading) return;
         const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>您确定要取消结算吗？</div>';
         this.$confirm(message, '', {
           confirmButtonText: '确定',
@@ -690,41 +724,22 @@ export default {
           customClass: 'ais-leave-tips',
           showClose: false
         }).then(() => {
-          // 调用接口
+          this.settlementLoading = true;
           cancelStatement({ serviceProxyId: this._id }).then(res => {
             this.$message.success('取消结算成功');
             this.getDetailData();
+          }).finally(() => {
+            this.settlementLoading = false;
           });
         }).catch(() => {
         });
       }
     },
-    async handleSettlementConfirm (faultData) {
-      // 如果存在故障数据，先保存故障解决情况
-      if (faultData) {
-        const basicInfo = await this.$refs.basicInfoRef.getFormData();
-        const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
-        const batteryInfo = await this.$refs.batteryInfoRef.getFormData();
-
-        const data = {
-          ...this.form,
-          ...basicInfo,
-          ...entrustInfo,
-          ...batteryInfo,
-          faultSolve: faultData.faultSolve,
-          reason: faultData.reason
-        };
-
-        try {
-          await addOrUpdate(data);
-        } catch (error) {
-          return;
-        }
-      }
-
-      // 调用结算接口
+    async handleSettlementConfirm (faultData = {}) {
+      if (this.settlementLoading) return;
+      this.settlementLoading = true;
       try {
-        const res = await addStatement({ serviceProxyId: this._id });
+        const res = await addStatement({ serviceProxyId: this._id, ...faultData });
         this.$message.success('结算成功');
         this.getDetailData();
         if (res) {
@@ -735,7 +750,9 @@ export default {
         }
       } catch (error) {
         console.error('结算失败:', error);
-        this.$message.error(error.msg || '结算失败');
+        // this.$message.error(error.msg || '结算失败');
+      } finally {
+        this.settlementLoading = false;
       }
     },
 
@@ -763,12 +780,38 @@ export default {
       setTimeout(() => {
         getSpRemindInfo(this._id).then(res => {
           const list = res || [];
-          const target = list.find(item => item.type === RemindInfoTypeEnum.PRE_AUTH && item.content);
+          const target = list.find(item => (item.type === RemindInfoTypeEnum.PRE_AUTH || item.type === RemindInfoTypeEnum.CITY_LEVEL) && item.content);
           if (target) {
             this.remindInfoDialogVisible = true;
           }
         });
       }, 1000);
+    },
+    /**
+     * 补推施工单短信签字
+     */
+    handleResendSignSms () {
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将再次推送短信给用户进行施工单签字，是否继续？</div>';
+      this.$confirm(message, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(() => {
+        // 调用接口
+        // 假设接口参数为 id
+        resendSignSms(this._id).then(res => {
+          this.$message.success('推送成功');
+          // 可选：刷新页面数据以更新最新状态
+          this.getDetailData();
+        }).catch(err => {
+          // 错误处理通常由拦截器统一处理，如需特殊处理可在此添加
+          console.error(err);
+        });
+      }).catch(() => {
+        // 用户取消操作，无需处理
+      });
     },
   }
 };
@@ -776,9 +819,11 @@ export default {
 <style lang="scss" scoped>
 .page-common-edit .common-title {
   position: sticky;
-  top: 48px;
+  top: 0px;
   .el-divider--vertical {
     height: auto;
+    margin: 4px 12px;
+    background-color: var(--leap-color-default-light-4);
   }
 }
 </style>

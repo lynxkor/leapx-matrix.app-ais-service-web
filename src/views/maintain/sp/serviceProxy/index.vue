@@ -74,6 +74,181 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="签字状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="SignStatusEnum"
+            v-model="form.signStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="签字渠道">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="SignChannelEnum"
+            v-model="form.signChannelList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="签字生成时间">
+          <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+            v-model="form.signGeneratedOn"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="签字完成时间">
+          <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+            v-model="form.signCompletedOn"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="工单状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="OrderStatusEnum"
+            v-model="form.orderStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="数据来源">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="dataSource"
+            v-model="form.dataSourceList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="业务类型">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BusinessTypeEnum"
+            v-model="form.businessTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="三包预警">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="AlarmLevelEnum"
+            v-model="form.alarmLevelList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="开单时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="预计交车时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.expectFinishAt"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="保修开始日期">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.startWarrantyDate"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="维修类型（汇总）">
+          <!-- <fetch-select
+            :remote-method="getRepairItemTypeList"
+            remote
+            v-model="form.repairItemTypeCollectList"
+            placeholder="请输入"
+            labelKey="name"
+            valueKey="id"
+            clearable
+            multiple
+            filterable
+          /> -->
+          <el-input
+            placeholder="请输入"
+            v-model="form.repairItemTypeDetailCollectLike"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="登记人">
+          <fetch-select
+            :remote-method="getUserList"
+            remote
+            v-model="form.creatorNameList"
+            placeholder="请输入"
+            labelKey="username"
+            valueKey="userId"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="车型">
+          <fetch-select
+            :remote-method="getVehicleModelList"
+            remote
+            v-model="form.vehModelNameList"
+            placeholder="请输入"
+            labelKey="name"
+            valueKey="name"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-show="canList"
@@ -131,10 +306,10 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getStatistics } from '@/api/maintain/sp/serviceProxy/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, repairItemType, listVehicleModel, getUserByNameOrNo } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -143,13 +318,14 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPage from './edit.vue';
+import moment from 'moment';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
   dataSource: '',
   orderStatus: '',
-  warrantyTypeCollect: '',
+  repairItemTypeDetailCollectLike: '',
   customerName: '',
   custType: '',
   vehModelName: '',
@@ -158,11 +334,19 @@ const defaultForm = {
   appointmentNo: '',
   mileage: '',
   lastMileage: '',
-  startWarrantyDate: '',
+  startWarrantyDate: [],
   exclusiveServiceDealerName: '',
-  expectFinishAt: '',
+  expectFinishAt: [],
   createStatementInfoDate: '',
   serviceOwnerId: '',
+  orderStatusList: [],
+  dataSourceList: [],
+  businessTypeList: [],
+  alarmLevelList: [],
+  createTime: [],
+  repairItemTypeCollectList: [],
+  creatorNameList: [],
+  vehModelNameList: [],
 };
 
 const pageSize = 20;
@@ -180,13 +364,14 @@ export default {
     FetchSelect
   },
   data () {
+    const defaultData = this.getDefautlForm();
     return {
       pageTitle: '接车施工单管理',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-serviceProxy',
       form: {
-        ...defaultForm
+        ...defaultData
       },
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
@@ -245,7 +430,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/sales/datacenter/materials/vehicleModel/detail?id=${row.vehModelId}`, '_blank');
+                window.open(`/sales/datacenter/materials/vehicleModel/edit?id=${row.vehModelId}`, '_blank');
               },
               type: 'primary'
             }]
@@ -281,6 +466,10 @@ export default {
           },
           { props: 'expectFinishAt', label: '预计交车时间', visible: true, width: 200 },
           { props: 'creatorName', label: '登记人', visible: true, width: 200 },
+          { props: 'signStatusLabel', label: '签字状态', visible: true, width: 200 },
+          { props: 'signChannelLabel', label: '签字渠道', visible: true, width: 200 },
+          { props: 'signGeneratedOn', label: '签字生成时间', visible: true, width: 200 },
+          { props: 'signCompletedOn', label: '签字完成时间', visible: true, width: 200 },
           { props: 'createTime', label: '开单时间', visible: true, width: 200, sortable: true, fixed: 'right' },
         ],
         total: 0
@@ -295,7 +484,6 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
-    this.getTabsList();
   },
   methods: {
     handleListSelect (row) {
@@ -326,7 +514,8 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      const defaultData = this.getDefautlForm() || {};
+      this.form = { ...defaultData };
       this.optionObj.form.page = 1;
       this.optionObj.form.pageSize = pageSize;
       this.getData();
@@ -381,6 +570,7 @@ export default {
         }).finally(() => {
           this.loading = false;
         });
+      this.getTabsList();
     },
     // 需要防抖场景时使用
     debouncedGetData: debounce(function () {
@@ -428,12 +618,44 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-      data.sortColumns = ([
-        {
-          column: 'order_status',
-          sort: 'ASC'
+      // 处理签字生成时间
+      if (this.form.signGeneratedOn) {
+        delete data.signGeneratedOn;
+        if (this.form.signGeneratedOn.length > 1) {
+          data.signGeneratedOnStart = this.form.signGeneratedOn[0];
+          data.signGeneratedOnEnd = this.form.signGeneratedOn[1];
         }
-      ]).concat(this.sortColumns);
+      }
+      // 处理签字完成时间
+      if (this.form.signCompletedOn) {
+        delete data.signCompletedOn;
+        if (this.form.signCompletedOn.length > 1) {
+          data.signCompletedOnStart = this.form.signCompletedOn[0];
+          data.signCompletedOnEnd = this.form.signCompletedOn[1];
+        }
+      }
+      // 处理预计交车时间
+      if (this.form.expectFinishAt) {
+        delete data.expectFinishAt;
+        if (this.form.expectFinishAt.length > 1) {
+          data.expectFinishAtStart = this.form.expectFinishAt[0];
+          data.expectFinishAtEnd = this.form.expectFinishAt[1];
+        }
+      }
+      // 处理保修开始日期
+      if (this.form.startWarrantyDate) {
+        delete data.startWarrantyDate;
+        if (this.form.startWarrantyDate.length > 1) {
+          data.startWarrantyDateStart = this.form.startWarrantyDate[0];
+          data.startWarrantyDateEnd = this.form.startWarrantyDate[1];
+        }
+      }
+      // 转数字
+      if (this.form.alarmLevelList.length) {
+        const list = this.form.alarmLevelList.map(item => Number(item));
+        data.alarmLevelList = [...list];
+      }
+      data.sortColumns = this.sortColumns;
       return data;
     },
     async fetchOptions (code) {
@@ -501,7 +723,7 @@ export default {
       this.debouncedGetData();
     },
     getTabsList () {
-      getStatistics().then(res => {
+      getStatistics({ ...this.getFormData() }).then(res => {
         const target = res || {};
         this.tabList = [
           { orderStatusLabel: '全部', orderStatus: '', count: null },
@@ -521,6 +743,39 @@ export default {
       } catch (error) {
         console.error('Error fetching series list:', error);
       }
+    },
+    async getRepairItemTypeList (query) {
+      try {
+        const res = await repairItemType({ nameOrCodeLike: query });
+        return res;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async getUserList (query) {
+      try {
+        const res = await getUserByNameOrNo({ nameOrEmpNo: query });
+        return res;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async getVehicleModelList (query) {
+      try {
+        const res = await listVehicleModel({ modelNameLike: query });
+        return res;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    getDefautlForm () {
+      // 获取前30天的日期
+      const startTime = moment().subtract(90, 'day').format('YYYY-MM-DD 00:00:00');
+      const endTime = moment().format('YYYY-MM-DD 23:59:59');
+      return {
+        ...defaultForm,
+        createTime: [startTime, endTime]
+      };
     },
   }
 };

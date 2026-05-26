@@ -306,7 +306,6 @@ export default {
       flex: 1;
       overflow-y: auto;
       padding: 0 12px;
-      max-height: 520px;
     }
 
     .list-empty {
@@ -395,7 +394,7 @@ export default {
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      padding: 16px;
+      padding: 16px 16px 0 16px;
 
       .detail-header {
         font-size: 16px;
@@ -407,7 +406,6 @@ export default {
       .project-list {
         flex: 1;
         overflow-y: auto;
-        max-height: 500px;
 
         .project-item {
           margin-bottom: 16px;
@@ -505,7 +503,9 @@ export default {
       }
 
       .footer-bar {
-        padding: 16px 0 0;
+        flex-shrink: 0;
+        padding: 16px 20px;
+        margin: 0 -20px;
         border-top: 1px solid var(--leap-color-default-light-4);
         text-align: right;
       }

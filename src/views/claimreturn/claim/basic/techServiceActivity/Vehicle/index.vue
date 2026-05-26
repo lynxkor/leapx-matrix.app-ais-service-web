@@ -4,9 +4,9 @@
       <h2>车辆信息</h2>
     </div>
     <div class="common-section-body" v-if="id">
-      <section class="common-section">
-        <fetch-select
-          :style="{width: '305px', marginRight: '8px'}"
+      <section class="common-section" style="display: flex;">
+         <base-search
+          :style="{marginRight: '8px'}"
           filterable
           clearable
           remote
@@ -50,7 +50,7 @@ import permissions from '@/libs/mixins/permissions';
 import { getEnum } from '@/api/common';
 import VehicleTable from './VehicleTable.vue';
 import { vehicleListFull } from '@/api/datacenter/vehicle/vehicleProfile';
-import FetchSelect from '@/libs/components/FetchSelect';
+import BaseSearch from '@/libs/components/BaseSearch';
 import Upload from '@/libs/components/UploadDialog/index.vue';
 
 export default {
@@ -73,7 +73,7 @@ export default {
   mixins: [permissions],
   components: {
     VehicleTable,
-    FetchSelect,
+    BaseSearch,
     Upload,
   },
   data () {
@@ -167,5 +167,8 @@ export default {
 .common-section-header{
   font-size: 14px;
   font-weight: 500;
+}
+.el-button {
+  font-weight: 400;
 }
 </style>

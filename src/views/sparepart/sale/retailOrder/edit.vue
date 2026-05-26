@@ -8,11 +8,28 @@
           <el-button
             v-for="btn in visibleButtons"
             :key="btn.key"
-            type="primary"
+            plain
             size="small"
+            :loading="actionLoading"
             @click="handleExtraButtonClick(btn.action)"
           >
             {{ btn.label }}
+          </el-button>
+          <el-button
+            plain
+            size="small"
+            v-if="_id && ['20', '30', '40', '50', '60', '100'].includes(form.orderStatus) && permissions.has('AISPART-retailOrder-printOut')"
+            @click="handlePrintOut"
+          >
+            打印出库单
+          </el-button>
+          <el-button
+            plain
+            size="small"
+            v-if="_id && ['50', '60'].includes(form.orderStatus) && permissions.has('AISPART-retailOrder-printSettle')"
+            @click="handlePrintSettle"
+          >
+            打印结算单
           </el-button>
         </template>
         <el-main>
@@ -36,10 +53,15 @@
                 <el-form-item label="仓库名称：" prop="warehouseName">
                   <el-input placeholder="请输入" v-model="form.warehouseName" disabled />
                 </el-form-item>
-                <el-form-item label="VIN：" prop="vin">
+                <el-form-item label="VIN：" prop="vin" v-if="form.customerType === '10'">
                   <fetch-select :remote-method="getVinList" remote v-model="form.vin" placeholder="请输入vin"
                     labelKey="vin" valueKey="vin" clearable filterable :disabled="isEditing"
                     @change="handleVinChange" />
+                </el-form-item>
+                <el-form-item label="客户编码：" prop="customerCode" v-if="form.customerType === '20'">
+                  <fetch-select :remote-method="getCustomerInfo" remote v-model="form.customerCode" placeholder="请输入customerCode"
+                    labelKey="customerCode" valueKey="customerCode" subLabelKey="customerName" clearable filterable :disabled="isEditing"
+                    @change="handleCustomerChange" />
                 </el-form-item>
                 <el-form-item label="客户名称：" prop="customerName">
                   <el-input placeholder="请输入" v-model="form.customerName" disabled />
@@ -103,8 +125,8 @@
                 <el-form-item label="开单人：" prop="orderCreatorName">
                   <el-input placeholder="请输入" v-model="form.orderCreatorName" disabled />
                 </el-form-item>
-                <el-form-item label="开单时间：" prop="orderCreationTime">
-                  <el-input placeholder="请输入" v-model="form.orderCreationTime" disabled />
+                <el-form-item label="开单时间：" prop="createTime">
+                  <el-input placeholder="请输入" v-model="form.createTime" disabled />
                 </el-form-item>
                 <el-form-item label="确认人：" prop="confirmerName">
                   <el-input placeholder="请输入" v-model="form.confirmerName" disabled />
@@ -263,8 +285,8 @@
                 <el-form-item label="开单人：" prop="orderCreatorName">
                   {{ form.orderCreatorName }}
                 </el-form-item>
-                <el-form-item label="开单时间：" prop="orderCreationTime">
-                  {{ form.orderCreationTime }}
+                <el-form-item label="开单时间：" prop="createTime">
+                  {{ form.createTime }}
                 </el-form-item>
                 <el-form-item label="确认人：" prop="confirmerName">
                   {{ form.confirmerName }}
@@ -379,9 +401,19 @@
             <div class="common-section-body">
               <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请输入编码或名称" clearable
-                    value-key="id" label-key="partName" subLabelKey="partCode" @change="handleAddTableData" filterable :disabled="!isOrderStatus" />
-                  <el-button type="primary" size="small">添加</el-button>
+                  <base-search
+                    style="width: 300px;"
+                    filterable
+                    clearable
+                    remote
+                    placeholder="请选择"
+                    :remote-method="queryListData"
+                    @change="handleAddTableData"
+                    value-key="id"
+                    label-key="partName"
+                    subLabelKey="partCode"
+                    :disabled="!isOrderStatus"
+                  />
                 </div>
               </div>
               <div class="common-section-table">
@@ -391,24 +423,37 @@
                   <vxe-column field="sparePartName" title="备件名称" width="160" />
                   <vxe-column field="locationName" title="库位" width="120" />
                   <vxe-column field="availableQty" title="可用库存" width="100" />
-                  <vxe-column field="priceTypeLabel" title="价格类型" width="100" />
+                  <vxe-column field="priceTypeLabel" title="价格类型" width="150">
+                    <template #default="{ row }">
+                      <fetch-select :request="fetchOptions" enumCode="RetailOrderPriceTypeEnum" v-model="row.priceType"
+                          placeholder="请选择价格类型" clearable filterable @change="handleSave(row)" :disabled="!isEditSpare" />
+                    </template>
+                  </vxe-column>
                   <vxe-column field="unitPrice" title="单价" width="100" />
-                  <vxe-column field="discountAmount" title="优惠金额" width="100" />
+                  <vxe-column field="discountAmount" title="优惠金额" width="100">
+                    <template #default="{ row }">
+                      <el-input v-model="row.discountAmount" type="number" @input="val => row.discountAmount = formatNumberInput(val)" @change="handleSave(row)" :disabled="!isEditSpare" />
+                    </template>
+                  </vxe-column>
                   <vxe-column field="payableAmount" title="应付金额" width="100" />
-                  <vxe-column field="qty" title="数量" width="100" />
+                  <vxe-column field="qty" title="数量" width="100">
+                    <template #default="{ row }">
+                      <el-input v-model="row.qty" type="number" @input="val => row.qty = formatNumberInput( val, { allowDecimal: false } )" @change="handleSave(row)" :disabled="!(isDelete && row.outboundIs === '0')" />
+                    </template>
+                  </vxe-column>
                   <vxe-column field="outboundIsLabel" title="是否出库" width="100" />
                   <vxe-column field="operationOperatorName" title="出入库操作人" width="160" />
                   <vxe-column field="operationTime" title="出入库操作时间" width="160" />
                   <vxe-column field="createTime" title="创建时间" width="160" />
                   <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
                     <template #default="{ row }">
-                      <span
+                      <!-- <span
                         class="btn-edit"
                         v-if="(isDelete && row.outboundIs === '0') || (isEditSpare)"
                         @click="handleEdit(row)"
                       >
                         编辑
-                      </span>
+                      </span> -->
                       <el-popconfirm title="确定要删除吗？" v-if="isDelete && row.outboundIs === '0'" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
@@ -478,7 +523,7 @@
 
 <script>
 import {
-  spareParkList, getMileage, getVehicleProfile, getDetail, addOrUpdate, retailPaymentRecordPage,
+  spareParkList, getMileage, getVehicleProfile, getCustomerInfo, getDetail, addOrUpdate, retailPaymentRecordPage,
   retailOrderDetailPage, addOrUpdateRetailOrderDetail, deleteRetailOrderDetail, confirmOrder,
   cancelOrder, signOrder, cancelSignOrder, settleOrder, cancelSettleOrder, reverseSettleOrder, refundOrder
 } from '@/api/sparepart/sale/retailOrder/index';
@@ -494,7 +539,8 @@ import SparePartsDetail from './SparePartsDetail';
 import OutboundDialog from './OutboundDialog.vue';
 import ReturnMateriaDialog from './ReturnMateriaDialog.vue';
 import HarvestDialog from './HarvestDialog.vue';
-import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
+import { handleCommonAction, handleCommonPrompt, formatNumberInput } from '@/libs/utils/index';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -569,6 +615,7 @@ const defaultForm = {
 };
 
 const ACTION_CONFIG = { // 按钮配置
+  confirm: { title: '是否确认该订单?', success: '确认成功' },
   sign: { title: '是否签收该订单?', success: '签收成功' },
   cancelSign: { title: '是否取消签收该订单?', success: '取消签收成功' },
   settle: { title: '是否结算该订单?', success: '结算成功' },
@@ -592,7 +639,8 @@ export default {
     SparePartsDetail,
     OutboundDialog,
     ReturnMateriaDialog,
-    HarvestDialog
+    HarvestDialog,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -602,7 +650,7 @@ export default {
       return '应付总金额：' + this.form.payableTotalAmount;
     },
     isOrderStatus () { // 是够可添加备件
-      return ['10', '20', '330'].includes(this.form.orderStatus);
+      return ['10', '20', '30'].includes(this.form.orderStatus);
     },
     isDelete () { // 是否可删除 备件   可以编辑备件的【销售数量】
       return ['10', '20'].includes(this.form.orderStatus);
@@ -629,12 +677,6 @@ export default {
           label: '出库',
           action: 'ship',
           visible: this._id && this.form.orderStatus === '20' && this.permissions.has('AISPART-retailOrder-ship')
-        },
-        {
-          key: 'printOut',
-          label: '打印出库单',
-          action: 'printOut',
-          visible: this._id && ['20', '30', '40', '50', '60', '100'].includes(this.form.orderStatus) && this.permissions.has('AISPART-retailOrder-printOut')
         },
         {
           key: 'sign',
@@ -679,12 +721,6 @@ export default {
           visible: this._id && this.form.orderStatus === '50' && this.permissions.has('AISPART-retailOrder-collectPayment')
         },
         {
-          key: 'printSettle',
-          label: '打印结算单',
-          action: 'printSettle',
-          visible: this._id && ['50', '60'].includes(this.form.orderStatus) && this.permissions.has('AISPART-retailOrder-printSettle')
-        },
-        {
           key: 'reverseSettle',
           label: '反结算',
           action: 'reverseSettle',
@@ -707,6 +743,18 @@ export default {
     },
     visibleButtons () {
       return this.extraButtons.filter(btn => btn.visible);
+    },
+    rules () {
+      const customerType = this.form.customerType || this.routeCustomerType;
+      return {
+        ...this.rulesBase,
+        vin: customerType === '10' // 对车主
+          ? [{ required: true, message: '请输入后6位VIN', trigger: 'blur' }]
+          : [],
+        customerCode: customerType === '20' // 对公
+          ? [{ required: true, message: '请输入客户编码', trigger: 'blur' }]
+          : [],
+      };
     }
   },
   watch: {
@@ -747,6 +795,7 @@ export default {
       moduleKey: 'AISPART-retailOrder',
       loading: false,
       submitLoading: false,
+      actionLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -756,15 +805,9 @@ export default {
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
-      rules: {
-        vin: [
-          { required: true, message: '请输入后6位VIN', trigger: 'blur' }
-        ],
+      rulesBase: {
         currentMileage: [
           { required: true, message: '请输入当前里程', trigger: 'blur' }
-        ],
-        customerContactInfo: [
-          { required: true, message: '请输入客户联系信息', trigger: 'blur' }
         ],
       },
       pageNum: 1,
@@ -787,6 +830,7 @@ export default {
     this.initDealerUser();
   },
   methods: {
+    formatNumberInput,
     async handleVinChange (val, ele) {
       this.form.customerName = ele.vehicleProfileOwnerResp.ownerName;
       this.form.plateNumber = ele.vehiclePlateNo;
@@ -798,16 +842,31 @@ export default {
         console.log('res', JSON.stringify(res));
         this.form.latestVisitMileage = res.latestVisitMileage;
         this.form.iotMileage = res.iotMileage;
+        this.form.currentMileage = res.iotMileage;
       } catch (error) {
         console.error('Error fetching series list:', error);
       }
     },
+    async handleCustomerChange (val, ele) {
+      this.form.customerName = ele.customerName;
+      this.form.customerCode = ele.customerCode;
+    },
+
     async getVinList (query) {
       if (!query || query.length < 6) {
         return [];
       }
       try {
         const res = await getVehicleProfile({ searchVin: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+
+    async getCustomerInfo (query) {
+      try {
+        const res = await getCustomerInfo({ dealerCode: this.form.companyCode, customerCode: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
@@ -865,12 +924,11 @@ export default {
       this.openPane();
     },
     // 删除子表数据
-    handleDeleteRow (val) {
+    async handleDeleteRow (val) {
       // 根据需求调用接口
-      deleteRetailOrderDetail([val.id]).then(res => {
-        this.$message.success('删除成功');
-        this.getData();
-      });
+      await deleteRetailOrderDetail([val.id]);
+      this.$message.success('删除成功');
+      this.handleRefresh();
     },
     // 备件远程搜索
     async queryListData (query) {
@@ -882,7 +940,7 @@ export default {
       }
     },
     // 新增子表数据
-    handleAddTableData (val, record) {
+    async handleAddTableData (val, record) {
       if (!record) {
         this.$message.warning('请先选择数据');
         return;
@@ -899,9 +957,9 @@ export default {
         retailOrderId: this._id,
         sparePartId: val
       };
-      addOrUpdateRetailOrderDetail(params).then(res => {
-        this.getData();
-      });
+      await addOrUpdateRetailOrderDetail(params);
+      this.handleRefresh();
+      this.getData();
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
@@ -943,10 +1001,19 @@ export default {
       this.getData();
     },
     // 保存侧边栏数据
-    handleSave () {
-      this.$refs.detailRef.handleSave();
-      this.$refs.containerRef.loadDetail();
-      this.$refs.editLayout.closePane();
+    // async handleSave () {
+    //   await this.$refs.detailRef.handleSave();
+    //   this.handleRefresh();
+    //   this.$refs.editLayout.closePane();
+    // },
+    // 保存修改
+    async handleSave (val) {
+      await addOrUpdateRetailOrderDetail(val);
+      this.handleRefresh();
+      this.$message({
+        message: '保存成功',
+        type: 'success',
+      });
     },
     // 处理额外按钮点击事件
     handleExtraButtonClick (action) {
@@ -954,7 +1021,6 @@ export default {
         confirm: 'handleConfirm',
         cancel: 'handleCancel',
         ship: 'handleShip',
-        printOut: 'handlePrintOut',
         sign: 'handleSign',
         cancelSign: 'handleCancelSign',
         applyReturnMaterial: 'handleApplyReturnMaterial',
@@ -962,7 +1028,6 @@ export default {
         settle: 'handleSettle',
         cancelSettle: 'handleCancelSettle',
         collectPayment: 'handleCollectPayment',
-        printSettle: 'handlePrintSettle',
         reverseSettle: 'handleReverseSettle',
         cancelOrderInbound: 'handleCancelOrderInbound',
         refund: 'handleRefund'
@@ -975,20 +1040,33 @@ export default {
       }
     },
     // 刷新接口
-    handleRefresh () {
-      this.$refs.containerRef.loadDetail();
+    async handleRefresh () {
+      await this.$refs.containerRef.loadDetail();
+      this.getData();
+      this.getPayment();
     },
     _handleAction (apiFn, config) {
+      this.actionLoading = true;
       handleCommonAction({
         $confirm: this.$confirm,
         $message: this.$message,
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.handleRefresh();
+          this.actionLoading = false;
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     // --- 业务方法调用 ---
+    // 确认订单
+    handleConfirm () {
+      this._handleAction(confirmOrder, ACTION_CONFIG.confirm);
+    },
     handleSign () {
       this._handleAction(signOrder, ACTION_CONFIG.sign);
     },
@@ -1003,6 +1081,7 @@ export default {
     },
     // 通用 备注弹窗
     _execPrompt (api, title, placeholder, successMsg) {
+      this.actionLoading = true;
       handleCommonPrompt({
         $prompt: this.$prompt,
         $message: this.$message,
@@ -1013,7 +1092,13 @@ export default {
           placeholder,
           success: successMsg
         },
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.handleRefresh();
+          this.actionLoading = false;
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
 
@@ -1043,9 +1128,9 @@ export default {
     },
     // 销售出库, 退料入库, 退订入库
     handleAll (num) {
-      this.returnMaterialId = this._id;
+      this.outboundId = this._id;
       this.titleDialog = num;
-      this.returnMaterialDialogVisible = true;
+      this.outboundDialogVisible = true;
     },
     // 退料申请
     handleApplyReturnMaterial () {

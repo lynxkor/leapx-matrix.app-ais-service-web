@@ -12,7 +12,7 @@
      <el-form-item label="共享调拨出库单号">
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="出库门店">
+      <el-form-item label="入库门店">
         <fetch-select
           :remote-method="getDealerList"
           remote
@@ -73,6 +73,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -85,6 +86,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -151,10 +153,13 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/transfer/sharedTransferOutbound/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
+import {
+  getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, getDesensitize,
+  listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser
+} from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -245,8 +250,22 @@ export default {
           { props: 'outboundWarehouseName', label: '出库方仓库', visible: true, width: 200 },
           { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180 },
           { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
-          { props: 'inboundContactPerson', label: '入库方联系人', visible: true, width: 160 },
-          { props: 'inboundContactPhone', label: '入库方手机', visible: true, width: 180 },
+          {
+            props: 'inboundContactPerson',
+            label: '入库方联系人',
+            visible: true,
+            width: 160,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'sharedTransferOutbound', 'inboundContactPerson')
+          },
+          {
+            props: 'inboundContactPhone',
+            label: '入库方手机',
+            visible: true,
+            width: 180,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'sharedTransferOutbound', 'inboundContactPhone')
+          },
           { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -263,7 +282,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/transfer/sharedTransferOutbound/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
@@ -271,7 +291,7 @@ export default {
             }, {
               name: '发运',
               show: (row) => {
-                return row.outboundStatus === '0';
+                return row.outboundStatus === '0' && this.permissions.has('AISPART-sharedTransferOutbound-ship');
               },
               click: (rowIndex, row) => {
                 this.handleShipment(row);
@@ -279,6 +299,7 @@ export default {
               type: 'info'
             }, {
               name: '打印',
+              show: (row) => this.permissions.has('AISPART-sharedTransferOutbound-print'),
               click: (rowIndex, row) => {
                 this.handlePrint(row);
               },
@@ -331,7 +352,7 @@ export default {
     },
     async getDealerList (query) {
       try {
-        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query, authority: false });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);

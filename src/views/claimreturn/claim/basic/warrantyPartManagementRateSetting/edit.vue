@@ -111,7 +111,7 @@
                     label-key="name"
                     second-line-key="code"
                     @change="handleWarrantyTypeChange"
-                    :params="{'checkoutTypeNames':['合同','保修'],'excludeMaintenancePackage':true}"    />
+                    :params="{'checkoutTypeNames':['合同','保修']}"    />
                   </el-form-item>
                   <el-form-item label="管理费率（%）：" prop="managementRate">
                     <el-input-number

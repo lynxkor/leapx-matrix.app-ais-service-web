@@ -254,7 +254,7 @@ export default {
       const id = this._id;
       if (id) {
         return getConfigDetail(id).then(res => {
-          const formData = res.data;
+          const formData = res;
           this.$nextTick(() => {
             this.loadConfigDetailList(formData);
           });
@@ -267,7 +267,7 @@ export default {
       const configId = formData.id || this.form.id;
       if (!configId) return;
       geConfigDetailList({ attachmentConfigId: configId }).then(res => {
-        const records = res.data;
+        const records = res;
         console.log('附件配置明细列表:', records);
         this.detailList = records.records || [];
       });

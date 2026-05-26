@@ -9,39 +9,34 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="备件">
-        <fetch-select
-            :remote-method="getSparePart"
+      <el-form-item label="备件编码">
+        <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
+      </el-form-item>
+      <el-form-item label="备件名称">
+        <el-input
+          placeholder="请输入"
+          v-model="form.sparePartNameLike"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="库存单号" v-show="this.visibleCount === 3 || show">
+        <tag-input v-model="form.codeList" placeholder="请输入" />
+      </el-form-item>
+      <template v-if="show">
+        <el-form-item label="库位">
+          <fetch-select
+            :remote-method="getLocaltion"
             remote
-            v-model="form.sparePartIdList"
-            placeholder="请输入编码或名称"
-            labelKey="partName"
+            v-model="form.locationIdList"
+            placeholder="请输入库位名称"
+            labelKey="name"
             valueKey="id"
-            subLabelKey="partCode"
             clearable
             multiple
             collapseTags
             filterable
-              />
-      </el-form-item>
-      <el-form-item label="库存单号">
-        <tag-input v-model="form.codeList" placeholder="请输入" />
-      </el-form-item>
-        <el-form-item label="库位"  v-show="this.visibleCount === 3 || show">
-          <fetch-select
-              :remote-method="getLocaltion"
-              remote
-              v-model="form.locationIdList"
-              placeholder="请输入库位名称"
-              labelKey="name"
-              valueKey="id"
-              clearable
-              multiple
-              collapseTags
-              filterable
-                />
+          />
         </el-form-item>
-        <template v-if="show">
         <el-form-item label="门店">
           <fetch-select
             :remote-method="getDealerList"
@@ -55,23 +50,24 @@
             multiple
             collapseTags
             filterable
-              />
+          />
         </el-form-item>
         <el-form-item label="是否常备件" v-show="visibleCount === 3 || show">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="BooleanEnum"
-          v-model="form.standingInventoryIs"
-          placeholder="请选择"
-          clearable
-          filterable
-          />
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.standingInventoryIs"
+            placeholder="请选择"
+            clearable
+            filterable
+            />
         </el-form-item>
         <el-form-item label="最近入库时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.latestInboundTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -84,6 +80,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.latestOutboundTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -96,6 +93,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -108,6 +106,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -198,7 +197,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/inventory/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listDealerPartWithOem, listOrgStoreInfoByParam } from '@/api/common';
@@ -318,7 +317,18 @@ export default {
           { props: 'warehouseName', label: '仓库名称', visible: true, width: 200 },
           { props: 'warehouseStatusLabel', label: '仓库状态', visible: true, width: 120 },
           { props: 'locationName', label: '库位', visible: true, width: 140 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
           { props: 'inTransitQty', label: '在途数量', visible: true, align: 'right', width: 120 },
           { props: 'availableQty', label: '可用数量', visible: true, align: 'right', width: 120 },
@@ -347,7 +357,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/warehouse/inventory/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
@@ -355,7 +366,7 @@ export default {
             }, {
               name: '上架共享',
               show: (row) => {
-                return row.availableQty > 0 && row.oemPart === '1';
+                return Number(row.availableQty) > 0 && row.oemPart === '1';
               },
               click: (rowIndex, row) => {
                 this.launchDialog = true;
@@ -365,7 +376,7 @@ export default {
             }, {
               name: '下架共享',
               show: (row) => {
-                return row.sharedQty > 0;
+                return Number(row.sharedQty) > 0;
               },
               click: (rowIndex, row) => {
                 this.shelvesDialog = true;

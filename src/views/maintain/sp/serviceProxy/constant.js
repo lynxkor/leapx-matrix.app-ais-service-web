@@ -34,7 +34,7 @@ export const BusinessTypeEnum = {
   ANTI_SETTLEMENT_APPROVAL: 60
 };
 
-// 结算类型枚举
+// 施工单中使用到的结算类型枚举
 export const CheckoutTypeEnum = {
   /** 自费 */
   SELF_PAY: '352BB70C-82AC-E911-B0BB-FC82BA5F9EDF',
@@ -46,6 +46,20 @@ export const CheckoutTypeEnum = {
   CONTRACT: '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF',
   /** 内部结算 */
   INTERNAL_SETTLEMENT: '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF'
+};
+
+// 结算单类型，仅用于结算单主表，注意区别上面的结算类型
+export const StatementCheckoutTypeEnum = {
+  /** 自费 */
+  SELF_PAY: 30,
+  /** 保险 */
+  INSURANCE: 40,
+  /** 保修 */
+  WARRANTY: 10,
+  /** 合同 */
+  CONTRACT: 20,
+  /** 内部结算 */
+  INTERNAL_SETTLEMENT: 50
 };
 
 // 保修类型枚举
@@ -74,7 +88,9 @@ export const RemindInfoTypeEnum = {
   /** 三包预警 */
   THREE_GUARANTEES: '2',
   /** 预授权提醒 */
-  PRE_AUTH: '3'
+  PRE_AUTH: '3',
+  /** 城市等级提醒 */
+  CITY_LEVEL: '4'
 };
 
 // 三包预警等级枚举
@@ -116,7 +132,9 @@ export const MaintenanceTypeEnum = {
   /** 三电维修 */
   BATTERY_REPAIR: 'EC34606E-DD79-EC11-B0F9-9216EACB73F2',
   /** 保养 */
-  MAINTENANCE: '6EA3066F-82AC-E911-B0BB-FC82BA5F9EDF'
+  MAINTENANCE: '6EA3066F-82AC-E911-B0BB-FC82BA5F9EDF',
+  /** 保修 */
+  WARRANTY: '019D2E08-67B6-75D9-ACC4-9A832B44F9E9'
 };
 
 // 套餐类型枚举
@@ -169,4 +187,10 @@ export const WorkRecordStatusEnum = {
   COMPLETED: 40,
   /** 作业作废 */
   CANCELLED: 50
+};
+
+// 客户类型
+export const CustomerTypeEnum = {
+  BOOKED: '10',
+  WALK_IN: '20'
 };

@@ -9,7 +9,7 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="订单类">
+      <el-form-item label="订单类型">
         <fetch-select
           :request="fetchOptions"
           enumCode="PurchaseOrderTypeEnum"
@@ -81,6 +81,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -93,6 +94,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -150,7 +152,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/purchaseTimesLimit/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
@@ -235,7 +237,18 @@ export default {
           { props: 'limitTypeLabel', label: '类型', visible: true, width: 78 },
           { props: 'purchaseTimes', label: '采购次数', visible: true, align: 'right', width: 120 },
           { props: 'periodLabel', label: '周期', visible: true, width: 78 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'perOrderMaxItems', label: '单次最多采购品项数', visible: true, align: 'right', width: 180 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
@@ -254,7 +267,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/purchaseTimesLimit/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

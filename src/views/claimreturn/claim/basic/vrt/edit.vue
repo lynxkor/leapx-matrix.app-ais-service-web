@@ -9,7 +9,6 @@
         :isEditing.sync="isEditing"
         :form.sync="form"
         :originalForm.sync="originalForm"
-        direction="vertical"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
@@ -52,7 +51,7 @@
                     />
                   </el-form-item>
                 </el-form>
-                <el-form :inline="true" label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="VRT编码：" prop="vrtCode">
                     {{ form.vrtCode }}
                   </el-form-item>

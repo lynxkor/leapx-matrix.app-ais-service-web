@@ -147,16 +147,13 @@
                 </el-form-item>
                 <!-- TODO 这里需要跳转 -->
                 <el-form-item label="保修申请单：" prop="warrantyNo">
-                  {{ form.warrantyNo }}
+                  <el-button class="link" @click="$router.push(`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyId}`)" type="text">{{ form.warrantyNo }}</el-button>
                 </el-form-item>
                 <el-form-item label="保修零件明细：" prop="warrantyPartId">
-                  {{form.warrantyPartId}}
-                </el-form-item>
-                <el-form-item label="二次索赔明细：" prop="dutySupplierId">
-                  {{form.dutySupplierId}}
+                  <el-button class="link" @click="$router.push(`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyId}`)" type="text">{{ form.oldPartCode }}</el-button>
                 </el-form-item>
                 <el-form-item label="索赔追溯单号：" prop="claimTrackNo">
-                  {{ form.claimTrackNo }}
+                  <el-button class="link" @click="$router.push(`/claimreturn/claim/claimtrace/claimtraceorder/edit?id=${form.claimTrackId}`)" type="text">{{ form.claimTrackNo }}</el-button>
                 </el-form-item>
                 <el-form-item class="form-item-full" label="备注：" prop="claimTrackNo">
                   {{ form.remark }}
@@ -240,7 +237,7 @@
               <h2>销毁信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" label-width=""  class="form-detail">
+              <el-form :inline="true" class="form-detail">
                 <el-form-item label="旧件销毁单：" prop="oldPartDestroyOrderNo">
                   <el-button class="link" @click="$router.push(`/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit?id=${form.oldPartDestroyOrderId}`)" type="text">{{form.oldPartDestroyOrderNo}}</el-button>
                 </el-form-item>

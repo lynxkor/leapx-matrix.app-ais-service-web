@@ -13,16 +13,16 @@
         :showEditBtn="false"
       >
         <template #status>
-          <span class="status primary">{{ form.auditStatusLabel }}</span>
+          <span class="status primary">{{ form.warrantyAuditDetail.auditStatusLabel }}</span>
         </template>
         <template #extraButtons>
-          <el-button v-if="_id && form.auditStatus === '20'" size="small" type="primary" @click="handleSupplyMaterial">补充材料</el-button>
-          <el-button v-if="_id && form.auditStatus === '30'" size="small" type="primary" @click="handleAuditPass">审计通过</el-button>
-          <el-button v-if="_id && form.auditStatus === '30'" size="small" type="primary" @click="handleAuditReject">审计驳回</el-button>
-          <el-button v-if="_id && form.auditStatus === '50'" size="small" type="primary" @click="handleAppeal">申诉</el-button>
-          <el-button v-if="_id && form.auditStatus === '50'" size="small" type="primary" @click="handleAgree">同意</el-button>
-          <el-button v-if="_id && form.auditStatus === '60'" size="small" type="primary" @click="handleAgreeAppeal">同意申诉</el-button>
-          <el-button v-if="_id && form.auditStatus === '60'" size="small" type="primary" @click="handleRejectAppeal">拒绝申诉</el-button>
+          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '20'" size="small" type="primary" @click="handleSupplyMaterial">补充材料</el-button>
+          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '30'" size="small" type="primary" @click="handleAuditPass">审计通过</el-button>
+          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '30'" size="small" type="primary" @click="handleAuditReject">审计驳回</el-button>
+          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '50'" size="small" type="primary" @click="handleAppeal">申诉</el-button>
+          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '50'" size="small" type="primary" @click="handleAgree">同意</el-button>
+          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '60'" size="small" type="primary" @click="handleAgreeAppeal">同意申诉</el-button>
+          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '60'" size="small" type="primary" @click="handleRejectAppeal">拒绝申诉</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -30,12 +30,12 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="保修申请单号：">
-                  <el-link type="primary" :href="`/claimreturn/claim/warrantyapply/edit?id=${form.warrantyApply?.id}`" target="_blank">{{ form.warrantyApply?.applyNo }}</el-link>
+                  <el-link type="primary" :href="`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyApply?.id}`" target="_blank">{{ form.warrantyApply?.applyNo }}</el-link>
                 </el-form-item>
                 <el-form-item label="接车施工单号：">
-                  <el-link type="primary" :href="`/maintain/sp/serviceproxy/edit?id=${form.warrantyApply?.serviceProxyId}`" target="_blank">{{ form.warrantyApply?.serviceProxyNo }}</el-link>
+                  <el-link type="primary" :href="`/maintain/sp/serviceProxy/edit?id=${form.warrantyApply?.serviceProxyId}`" target="_blank">{{ form.warrantyApply?.serviceProxyNo }}</el-link>
                 </el-form-item>
                 <el-form-item label="首次提交时间：">
                   {{ form.warrantyApply?.firstSubmitTime }}
@@ -99,9 +99,14 @@
               <h2>车辆&客户</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="170px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="vin：">
-                  <el-link type="primary" :href="`/datacenter/vehicle/vehicleprofile/edit?id=${form.vehicleProfile?.vin}`" target="_blank">{{ formatVin(form.vehicleProfile?.vin) }}</el-link>
+                  <LPEncrypted
+                    :value.sync="form.vehicleProfile.vin"
+                    :decryptMethod="() => getDetailDecryptField()"
+                  >
+                    <el-link type="primary" :href="`/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfile?.vin}`" target="_blank">{{ form.vehicleProfile?.vin }}</el-link>
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车牌号：">
                   {{ form.vehicleProfile?.vehiclePlateNo }}
@@ -159,7 +164,7 @@
               <h2>质量反馈信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="质量反馈报告：">
                   {{ form.qualityOrderReport?.description }}
                 </el-form-item>
@@ -186,7 +191,7 @@
               <h2>保修费用信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="工时索赔小计：">
                   {{ form.warrantyApply?.laborClaimTotal }}
                 </el-form-item>
@@ -234,7 +239,11 @@
               <div class="common-section-table">
                 <vxe-table ref="tableRef" stripe :data="form.warrantyApplyWorkhours" show-overflow resizable border="inner" size="medium"
                   min-height="0" max-height="400px">
-                  <vxe-column field="isMainItemLabel" title="是否主因" min-width="10%" />
+                  <vxe-column field="isMainItem" title="是否主因" min-width="10%">
+                    <template #default="{ row }">
+                      {{ row.isMainItem === 1 ? '是':'否' }}
+                    </template>
+                  </vxe-column>
                   <vxe-column field="repairItemCode" title="工时代码" min-width="10%" />
                   <vxe-column field="repairItemName" title="工时名称" min-width="10%" />
                   <vxe-column field="workHour" title="工时数" min-width="10%" />
@@ -253,7 +262,7 @@
             </div>
             <div class="common-section-body">
               <div style="margin-bottom: 8px;">
-                <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+                <el-form :inline="true" :model="form" class="form-detail">
                   <el-form-item label="主因备件编码：">
                     {{ form.warrantyApply?.mainPartCode }}
                   </el-form-item>
@@ -271,7 +280,11 @@
               <div class="common-section-table">
                 <vxe-table ref="tableRef" stripe :data="form.warrantyPartList" show-overflow resizable border="inner" size="medium"
                   min-height="0" max-height="400px">
-                  <vxe-column field="isMainPartLabel" title="是否主因" min-width="7%" />
+                  <vxe-column field="isMainPart" title="是否主因" min-width="7%" >
+                    <template #default="{ row }">
+                      {{ row.isMainPart === 1 ? '是':'否' }}
+                    </template>
+                  </vxe-column>
                   <vxe-column field="oldPartUniqueCode" title="旧件唯一码" min-width="7%" />
                   <vxe-column field="partCode" title="备件编码" min-width="7%" />
                   <vxe-column field="partName" title="备件名称" min-width="7%" />
@@ -298,9 +311,9 @@
             </div>
             <div class="common-section-body">
               <div class="common-title">基础信息</div>
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="保修审计单：">
-                  <el-link type="primary" :href="`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyAuditDetail?.auditId}`" target="_blank">{{ form.warrantyAuditDetail?.auditCode }}</el-link>
+                  <el-link type="primary" :href="`/claimreturn/claim/warrantyAudit/edit?id=${form.warrantyAuditDetail?.auditId}`" target="_blank">{{ form.warrantyAuditDetail?.auditCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="保修审计明细：">
                   {{ form.warrantyAuditDetail?.auditDetailCode }}
@@ -313,7 +326,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title">材料补充信息</div>
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="材料补充人：">
                   {{ form.warrantyAuditDetail?.materialSupplierName }}
                 </el-form-item>
@@ -328,7 +341,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title">审计&反馈信息</div>
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="审计人：">
                   {{ form.warrantyAuditDetail?.auditorName }}
                 </el-form-item>
@@ -336,9 +349,9 @@
                   {{ form.warrantyAuditDetail?.auditTime }}
                 </el-form-item>
                 <el-form-item label="错误项：">
-                  <!-- {{ form.warrantyAuditDetail? }} -->
+                    <div>{{ errorCategoryText }}</div>
                 </el-form-item>
-                <el-form-item label="审计结果同人：">
+                <el-form-item label="审计结果同意人：">
                   {{ form.warrantyAuditDetail?.auditResultAgreeName }}
                 </el-form-item>
                 <el-form-item label="审计结果同意时间：">
@@ -349,7 +362,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title">申诉信息</div>
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="申诉人：">
                   {{ form.warrantyAuditDetail?.appealerName }}
                 </el-form-item>
@@ -379,7 +392,7 @@
               <h2>审计扣款信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="工时扣款：">
                   {{ form.warrantyAuditDetail?.laborDeduct }}
                 </el-form-item>
@@ -406,7 +419,7 @@
               <h2>审计补充材料</h2>
             </div>
             <div class="common-section-body">
-              <AisAttachment :businessId="form.warrantyAudit?.id" />
+              <AisAttachment :businessId="form.warrantyAuditDetail?.id" />
             </div>
           </section>
           <section class="common-section">
@@ -438,7 +451,7 @@
               </div>
             </div>
           </section>
-          <section class="common-section">
+          <section class="common-section" v-if="form.warrantyAuditDetail && form.warrantyAuditDetail.planDeductTotal > 0">
             <div class="common-section-header">
               <h2>追溯明细</h2>
             </div>
@@ -465,46 +478,49 @@
         <!-- 右侧栏组件，自行开发 -->
       </div>
     </template>
-      <!-- 审计驳回弹窗 -->
+    <!-- 补充材料弹窗 -->
+    <SupplyMaterialDialog
+      :visible.sync="supplyMaterialDialogVisible"
+      :selectionItem="formData"
+      @update:visible="supplyMaterialDialogVisible = $event"
+      @success="loadDetail"
+    />
+    <!-- 审计通过弹窗 -->
+    <AuditPassDialog
+      :visible.sync="auditPassDialogVisible"
+      :id="_id"
+      @update:visible="auditPassDialogVisible = $event"
+      @success="loadDetail"
+    />
+    <!-- 审计驳回弹窗 -->
     <AuditRejectDialog
       :visible.sync="auditRejectDialogVisible"
-      :id="allId"
+      :id="_id"
       @update:visible="auditRejectDialogVisible = $event"
       @success="loadDetail"
     />
       <!-- 同意申诉弹窗 -->
     <AgreeAppealDialog
       :visible.sync="agreeAppealDialogVisible"
-      :id="allId"
+      :id="_id"
       @update:visible="agreeAppealDialogVisible = $event"
       @success="loadDetail"
     />
     <!-- 拒绝申诉弹窗 -->
     <RejectAppealDialog
       :visible.sync="rejectAppealDialogVisible"
-      :id="allId"
+      :id="_id"
       @update:visible="rejectAppealDialogVisible = $event"
       @success="loadDetail"
     />
+    <!-- 申诉弹窗 -->
+    <AppealDialog
+      :visible.sync="appealDialogVisible"
+      :selectionItem="formData"
+      @update:visible="appealDialogVisible = $event"
+      @success="loadDetail"
+    />
   </edit-page-layout>
-  <!-- 补充材料弹窗 -->
-  <!-- <SupplyMaterialDialog
-    :visible.sync="supplyMaterialDialogVisible"
-    :selection-list="[{ id: form.id, auditStatus: form.auditStatus }]"
-    @success="loadDetail"
-  /> -->
-  <!-- 审计通过弹窗 -->
-  <!-- <AuditPassDialog
-    :visible.sync="auditPassDialogVisible"
-    :selection-list="[{ id: form.id, auditStatus: form.auditStatus }]"
-    @success="loadDetail"
-  /> -->
-  <!-- 申诉弹窗 -->
-  <!-- <AppealDialog
-    :visible.sync="appealDialogVisible"
-    :selection-list="[{ id: form.id, auditStatus: form.auditStatus }]"
-    @success="loadDetail"
-  /> -->
 </template>
 
 <script>
@@ -512,8 +528,9 @@ import {
   getDetailWithRelated,
   addOrUpdate,
   agree,
-  auditPass
+  getDecryptField,
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -521,9 +538,12 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import AuditRejectDialog from './components/AuditRejectDialog.vue';
+import AuditPassDialog from './components/AuditPassDialog.vue';
 import AgreeAppealDialog from './components/AgreeAppealDialog.vue';
 import RejectAppealDialog from './components/RejectAppealDialog.vue';
 import AisAttachment from './components/AisAttachment.vue';
+import SupplyMaterialDialog from './components/SupplyMaterialDialog.vue';
+import AppealDialog from './components/AppealDialog.vue';
 
 const defaultForm = {
   vehicleProfile: {}, // 车辆档案信息
@@ -551,10 +571,14 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
+    AuditPassDialog,
     AuditRejectDialog,
     AgreeAppealDialog,
     RejectAppealDialog,
-    AisAttachment
+    AisAttachment,
+    SupplyMaterialDialog,
+    AppealDialog,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -562,6 +586,22 @@ export default {
     },
     title () {
       return '保修审计明细：' + (this.form.auditDetailCode || '');
+    },
+    // 错误项 信息
+    errorCategoryText () {
+      // 1. 安全检查：如果列表为空或不存在，返回空字符串
+      if (!this.form?.errorList || this.form.errorList.length === 0) {
+        return '';
+      }
+      // 2. 处理数据：
+      // 使用 map 遍历，item 是当前项，index 是索引
+      // 返回格式为 "1) 内容" 的新数组
+      const list = this.form.errorList.map((item, index) => {
+        return `${index + 1}) ${item.errorCategory}`;
+      });
+
+      // 3. 拼接字符串：用逗号分隔
+      return list.join(', ');
     },
     // 开单预警信息
     remindContent () {
@@ -614,13 +654,15 @@ export default {
       appealDialogVisible: false,
       agreeAppealDialogVisible: false,
       rejectAppealDialogVisible: false,
-      allId: '',
+      formData: {}, // 弹窗需要传递的参数
     };
   },
   mounted () {
-    this.loadRowFiles();
   },
   methods: {
+    getDetailDecryptField () {
+      return getDecryptField(this._id, 'vin');
+    },
     async detailRequest () {
       const id = this._id;
       if (id) {
@@ -654,44 +696,38 @@ export default {
       }
       return [];
     },
-    // VIN脱敏显示
-    formatVin (vin) {
-      if (vin && vin.length > 6) {
-        return vin.substring(0, 3) + '***' + vin.substring(vin.length - 3);
-      }
-      return vin || '-';
+    // 提取的公共方法：构建表单数据
+    setCommonFormData () {
+      const detail = this.form.warrantyAuditDetail;
+      const apply = this.form.warrantyApply;
+
+      return {
+        id: detail.id,
+        vin: detail.vin,
+        repairItemTypeId: apply.repairItemTypeId,
+        repairItemTypeName: apply.repairItemTypeName,
+        warrantyApplyCode: detail.warrantyApplyCode,
+        warrantyApplyId: detail.warrantyApplyId,
+        auditDesc: detail.auditDesc,
+        errorList: this.form.errorList || [],
+      };
     },
     // 补充材料
     handleSupplyMaterial () {
+      this.formData = this.setCommonFormData();
       this.supplyMaterialDialogVisible = true;
     },
     // 审计通过
-    // 审计通过
     handleAuditPass () {
-      this.$prompt('审计说明', '审计通过', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPattern: /.+/, // 校验非空
-        inputErrorMessage: '请输入备注',
-      }).then(({ value }) => {
-        // 调用 API，并传入用户输入的备注
-        return auditPass({ id: this._id, auditDesc: value });
-      }).then(() => {
-        // 提示成功
-        this.$message.success('审计通过成功');
-        // 执行额外回调（比如刷新列表）
-        this.getData();
-      }).catch(() => {
-        // 用户取消或校验失败，静默处理
-      });
+      this.auditPassDialogVisible = true;
     },
     // 审计驳回
     handleAuditReject () {
-      this.allId = this._id;
       this.auditRejectDialogVisible = true;
     },
     // 申诉
     handleAppeal () {
+      this.formData = this.setCommonFormData();
       this.appealDialogVisible = true;
     },
     // 同意
@@ -701,7 +737,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        agree({ ids: [this.form.id] }).then(() => {
+        agree({ detailId: this._id }).then(() => {
           this.$message.success('操作成功');
           this.loadDetail();
         }).catch(() => {
@@ -711,12 +747,10 @@ export default {
     },
     // 同意申诉
     handleAgreeAppeal () {
-      this.allId = this._id;
       this.agreeAppealDialogVisible = true;
     },
     // 拒绝申诉
     handleRejectAppeal () {
-      this.allId = this._id;
       this.rejectAppealDialogVisible = true;
     },
   }

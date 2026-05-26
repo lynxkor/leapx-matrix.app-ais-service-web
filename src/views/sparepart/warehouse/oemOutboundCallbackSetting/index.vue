@@ -50,7 +50,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/oemOutboundCallbackSetting/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
@@ -346,10 +346,6 @@ export default {
         });
         this.getData();
       }).catch(() => {
-        this.$message({
-          type: 'error',
-          message: '关闭失败!'
-        });
       });
     }, 300),
     // 开启(防抖)
@@ -361,10 +357,6 @@ export default {
         });
         this.getData();
       }).catch(() => {
-        this.$message({
-          type: 'error',
-          message: '启用失败!'
-        });
       });
     }, 300),
   }

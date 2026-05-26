@@ -15,10 +15,10 @@
       <el-form-item label="采购订单号">
         <tag-input v-model="form.purchaseOrderCodeList" placeholder="请输入" />
       </el-form-item>
+      <el-form-item label="采购申请单号"  v-show="this.visibleCount === 3 || show">
+        <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="采购申请单号"  v-show="this.visibleCount === 3 || show">
-          <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
-        </el-form-item>
         <el-form-item label="发货仓库">
           <fetch-select
             :remote-method="getOemWarehouse"
@@ -94,6 +94,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.invoiceDate"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -106,6 +107,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -118,6 +120,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -183,7 +186,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getAsync } from '@/api/sparepart/warehouse/oemOutboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse, listOemWarehouse } from '@/api/common';
@@ -313,7 +316,18 @@ export default {
             }]
           },
           { props: 'deliveryWarehouseName', label: '发货仓库', visible: true, width: 180 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
           {

@@ -6,7 +6,7 @@
       :model="form"
       size="small"
       label-position="right"
-      label-width="150px"
+      label-width="100px"
       class="ais-search-form"
     >
       <el-form-item label="备件">
@@ -75,7 +75,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/oemInventory/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, sparePartListShort } from '@/api/common';

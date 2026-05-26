@@ -80,7 +80,7 @@
 
       <div slot="footer" class="dialog-footer">
         <el-button size="small" @click="handleClose">取消</el-button>
-        <el-button size="small" type="primary" @click="handleConfirm">确认</el-button>
+        <el-button size="small" type="primary" :loading="confirmLoading" @click="handleConfirm">确认</el-button>
       </div>
     </el-dialog>
   </div>
@@ -116,6 +116,7 @@ export default {
     return {
       tableData: [],
       loading: false,
+      confirmLoading: false,
       // 支付方式选项
       payTypeOptions: [
         // { id: 1, name: '现金' },
@@ -205,14 +206,10 @@ export default {
     },
     // 新增收款记录
     handleAdd () {
-      // 计算剩余需付款金额
-      const remainingAmount =
-        (this.info.remainAmount || 0);
-      console.log('remainingAmount:', remainingAmount);
-      console.log('this.info.remainAmount:', this.info.remainAmount);
-      console.log('this.totalPayAmount:', this.totalPayAmount);
+      // 动态计算剩余需付款金额 = 总剩余金额 - 当前已添加的收款总额
+      const remainingAmount = Number(this.info.payableAmount || 0) - this.totalPayAmount;
 
-      if (remainingAmount < 0) {
+      if (remainingAmount <= 0) {
         this.$message.warning('剩余可添加的收款记录金额为0,暂时无法添加新的收款记录');
         return;
       }
@@ -270,6 +267,7 @@ export default {
     },
     // 获取提交数据
     getSubmitData () {
+      this.confirmLoading = true;
       const data = {
         statementId: this.info.id || '',
         invoiceRecordList: this.tableData,
@@ -278,6 +276,8 @@ export default {
         this.$message.success('保存成功');
         this.close();
         this.$emit('refresh');
+      }).finally(() => {
+        this.confirmLoading = false;
       });
     },
     // 格式化金额

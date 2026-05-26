@@ -25,10 +25,10 @@
                   <el-input v-model="form.errorCategory" placeholder="请输入" maxlength="100" clearable />
                 </el-form-item>
                 <el-form-item label="检查项目：" prop="checkItem">
-                  <el-input v-model="form.checkItem" placeholder="请输入" maxlength="500" clearable type="textarea" rows="5" />
+                  <el-input v-model="form.checkItem" placeholder="请输入" maxlength="500" clearable type="textarea" rows="1" />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
-                  <el-input v-model="form.remark" placeholder="请输入" maxlength="500" clearable type="textarea" rows="5" />
+                  <el-input v-model="form.remark" placeholder="请输入" maxlength="500" clearable type="textarea" rows="1" />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -48,39 +48,39 @@
             <div class="common-section-body">
               <el-row :gutter="20">
                 <el-col :span="12">
-                  <el-form :model="form" :rules="rules" ref="ruleForm" class="form-edit" v-show="isEditing || !_id" style="display: block">
-                    <el-form-item label="正式工时扣款比例（%）" prop="formalLaborDeductRatio">
-                      <el-input-number v-model="form.formalLaborDeductRatio" :min="0" :controls="false" placeholder="请输入" />
+                  <el-form :model="form" :rules="rules" ref="ruleForm1" v-if="isEditing || !_id" style="display: block;width:100%;">
+                    <el-form-item label="正式工时扣款比例（%）" prop="formalLaborDeductRatio" style="width:60%;">
+                      <el-input-number v-model="form.formalLaborDeductRatio" :min="0" :precision="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
-                    <el-form-item label="正式备件扣款比例（%）" prop="formalPartDeductRatio">
-                      <el-input-number v-model="form.formalPartDeductRatio" :min="0" :controls="false" placeholder="请输入" />
+                    <el-form-item label="正式备件扣款比例（%）" prop="formalPartDeductRatio" style="width:60%;">
+                      <el-input-number v-model="form.formalPartDeductRatio" :min="0" :precision="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
-                    <el-form-item label="正式其他扣款比例（%）" prop="formalOtherDeductRatio">
-                      <el-input-number v-model="form.formalOtherDeductRatio" :min="0" :controls="false" placeholder="请输入" />
+                    <el-form-item label="正式其他扣款比例（%）" prop="formalOtherDeductRatio" style="width:60%;">
+                      <el-input-number v-model="form.formalOtherDeductRatio" :min="0" :precision="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
                   </el-form>
-                  <el-form :model="form" class="form-detail" v-if="!(isEditing || !_id)" style="display: block">
-                    <el-form-item label="正式工时扣款比例（%）">{{ form.formalLaborDeductRatio }}%</el-form-item>
-                    <el-form-item label="正式备件扣款比例（%）">{{ form.formalPartDeductRatio }}%</el-form-item>
-                    <el-form-item label="正式其他扣款比例（%）">{{ form.formalOtherDeductRatio }}%</el-form-item>
+                  <el-form :model="form" class="form-detail" v-else style="display: block;width:100%;">
+                    <el-form-item label="正式工时扣款比例（%）" style="width: 100%">{{ form.formalLaborDeductRatio }}</el-form-item>
+                    <el-form-item label="正式备件扣款比例（%）" style="width: 100%">{{ form.formalPartDeductRatio }}</el-form-item>
+                    <el-form-item label="正式其他扣款比例（%）" style="width: 100%">{{ form.formalOtherDeductRatio }}</el-form-item>
                   </el-form>
                 </el-col>
                 <el-col :span="12">
-                  <el-form :model="form" :rules="rules" ref="ruleForm" class="form-edit" v-show="isEditing || !_id" style="display: block">
-                    <el-form-item label="跟进工时扣款比例（%）" prop="followLaborDeductRatio">
-                      <el-input-number v-model="form.followLaborDeductRatio" :min="0" :controls="false" placeholder="请输入" />
+                  <el-form :model="form" :rules="rules" ref="ruleForm2" v-if="isEditing || !_id" style="display: block;width:100%;">
+                    <el-form-item label="跟进工时扣款比例（%）" prop="followLaborDeductRatio" style="width:60%;">
+                      <el-input-number v-model="form.followLaborDeductRatio" :min="0" :precision="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
-                    <el-form-item label="跟进备件扣款比例（%）" prop="followPartDeductRatio">
-                      <el-input-number v-model="form.followPartDeductRatio" :min="0" :controls="false" placeholder="请输入" />
+                    <el-form-item label="跟进备件扣款比例（%）" prop="followPartDeductRatio" style="width:60%;">
+                      <el-input-number v-model="form.followPartDeductRatio" :min="0" :precision="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
-                    <el-form-item label="跟进其他扣款比例（%）" prop="followOtherDeductRatio">
-                      <el-input-number v-model="form.followOtherDeductRatio" :min="0" :controls="false" placeholder="请输入" />
+                    <el-form-item label="跟进其他扣款比例（%）" prop="followOtherDeductRatio" style="width:60%;">
+                      <el-input-number v-model="form.followOtherDeductRatio" :min="0" :precision="0" :controls="false" placeholder="请输入" />
                     </el-form-item>
                   </el-form>
-                  <el-form :model="form" class="form-detail" v-if="!(isEditing || !_id)" style="display: block">
-                    <el-form-item label="跟进工时扣款比例（%）">{{ form.followLaborDeductRatio }}</el-form-item>
-                    <el-form-item label="跟进备件扣款比例（%）">{{ form.followPartDeductRatio }}</el-form-item>
-                    <el-form-item label="跟进其他扣款比例（%）">{{ form.followOtherDeductRatio }}</el-form-item>
+                  <el-form :model="form" class="form-detail" v-else style="display: block;width:100%;">
+                    <el-form-item label="跟进工时扣款比例（%）" style="width: 100%">{{ form.followLaborDeductRatio }}</el-form-item>
+                    <el-form-item label="跟进备件扣款比例（%）" style="width: 100%">{{ form.followPartDeductRatio }}</el-form-item>
+                    <el-form-item label="跟进其他扣款比例（%）" style="width: 100%">{{ form.followOtherDeductRatio }}</el-form-item>
                   </el-form>
                 </el-col>
               </el-row>
@@ -106,12 +106,13 @@ const defaultForm = {
   errorCategory: '',
   checkItem: '',
   remark: '',
-  formalLaborDeductRatio: null,
-  formalPartDeductRatio: null,
-  formalOtherDeductRatio: null,
-  followLaborDeductRatio: null,
-  followPartDeductRatio: null,
-  followOtherDeductRatio: null,
+  status: 1,
+  formalLaborDeductRatio: 0,
+  formalPartDeductRatio: 0,
+  formalOtherDeductRatio: 0,
+  followLaborDeductRatio: 0,
+  followPartDeductRatio: 0,
+  followOtherDeductRatio: 0,
   createTime: '',
   updateTime: ''
 };
@@ -134,6 +135,16 @@ export default {
       return '错误代码：' + (this.form.errorCode || '新增');
     }
   },
+  watch: {
+    id: {
+      handler (val) {
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
+        }
+      },
+      immediate: true
+    }
+  },
   data () {
     return {
       pageTitle: '审计错误项配置',
@@ -143,7 +154,6 @@ export default {
       originalForm: { ...defaultForm },
       rules: {
         errorCode: [{ required: true, message: '请输入错误代码', trigger: 'change' }],
-        errorCategory: [{ required: true, message: '请输入错误类别', trigger: 'change' }]
       }
     };
   },

@@ -1,5 +1,5 @@
 <template>
-  <section class="common-section">
+  <section class="common-section" style="margin-top: 0;">
     <div class="common-section-header">
       <h2>基础信息</h2>
     </div>
@@ -230,6 +230,7 @@
             placeholder="请输入"
             v-model="form.departureNetMileage"
             clearable
+            disabled
           >
             <template slot="append">KM</template>
           </el-input>
@@ -525,7 +526,7 @@
 </template>
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getVehicleProfile, getCarInfo, checkVinTag, getEnum, getActivityInfo } from '@/api/maintain/sp/serviceProxy/index';
+import { getVehicleProfile, getCarInfo, checkVinTag, getEnum, getActivityInfo, getRecentlyServiceProxy, getLastStoreMileage } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../constant';
 
 export const CustomTypeEnum = {
@@ -701,13 +702,14 @@ export default {
       this.popoverVisible = false;
     },
     clearValidate () {
-      this.$refs.basicForm.clearValidate();
+      this.$refs.basicForm?.clearValidate();
     },
     searchVehicle (query) {
       if (!query) {
         return Promise.resolve([]);
       }
-      return getVehicleProfile({ searchVin: query });
+      const searchKey = query?.trim();
+      return getVehicleProfile({ searchVin: searchKey });
     },
     onSelectRef (el) {
       this.selectRef = el;
@@ -760,8 +762,31 @@ export default {
           Object.assign(this.form, { ...data });
           this.getNetworkCarInfo();
           this.checkActivity();
+          this.getRecentlyServiceProxy();
+          this.getLastStoreMileage();
         });
       }
+    },
+    getRecentlyServiceProxy () {
+      getRecentlyServiceProxy(this.form.vehProfileVin).then(res => {
+        if (res) {
+          this.form.anomalyDescription = res.anomalyDescription || '';
+          this.form.exteriorPhotoList = (res.exteriorPhotoList || []).map(item => ({
+            fileId: item.fileId,
+            fileUrl: item.fileUrl,
+            fileType: item.fileType,
+            attachType: item.attachType,
+            configCode: item.configCode
+          }));
+          this.form.interiorPhotoList = (res.interiorPhotoList || []).map(item => ({
+            fileId: item.fileId,
+            fileUrl: item.fileUrl,
+            fileType: item.fileType,
+            attachType: item.attachType,
+            configCode: item.configCode
+          }));
+        }
+      });
     },
     getNetworkCarInfo () {
       getCarInfo(this.form.vehProfileVin).then(res => {
@@ -777,6 +802,13 @@ export default {
         });
         // if (!this.form.netMileage) this.form.netMileage = res.mileage;
         // if (!this.form.inPower) this.form.inPower = res.electricity;
+      });
+    },
+    getLastStoreMileage () {
+      getLastStoreMileage(this.form.vehProfileVin).then(res => {
+        Object.assign(this.form, {
+          lastMileage: res, // 上次施工单进店里程
+        });
       });
     },
     // 校验是否有活动

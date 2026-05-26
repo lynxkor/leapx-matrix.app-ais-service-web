@@ -13,8 +13,8 @@
         :detailRequest="detailRequest"
       >
         <template #extraButtons>
+          <el-button v-if="_id && form.signStatus === '0' && permissions.has('AISPART-sharedTransferInbound-print')" :loading="actionLoading" plain size="small" @click="handleSign">签收</el-button>
           <el-button v-if="_id" type="primary" size="small" @click="handlePrint">打印</el-button>
-          <el-button v-if="_id && form.signStatus === '0'" type="primary" size="small" @click="handleSign">签收</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -100,16 +100,16 @@
                   <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
                   <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
                   <vxe-column field="locationName" title="库位" min-width="10%" />
-                  <vxe-column field="availableQuantity" title="可用库存" min-width="10%" />
+                  <vxe-column field="availableQty" title="可用库存" min-width="10%" />
                   <vxe-column field="purchasePriceTax" title="采购价格(含税)" min-width="10%" />
                   <vxe-column field="purchasePriceNotax" title="采购价格(不含税)" min-width="10%" />
-                  <vxe-column field="costUnitPriceTax" title="金额(含税)" min-width="10%" />
-                  <vxe-column field="inboundQty" title="调拨数量" min-width="10%">
+                  <vxe-column field="purchaseAmountTax" title="金额（含税）" min-width="10%" />
+                  <vxe-column field="transferQty" title="调拨数量" min-width="10%">
                     <!-- <template #default="{ row }">
                       <el-input v-model="row.transferQty" type="number" min="1" @blur="handleBlur(row)"/>
                     </template> -->
                   </vxe-column>
-                  <vxe-column field="inboundQty" title="备注" min-width="10%">
+                  <vxe-column field="remark" title="备注" min-width="10%">
                     <!-- <template #default="{ row }">
                       <el-input v-model="row.remark" @blur="handleBlur(row)"/>
                     </template> -->
@@ -279,6 +279,7 @@ export default {
       moduleKey: 'AISPART-sharedTransferInbound',
       loading: false,
       submitLoading: false,
+      actionLoading: false, // 操作加载状态
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -401,6 +402,9 @@ export default {
     },
     // 物流信息接口
     async getLogisticsInfo () {
+      if (!this.form.logisticsOrderNo) {
+        return;
+      }
       this.loadingLogistics = true;
       const params = {
         waybillCode: this.form.logisticsOrderNo,
@@ -425,6 +429,7 @@ export default {
     },
     // 签收
     async handleSign () {
+      this.actionLoading = true;
       const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确定签收吗?</div>';
       this.$confirm(message, '', {
         confirmButtonText: '确定',
@@ -439,8 +444,12 @@ export default {
           type: 'success',
           message: '签收成功!'
         });
+        this.actionLoading = false;
         this.$refs.containerRef.loadDetail();
+        this.getLogisticsInfo();
+        this.getData();
       }).catch(() => {
+        this.actionLoading = false;
       });
     },
   }

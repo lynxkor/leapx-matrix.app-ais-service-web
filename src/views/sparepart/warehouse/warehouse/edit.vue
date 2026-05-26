@@ -39,7 +39,7 @@
                     {{ form.statusLabel }}
                   </el-form-item>
                   <el-form-item label="停用原因：">
-                    {{ form.statusDesc }}
+                    {{ form.disableReason }}
                   </el-form-item>
                   <el-form-item label="备注：" prop="remark">
                     <el-input placeholder="请输入" v-model="form.remark" clearable />
@@ -71,7 +71,7 @@
                     {{ form.statusLabel }}
                   </el-form-item>
                   <el-form-item label="停用原因：">
-                    {{ form.statusDesc }}
+                    {{ form.disableReason }}
                   </el-form-item>
                   <el-form-item label="备注：" prop="remark">
                     {{ form.remark }}
@@ -86,10 +86,10 @@
               <div class="common-section-body">
                 <div class="ais-select-group" v-if="canAddOrUpdate">
                   <el-input placeholder="请输入" style="width: 305px;" v-model="locationName" clearable />
-                  <el-button type="primary" @click="addLocation" size="small">
+                  <el-button plain @click="addLocation" size="small">
                     添加
                   </el-button>
-                  <el-button type="primary" @click="handleImport" size="small">
+                  <el-button plain @click="handleImport" size="small">
                     导入
                   </el-button>
                 </div>
@@ -139,6 +139,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { getAreaTree } from '@/utils';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import PartTable from './PartTable.vue';
 import ReplaceTable from './ReplaceTable.vue';
@@ -213,7 +214,7 @@ export default {
     const form = this.getDefautlForm();
     return {
       // 省市区
-      areaOptions: JSON.parse(localStorage.areaTree),
+      areaOptions: getAreaTree(),
       orgProps: {
         checkStrictly: true,
         emitPath: false,
@@ -238,44 +239,6 @@ export default {
         name: '',
       },
       tableData: [
-        { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
-        { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
-      ],
-      options: {
-        // 对应表格里选型枚举
-        // 如 type: [{label: 'xxx', value: 'xxx'}]
-      },
-      // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      columns: [
-        {
-          field: 'locationName',
-          title: '席位名称',
-          width: '20%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
-        },
-        {
-          field: 'remark',
-          title: '备注',
-          editable: true,
-          width: '20%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
-        },
-        {
-          field: 'createTime',
-          title: '创建时间',
-          width: '20%',
-          editRender: { name: 'ElInput' }
-        },
-        {
-          field: 'updateTime',
-          title: '修改时间',
-          width: '20%',
-          editRender: { name: 'ElInput' }
-        },
       ],
       rules: {
         status: [
@@ -417,7 +380,7 @@ export default {
     // 库位信息添加
     async addLocation () {
       if (!this.locationName) {
-        this.$message.error('请输入席位名称,再添加!');
+        this.$message.error('请输入库位名称,再添加!');
         return;
       };
       const params = {

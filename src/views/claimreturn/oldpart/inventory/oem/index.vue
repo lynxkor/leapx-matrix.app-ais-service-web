@@ -166,7 +166,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getDetailDecryptField } from '@/api/claimreturn/oldpart/inventory/oem';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -315,12 +315,10 @@ export default {
             width: 240,
             buttons: [{
               click: (rowIndex, row) => {
-                // eslint-disable-next-line no-warning-comments
-                // todo 跳转
                 this.$router.push({
-                  path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit',
+                  path: '/claimreturn/claim/warrantyApply/edit',
                   query: {
-                    id: row.id
+                    id: row.warrantyId
                   }
                 });
               },

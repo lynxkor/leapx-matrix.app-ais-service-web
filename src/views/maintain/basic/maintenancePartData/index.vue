@@ -44,6 +44,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -103,7 +104,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/basic/maintenancePartData/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -140,7 +141,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '保养零件提醒表管理',
+      pageTitle: '保养零件主数据',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-maintenancePartData',
@@ -184,10 +185,10 @@ export default {
           { props: 'name', label: '保养零件名称', visible: true, width: 200 },
           { props: 'mileageTypeLabel', label: '里程类型', visible: true, width: 200 },
           { props: 'statusLabel', label: '状态', visible: true, width: 200 },
-          { props: 'firstServiceMileage', label: '首次保养里程', visible: true, width: 200 },
-          { props: 'firstServiceMonth', label: '首次保养时间', visible: true, width: 200 },
-          { props: 'mileageInterval', label: '定期保养里程间隔', visible: true, width: 200 },
-          { props: 'monthInterval', label: '定期保养时间间隔', visible: true, width: 200 },
+          { props: 'firstServiceMileage', label: '首次保养里程(KM)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
+          { props: 'firstServiceMonth', label: '首次保养时间(月)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
+          { props: 'mileageInterval', label: '定期保养里程间隔(KM)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
+          { props: 'monthInterval', label: '定期保养时间间隔(月)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           {
             props: 'operate',
             label: '操作',
@@ -265,7 +266,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '保养零件提醒表管理',
+        businessType: '保养零件主数据',
         dataFetchPath: 'maintain/web/basic/maintenancePartData/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -273,7 +274,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '保养零件提醒表管理.xlsx');
+            await downloadExcel(res.excelUrl, '保养零件主数据.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

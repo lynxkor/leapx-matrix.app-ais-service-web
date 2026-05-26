@@ -35,6 +35,7 @@
         <el-date-picker
           v-model="form.downloadTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           value-format="yyyy-MM-dd HH:mm:ss"
           range-separator="至"
@@ -79,7 +80,7 @@ import { getList } from '@/api/file/fileDownloadLog';
 import { exportTable, getEnum, getTableConfig, tableAddOrUpdate } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import TagInput from '@/libs/components/TagInput';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import { downloadExcel, getEndOfDayString } from '@/libs/utils';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import commonMixins from '@/libs/mixins/commonMixins';

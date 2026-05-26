@@ -23,7 +23,7 @@
         <fetch-select
           :request="fetchOptions"
           enumCode="StatusEnum"
-          v-model="form.statusList"
+          v-model="form.statusIncludeList"
           placeholder="请选择"
           clearable
           multiple
@@ -36,6 +36,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -48,6 +49,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -104,7 +106,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/predictDealerType/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -122,7 +124,7 @@ const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
   dealerTypeLike: '',
-  statusList: [],
+  statusIncludeList: [],
   createTime: '',
   updateTime: '',
 };
@@ -201,7 +203,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/predictDealerType/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

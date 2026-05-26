@@ -8,13 +8,13 @@
         <div class="table-section-header">
           <h3>外部检查</h3>
         </div>
-        <FileDisplay :fileList="externalFiles" @delete="handleDelete" @update="loadAttachmentList" />
+        <FileDisplay :fileList="externalFiles" @delete="handleDelete" @update="loadAttachmentList" readonly/>
       </div>
       <div class="table-section" v-if="internalFiles.length">
         <div class="table-section-header">
           <h3>内部检查</h3>
         </div>
-        <FileDisplay :fileList="internalFiles" @delete="handleDelete" @update="loadAttachmentList" />
+        <FileDisplay :fileList="internalFiles" @delete="handleDelete" @update="loadAttachmentList" readonly/>
       </div>
     </div>
   </section>
@@ -69,8 +69,8 @@ export default {
           getFileList({ businessId: this._id, attachType: '车外照片' }),
           getFileList({ businessId: this._id, attachType: '车内照片' })
         ]);
-        this.externalFiles = this.normalizeFiles(extRes && extRes.data ? extRes.data : []);
-        this.internalFiles = this.normalizeFiles(intRes && intRes.data ? intRes.data : []);
+        this.externalFiles = this.normalizeFiles(extRes?.data ?? extRes ?? []);
+        this.internalFiles = this.normalizeFiles(intRes?.data ?? intRes ?? []);
       } catch (error) {
         console.error('加载附件列表失败:', error);
       } finally {

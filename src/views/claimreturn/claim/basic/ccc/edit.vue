@@ -9,7 +9,6 @@
         :isEditing.sync="isEditing"
         :form.sync="form"
         :originalForm.sync="originalForm"
-        direction="vertical"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
@@ -76,12 +75,20 @@
                   />
                 </el-form-item>
               </el-form>
-              <el-form :inline="true" label-width="150px"  class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="VRT名称：" prop="vrtName">
-                  {{ form.vrtName }}
+                  <el-link
+                    type="primary"
+                    :href="`/claimreturn/claim/basic/vrt/edit?id=${form.vrtId}`"
+                    target="_blank"
+                  >{{ form.vrtName }}</el-link>
                 </el-form-item>
                 <el-form-item label="VFG名称：" prop="vfgName">
-                  {{ form.vfgName }}
+                  <el-link
+                    type="primary"
+                    :href="`/claimreturn/claim/basic/vfg/edit?id=${form.vfgId}`"
+                    target="_blank"
+                  >{{ form.vfgName }}</el-link>
                 </el-form-item>
                 <el-form-item label="CCC编码：" prop="cccCode">
                   {{ form.cccCode }}

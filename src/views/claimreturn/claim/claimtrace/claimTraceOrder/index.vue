@@ -83,6 +83,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.firstIssueTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -95,6 +96,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.latestIssueTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -107,6 +109,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.sysAutoAgreeDate"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -119,6 +122,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.agreeTraceTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -131,6 +135,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -143,6 +148,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -245,7 +251,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, agreeIssue, agreeTrace, getDetailDecryptField } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -269,12 +275,11 @@ import RejectAppealDialog from './components/RejectAppealDialog';
 import RefuseAppealDialog from './components/RefuseAppealDialog';
 import AdjustAmountDialog from './components/AdjustAmountDialog';
 const defaultForm = {
-  // TIPS:多选时字段名称会有变化，自行校对
-  claimTraceCode: '',
-  traceStatus: '',
-  warrantyCode: '',
-  vin: '',
-  dealerCode: '',
+  claimTraceCodes: [],
+  traceStatusList: [],
+  warrantyCodes: [],
+  vins: [],
+  dealerCodes: [],
   dealerName: '',
   planTraceAmountStart: '',
   planTraceAmountEnd: '',
@@ -366,9 +371,46 @@ export default {
             }]
           },
           { props: 'traceStatusLabel', label: '追溯状态', visible: true, width: 200 },
-          { props: 'warrantyCode', label: '保修申请单', visible: true, width: 200 },
-          { props: 'vin', label: 'VIN 码', visible: true, width: 200, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vin') },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          {
+            props: 'warrantyCode',
+            label: '保修申请单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.warrantyId) {
+                  window.open(`/service/claimreturn/claim/warrantyApply/edit?id=${row.warrantyId}`, '_blank');
+                }
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'vin',
+            label: 'VIN 码',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'vin'),
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehicleProfileId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'laborClaimTotal', label: '保修工时金额', visible: true, width: 200 },
           { props: 'partsClaimTotal', label: '保修备件金额', visible: true, width: 200 },
@@ -380,6 +422,7 @@ export default {
           { props: 'latestIssueTime', label: '最新下发时间', visible: true, width: 200 },
           { props: 'sysAutoAgreeDate', label: '系统自动同意日期', visible: true, width: 200 },
           { props: 'agreeTraceTime', label: '同意追溯时间', visible: true, width: 200 },
+          { props: 'traceDesc', label: '追溯说明', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -393,7 +436,7 @@ export default {
             buttons: [
               {
                 name: '编辑',
-                show: (row) => [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(row.traceStatus),
+                show: (row) => [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED, TRACE_STATUS.AUDITING].includes(row.traceStatus),
                 click: (rowIndex, row) => {
                   this.$router.push({
                     path: '/claimreturn/claim/claimtrace/claimTraceOrder/edit',
@@ -448,7 +491,7 @@ export default {
               },
               {
                 name: '同意追溯',
-                show: (row) => row.traceStatus === TRACE_STATUS.PENDING_CONFIRM,
+                show: (row) => row.traceStatus === TRACE_STATUS.PENDING_CONFIRM || row.traceStatus === TRACE_STATUS.APPEAL_REJECTED,
                 click: (rowIndex, row) => {
                   this.handleAgreeTrace(row);
                 },
@@ -456,7 +499,7 @@ export default {
               },
               {
                 name: '申诉',
-                show: (row) => row.traceStatus === TRACE_STATUS.PENDING_CONFIRM,
+                show: (row) => row.traceStatus === TRACE_STATUS.PENDING_CONFIRM || row.traceStatus === TRACE_STATUS.APPEAL_REJECTED,
                 click: (rowIndex, row) => {
                   this.currentRow = row;
                   this.appealDialogVisible = true;
@@ -627,7 +670,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        if (data[key] === '' || data[key] === null || (Array.isArray(data[key]) && data[key].length === 0)) {
           delete data[key];
         }
       });

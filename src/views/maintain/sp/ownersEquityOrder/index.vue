@@ -152,7 +152,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/sp/ownersEquityOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
@@ -260,8 +260,35 @@ export default {
           { props: 'interestsGoodsName', label: '商品名称', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 200 },
           { props: 'statusLabel', label: '启用状态', visible: true, width: 200 },
-          { props: 'dealerName', label: '服务门店', visible: true, width: 200 },
-          { props: 'serviceProxyCode', label: '施工单号', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '服务门店',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'serviceProxyCode',
+            label: '施工单号',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceProxy/edit',
+                  query: {
+                    id: row.serviceProxyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'vehProfileVin', label: 'VIN', visible: true, width: 200 },
           { props: 'purchaser', label: '购买人', visible: true, width: 200 },
           { props: 'purchaserPhone', label: '购买人电话', visible: true, width: 200 },

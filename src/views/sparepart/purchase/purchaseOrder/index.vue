@@ -111,6 +111,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.cancelTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -123,6 +124,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -135,6 +137,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -161,13 +164,11 @@
       <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(false)" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseOrder-sign'">批量签收</el-button>
       <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(true)" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseOrder-signIn'">签收并入库</el-button>
     </div>
-    <div class="ais-tabs">
-      <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
-        <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
-        <el-tab-pane label="待签收备件" name="proxySign"></el-tab-pane>
-      </el-tabs>
-    </div>
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
+      <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
+      <el-tab-pane label="待签收备件" name="proxySign"></el-tab-pane>
+    </el-tabs>
     <div
       class="ais-table-c"
       v-if="activeName === 'homePage'"
@@ -275,7 +276,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, pageAll, pageWaitSign } from '@/api/sparepart/purchase/purchaseOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listOemWarehouse, sparePartListShort } from '@/api/common';
@@ -422,7 +423,18 @@ export default {
           },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'deliveryWarehouseName', label: '发货仓库', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'receiveWarehouseName', label: '仓库名称', visible: true, width: 200 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
@@ -509,7 +521,18 @@ export default {
             }]
           },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'sparePartCode', label: '备件编码', visible: true, width: 180 },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
@@ -593,11 +616,50 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'shippingOrder', label: '运单号', visible: true, width: 200 },
+          {
+            props: 'shippingOrder',
+            label: '运单号',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.getLogisticsInfo(row);
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'detailRemark', label: '备注', visible: true, width: 200 },
           { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
+          {
+            props: 'sparePartCode',
+            label: '备件编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/sparePart/edit',
+                  query: {
+                    id: row.sparePartId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
           { props: 'settlementQty', label: '结算数量', visible: true, width: 120 },
           { props: 'cancelQty', label: '取消数量', visible: true, width: 120 },

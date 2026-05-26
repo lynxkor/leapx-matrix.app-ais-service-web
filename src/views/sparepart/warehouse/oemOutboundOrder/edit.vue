@@ -12,9 +12,8 @@
         :detailRequest="detailRequest"
         :showEditBtn="false"
       >
-        <template #status>
-          <!-- 支持primary,warning,success,danger等状态 -->
-          <span class="status primary">状态</span>
+        <template #extraButtons>
+          <el-button v-if="(form.orderSyncSuccessIs === '0' || form.outboundSyncSuccessIs === '0' || form.invoiceSyncSuccessIs === '0') && permissions.has('AISPART-oemOutboundOrder-async')" size="small" type="primary" :loading="syncLoading" @click="handleSync">同步</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -299,7 +298,9 @@
                   {{ form.deliveryWarehouseName }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
@@ -401,7 +402,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, oemOutboundOrderDetail } from '@/api/sparepart/warehouse/oemOutboundOrder/index';
+import { getDetail, addOrUpdate, oemOutboundOrderDetail, getAsync } from '@/api/sparepart/warehouse/oemOutboundOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -489,6 +490,7 @@ export default {
       moduleKey: 'AISPART-oemOutboundOrder',
       loading: false,
       submitLoading: false,
+      syncLoading: false,
       logisticsData: {}, // 物流信息
       logisticsDrawerVisible: false, // 物流信息抽屉
       yes_no_enum: YES_NO_ENUM,
@@ -721,6 +723,29 @@ export default {
     handleLogisticsClick () {
       this.logisticsData = this.form;
       this.logisticsDrawerVisible = true;
+    },
+    // 同步
+    async handleSync () {
+      this.syncLoading = true;
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将同步OEM出库单，是否继续?</div>';
+
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        // 调用 API
+        await getAsync({ id: this._id });
+        // 提示成功
+        this.$message.success('同步成功！');
+        // 执行额外回调（比如刷新列表）
+        this.$refs.containerRef.loadDetail();
+        this.syncLoading = false;
+      }).catch(() => {
+        this.syncLoading = false;
+      });
     }
   }
 };

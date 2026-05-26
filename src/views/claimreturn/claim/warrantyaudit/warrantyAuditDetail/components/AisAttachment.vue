@@ -66,7 +66,7 @@ export default {
     async loadRowFiles () {
       try {
         const res = await getFileList({ businessId: this.businessId });
-        this.attachmentList = res.data || [];
+        this.attachmentList = res || [];
       } catch (error) {
       } finally {
       }

@@ -14,6 +14,7 @@
          :default-time="['00:00:00', '23:59:59']"
           v-model="form.createTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -126,7 +127,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import {
   getList,
@@ -231,7 +232,6 @@ export default {
             label: '接车施工单',
             visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -261,7 +261,6 @@ export default {
             label: '留车配置项编码',
             visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -582,7 +581,7 @@ export default {
       if (!isAllUnpushed) {
         this.$message({
           type: 'warning',
-          message: '选中项中包含有已推送的数据，请重新选择'
+          message: '选中项中包含有已推送或已作废的数据，请重新选择'
         });
         return;
       }

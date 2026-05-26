@@ -58,6 +58,32 @@ export function importExcelConfirmFile (formData, config = {}) {
 }
 
 /**
+ * 异步列表模板确认
+ * @param {*} dataMergeConfirm true 数据合并确认 false 数据分批确认
+ * @param {*} data
+ * @param {*} formData
+ * @param {*} config
+ */
+export function asyncImportExcelConfirm (dataMergeConfirm, formData, config = {}) {
+  const { businessParams, id, token, headers, ...restConfig } = config;
+  // 动态构建 params 对象，使用解构和条件展开
+  const params = {
+    id,
+    token,
+    dataMergeConfirm,
+    ...(businessParams && { businessParams }) // 如果 businessParams 存在，则添加到 params 中
+  };
+  return api.postExport('/data/ExcelManage/asyncImportExcelConfirm', formData, {
+    params, // 直接使用动态构建的 params
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      ...headers
+    },
+    ...restConfig
+  });
+}
+
+/**
  * 列表导出
  * @param {*} data
  */
@@ -328,4 +354,22 @@ export function getScopeTypeOrg (data) {
  */
 export function listOemFull (data) {
   return api.jsonPost('/sp/web/warehouse/warehouse/listOemFull', data);
+}
+
+/**
+ * 查询加密数据
+ * @param {String} id
+ * @param {String} field
+ */
+export function getDesensitize (id, type, field) {
+  let param = {
+    id,
+    type,
+    column: field
+  };
+  return new Promise(resolve => {
+    api.jsonPost('/sp/web/base/common/getDesensitize', param).then(res => {
+      resolve(res);
+    });
+  });
 }

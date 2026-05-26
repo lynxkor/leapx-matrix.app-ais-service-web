@@ -30,13 +30,14 @@
                     placeholder="请输入"
                     v-model="form.code"
                     clearable
-                    disabled
+                    @input="handleCodeInput"
                   />
                 </el-form-item>
                 <el-form-item label="保养零件名称：" prop="name">
                   <el-input
                     placeholder="请输入"
                     v-model="form.name"
+                    maxlength="50"
                     clearable
                   />
                 </el-form-item>
@@ -79,7 +80,7 @@
                   />
                 </el-form-item>
               </el-form>
-              <el-form label-width="180px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="保养零件代码：" prop="code">
                   {{ form.code }}
                 </el-form-item>
@@ -110,26 +111,17 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    ref="partSelectRef"
-                    style="width: 300px;"
-                    :remote-method="querySpareParts"
-                    remote
-                    placeholder="请选择零件"
-                    clearable
-                    filterable
-                    value-key="id"
-                    label-key="partName"
-                    @change="handlePartSelect"
-                  />
-                  <el-button
-                    type="primary"
-                    size="small"
-                  >
-                    添加
-                  </el-button>
-                </div>
+                <base-search
+                  style="width: 360px;"
+                  :remote-method="querySpareParts"
+                  remote
+                  placeholder="搜索零件代码、名称、拼音简码"
+                  clearable
+                  value-key="id"
+                  label-key="partName"
+                  subLabelKey="partCode"
+                  @change="handlePartSelect"
+                />
               </div>
               <div class="common-section-table">
                 <vxe-table
@@ -144,7 +136,11 @@
                   max-height="400px"
                 >
                   <vxe-column field="partsName" title="零件名称" min-width="30%" />
-                  <vxe-column field="partsCode" title="零件代码" min-width="30%" />
+                  <vxe-column field="partsCode" title="零件代码" min-width="30%">
+                    <template #default="{ row }">
+                      <el-link type="primary" :href="`/service/sparepart/basic/sparePart/detail?id=${row.partsId}`" target="_blank">{{ row.partsCode }}</el-link>
+                    </template>
+                  </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="30%" />
                   <vxe-column title="操作" width="100" v-if="canDelete">
                     <template #default="{ rowIndex }">
@@ -162,9 +158,10 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>适配车型&nbsp;<el-button type="primary" size="small" @click="modelDialogVisible = true">添加</el-button></h2>
+              <h2>适配车型</h2>
             </div>
             <div class="common-section-body">
+              <el-button type="primary" size="small" plain @click="modelDialogVisible = true">添加</el-button>
               <div class="common-section-table">
                 <vxe-table
                   ref="tableCx"
@@ -211,6 +208,7 @@ import { getDetail, addOrUpdate, deletePartItem, addPartItem, addPartVehModel, d
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
+import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum, sparePartList } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -255,7 +253,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    ModelDialog
+    ModelDialog,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -278,7 +277,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '保养零件提醒表管理',
+      pageTitle: '保养零件主数据',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-maintenancePartData',
@@ -296,7 +295,7 @@ export default {
       modelDialogVisible: false, // 适配车型弹窗
       rules: {
         code: [
-          { required: false, message: '请输入保养零件代码', trigger: 'change' }
+          { required: true, message: '请输入保养零件代码', trigger: 'change' }
         ],
         name: [
           { required: true, message: '请输入保养零件名称', trigger: 'change' }
@@ -305,16 +304,20 @@ export default {
           { required: true, message: '请选择里程类型', trigger: 'change' }
         ],
         firstServiceMileage: [
-          { required: true, message: '请输入首次保养里程', trigger: 'change' }
+          { required: true, message: '请输入首次保养里程', trigger: 'change' },
+          { validator: this.validateNumber, trigger: 'change' }
         ],
         firstServiceMonth: [
-          { required: true, message: '请输入首次保养时间', trigger: 'change' }
+          { required: false, message: '请输入首次保养时间', trigger: 'change' },
+          { validator: this.validateInteger, trigger: 'change' }
         ],
         mileageInterval: [
-          { required: true, message: '请输入定期保养里程间隔', trigger: 'change' }
+          { required: true, message: '请输入定期保养里程间隔', trigger: 'change' },
+          { validator: this.validateNumber, trigger: 'change' }
         ],
         monthInterval: [
-          { required: true, message: '请输入定期保养时间间隔', trigger: 'change' }
+          { required: false, message: '请输入定期保养时间间隔', trigger: 'change' },
+          { validator: this.validateInteger, trigger: 'change' }
         ],
       }
     };
@@ -322,6 +325,20 @@ export default {
   mounted () {
   },
   methods: {
+    validateNumber (_rule, value, callback) {
+      if (value !== '' && value !== undefined && value !== null && !/^\d+(\.\d{1,2})?$/.test(value)) {
+        callback(new Error('支持数字，保留到小数点后2位'));
+      } else {
+        callback();
+      }
+    },
+    validateInteger (_rule, value, callback) {
+      if (value !== '' && value !== undefined && value !== null && !/^\d+$/.test(value)) {
+        callback(new Error('请输入整数'));
+      } else {
+        callback();
+      }
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -334,20 +351,11 @@ export default {
       }
     },
     submitRequest () {
-      addOrUpdate({
+      return addOrUpdate({
         ...this.form,
         vehModelList: this.tableDataCx,
         partsList: this.tableDataPj
-      }).then(result => {
-        this.$message.success('保存成功');
-        console.log(result);
-        this.$router.push({
-          path: '/maintain/basic/maintenancePartData/edit',
-          query: {
-            id: result
-          }
-        });
-      }).catch(() => {});
+      });
     },
     // 添加零件
     handleAddPart (record) {
@@ -356,7 +364,7 @@ export default {
         return;
       }
       // 检查是否已存在
-      const exists = this.tableDataPj.some(item => item.partCode === record.partCode);
+      const exists = this.tableDataPj.some(item => item.partsCode === record.partCode);
       if (exists) {
         this.$message.warning('该零件已添加');
         return;
@@ -438,7 +446,10 @@ export default {
           resolve(list);
         });
       });
-    }
+    },
+    handleCodeInput (val) {
+      this.form.code = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    },
   }
 };
 </script>

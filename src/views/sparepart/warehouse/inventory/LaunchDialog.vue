@@ -14,7 +14,7 @@
                 <vxe-column field="availableQty" title="可用库存" width="100" />
                 <vxe-column title="本次上架库存" width="180">
                     <template #default="{ row }">
-                        <el-input v-model="row.operateQty" type="number" />
+                        <el-input v-model="row.operateQty" @input="val => row.operateQty = formatNumberInput(val, { allowDecimal: false })" type="number" />
                     </template>
                 </vxe-column>
                 <vxe-column title="联系人" width="150">
@@ -38,7 +38,7 @@
         <!-- 底部按钮 -->
         <template v-slot:footer>
             <div class="dialog-footer">
-                <el-button size="small" @click="close">取 消</el-button>
+                <el-button size="small" @click="close">取消</el-button>
                 <el-button size="small" type="primary" :loading="submitLoading" @click="submit">上 架</el-button>
             </div>
         </template>
@@ -47,6 +47,7 @@
 
 <script>
 import { sharedShelves } from '@/api/sparepart/warehouse/inventory/index';
+import { formatNumberInput } from '@/libs/utils/index';
 
 export default {
   name: 'RepairDialog',
@@ -85,15 +86,16 @@ export default {
     }
   },
   methods: {
+    formatNumberInput,
     close () {
       this.$emit('update:visible', false);
     },
     async submit () {
-      if (this.tableData.some(item => item.operateQty > item.availableQty)) {
-        this.$message.warning('上架库存不能大于可用库存');
-        return;
-      }
-      if (this.tableData.some(item => !item.suggestedSharedPrice || item.suggestedSharedPrice <= 0)) {
+      // if (this.tableData.some(item => Number(item.operateQty) > Number(item.availableQty))) {
+      //   this.$message.warning('上架库存不能大于可用库存');
+      //   return;
+      // }
+      if (this.tableData.some(item => !Number(item.suggestedSharedPrice) || Number(item.suggestedSharedPrice) <= 0)) {
         this.$message.warning('请输入建议共享价格');
         return;
       }
@@ -162,7 +164,6 @@ export default {
         this.close();
         this.$emit('submit');
       } catch (error) {
-        this.$message.error('上架失败');
         this.submitLoading = false;
       }
     },

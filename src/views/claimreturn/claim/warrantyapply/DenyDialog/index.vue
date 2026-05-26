@@ -8,7 +8,7 @@
     <div class="page-common-edit">
       <section class="common-section">
         <div class="common-section-body">
-          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="100px" class="form-edit" >
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="90px" class="form-edit" >
             <el-form-item class="form-item-full" label="审批说明：" prop="approvalRemark">
               <base-input
                 type="textarea"
@@ -43,8 +43,8 @@
     <!-- 底部按钮 -->
     <template v-slot:footer>
       <div class="dialog-footer">
-        <el-button size="small" @click="close">取 消</el-button>
-        <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确 定</el-button>
+        <el-button size="small" @click="close">取消</el-button>
+        <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确定</el-button>
       </div>
     </template>
   </el-dialog>
@@ -91,7 +91,7 @@ export default {
       submitLoading: false,
       rules: {
         approvalRemark: [
-          { required: true, message: '请选择验收结果', trigger: 'change' }
+          { required: true, message: '请输入审批说明', trigger: 'change' }
         ],
         errorCodeId: [
           { required: true, message: '请选择错误代码', trigger: 'change' }

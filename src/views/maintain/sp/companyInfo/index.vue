@@ -14,6 +14,7 @@
           :default-time="['00:00:00', '23:59:59']"
           v-model="form.createTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -22,7 +23,7 @@
         />
       </el-form-item>
       <el-form-item label="门店:">
-        <dealer-select v-model="form.dealerCodes" multiple />
+        <dealer-select v-model="form.dealerCodeList" multiple />
       </el-form-item>
       <el-form-item label="健康档案状态:"  v-show="this.visibleCount === 3 || show">
         <fetch-select
@@ -139,17 +140,16 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
 import {
   getList,
   deleteItem,
   enableItem,
   companyList,
-  getEnum,
-  addOrUpdate
+  openUpload
 } from '@/api/maintain/sp/companyInfo';
-import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import Upload from '@/libs/components/UploadDialog/index.vue';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -158,7 +158,6 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel, getEndOfDayString } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-import ListSelect from '@/libs/components/list-select/index.vue';
 import DealerSelect from '@/components/dealer-select';
 
 const defaultForm = {
@@ -189,7 +188,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '门店健康档案',
+      pageTitle: '维修企业档案',
       pageType: 'list',
       // TIPS: 权限前缀 AISCR，根据实际情况修改
       moduleKey: 'AISMC-dealerHealthInfo',
@@ -254,9 +253,10 @@ export default {
             ]
           },
 
-          { props: 'dealerStatusLabel', label: '网发门店状态', visible: true, width: 200 },
+          { props: 'dealerStatusLabel', label: '门店状态', visible: true, width: 200 },
           { props: 'companyName', label: '母公司名称', visible: true, width: 200 },
           { props: 'healthStatusLabel', label: '健康档案状态', visible: true, width: 200 },
+          { props: 'venueId', label: '场所ID', visible: true, width: 200 },
           { props: 'creditCode', label: '统一社会信用代码', visible: true, width: 200 },
           { props: 'areaCode', label: '注册区域编码', visible: true, width: 200 },
           { props: 'repairCode', label: '维修企业唯一标识', visible: true, width: 200 },
@@ -273,10 +273,10 @@ export default {
               name: '申请开通健康档案',
 
               click: (rowIndex, row) => {
-                this.handleOpenApplyDialog(row);
+                this.handleOpenApplyDialog(row.parentCompany);
               },
               type: 'info',
-              show: (row) => row.healthStatus === 10 && row.isParentCompany === 1
+              show: (row) => row.parentCompany && row.parentCompany.healthStatus === 10
             }]
           }
         ],
@@ -337,7 +337,7 @@ export default {
     handleSubmitApply () {
       this.applyLoading = true;
       // 调用 API 提交申请
-      addOrUpdate({
+      openUpload({
         ...this.applyForm
       }).then(res => {
         this.$message({
@@ -374,15 +374,15 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
-        dataFetchPath: '/maintain/sp/companyHealthInfo/page',
+        businessType: '维修企业健康档案',
+        dataFetchPath: '/maintain/web/sp/dealerHealthInfo/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '维修企业健康档案.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
@@ -500,7 +500,7 @@ export default {
     // 批量删除
     handleBatchDelete () {
       const ids = this.selectionList.map(item => item.id) || [];
-      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+      this.$confirm('此操作将删除选中维修企业健康档案信息，您无法撤销此操作，是否继续？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'

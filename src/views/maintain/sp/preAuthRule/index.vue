@@ -87,7 +87,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/sp/preAuthRule/index';
 import { getTableConfig, tableAddOrUpdate, getEnum, vehicleModelTree, exportTable } from '@/api/common';
@@ -165,8 +165,34 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vehicleSeriesNames', label: '车系', visible: true, width: 200 },
-          { props: 'vehicleModelNames', label: '车型', visible: true, width: 200 },
+          {
+            props: 'vehicleSeriesNames',
+            label: '车系',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.vehicleSeriesIds && row.vehicleSeriesIds.length > 0) {
+                  window.open(`/sales/datacenter/materials/vehicleseries/edit?id=${row.vehicleSeriesIds[0]}`, '_blank');
+                }
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'vehicleModelNames',
+            label: '车型',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.vehicleModelIds && row.vehicleModelIds.length > 0) {
+                  window.open(`/sales/datacenter/materials/vehicleModel/edit?id=${row.vehicleModelIds[0]}`, '_blank');
+                }
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'authAmount', label: '预售授权金额', visible: true, width: 150 },
           {
             props: 'statusLabel',

@@ -23,23 +23,24 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="是否启用" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="BooleanEnum"
+          v-model="form.statusIncludeList"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="是否启用">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="BooleanEnum"
-            v-model="form.statusIncludeList"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -52,6 +53,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -87,12 +89,16 @@
         is-checkbox
         is-page
         checkboxFixed
+        centralized
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
-      />
+        @listSelect="handleListSelect"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
     <Upload
@@ -105,7 +111,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/spareSalesCategory/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -117,6 +123,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 import TagInput from '@/libs/components/TagInput';
+import EditPage from './edit.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -138,7 +145,8 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
-    Upload
+    Upload,
+    EditPage
   },
   data () {
     return {
@@ -155,6 +163,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      clickItemId: '',
       optionObj: {
         id: 'spareSalesCategoryTable',
         dataList: [],
@@ -172,9 +181,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/spareSalesCategory/detail',
+                  path: '/sparepart/basic/spareSalesCategory/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },
@@ -197,7 +207,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/spareSalesCategory/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
@@ -241,6 +252,9 @@ export default {
     this.getData();
   },
   methods: {
+    handleListSelect (row) {
+      this.clickItemId = row.id;
+    },
     handleImport () {
       this.uploadDialogVisible = true;
     },

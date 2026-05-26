@@ -171,7 +171,9 @@
                   {{ form.claimTypeLabel }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
@@ -217,7 +219,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="!(isEditing || !_id)">采购单收货方</div>
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" class="form-detail"
                 v-show="!(isEditing || !_id) ">
                 <el-form-item label="备件收货人姓名：" prop="receiverName">
                   {{ form.receiverName }}
@@ -236,7 +238,7 @@
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="!(isEditing || !_id)">采购单发货方</div>
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" class="form-detail"
                 v-show="!(isEditing || !_id)">
                 <el-form-item label="仓库编码：" prop="deliveryWarehouseCode">
                   {{ form.deliveryWarehouseCode }}
@@ -281,12 +283,12 @@
                   <vxe-column field="inboundQty" title="已入库数" min-width="10%" />
                   <vxe-column field="claimQty" title="索赔数量" min-width="10%" >
                     <template #default="{ row }">
-                      <el-input v-model="row.claimQty" :disabled="isClaimStatus || !accountFlag" :max="row.inboundQty" type="number" min="1" @blur="handleQtyBlur(row)"/>
+                      <el-input v-model="row.claimQty" :disabled="isClaimStatus || !accountFlag" :max="row.inboundQty" type="number" min="1" @change="handleQtyBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="claimDescription" title="索赔说明" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.claimDescription" :disabled="isClaimStatus || !accountFlag" @blur="handleQtyBlur(row)"/>
+                      <el-input v-model="row.claimDescription" :disabled="isClaimStatus || !accountFlag" @change="handleQtyBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />
@@ -314,7 +316,7 @@
               <h2>附件信息</h2>
             </div>
             <div class="common-section-body">
-              <h2 style="padding-bottom: 10px;">附件申请</h2>
+              <h2 class="common-title">附件申请</h2>
               <div class="common-section-table">
                 <!-- 附件上传组件 -->
                 <AisAttachment
@@ -324,7 +326,7 @@
                   :readonly="form.claimStatus !== '10' && form.claimStatus !== '30'"
                 />
               </div>
-              <h2 style="padding-bottom: 10px;">审批附件</h2>
+              <h2 class="common-title">审批附件</h2>
               <div class="common-section-table">
                 <AisAttachment
                   :businessId="_id"
@@ -467,6 +469,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { getAreaTree } from '@/utils';
 import AisAttachment from '@/libs/components/AisAttachment';
 import ComponentTable from './ComponentTable.vue';
 import { handleCommonAction } from '@/libs/utils/index';
@@ -584,7 +587,7 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      areaOptions: JSON.parse(localStorage.areaTree),
+      areaOptions: getAreaTree(),
       orgProps: {
         checkStrictly: true,
         emitPath: false,
@@ -756,6 +759,7 @@ export default {
         id: this._id,
         claimDescription: this.form.claimDescription,
         claimQty: this.form.claimQty,
+        claimType: this.form.claimType,
         statusDesc: this.form.statusDesc,
       };
       return addOrUpdate({ ...params });
@@ -901,6 +905,7 @@ export default {
   font-size: 14px;
   font-weight: 500;
   color: #0A0E0A;
+  margin-bottom: 16px;
 }
 
 .form-edit {

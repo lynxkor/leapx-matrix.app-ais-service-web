@@ -50,6 +50,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -105,7 +106,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getEnum } from '@/api/maintain/sp/restatement/index';
 import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
@@ -194,7 +195,6 @@ export default {
             label: '结算单编码',
             visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -212,7 +212,6 @@ export default {
             label: '接车施工单',
             visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -228,7 +227,18 @@ export default {
 
           { props: 'accountTypeLabel', label: '销账标识', visible: true, width: 200 },
           { props: 'approvalStatusLabel', label: '审核状态', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          {
+            props: 'dealerName',
+            label: '门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'statementTypeLabel', label: '结算单类型', visible: true, width: 200 },
           { props: 'statementStatusLabel', label: '结算单状态', visible: true, width: 200 },
           { props: 'repairItemAmount', label: '维修项目金额', visible: true, width: 200 },
@@ -239,6 +249,7 @@ export default {
           { props: 'partPayableAmount', label: '零件应付金额', visible: true, width: 200 },
           { props: 'totalAmount', label: '总金额', visible: true, width: 200 },
           { props: 'discountAmount', label: '优惠总金额', visible: true, width: 200 },
+          { props: 'noFractionAmount', label: '去零金额', visible: true, width: 200 },
           { props: 'rightsAmount', label: '权益金额', visible: true, width: 200 },
           { props: 'payableAmount', label: '实际应付总金额', visible: true, width: 200 },
           { props: 'statementPersonName', label: '结算人员', visible: true, width: 200 },

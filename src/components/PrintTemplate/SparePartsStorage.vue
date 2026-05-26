@@ -35,20 +35,20 @@
         </div>
         <div class="el-card__header">
             <h3>本次厅店入库单详细如下：</h3><br>
-            <span id="test" style="font-size:15px">合计品项：1,合计数量：2，合计原总价：1200，合计折后总价：1200</span>
+            <span id="test" style="font-size:15px">合计品项：{{ info.totalCount }},合计数量：{{ info.totalQty }}，合计原总价：{{ info.totalAmount }}，合计折后总价：{{ info.cashAmount }}</span>
         </div>
         <div class="el-card__body">
             <table class="print-repeat-header">
                 <thead class="print-header">
                     <tr id="data-title">
-                        <th>备件编码</th>
-                        <th>备件名称</th>
-                        <th>入库数量</th>
-                        <th>库位编码</th>
-                        <th>原单价</th>
-                        <th>原总价</th>
-                        <th>折后单价</th>
-                        <th>折后总价</th>
+                        <th style="width:12%">备件编码</th>
+                        <th style="width:15%">备件名称</th>
+                        <th style="width:7%">入库数量</th>
+                        <th style="width:12%">库位编码</th>
+                        <th style="width:7%">原单价</th>
+                        <th style="width:7%">原总价</th>
+                        <th style="width:7%">折后单价</th>
+                        <th style="width:7%">折后总价</th>
                     </tr>
                 </thead>
 
@@ -57,16 +57,16 @@
                         <td>{{item.sparePartCode}}</td>
                         <td>{{item.sparePartName}}</td>
                         <td>{{item.inboundQty}}</td>
-                        <td>{{item.cashUnitPrice}}</td>
+                        <td>{{item.locationName}}</td>
+                        <td>{{item.price}}</td>
+                        <td>{{item.amount}}</td>
                         <td>{{item.cashUnitPrice}}</td>
                         <td>{{item.cashAmount}}</td>
-                        <td>{{item.rebateUnitPrice}}</td>
-                        <td>{{item.rebateAmount}}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <div style="text-align:right"><span id="WarehousePeople" style="margin-right:10px">入库人：{{ info.inboundOperator }}</span></div>
+        <div style="text-align:right"><span id="WarehousePeople" style="margin-right:10px">入库人：{{ info.inboundOperatorName }}</span></div>
     </div>
 </template>
 

@@ -195,34 +195,25 @@
         <!-- 故障存在询问 -->
         <div class="fault-existence-section">
           <div>
-            <span class="fault-label">本次进店是否存在故障</span>
+            <span class="fault-label">本次是否因故障进店</span>
             <el-radio-group v-model="faultForm.faultFlag" @change="handleFaultExistenceChange">
               <el-radio :label="true">是</el-radio>
               <el-radio :label="false">否</el-radio>
             </el-radio-group>
           </div>
           <div v-if="faultForm.faultFlag" class="search-section">
-            <div class="ais-select-group">
-              <fetch-select
-                style="width: 250px;"
-                filterable
-                clearable
-                remote
-                placeholder="请输入VRT/VFG/CCC模糊搜索"
-                :remote-method="getAlertModule"
-                @change="handleAlertModuleChange"
-                collapse-tags
-                value-key="id"
-                label-key="name"
-                size="small"
-              />
-              <el-button
-                type="primary"
-                size="small"
-              >
-                添加
-              </el-button>
-            </div>
+            <base-search
+              filterable
+              clearable
+              remote
+              placeholder="请输入VRT/VFG/CCC模糊搜索"
+              :remote-method="getAlertModule"
+              @change="handleAlertModuleChange"
+              collapse-tags
+              value-key="id"
+              label-key="name"
+              size="small"
+            />
           </div>
         </div>
 
@@ -366,7 +357,7 @@
 
     <template v-slot:footer>
       <div class="dialog-footer">
-        <el-button size="small" @click="close">取 消</el-button>
+        <el-button size="small" @click="close">取消</el-button>
         <el-button size="small" :loading="submitLoading" type="primary" @click="submit">终检</el-button>
       </div>
     </template>
@@ -379,6 +370,8 @@ import { getUserByNameOrNo } from '@/libs/api/common';
 import { getListData } from '@/api/maintain/basic/batteryUnit/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import moment from 'moment';
+import BaseSearch from '@/libs/components/BaseSearch';
+import { page } from '@/api/maintain/basic/monitoringEquipmentConfig';
 
 const allTabs = ['质检', '故障模块确认', '电池信息确认', '追溯信息确认', '终检'];
 const allSubTabs = [
@@ -391,7 +384,8 @@ const allSubTabs = [
 export default {
   name: 'FinalCheckDialog',
   components: {
-    FetchSelect
+    FetchSelect,
+    BaseSearch
   },
   props: {
     visible: {
@@ -680,9 +674,6 @@ export default {
     },
     // 搜索用户(质检人/终检人)
     async searchUser (query) {
-      if (!query) {
-        return [];
-      }
       try {
         const res = await getUserByNameOrNo({ name: query });
         return res || [];
@@ -704,7 +695,7 @@ export default {
     // 故障模块相关方法
     handleFaultExistenceChange (val) {
       if (val === false) {
-        const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
+        const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
         this.$confirm(message, '', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -754,6 +745,7 @@ export default {
           repairWorkRecordResps: this.tableData,
           traceRecordParams: this.partsTraceRecordResps,
           batteryUnitId: this.formInline.batteryUnitId,
+          batteryUnitName: this.formInline.batteryUnitName,
           targetUnitCode: this.formInline.targetUnitCode,
           beforeChangeCode: this.formInline.beforeChangeCode,
           afterChangeCode: this.formInline.afterChangeCode,
@@ -799,7 +791,7 @@ export default {
           this.$message({ message: '保存成功', type: 'success' });
           this.initData();
           if (res) {
-            const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>故障模块消息提醒</div><div class="ais-leave-tips-sub">${res}</div>`;
+            const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>故障模块消息提醒</div><div class="ais-leave-tips-sub">${res}</div>`;
             this.$confirm(message, '', {
               confirmButtonText: '确定',
               showCancelButton: false,

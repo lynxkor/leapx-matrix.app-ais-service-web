@@ -42,3 +42,11 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 重试导入任务
+ * @param {Number} id
+ */
+export function retryItem (id) {
+  return api.jsonPost('/data/ExcelManage/retryImportTask?id=' + id);
+}

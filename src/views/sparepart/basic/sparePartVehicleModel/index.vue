@@ -67,6 +67,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -79,6 +80,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -114,12 +116,16 @@
         is-checkbox
         is-page
         checkboxFixed
+        centralized
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
-      />
+        @listSelect="handleListSelect"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
     <Upload
@@ -132,7 +138,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/sparePartVehicleModel/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -144,6 +150,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import { getEndOfDayString } from '@/libs/utils';
 import TagInput from '@/libs/components/TagInput';
+import EditPage from './edit.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -169,7 +176,8 @@ export default {
     PageSearchAction,
     LPVxeTable,
     Upload,
-    TagInput
+    TagInput,
+    EditPage
   },
   data () {
     return {
@@ -186,6 +194,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      clickItemId: '',
       optionObj: {
         id: 'sparePartVehicleModelTable',
         dataList: [],
@@ -203,9 +212,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePart/detail',
+                  path: '/sparepart/basic/sparePart/edit',
                   query: {
-                    id: row.sparePartId
+                    id: row.sparePartId,
+                    isEditing: false
                   }
                 });
               },
@@ -213,8 +223,32 @@ export default {
             }]
           },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
-          { props: 'vehicleSeriesName', label: '车系名称', visible: true, width: 200 },
-          { props: 'vehicleModelName', label: '车型名称', visible: true, width: 200 },
+          {
+            props: 'vehicleSeriesName',
+            label: '车系名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/sales/datacenter/materials/vehicleseries/edit?id=${row.vehicleSeriesId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'vehicleModelName',
+            label: '车型名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.vehicleModelName) {
+                  window.open(`/sales/datacenter/materials/vehicleModel/edit?id=${row.vehicleModelId}`, '_blank');
+                }
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'vehicleYearTypeName', label: '年款名称', visible: true, width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -292,6 +326,9 @@ export default {
     this.getData();
   },
   methods: {
+    handleListSelect (row) {
+      this.clickItemId = row.id;
+    },
     handleImport () {
       this.uploadDialogVisible = true;
     },

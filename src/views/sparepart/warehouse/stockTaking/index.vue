@@ -71,6 +71,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.planStartTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -83,6 +84,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.planCompleteTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -90,18 +92,12 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="备注">
-          <el-input
-            placeholder="请输入"
-            v-model="form.remark"
-            clearable
-          />
-        </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -114,6 +110,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -164,7 +161,8 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="'1'"
+      :businessParams="project_id"
+      :id="'sparepartStockTakingDetailRes'"
       @close="handleUploadDialogClose"
       @getData="getData"
     />
@@ -182,7 +180,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, initializeItem, cancelItem } from '@/api/sparepart/warehouse/stockTaking/index';
 import { getExceptionList, initDifferences } from '@/api/sparepart/warehouse/stockTakingDifferences/index';
@@ -248,6 +246,7 @@ export default {
       differenceDialogVisible: false, // 生成差异单弹窗
       differenceId: '', // 差异单id
       differenceTableData: [], // 差异单数据
+      project_id: '', // 项目id 导入
       clickItemId: '',
       optionObj: {
         id: 'stockTakingTable',
@@ -275,7 +274,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'companyName', label: '母公司名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
@@ -301,7 +311,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/warehouse/stockTaking/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
@@ -372,6 +383,9 @@ export default {
               name: '盘点结果导入',
               show: (row) => {
                 return row.stockStatus === '2' && this.permissions.has('AISPART-stockTaking-importRes');
+              },
+              click: (rowIndex, row) => {
+                this.handleImport(row);
               },
               type: 'info'
             }, {
@@ -474,7 +488,8 @@ export default {
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
-    handleImport () {
+    handleImport (val) {
+      this.project_id = val.id;
       this.uploadDialogVisible = true;
     },
     handleUploadDialogClose () {
@@ -665,14 +680,32 @@ export default {
     },
     // 生成差异单
     async handleDifference (row) {
-      const res = await getExceptionList({ id: row.id });
-      if (res.length > 0) {
-        this.differenceId = row.id;
-        this.differenceTableData = res;
-        this.differenceDialogVisible = true;
-      } else {
-        await initDifferences({ id: row.id });
-      }
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将生成差异单, 是否继续?</div>';
+
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        // 调用 API
+        const res = await getExceptionList({ id: row.id });
+        if (res.length > 0) {
+          this.differenceId = row.id;
+          this.differenceTableData = res;
+          this.differenceDialogVisible = true;
+        } else {
+          await initDifferences({ id: row.id });
+          this.$message.success('生成差异单成功!');
+          this.getData();
+        }
+      }).catch((err) => {
+        // 错误处理
+        if (err !== 'cancel') {
+          console.error('操作失败:', err);
+        }
+      });
     }
   }
 };

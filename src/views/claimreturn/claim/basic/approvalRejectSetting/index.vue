@@ -11,27 +11,27 @@
     >
     <el-form-item label="代码">
           <tag-input v-model="form.codes" placeholder="请输入"/>
-        </el-form-item>
-        <el-form-item label="名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.nameLike"
-            clearable
-          />
-        </el-form-item>
-      <template v-if="show">
-        <el-form-item label="类型">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="reject_config_type"
-            v-model="form.rejectConfigTypeList"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
-      <el-form-item label="是否启用"  v-show="this.visibleCount === 3 || show">
+    </el-form-item>
+    <el-form-item label="名称">
+      <el-input
+        placeholder="请输入"
+        v-model="form.nameLike"
+        clearable
+      />
+    </el-form-item>
+    <el-form-item label="类型" v-show="this.visibleCount === 3 || show">
+      <fetch-select
+        :request="fetchOptions"
+        enumCode="reject_config_type"
+        v-model="form.rejectConfigTypeList"
+        placeholder="请选择"
+        clearable
+        multiple
+        filterable
+      />
+    </el-form-item>
+    <template v-if="show">
+      <el-form-item label="是否启用">
         <fetch-select
           :request="fetchOptions"
           enumCode="StatusEnum"
@@ -47,6 +47,7 @@
          :default-time="['00:00:00', '23:59:59']"
           v-model="form.createTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -59,6 +60,7 @@
          :default-time="['00:00:00', '23:59:59']"
           v-model="form.updateTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -117,7 +119,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/claimreturn/claim/basic/approvalRejectSetting/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -137,7 +139,8 @@ const defaultForm = {
   status: '',
   code: '',
   name: '',
-  rejectConfigType: '',
+  statusList: [],
+  rejectConfigTypeList: [],
 };
 
 const pageSize = 20;

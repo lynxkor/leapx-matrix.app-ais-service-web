@@ -8,7 +8,6 @@
         :id="_id"
         :title="`仓库名称：${form.warehouseName}`"
         :isEditing.sync="isEditing"
-        direction="vertical"
         :form.sync="form"
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
@@ -103,7 +102,7 @@
                 />
               </el-form-item>
             </el-form>
-            <el-form :inline="true"  label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
+            <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
               <el-form-item label="仓库名称：" prop="warehouseName">
                 {{ form.warehouseName  }}
               </el-form-item>
@@ -153,7 +152,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { getAreaInfo } from '@/utils';
+import { getAreaInfo, getAreaTree } from '@/utils';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 
@@ -218,7 +217,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      areaOptions: JSON.parse(localStorage.areaTree),
+      areaOptions: getAreaTree(),
       pageTitle: '主机厂仓库管理',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改

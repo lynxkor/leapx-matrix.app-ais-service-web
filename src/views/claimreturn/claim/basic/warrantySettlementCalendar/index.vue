@@ -17,24 +17,24 @@
         />
       </el-form-item>
       <el-form-item label="每月第几日保修结算">
-          <el-input
-            placeholder="请输入"
-            v-model="form.settlementDay"
-            clearable
-          />
-        </el-form-item>
+        <el-input
+          placeholder="请输入"
+          v-model="form.settlementDay"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="日历模式" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="warranty_calendar_mode"
+          v-model="form.calendarModes"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="日历模式">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="warranty_calendar_mode"
-            v-model="form.calendarModes"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
         <el-form-item label="月度">
           <fetch-select
             :request="fetchOptions"
@@ -65,6 +65,7 @@
          :default-time="['00:00:00', '23:59:59']"
           v-model="form.createTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -77,6 +78,7 @@
          :default-time="['00:00:00', '23:59:59']"
           v-model="form.updateTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -135,7 +137,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/claimreturn/claim/basic/warrantySettlementCalendar/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -161,6 +163,8 @@ const defaultForm = {
   dealerCode: '',
   dealerName: '',
   monthType: '',
+  calendarModes: [],
+  statusList: []
 };
 
 const pageSize = 20;

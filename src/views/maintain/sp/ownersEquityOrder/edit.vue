@@ -514,7 +514,7 @@
                     v-show="expandedItems.includes(index)"
                     class="item-detail-body"
                   >
-                    <el-form :inline="true" class="form-detail" label-width="120px">
+                    <el-form :inline="true" class="form-detail">
                       <el-form-item label="*维修类型：">
                         {{ item.repairItemTypeName }}
                       </el-form-item>
@@ -695,7 +695,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '商城订单管理',
+      pageTitle: '商城订单',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-ownersEquityOrder',
@@ -1113,7 +1113,7 @@ export default {
 
 .claim-summary span {
   padding: 5px 10px;
-  background-color: #f5f7fa;
+  background-color: var(--leap-color-default-light-5);
   border-radius: 4px;
 }
 </style>

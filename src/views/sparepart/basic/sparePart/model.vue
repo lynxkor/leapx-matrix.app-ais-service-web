@@ -95,8 +95,8 @@
 
     <!-- 弹窗底部按钮 -->
     <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="handleClose">取 消</el-button>
-        <el-button type="primary" size="small" @click="handleConfirm">确 定</el-button>
+        <el-button size="small" @click="handleClose">取消</el-button>
+        <el-button type="primary" size="small" @click="handleConfirm">确定</el-button>
     </div>
     </el-dialog>
   </template>
@@ -144,22 +144,22 @@ export default {
         {
           field: 'index',
           title: '序号',
-          width: '20%',
+          width: '22%',
         },
         {
           field: 'vehicleSeriesName',
           title: '车系',
-          width: '20%',
+          width: '22%',
         },
         {
           field: 'vehicleModelName',
           title: '适用车型',
-          width: '20%',
+          width: '22%',
         },
         {
           field: 'vehicleYearTypeName',
           title: '年款',
-          width: '20%',
+          width: '22%',
           editable: true,
           editRender: {
             name: 'ElSelect',
@@ -212,7 +212,7 @@ export default {
       });
     },
     async getVehicleList () {
-      const res = await listVehicleSeries({ status: 1 });
+      const res = await listVehicleSeries({ status: 1, pageSize: 1000 });
       this.seriesList = res || [];
       // 初始化时默认选择第一个车系
       if (this.seriesList.length > 0) {
@@ -221,7 +221,7 @@ export default {
     },
     // 年款接口
     async getYearList () {
-      const res = await listVehicleYearType({ status: 1 });
+      const res = await listVehicleYearType({ status: 1, pageSize: 1000 });
       // 在数组开头添加"无年款"选项
       this.options.vehicleYearTypeName = [
         { value: '0', label: '无年款' },
@@ -243,7 +243,7 @@ export default {
 
     // 选择车系 车系id查询 车型
     async getModelList (seriesId) {
-      const res = await listVehicleYearTypeFull({ seriesId: seriesId, status: 1 });
+      const res = await listVehicleYearTypeFull({ seriesId: seriesId, status: 1, pageSize: 1000 });
       this.applicableModelList = res || [];
     },
     // 选择车型

@@ -9,7 +9,6 @@
         :isEditing.sync="isEditing"
         :form.sync="form"
         :originalForm.sync="originalForm"
-        direction="vertical"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
@@ -100,9 +99,9 @@
                     {{ form.schemeName }}
                   </el-form-item>
                 </el-form>
-                <el-form :inline="true" label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="活动编码：" prop="activityId">
-                    {{ form.activityId }}
+                    {{ form.activityCode }}
                   </el-form-item>
                   <el-form-item label="活动名称：" prop="activityName">
                     {{ form.activityName }}
@@ -120,7 +119,7 @@
                     {{ form.ownerPhone }}
                   </el-form-item>
                   <el-form-item label="是否完成：" prop="finished">
-                    {{ form.finished }}
+                    {{ form.finishedLabel }}
                   </el-form-item>
                   <el-form-item label="完成时间：" prop="finishTime">
                     {{ form.finishTime }}

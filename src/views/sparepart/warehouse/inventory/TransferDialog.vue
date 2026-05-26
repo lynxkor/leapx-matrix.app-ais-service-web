@@ -125,7 +125,6 @@ export default {
         this.close();
         this.$emit('submit');
       } catch (error) {
-        this.$message.error('转移库位失败');
       }
     },
   }

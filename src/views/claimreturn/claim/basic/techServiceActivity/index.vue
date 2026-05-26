@@ -51,6 +51,7 @@
           <el-date-picker
             v-model="form.startTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -62,6 +63,7 @@
           <el-date-picker
             v-model="form.endTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -73,6 +75,7 @@
           <el-date-picker
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -84,6 +87,7 @@
           <el-date-picker
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -135,7 +139,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
 import {
   getList,
@@ -246,6 +250,9 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              // show: (row) => {
+              //   return row.activityStatus === '0';
+              // },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: this.getPath(),
@@ -284,9 +291,9 @@ export default {
   methods: {
     getPath () {
       if (this.isServiceCareActivity) {
-        return '/claimreturn/claim/basic/serviceCareActivity/edit';
+        return '/claimreturn/claim/basic/serviceCareActivity/edit?isEditing=1';
       }
-      return '/claimreturn/claim/basic/techServiceActivity/edit';
+      return '/claimreturn/claim/basic/techServiceActivity/edit?isEditing=1';
     },
     handleImport () {
       this.uploadDialogVisible = true;
@@ -311,7 +318,7 @@ export default {
       this.exportLoading = true;
       exportTable({
         businessType: '技术服务活动',
-        dataFetchPath: '/claimreturn/claim/web/web/basic/techServiceActivity/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/serviceActivity/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

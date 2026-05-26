@@ -40,8 +40,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="onSubmit">确 定</el-button>
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="onSubmit">确定</el-button>
       </span>
     </el-dialog> -->
   </div>
@@ -108,10 +108,17 @@ export default {
       login(encrypt(this.form)).then(async (res) => {
         this.iskey = false;
         this.$store.commit('SET_TOKEN', res.token);
-        this.$store.commit('SET_PAGE_RESOURCE', res.resources);
+        if (res?.resources?.length) {
+          this.$store.commit('SET_PAGE_RESOURCE', res.resources);
+        } else {
+          this.$store.commit('SET_PAGE_RESOURCE', {
+            pageSource: res?.resourceTagList || [],
+            sourceUrl: res?.resourceUriList || []
+          });
+        }
         getAreaTree().then(res => {
           console.log('areaTree', res);
-          localStorage.getItem('areaTree', JSON.stringify(res));
+          localStorage.setItem('areaTree', JSON.stringify(res));
           this.$store.commit('SET_AREATREE', res);
         }).catch(() => {});
         this.$store.commit('SET_LOGIN_INFO', Object.assign({}, res));

@@ -16,7 +16,7 @@
           </el-form-item>
           <span class="item">件</span>
           <el-form-item class="form-item-full">
-            <el-button size="small" type="primary" :loading="loading" @click="submit">确 定</el-button>
+            <el-button size="small" type="primary" :loading="loading" @click="submit">确定</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -99,7 +99,7 @@ export default {
       getConfig({
         paramCode: 'oldPartDestroyConfig'
       }).then(res => {
-        this.form = res;
+        this.form = { ...defaultForm, ...res };
       });
     },
     submit () {

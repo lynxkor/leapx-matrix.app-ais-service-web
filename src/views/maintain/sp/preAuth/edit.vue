@@ -19,6 +19,7 @@
           <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.IN_PROGRESS && !form.isGoodWarranty">审批</el-button>
           <el-button size="small" type="primary" plain @click="handleCancel" v-if="_id && form.approvalStatus === AUDIT_STATUS.REJECTED">作废</el-button>
           <el-button size="small" type="primary" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO">提交</el-button>
+          <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.REFUSED">激活</el-button>
         </template>
         <template #footer>
           <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleSubmit(0)" :loading="loading">保存</el-button>
@@ -185,7 +186,7 @@
                     :params="form.qualityOrderReport"
                     value-key="id"
                     label-key="code"
-                    subLabelKey="displayName"
+                    subLabelKey="title"
                     placeholder="请选择质量反馈单"
                     clearable
                     filterable
@@ -509,7 +510,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getServiceProxyList, getServiceProxyDetail, cancelItem, getPreAuthInfo } from '@/api/maintain/sp/preAuth/index';
+import { getDetail, addOrUpdate, getServiceProxyDetail, cancelItem, getPreAuthInfo, checkPreAuth } from '@/api/maintain/sp/preAuth/index';
 import { getList as getQualityReportList } from '@/api/maintain/sp/qualityOrderReport/index';
 import { selectServiceProxy as selectServiceProxyApi, getEnum } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -722,7 +723,7 @@ export default {
           // attachType: this.attachmentConfig.attachType
         });
 
-        const files = (response?.data || []).map(file => ({
+        const files = (response || []).map(file => ({
           id: file.id,
           name: file.fileName,
           url: file.fileUrl,
@@ -842,6 +843,7 @@ export default {
         getQualityReportList({
           codeLike: queryString,
           vehProfileVin: this.form.vehProfileVin,
+          orderStatus: 30,
           pageSize: 20,
           pageNum: 1
         }).then(res => {
@@ -868,27 +870,36 @@ export default {
 
       // 如果是新增模式，根据施工单ID获取详细信息
       if (!this._id && record.id) {
-        getServiceProxyDetail(record.id).then(detailRes => {
-          if (detailRes) {
-            // 直接保存接口返回的数据，用于展示
-            this.serviceProxyDetail = detailRes;
-            Object.assign(this.form, detailRes);
-            // 设置预授权类型（如果有）
-            if (detailRes.preAuthType) {
-              this.form.preAuthType = detailRes.preAuthType;
-            }
+        checkPreAuth(record.id).then(res => {
+          if (!res.needPreAuth) {
+            this.$message.error('该施工单无需预授权');
+          } else {
+            this.form.preAuthType = res.preAuthType;
+            getServiceProxyDetail(record.id).then(detailRes => {
+              if (detailRes) {
+                // 直接保存接口返回的数据，用于展示
+                this.serviceProxyDetail = detailRes;
+                Object.assign(this.form, detailRes);
+                // 设置预授权类型（如果有）
+                if (detailRes.preAuthType) {
+                  this.form.preAuthType = detailRes.preAuthType;
+                }
+              }
+            }).catch(error => {
+              console.error('获取施工单详情失败:', error);
+            });
+            getPreAuthInfo(record.id).then(preAuthInfo => {
+              if (preAuthInfo) {
+                // 直接保存接口返回的数据，用于展示
+                this.preAuthInfoDetail = preAuthInfo;
+                Object.assign(this.form, preAuthInfo);
+              }
+            }).catch(error => {
+              console.error('获取施工单详情失败:', error);
+            });
           }
         }).catch(error => {
-          console.error('获取施工单详情失败:', error);
-        });
-        getPreAuthInfo(record.id).then(preAuthInfo => {
-          if (preAuthInfo) {
-            // 直接保存接口返回的数据，用于展示
-            this.preAuthInfoDetail = preAuthInfo;
-            Object.assign(this.form, preAuthInfo);
-          }
-        }).catch(error => {
-          console.error('获取施工单详情失败:', error);
+          console.error('预授权检查失败:', error);
         });
       }
     },

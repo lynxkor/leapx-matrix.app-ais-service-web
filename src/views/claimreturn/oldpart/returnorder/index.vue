@@ -104,7 +104,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
 import { getList, deleteItem, enableItem, publish, signByIds } from '@/api/claimreturn/oldpart/returnorder';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -171,45 +171,10 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
-      //
-      tableDataList: [],
-      tableTotal: 0,
-      tableForm: { page: 1, size: pageSize },
-    };
-  },
-  beforeCreate () {
-    defaultForm.returnType = this.$route.meta.returnType;
-  },
-  created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
-    this.getData();
-    loginUserGet().then(data => {
-      this.isDealer = data.accountFlag;
-    });
-  },
-  mounted () {
-  },
-  computed: {
-    isFastReturn () {
-      return this.$route.meta.returnType === '40';
-    },
-    editPath () {
-      if (this.isDealer) {
-        return this.isFastReturn ? '/claimreturn/oldpart/dealerReturnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
-      }
-      return this.isFastReturn ? '/claimreturn/oldpart/returnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
-    },
-    canPublish () {
-      return this.permissions.has(`${this.moduleKey}-publish`);
-    },
-    canSign () {
-      return this.permissions.has(`${this.moduleKey}-sign`);
-    },
-    optionObj () {
-      return {
+      optionObj: {
         id: this.$route.meta.moduleKey,
-        dataList: this.tableDataList,
-        form: this.tableForm,
+        dataList: [],
+        form: { page: 1, size: pageSize },
         dataProp: [
           {
             props: 'returnOrderNo',
@@ -247,7 +212,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 140 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 140,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'returnStatusLabel', label: '回运状态', visible: true, width: 110 },
           { props: 'isCheckedLabel', label: '是否验收完成', visible: true, width: 140 },
           { props: 'returnDate', label: '回运日期', visible: true, width: 200 },
@@ -305,6 +281,8 @@ export default {
               type: 'info'
             }, {
               name: '删除',
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '删除',
               show: (row) => {
                 return row.returnStatus === '10' && this.canDelete;
               },
@@ -328,7 +306,36 @@ export default {
           }
         ],
         total: 0
-      };
+      }
+    };
+  },
+  beforeCreate () {
+    defaultForm.returnType = this.$route.meta.returnType;
+  },
+  created () {
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    this.getData();
+    loginUserGet().then(data => {
+      this.isDealer = data.accountFlag;
+    });
+  },
+  mounted () {
+  },
+  computed: {
+    isFastReturn () {
+      return this.$route.meta.returnType === '40';
+    },
+    editPath () {
+      if (this.isDealer) {
+        return this.isFastReturn ? '/claimreturn/oldpart/dealerReturnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
+      }
+      return this.isFastReturn ? '/claimreturn/oldpart/returnorder/fast/edit' : '/claimreturn/oldpart/returnorder/edit';
+    },
+    canPublish () {
+      return this.permissions.has(`${this.moduleKey}-publish`);
+    },
+    canSign () {
+      return this.permissions.has(`${this.moduleKey}-sign`);
     }
   },
   methods: {
@@ -347,20 +354,20 @@ export default {
       });
     },
     onSubmit () {
-      this.tableForm.page = 1;
+      this.optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
       this.form = { ...defaultForm };
-      this.tableForm.page = 1;
-      this.tableForm.pageSize = pageSize;
+      this.optionObj.form.page = 1;
+      this.optionObj.form.pageSize = pageSize;
       this.getData();
     },
     exportExcel () {
       this.exportLoading = true;
       exportTable({
         businessType: '新页面',
-        dataFetchPath: 'claimreturn/web/oldpart/returnorder/fastReturnOrder/page',
+        dataFetchPath: 'claimreturn/oldpart/web/returnorder/oldPartReturnOrder/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
@@ -388,15 +395,15 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
+      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
-          this.tableDataList = res.records.map(item => {
+          this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.tableTotal = res.total;
+          this.optionObj.total = res.total;
         }).finally(() => {
           this.loading = false;
         });
@@ -421,9 +428,9 @@ export default {
     },
     paginationChange (type, num) {
       if (type === 'page') {
-        this.tableForm.page = num;
+        this.optionObj.form.page = num;
       } else {
-        this.tableForm.size = num;
+        this.optionObj.form.size = num;
       }
       this.debouncedGetData();
     },

@@ -28,6 +28,7 @@
           :default-time="['00:00:00', '23:59:59']"
           v-model="form.createTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -76,7 +77,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getConfigList } from '@/libs/api/attachment';
 import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
@@ -214,14 +215,14 @@ export default {
       getConfigList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          const records = res.data?.records || [];
+          const records = res.records || [];
           this.optionObj.dataList = records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.data?.totals;
+          this.optionObj.total = res.totals;
         }).finally(() => {
           this.loading = false;
         });

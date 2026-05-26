@@ -5,7 +5,7 @@
     </div>
     <!-- 数据表格 -->
     <div class="table-section">
-      <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">
+      <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium" min-height="0" max-height="400px">
         <vxe-column field="partCode" title="序号" width="100">
           <template #default="{ rowIndex }">
             {{ rowIndex + 1 }}
@@ -23,8 +23,8 @@
         </vxe-column>
         <vxe-column field="unPurchaseReason" title="操作">
           <template #default="{ row, rowIndex }">
-            <el-button type="text" class="action-button btn-edit" @click="handleUpDown(row, 'UP')">上移</el-button>
-            <el-button type="text" class="action-button btn-edit" @click="handleUpDown(row, 'DOWN')">下移</el-button>
+            <el-button type="text" class="action-button btn-edit" :disabled="rowIndex === 0" @click="handleUpDown(row, 'UP')">上移</el-button>
+            <el-button type="text" class="action-button btn-edit" :disabled="rowIndex === tableData.length - 1" @click="handleUpDown(row, 'DOWN')">下移</el-button>
             <el-popconfirm :title="`确定要${row.status === 1 ? '停用' : '启用'}该套餐类型吗？`" @confirm="handleEdit(row)">
               <span slot="reference" type="text" class="action-button btn-edit" size="small">{{
                 row.status === 1 ? '停用' : '启用' }}</span>
@@ -40,8 +40,8 @@
     <!-- 底部按钮 -->
     <template v-slot:footer>
       <div class="dialog-footer">
-        <el-button size="small" @click="close">取 消</el-button>
-        <el-button type="primary" size="small" :loading="loading" @click="handleSave">保 存</el-button>
+        <el-button size="small" @click="close">取消</el-button>
+        <el-button type="primary" size="small" :loading="loading" @click="handleSave">保存</el-button>
       </div>
     </template>
   </el-dialog>
@@ -96,9 +96,13 @@ export default {
     },
     // 删除套餐类型
     handleDeleteRow (row, rowIndex) {
-      repairPackagesTypeDelete([row.id]).then(res => {
+      if (!row.id) {
         this.tableData.splice(rowIndex, 1);
-      });
+      } else {
+        repairPackagesTypeDelete([row.id]).then(res => {
+          this.tableData.splice(rowIndex, 1);
+        });
+      }
     },
     // 上移和下移
     async handleUpDown (row, direction) {

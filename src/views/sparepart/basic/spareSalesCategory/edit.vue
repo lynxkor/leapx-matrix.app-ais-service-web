@@ -1,77 +1,105 @@
 <template>
-  <!-- TIPS: 如果填写项大于15项，使用类名page-common-edit替换page-common-add -->
-  <div class="page-common-edit">
-    <el-container>
-      <el-main>
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>基础信息</h2>
-          </div>
-          <div class="common-section-body">
-            <!-- TIPS: 如果填写项大于15项，加上 :inline="true" -->
-            <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-            <el-form inline :model="form" :rules="rules" ref="ruleForm" label-width="150px">
-              <el-form-item label="营销分类编码" prop="categoryCode">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.categoryCode"
-                  clearable
-                  :disabled="!!partsId"
-                />
-              </el-form-item>
-              <el-form-item label="营销分类名称" prop="categoryName">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.categoryName"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="可采购建店类型" prop="buildTypeCode">
-                <el-select
-                  v-model="form.buildTypeCode"
-                  multiple
-                  placeholder="请选择"
-                  collapse-tags
-                  >
-                  <el-option
-                    v-for="item in storeTypeOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-form>
-          </div>
-        </section>
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>可采购门店</h2>
-          </div>
-          <div class="common-section-body">
-            <div class="ais-select-group" v-if="partsId">
-              <fetch-select
-                style="width: 305px;"
-                :remote-method="getDealerList"
-                remote
-                v-model="dealerCodes"
-                placeholder="请选择"
-                labelKey="orgName"
-                valueKey="orgCode"
-                subLabelKey="orgCode"
-                clearable
-                filterable
-                @change="handleStoreChange"
-              />
-              <el-button
-                type="primary"
-                @click="handleAddStore(1)"
-                size="small"
-              >
-                添加
-              </el-button>
+  <edit-page-layout ref="editLayout" :title="title" showPaneFooter>
+    <template #left>
+      <edit-base-container
+        ref="containerRef"
+        :id="_id"
+        :title="title"
+        :isEditing.sync="isEditing"
+        :form.sync="form"
+        :originalForm.sync="originalForm"
+        :submitRequest="submitRequest"
+        :detailRequest="detailRequest"
+        :showEditBtn="true"
+      >
+        <template #status>
+          <span :class="['status', form.status ? 'primary' : 'danger']">{{ form.statusLabel }}</span>
+        </template>
+        <el-main>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
             </div>
-            <div class="common-section-table">
+            <div class="common-section-body">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="营销分类编码：" prop="categoryCode">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.categoryCode"
+                    clearable
+                    :disabled="!!partsId"
+                  />
+                </el-form-item>
+                <el-form-item label="营销分类名称：" prop="categoryName">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.categoryName"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="可采购建店类型：" prop="buildTypeCode">
+                  <el-select
+                    v-model="form.buildTypeCode"
+                    multiple
+                    placeholder="请选择"
+                    collapse-tags
+                    clearable
+                  >
+                    <el-option
+                      v-for="item in storeTypeOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="营销分类编码：">
+                  {{ form.categoryCode }}
+                </el-form-item>
+                <el-form-item label="营销分类名称：">
+                  {{ form.categoryName }}
+                </el-form-item>
+                <el-form-item label="是否启用：">
+                  {{ form.statusLabel }}
+                </el-form-item>
+                <el-form-item label="创建时间：">
+                  {{ form.createTime }}
+                </el-form-item>
+                <el-form-item label="修改时间：">
+                  {{ form.updateTime }}
+                </el-form-item>
+                <el-form-item label="建店类型：" style="width: 100%;">
+                  {{ buildTypeNamesString }}
+                </el-form-item>
+                <el-form-item label="备注：" style="width: 100%;">
+                  {{ form.remark }}
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>可采购门店</h2>
+            </div>
+            <div class="common-section-body">
+              <div class="ais-select-group" v-if="partsId && isEditing">
+                <base-search
+                  style="width: 300px;"
+                  filterable
+                  clearable
+                  remote
+                  placeholder="请选择"
+                  v-model="dealerCodes"
+                  :remote-method="getDealerList"
+                  @change="(val, ele) => handleStoreChange(val, ele, 1)"
+                  label-key="orgName"
+                  value-key="orgCode"
+                  subLabelKey="orgCode"
+                />
+              </div>
+              <div class="common-section-table">
                 <expand-table
                   ref="expandTable"
                   :columns="columns"
@@ -91,96 +119,75 @@
                   @current-page-change="currentPageChange"
                   @remove-row="handleDeleteStore"
                 />
+              </div>
             </div>
-          </div>
-        </section>
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>不可采购门店</h2>
-          </div>
-          <div class="common-section-body">
-            <div class="ais-select-group" v-if="partsId">
-              <fetch-select
-                style="width: 305px;"
-                :remote-method="getDealerList"
-                remote
-                v-model="noDealerCodes"
-                placeholder="请选择"
-                labelKey="orgName"
-                valueKey="orgCode"
-                subLabelKey="orgCode"
-                clearable
-                filterable
-                @change="handleStoreChange"
-              />
-              <el-button
-                type="primary"
-                @click="handleAddStores(0)"
-                size="small"
-              >
-                添加
-              </el-button>
+          </section>
+          <section class="common-section" v-if="_id">
+            <div class="common-section-header">
+              <h2>不可采购门店</h2>
             </div>
-            <div class="common-section-table">
-              <expand-table
-                ref="expandTable"
-                :columns="columns"
-                :data="noTableData"
-                :auth="{
-                  add: false,
-                  edit: false,
-                  delete: true,
-                }"
-                :delTitle="'确认删除该门店吗？'"
-                :show-toolbar="false"
-                showPagination
-                :current="noProcurable.current"
-                :pageSize="noProcurable.pageSize"
-                :total="noProcurable.total"
-                @page-size-change="noPageSizeChange"
-                @current-page-change="noCurrentPageChange"
-                @remove-row="handleDeleteStore"
-              />
+            <div class="common-section-body">
+              <div class="ais-select-group" v-if="partsId && isEditing">
+                <base-search
+                  style="width: 300px;"
+                  filterable
+                  clearable
+                  remote
+                  placeholder="请选择"
+                  v-model="noDealerCodes"
+                  :remote-method="getDealerList"
+                  @change="(val, ele) => handleStoreChange(val, ele, 0)"
+                  label-key="orgName"
+                  value-key="orgCode"
+                  subLabelKey="orgCode"
+                />
+              </div>
+              <div class="common-section-table">
+                <expand-table
+                  ref="expandTable"
+                  :columns="columns"
+                  :data="noTableData"
+                  :auth="{
+                    add: false,
+                    edit: false,
+                    delete: true,
+                  }"
+                  :delTitle="'确认删除该门店吗？'"
+                  :show-toolbar="false"
+                  showPagination
+                  :current="noProcurable.current"
+                  :pageSize="noProcurable.pageSize"
+                  :total="noProcurable.total"
+                  @page-size-change="noPageSizeChange"
+                  @current-page-change="noCurrentPageChange"
+                  @remove-row="handleDeleteStore"
+                />
+              </div>
             </div>
-          </div>
-        </section>
-      </el-main>
-      <el-footer height="60px">
-        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-        <el-button size="small" @click="submitForm('ruleForm', true)" style="color: #009100;">保存并再新增</el-button>
-        <el-button size="small" @click="handleBack">取消</el-button>
-        <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
-      </el-footer>
-    </el-container>
-  </div>
+          </section>
+        </el-main>
+      </edit-base-container>
+    </template>
+  </edit-page-layout>
 </template>
 
 <script>
 import { getDetail, addOrUpdate, categoryPurchaseDealer, addDealer, deleteDealer } from '@/api/sparepart/basic/spareSalesCategory/index';
-import { getEnum, getBuildType, listOrgStoreInfo, listOrgStoreInfoByParam } from '@/api/common';
+import { getEnum, getBuildType, listOrgStoreInfoByParam } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import expandTable from '@/libs/components/expandTable';
 import FetchSelect from '@/libs/components/FetchSelect';
+import EditPageLayout from '@/libs/components/EditPageLayout';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
-  // 多选时字段有变化，自行修复
   categoryCode: '',
   categoryName: '',
-  statusDesc: '',
-  createTime: '',
-  updateTime: '',
-  id: '',
-  creator: '',
-  creatorName: '',
-  modifier: '',
-  modifierName: '',
-  remark: '',
-  status: '1',
-  dataSource: '',
-  categoryType: '',
+  statusLabel: '',
   buildTypeCode: [],
 };
 
@@ -191,26 +198,56 @@ export default {
     id: {
       type: [String, Number],
       default: null
-    }
+    },
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     expandTable,
-    FetchSelect
+    EditPageLayout,
+    EditBaseContainer,
+    BaseSearch
+  },
+  computed: {
+    _id () {
+      return this.id || this.$route.query.id || this.form.id;
+    },
+    title () {
+      return '营销分类编码：' + (this.form.categoryCode || '');
+    },
+    buildTypeNamesString () {
+    // 1. 获取数组引用
+      const list = this.form.categoryBuildTypeRespList;
+
+      // 2. 安全检查：先判断是否存在且为数组，防止报错
+      if (!list || !Array.isArray(list)) return '';
+
+      // 3. 链式调用：直接 map 提取名称并 join 拼接
+      return list.map(item => item.buildTypeName).join('、');
+    }
+  },
+  watch: {
+    id: {
+      handler (val) {
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
+        }
+      },
+      immediate: true
+    }
   },
   data () {
     const form = this.getDefautlForm();
     return {
-      // TIPS: 权限前缀 AISMC，根据实际情况修改
-      moduleKey: 'AISPART-spareSalesCategory',
-      pageType: 'edit',
       pageTitle: '备件销售分类',
+      pageType: 'edit',
+      moduleKey: 'AISPART-spareSalesCategory',
       loading: false,
       submitLoading: false,
+      info: {},
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      partsId: null, // 保存成功时ID
+      partsId: null,
       procurable: {
         pageSize: 10,
         total: 0,
@@ -221,14 +258,13 @@ export default {
         total: 0,
         current: 1,
       },
-      storeTypeOptions: [], // 建店类型选项
-      buildTypeList: [], // 可采购建店类型列表 传参字段
-      tableData: [], // 可采购门店列表
-      storeOptions: [], // 可采购门店列表
-      storeParams: {}, // 可采购门店列表
-      dealerCodes: '', // 可采购门店列表
-      noDealerCodes: '', // bu可采购门店列表
-      noTableData: [], // 不可采购门店列表
+      storeTypeOptions: [],
+      tableData: [],
+      storeOptions: [],
+      storeParams: {},
+      dealerCodes: '',
+      noDealerCodes: '',
+      noTableData: [],
       rules: {
         categoryCode: [
           { required: true, message: '请输入营销分类编码', trigger: 'blur' }
@@ -236,164 +272,67 @@ export default {
         categoryName: [
           { required: true, message: '请输入营销分类名称', trigger: 'blur' }
         ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
       },
-      defaultNewRow: {
-        dealerName: '',
-        dealerCode: '',
-        createTime: '',
-        creatorName: '',
-      },
-      columns: [ // 适配车型
+      columns: [
         {
           field: 'dealerName',
           title: '门店名称',
-          width: '20%',
+          width: '23%',
         },
         {
           field: 'dealerCode',
           title: '门店编码',
-          width: '20%',
+          width: '23%',
         },
         {
           field: 'createTime',
           title: '添加时间',
-          width: '20%',
+          width: '23%',
         },
         {
           field: 'creatorName',
           title: '操作人',
-          width: '20%',
+          width: '22%',
         }
       ],
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
-      }
     };
   },
   mounted () {
-    this.getDetailData();
     this.getStore();
     this.partsId = this.$route.query.id;
-    this.getPurchaseDealer(this.$route.query.id);
+    if (this.partsId) {
+      this.getPurchaseDealer(this.$route.query.id);
+    }
   },
   methods: {
-    handleBack () {
-      this.$router.back();
-    },
-    getDetailData () {
-      const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件营销分类', `${id ? '编辑' : '新建'}`]);
+    detailRequest () {
+      const id = this._id;
       if (id) {
-        getDetail(id).then(res => {
-          this.loading = false;
-          Object.assign(this.form, res);
-          Object.assign(this.originalForm, res);
-          this.form.buildTypeCode = res.categoryBuildTypeRespList.map(item => Number(item.buildTypeCode)) || [];
+        return getDetail(id).then(res => {
+          res.buildTypeCode = res.categoryBuildTypeRespList?.map(item => Number(item.buildTypeCode)) || [];
+          return res;
         });
       }
+      return {};
     },
-    submitForm (formName, rest = false) {
-      this.$refs[formName].validate((valid) => {
-        const newArray = this.form.buildTypeCode.map(code => {
-          // 在 storeTypeOptions 中查找匹配的项
-          const matchedItem = this.storeTypeOptions.find(item => item.value === code);
-          return {
-            buildTypeCode: code,
-            buildTypeName: matchedItem.label // 如果没有匹配到，可以设置默认值
-          };
-        });
-        if (valid) {
-          this.submitLoading = true;
-          addOrUpdate({ ...this.form, buildTypeList: newArray }).then(res => {
-            this.$message({
-              message: '保存成功',
-              type: 'success'
-            });
-            this.partsId = res || '';
-            if (this.partsId) { // 判断新增时 获取到id 就赋值 调整为编辑状态 传参id
-              this.form.id = this.partsId;
-            }
-            this.form.id = this.partsId;
-            const id = this.$route.query.id;
-            if (res) {
-              this.getDetailData();
-              this.getPurchaseDealer(this.partsId);
-              return;
-            }
-            if (rest || !id) {
-              this.resetForm(formName);
-            } else {
-              this.getDetailData();
-            }
-          }).finally(() => {
-            this.submitLoading = false;
-          });
-        }
+    submitRequest () {
+      const newArray = this.form.buildTypeCode.map(code => {
+        const matchedItem = this.storeTypeOptions.find(item => item.value === code);
+        return {
+          buildTypeCode: code,
+          buildTypeName: matchedItem?.label
+        };
       });
-    },
-    resetForm (formName) {
-      this.$refs[formName].resetFields();
-      this.tableData = []; // 可采购门店列表
-      this.noTableData = []; // 不可采购门店列表
-      this.form = this.getDefautlForm();
+      return addOrUpdate({ ...this.form, buildTypeList: newArray });
     },
     getDefautlForm () {
-      // TIPS: 此处可添加表单默认值，如当前用户信息等
-      // const userInfo = this.$store.state.user.userInfo;
       return {
         ...defaultForm
-        // ownerId: userInfo.userId,
-        // ownerName: userInfo.userName,
       };
     },
-    // handleJumpAuditLog () {
-    //   this.$router.push({
-    //     path: '/xxx/auditLog',
-    //     query: {
-    //       tableCode: '',
-    //       tableId: ''
-    //     }
-    //   });
-    // },
-    async fetchOptions (code) {
-      if (code) {
-        return getEnum(code);
-      }
-      return [];
-    },
-    // 处理建店类型选择变更事件
     async getStore () {
       const res = await getBuildType();
-
       if (res && Array.isArray(res)) {
-        // 使用 flatMap 提取所有 children 并合并成一个新数组
         this.storeTypeOptions = res.flatMap(item => {
           if (item.children && Array.isArray(item.children)) {
             return item.children.map(child => ({
@@ -407,7 +346,6 @@ export default {
         this.storeTypeOptions = [];
       }
     },
-    // 可采购/不可采购门店
     async getDealerList (query) {
       try {
         const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
@@ -416,28 +354,19 @@ export default {
         return [];
       }
     },
-    getStoreByName (query) {
-      listOrgStoreInfo({
-        name: query
-      }).then(res => {
-        this.storeOptions = res?.map(item => {
-          return {
-            ...item,
-            value: item.orgCode,
-            label: item.orgName
-          };
-        });
-      });
-    },
-    // 处理选择门店时拿到所有的数据
-    handleStoreChange (val, ele) {
+    handleStoreChange (val, ele, type) {
       this.storeParams = {
         dealerCode: ele.orgCode,
         dealerName: ele.orgName,
         categorySpareId: this.partsId
       };
+      if (type === 0) {
+        this.handleAddStores(type); // 不可采购门店
+      } else if (type === 1) {
+        this.handleAddStore(type); // 可采购门店
+      }
     },
-    // 处理添加门店事件
+    // 可采购门店
     async handleAddStore (val) {
       if (!this.dealerCodes) {
         return;
@@ -448,9 +377,10 @@ export default {
       };
       await addDealer(params);
       this.getPurchaseDealer(this.partsId, val);
-      this.dealerCodes = ''; // 可采购门店列表
-      this.storeParams = {}; // 添加以后清空
+      this.dealerCodes = '';
+      this.storeParams = {};
     },
+    // 不可采购门店
     async handleAddStores (val) {
       if (!this.noDealerCodes) {
         return;
@@ -461,97 +391,67 @@ export default {
       };
       await addDealer(params);
       this.getPurchaseDealer(this.partsId, val);
-      this.noDealerCodes = ''; // 不可采购门店列表
-      this.storeParams = {}; // 添加以后清空
+      this.noDealerCodes = '';
+      this.storeParams = {};
     },
-    // 查询可采购门店数据
     async getPurchaseDealer (val, status) {
       const [status0Res, status1Res] = await Promise.all([
-        categoryPurchaseDealer({ // 不可采购门店
+        categoryPurchaseDealer({
           categorySpareId: val,
           purchaseStatus: 0,
           pageSize: this.noProcurable.pageSize,
           pageNum: this.noProcurable.current,
         }),
-        categoryPurchaseDealer({ // 可采购门店
+        categoryPurchaseDealer({
           categorySpareId: val,
           purchaseStatus: 1,
           pageSize: this.procurable.pageSize,
           pageNum: this.procurable.current,
         })
       ]);
-
-      // 区分状态，分别存储
       this.noTableData = status0Res?.records || [];
       this.noProcurable.total = status0Res?.total || 0;
       this.tableData = status1Res?.records || [];
       this.procurable.total = status1Res?.total || 0;
     },
-    // 处理删除门店事件
     async handleDeleteStore (value) {
       await deleteDealer([value.id]);
       this.getPurchaseDealer(this.partsId);
     },
     pageSizeChange (pageSize) {
-      this.handleSizeChange(pageSize);
-    },
-
-    noPageSizeChange (pageSize) {
-      this.handleSizeChange(pageSize);
-    },
-
-    currentPageChange (current) {
-      this.handleCurrentChange(current);
-    },
-
-    noCurrentPageChange (current) {
-      this.handleCurrentChange(current);
-    },
-
-    // 实际的处理函数
-    handleSizeChange (pageSize) {
       this.procurable.pageSize = pageSize;
       this.procurable.current = 1;
       this.getPurchaseDealer(this.partsId);
     },
-
-    handleCurrentChange (current) {
+    noPageSizeChange (pageSize) {
+      this.noProcurable.pageSize = pageSize;
+      this.noProcurable.current = 1;
+      this.getPurchaseDealer(this.partsId);
+    },
+    currentPageChange (current) {
       this.procurable.current = current;
       this.getPurchaseDealer(this.partsId);
+    },
+    noCurrentPageChange (current) {
+      this.noProcurable.current = current;
+      this.getPurchaseDealer(this.partsId);
+    },
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
     }
   }
 };
 </script>
 
-<style scoped>
-.cascader {
-  width: 100%;
-}
-.action-button{
-  margin: 0 5px;
-  cursor: pointer;
-  &.btn-edit{
-    color:#4C4CD6;
-  }
-  &.btn-delete{
-    color:#B91919;
-  }
+<style lang="scss" scoped>
+.status.primary {
+  color: var(--leap-color-primary);
+  font-weight: 500;
 }
 .common-section-table {
   margin-top: 20px;
-}
-.action-button{
-  margin: 0 5px;
-  cursor: pointer;
-  &.btn-edit{
-    color:#4C4CD6;
-  }
-  &.active{
-    text-decoration: underline;
-  }
-  &.disabled{
-    cursor: not-allowed;
-    color: var(--disabled-color);
-  }
 }
 </style>

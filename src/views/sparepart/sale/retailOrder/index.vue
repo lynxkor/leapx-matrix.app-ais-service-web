@@ -95,6 +95,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -115,7 +116,7 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd('10')"><i class="iconfont icon-lxppc-plus"></i>新增（车主）</el-button>
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd('20')"><i class="iconfont icon-lxppc-plus"></i>新建（对公）</el-button>
+      <el-button v-if="canAddOrUpdate && cooperationType==='0'" size="small" type="primary" @click="handleAdd('20')"><i class="iconfont icon-lxppc-plus"></i>新建（对公）</el-button>
       <el-button size="small" @click="excelSetting" v-permission="'AISPART-retailOrder-print'">出库单打印设置</el-button>
       <!-- <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
@@ -187,10 +188,14 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, confirmOrder, cancelOrder, signOrder, cancelSignOrder, settleOrder, cancelSettleOrder, reverseSettleOrder, refundOrder } from '@/api/sparepart/sale/retailOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
+import {
+  getTableConfig, tableAddOrUpdate, exportTable, getEnum,
+  getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany,
+  listWarehouse, getPartDealer, getLoginUser, getDesensitize
+} from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -244,6 +249,8 @@ export default {
   },
   data () {
     return {
+      isPartOrder: false,
+      cooperationType: null,
       pageTitle: '备附件销售',
       pageType: 'list',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
@@ -292,15 +299,47 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'cooperationTypeLabel', label: '门店合作类型', visible: true, width: 120 },
           { props: 'warehouseName', label: '仓库名称', visible: true, width: 200 },
           { props: 'customerTypeLabel', label: '客户类型', visible: true, width: 120 },
-          { props: 'vin', label: 'VIN', visible: true, width: 200 },
+          {
+            props: 'vin',
+            label: 'VIN',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'retailOrder', 'vin')
+          },
           { props: 'customerCode', label: '客户编码', visible: true, width: 180 },
-          { props: 'customerName', label: '客户名称', visible: true, width: 200 },
-          { props: 'customerContactInfo', label: '客户联系方式', visible: true, width: 160 },
+          {
+            props: 'customerName',
+            label: '客户名称',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'retailOrder', 'customerName')
+          },
+          {
+            props: 'customerContactInfo',
+            label: '客户联系方式',
+            visible: true,
+            width: 160,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'retailOrder', 'customerContactInfo')
+          },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
           { props: 'totalAmount', label: '订单总金额', visible: true, width: 130, align: 'right' },
@@ -331,7 +370,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/sale/retailOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
@@ -350,10 +390,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '确认失败!'
-                  });
                 });
               },
               type: 'info',
@@ -416,10 +452,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '签收失败!'
-                  });
                 });
               },
               type: 'info',
@@ -437,10 +469,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '取消签收失败!'
-                  });
                 });
               },
               type: 'info',
@@ -475,10 +503,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '结算失败!'
-                  });
                 });
               },
               type: 'info',
@@ -495,10 +519,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '取消结算失败!'
-                  });
                 });
               },
               type: 'info',
@@ -585,6 +605,7 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.initDealerUser();
   },
   methods: {
     async getUser (query) {
@@ -633,6 +654,7 @@ export default {
       if (this.accountFlag === true) {
         const res = await getPartDealer({ code: this.currentDealerCode });
         this.isPartOrder = res.isPartOrder;
+        this.cooperationType = res.cooperationType;
       }
       if (this.accountFlag === false) {
         this.isPartOrder = true;

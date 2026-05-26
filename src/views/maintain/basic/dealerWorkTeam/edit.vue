@@ -1,140 +1,201 @@
 <template>
-  <div class="page-common-add">
-    <el-container>
-      <el-main>
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>基础信息</h2>
-          </div>
-          <div class="common-section-body">
-            <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
-              <el-form-item label="班组代码" prop="code">
-                <el-input
-                  placeholder="自动生成"
-                  v-model="form.code"
-                  disabled
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="班组名称" prop="name">
-                <el-input
-                  placeholder="请输入"
-                  v-model="form.name"
-                  maxlength="50"
-                  show-word-limit
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="班组类型" prop="teamType">
-                <fetch-select
-                  :request="fetchOptions"
-                  enumCode="mc_station_type"
-                  v-model="form.teamType"
-                  placeholder="请选择"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="门店名称" prop="dealerName">
-                <InputLink
-                  v-model="form.dealerName"
-                  :link="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`"
-                  placeholder="请输入"
-                  readonly
-                />
-              </el-form-item>
-              <el-form-item label="负责人" prop="ownerUserName">
-                <InputLink
-                  v-model="form.ownerUserName"
-                  :link="`/partner/user/list/detail?&userId=${form.ownerUserId}`"
-                  placeholder="请输入"
-                  readonly
-                />
-              </el-form-item>
-              <el-form-item label="说明" prop="remark" class="form-item-full">
-                <el-input
-                  type="textarea"
-                  placeholder="请输入"
-                  v-model="form.remark"
-                  maxlength="500"
-                  show-word-limit
-                  clearable
-                />
-              </el-form-item>
-            </el-form>
-          </div>
-        </section>
-        <section class="common-section">
-          <div class="common-section-header">
-            <h2>维修工程师信息</h2>
-            <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
-          </div>
-          <div class="common-section-body">
-            <div class="common-section-table">
-              <edit-table
-                ref="editTable"
-                :columns="columns"
-                :data="tableData"
-                :defaultNewRow="defaultNewRow"
-                :show-toolbar="false"
-                :options="options"
-                :del-title="delTitle"
-                :auth="{edit: canAddOrUpdate, delete: canDelete}"
-              />
+  <edit-page-layout ref="editLayout" :title="title" showPaneFooter>
+    <template #left>
+      <edit-base-container
+        ref="containerRef"
+        :id="_id"
+        :title="title"
+        :isEditing.sync="isEditing"
+        :form.sync="form"
+        :originalForm.sync="originalForm"
+        :submitRequest="submitRequest"
+        :detailRequest="detailRequest"
+        :showEditBtn="true"
+      >
+        <template #status>
+          <span :class="['status', form.status ? 'primary' : 'danger']">{{ form.statusLabel }}</span>
+        </template>
+        <el-main>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>基础信息</h2>
             </div>
-          </div>
-        </section>
-      </el-main>
-      <el-footer height="60px">
-        <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-        <el-button size="small" @click="handleBack">取消</el-button>
-        <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button> -->
-        <!-- <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
-      </el-footer>
-    </el-container>
-  </div>
+            <div class="common-section-body">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="100px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="班组代码：" prop="code">
+                  <el-input
+                    placeholder="自动生成"
+                    v-model="form.code"
+                    disabled
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="班组名称：" prop="name">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.name"
+                    maxlength="50"
+                    show-word-limit
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="班组类型：" prop="teamType">
+                  <fetch-select
+                    :request="fetchOptions"
+                    enumCode="mc_station_type"
+                    v-model="form.teamType"
+                    placeholder="请选择"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="门店名称：" prop="dealerName">
+                  <InputLink
+                    v-model="form.dealerName"
+                    :link="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`"
+                    placeholder="请输入"
+                    readonly
+                  />
+                </el-form-item>
+                <el-form-item label="负责人：" prop="ownerUserName">
+                  <InputLink
+                    v-model="form.ownerUserName"
+                    :link="`/partner/user/list/detail?&userId=${form.ownerId}`"
+                    placeholder="请输入"
+                    readonly
+                  />
+                </el-form-item>
+                <el-form-item label="说明：" prop="remark" class="form-item-full">
+                  <el-input
+                    type="textarea"
+                    placeholder="请输入"
+                    v-model="form.remark"
+                    maxlength="500"
+                    show-word-limit
+                    clearable
+                  />
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="班组代码：">
+                  {{ form.code }}
+                </el-form-item>
+                <el-form-item label="班组名称：">
+                  {{ form.name }}
+                </el-form-item>
+                <el-form-item label="班组类型：">
+                  {{ form.teamTypeLabel }}
+                </el-form-item>
+                <el-form-item label="门店名称：">
+                  {{ form.dealerName }}
+                </el-form-item>
+                <el-form-item label="负责人：">
+                  {{ form.ownerUserName }}
+                </el-form-item>
+                <el-form-item label="说明：" class="form-item-full">
+                  {{ form.remark }}
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section" v-if = "_id">
+            <div class="common-section-header">
+              <h2>维修工程师信息</h2>
+              <el-button v-if="canAddOrUpdate && isEditing" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+            </div>
+            <div class="common-section-body">
+              <div class="common-section-header">
+                <base-search
+                  v-if="canAddOrUpdate"
+                  style="width: 360px;"
+                  :remote-method="queryUserList"
+                  remote
+                  placeholder="搜索姓名、工号"
+                  clearable
+                  value-key="value"
+                  label-key="label"
+                  @change="handleUserSelect"
+                />
+              </div>
+              <div class="common-section-table">
+                <edit-table
+                  ref="editTable"
+                  :columns="columns"
+                  :data="tableData"
+                  :defaultNewRow="defaultNewRow"
+                  :show-toolbar="false"
+                  :options="options"
+                  :del-title="delTitle"
+                  :enableSingleRowSave="true"
+                  @save-row-edit="saveRowEdit"
+                  @remove-row="removeRow"
+                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                />
+              </div>
+            </div>
+          </section>
+        </el-main>
+      </edit-base-container>
+    </template>
+  </edit-page-layout>
 </template>
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/basic/dealerWorkTeam/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
+import InputLink from '@/libs/components/InputLink';
+import BaseSearch from '@/libs/components/BaseSearch';
+import EditPageLayout from '@/libs/components/EditPageLayout';
+import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, getUserByNameOrNo } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
-import InputLink from '@/libs/components/InputLink';
+import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   code: '',
   name: '',
-  teamTypeDesc: '',
-  statusDesc: '',
-  dealerName: '',
-  remark: '',
-  status: '',
   teamType: '',
+  teamTypeLabel: '',
+  status: '',
+  statusLabel: '',
   dealerId: '',
   dealerCode: '',
-  ownerOrgId: '',
+  dealerName: '',
   ownerId: '',
-  ownerName: '',
-  userRelations: '',
+  ownerUserName: '',
+  remark: '',
 };
 
 export default {
   name: 'dealerWorkTeamEdit',
-  mixins: [routeGuard, permissions],
+  mixins: [routeGuard, permissions, commonMixins],
   components: {
     FetchSelect,
     EditTable,
-    InputLink
+    InputLink,
+    BaseSearch,
+    EditPageLayout,
+    EditBaseContainer,
+  },
+  computed: {
+    _id () {
+      return this.$route.query.id || this.form.id;
+    },
+    title () {
+      return '班组代码：' + (this.form.code || '');
+    }
   },
   data () {
     const form = this.getDefautlForm();
     return {
+      pageTitle: '厅店班组信息',
+      pageType: 'edit',
       moduleKey: 'AISMC-dealerWorkTeam',
       loading: false,
       submitLoading: false,
+      info: {},
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -143,13 +204,11 @@ export default {
         userId: '',
         createTime: ''
       },
-      tableData: [
-        // { userName: '张三', userId: 25, createTime: '' },
-      ],
+      tableData: [],
       options: {
         userName: []
       },
-      delTitle: '此操作将删除此 维修工程师信息，您无法撤消此操作，是否继续？',
+      delTitle: '此操作将删除此维修工程师信息，您无法撤销此操作，是否继续？',
       columns: [
         {
           field: 'userName',
@@ -183,14 +242,10 @@ export default {
         {
           field: 'createTime',
           title: '创建时间',
-          // width: '20%',
           editRender: { name: 'ElInput' }
         },
       ],
       rules: {
-        code: [
-          { required: false, message: '请输入班组代码', trigger: 'blur' }
-        ],
         name: [
           { required: true, message: '请输入班组名称', trigger: 'blur' },
           { min: 0, max: 50, message: '最多50个字符', trigger: 'blur' }
@@ -204,145 +259,52 @@ export default {
         dealerName: [
           { required: true, message: '请输入门店名称', trigger: 'blur' }
         ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'blur' }
-        ],
         status: [
           { required: true, message: '请选择班组状态', trigger: 'change' }
         ],
         teamType: [
-          { required: true, message: '请选择类型TeamTypeEnum', trigger: 'change' }
-        ],
-        dealerId: [
-          { required: true, message: '请输入门店ID', trigger: 'blur' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'blur' }
-        ],
-        ownerOrgId: [
-          { required: true, message: '请输入归属组织ID', trigger: 'blur' }
-        ],
-        ownerId: [
-          { required: true, message: '请输入负责人ID', trigger: 'blur' }
+          { required: true, message: '请选择班组类型', trigger: 'change' }
         ],
         ownerUserName: [
-          { required: true, message: '请输入负责人姓名', trigger: 'blur' }
+          { required: true, message: '请选择负责人', trigger: 'blur' }
         ],
-        userRelations: [
-          { required: true, message: '请输入维修工程师列表', trigger: 'blur' }
-        ],
-      },
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近一个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: '最近三个月',
-          onClick (picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
       }
     };
   },
-  mounted () {
-    this.getDetailData();
-  },
   methods: {
-    handleBack () {
-      this.$router.back();
-    },
-    getDetailData () {
-      const id = this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['厅店班组信息', `${id ? '编辑' : '新增'}`]);
+    detailRequest () {
+      const id = this._id;
       if (id) {
-        getDetail(id).then(res => {
-          this.loading = false;
-          Object.assign(this.form, res);
-          Object.assign(this.originalForm, res);
-          this.tableData = res.userRelations;
+        return new Promise((resolve) => {
+          getDetail(id).then(res => {
+            resolve(res);
+            this.tableData = res.userRelations || [];
+          }).catch(() => {
+            resolve({});
+          });
         });
       }
+      return {};
     },
-    async submitForm (formName, rest = false) {
-      try {
-        const tableData = await this.handleSaveTable();
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            this.submitLoading = true;
-            addOrUpdate({ ...this.form, teamUsers: tableData }).then(res => {
-              this.$message({
-                message: '保存成功',
-                type: 'success'
-              });
-              const id = this.$route.query.id;
-              if (rest || !id) {
-                this.resetForm(formName);
-              } else {
-                this.getDetailData();
-              }
-            }).finally(() => {
-              this.submitLoading = false;
-            });
-          }
-        });
-      } catch (error) {
-        console.log(error);
+    async submitRequest () {
+      let tableData = [];
+      if (this.$refs.editTable) {
+        try {
+          tableData = await this.$refs.editTable.saveAll();
+        } catch (e) {
+          return Promise.reject(e);
+        }
       }
-    },
-    resetForm (formName) {
-      this.$refs[formName].resetFields();
-      this.tableData = [];
-      this.form = this.getDefautlForm();
+      return addOrUpdate({ id: this.form.id, ...this.form, teamUsers: tableData });
     },
     getDefautlForm () {
       const userInfo = this.$store.state.user.userInfo;
       return {
         ...defaultForm,
-        ownerUserId: userInfo.userId,
+        ownerId: userInfo.userId,
         ownerUserName: userInfo.userName,
         dealerName: userInfo.orgPostUserList.find(item => item.position === '1')?.orgName,
       };
-    },
-    // handleJumpAuditLog () {
-    //   this.$router.push({
-    //     path: '/xxx/auditLog',
-    //     query: {
-    //       tableCode: '',
-    //       tableId: ''
-    //     }
-    //   });
-    // },
-    // 详情表格相关数据
-    handleAddRow () {
-      // 通过引用直接调用子组件方法
-      this.$refs.editTable.addRow();
-    },
-    handleSaveTable (data) {
-      // 调用保存方法并处理结果
-      return new Promise((resolve, reject) => {
-        this.$refs.editTable.saveAll().then(data => {
-          resolve(data);
-        }).catch(error => {
-          reject(error);
-        });
-      });
     },
     async fetchOptions (code) {
       if (code) {
@@ -362,7 +324,66 @@ export default {
         }) || [];
         this.options.userName = list;
       });
+    },
+    handleAddRow () {
+      this.$refs.editTable.addRow();
+    },
+    queryUserList (queryString) {
+      return new Promise(resolve => {
+        getUserByNameOrNo({ name: queryString }).then(res => {
+          const list = res?.map(item => {
+            return {
+              ...item,
+              value: item.userId,
+              label: item.username,
+              userName: item.username,
+              userId: item.userId,
+            };
+          }) || [];
+          resolve(list);
+        });
+      });
+    },
+    handleUserSelect (val, record) {
+      this.tableData.push({
+        ...record,
+        id: null,
+      });
+      addOrUpdate({ ...this.form, teamUsers: this.tableData }).then(res => {
+        this.$message.success('添加成功');
+        this.$refs.containerRef.handleRefresh();
+      }).catch(e => {
+        this.tableData = this.tableData.filter(item => item !== record);
+      });
+    },
+    async saveRowEdit (row, defer) {
+      this.submitRequest().then(res => {
+        defer.resolve(res);
+        this.$message.success('更新成功');
+        this.$refs.containerRef.handleRefresh();
+      }).catch(e => {
+        defer.reject();
+      });
+    },
+    async removeRow (row, index, defer) {
+      this.submitRequest().then(res => {
+        defer.resolve(res);
+        this.$message.success('删除成功');
+        this.$refs.containerRef.handleRefresh();
+      }).catch(e => {
+        defer.reject();
+      });
+    },
+    handleTableChange (tableData) {
+      this.tableData = tableData;
     }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.status.primary {
+  color: var(--leap-color-primary);
+  font-weight: 500;
+}
+</style>

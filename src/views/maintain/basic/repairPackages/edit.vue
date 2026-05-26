@@ -34,7 +34,6 @@
                     placeholder="请输入"
                     v-model="form.code"
                     clearable
-                    @input="handleCodeInput"
                   />
                 </el-form-item>
                 <el-form-item label="套餐名称：" prop="packageName">
@@ -52,15 +51,15 @@
                     disabled
                   />
                 </el-form-item>
-                <el-form-item label="是否下发：" prop="suedDealer">
+                <el-form-item label="是否下发：" prop="suedDealer" v-show="!accountFlag">
                   <el-radio-group v-model="form.comboStatus">
                     <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
                   </el-radio-group>
                 </el-form-item>
-                <el-form-item label="数据来源：" prop="dataSourceLabel">
+                <el-form-item label="数据来源：" prop="dataFromLabel">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.dataSourceLabel"
+                    v-model="form.dataFromLabel"
                     clearable
                     disabled
                   />
@@ -92,8 +91,8 @@
                 <el-form-item label="是否下发：" prop="suedDealer">
                   {{ form.comboStatusLabel }}
                 </el-form-item>
-                <el-form-item label="数据来源：" prop="dataSource">
-                  {{ form.dataSourceLabel }}
+                <el-form-item label="数据来源：" prop="dataFrom">
+                  {{ form.dataFromLabel }}
                 </el-form-item>
                 <el-form-item label="门店：" prop="dealerName">
                   {{ form.dealerName }}
@@ -107,7 +106,7 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
-              <div class="model-select" @click="handleModel" v-if = "canEdit">选择适配车型</div>
+              <el-button type="primary" plain size="small" class="model-select" @click="handleModel" v-if = "canEdit">选择适配车型</el-button>
               <vxe-table
                   ref="editTable"
                   stripe
@@ -142,19 +141,17 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
-                <div class="ais-select-group">
-                  <base-search
-                    style="width: 360px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="搜索维修项目代码、名称、拼音简码"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                    :disabled = "!canEdit"
-                  />
-                </div>
+                <base-search
+                  style="width: 360px;"
+                  :remote-method="queryListData"
+                  remote
+                  placeholder="搜索维修项目代码、名称、拼音简码"
+                  clearable
+                  value-key="id"
+                  label-key="name"
+                  @change="handleAddTableData"
+                  :disabled = "!canEdit"
+                />
                 <!-- 右侧：合计信息 -->
                 <div class="summary-box">
                   <span class="summary-item">项目金额合计：￥{{ itemAmount }}</span>
@@ -281,8 +278,8 @@ const defaultForm = {
   spellCode: '',
   vehicleSeriesId: '',
   vehicleSeriesIds: '',
-  dataSource: '',
-  dataSourceLabel: '',
+  dataFrom: '',
+  dataFromLabel: '',
   dealerName: '',
   status: '',
   totalAmount: '',
@@ -298,7 +295,7 @@ const defaultForm = {
   partRespList: '',
   typeName: '',
   backoutSuedDate: '',
-  comboStatus: '',
+  comboStatus: 10,
   suedDealer: 1,
   ownerOrgId: '',
   dealerCode: '',
@@ -335,8 +332,8 @@ export default {
       return '套餐代码：' + this.form.code;
     },
     canEdit () {
-      console.log('accountFlag:' + this.accountFlag, (this.accountFlag && this.form.dataSource === 10), (!this.accountFlag && this.form.dataSource === 20));
-      return (this.accountFlag && this.form.dataSource === 10) || (!this.accountFlag && this.form.dataSource === 20);
+      console.log('accountFlag:' + this.accountFlag, (this.accountFlag && this.form.dataFrom === 10), (!this.accountFlag && this.form.dataFrom === 20));
+      return (this.accountFlag && this.form.dataFrom === 10) || (!this.accountFlag && this.form.dataFrom === 20);
     }
   },
   watch: {
@@ -399,7 +396,7 @@ export default {
         spellCode: [
           { required: false, message: '请输入拼音简码', trigger: 'change' }
         ],
-        dataSource: [
+        dataFrom: [
           { required: false, message: '请选择数据来源', trigger: 'change' }
         ],
         ownerOrgId: [
@@ -520,11 +517,11 @@ export default {
         this.form.dealerCode = res.currentDealerCode;// 当前门店编码
         this.form.dealerName = res.currentDealerName;// 当前门店名称
         if (this.accountFlag) {
-          this.form.dataSource = 10;
-          this.form.dataSourceLabel = '门店';
+          this.form.dataFrom = 10;
+          this.form.dataFromLabel = '门店';
         } else {
-          this.form.dataSource = 20;
-          this.form.dataSourceLabel = '主机厂';
+          this.form.dataFrom = 20;
+          this.form.dataFromLabel = '主机厂';
         }
       }
     },
@@ -543,6 +540,7 @@ export default {
       const res = await getPackagesItem({ repairPackagesId: this._id });
       this.tableData = res.records || [];
       // 计算项目金额
+      this.itemAmount = 0;
       this.tableData.forEach(item => {
         const actualAmount = Number(item.actualAmount) || 0;
         this.itemAmount = this.itemAmount + actualAmount;
@@ -554,6 +552,7 @@ export default {
       const res = await getPackagesPartPage({ repairPackagesId: this._id, pageSize: 5000, sortColumns: [{ column: 'repair_item_id', sort: 'ASC' }] });
       this.tablePartData = res.records || [];
       // 计算零件金额
+      this.partsAmount = 0;
       this.tablePartData.forEach(item => {
         const number = Number(item.quantity) || 0;
         const unitPrice = Number(item.price) || 0;
@@ -592,18 +591,7 @@ export default {
 
 <style lang="scss" scoped>
 .model-select {
-  width: 114px;
-  height: 32px;
-  border-radius: 4px;
-  box-sizing: border-box;
-  /* 功能色/零跑绿 */
-  border: 1px solid #009100;
-  color: #009100;
-  font-size: 14px;
-  line-height: 32px;
-  text-align: center;
   margin-bottom: 8px;
-  cursor: pointer;
 }
 .action-button{
     margin: 0 5px;

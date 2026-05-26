@@ -34,7 +34,7 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="反结算申请单号：" required>
                   <el-input v-model="form.code" disabled placeholder="请输入" />
                 </el-form-item>
@@ -50,8 +50,8 @@
                 <el-form-item label="销账标识：" required>
                   <el-input v-model="form.accountTypeLabel" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="数据来源：" required>
-                  <el-input v-model="form.dataSourceLabel" disabled placeholder="请输入" />
+                <el-form-item label="结算人员：" required>
+                  <el-input v-model="form.statementPersonName" disabled placeholder="请输入" />
                 </el-form-item>
                 <el-form-item label="厅店：" required>
                   <el-link type="success" @click.prevent="goToDealerDetail">{{ form.dealerName || '-' }}</el-link>
@@ -59,29 +59,14 @@
                 <el-form-item label="结算单状态：" required>
                   <el-input v-model="form.statementStatusLabel" disabled placeholder="请输入" />
                 </el-form-item>
+                <el-form-item label="结算时间：" required>
+                  <el-input v-model="form.statementTime" disabled placeholder="请输入" />
+                </el-form-item>
                 <el-form-item label="总金额：" required>
                   <el-input v-model="form.totalAmount" disabled placeholder="请输入" />
                 </el-form-item>
                 <el-form-item label="维修项目金额：" required>
                   <el-input v-model="form.repairItemAmount" disabled placeholder="请输入" />
-                </el-form-item>
-                <el-form-item label="结算人员：" required>
-                  <el-input v-model="form.statementPersonName" disabled placeholder="请输入" />
-                </el-form-item>
-                <el-form-item label="去零金额：" required>
-                  <el-input v-model="form.noFractionAmount" disabled placeholder="请输入" />
-                </el-form-item>
-                <el-form-item label="维修项目优惠金额：" required>
-                  <el-input v-model="form.repairItemDiscount" disabled placeholder="请输入" />
-                </el-form-item>
-                <el-form-item label="结算时间：" required>
-                  <el-input v-model="form.statementTime" disabled placeholder="请输入" />
-                </el-form-item>
-                <el-form-item label="权益金额：" required>
-                  <el-input v-model="form.rightsAmount" disabled placeholder="请输入" />
-                </el-form-item>
-                <el-form-item label="维修项目应付金额：" required>
-                  <el-input v-model="form.repairItemPayableAmount" disabled placeholder="请输入" />
                 </el-form-item>
                 <el-form-item label="收款人：">
                   <el-input v-model="form.payeeName" disabled placeholder="请输入" />
@@ -89,24 +74,47 @@
                 <el-form-item label="优惠总金额：" required>
                   <el-input v-model="form.discountAmount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="零件金额：" required>
-                  <el-input v-model="form.partAmount" disabled placeholder="请输入" />
+                <el-form-item label="维修项目优惠金额：" required>
+                  <el-input v-model="form.repairItemDiscount" disabled placeholder="请输入" />
                 </el-form-item>
                 <el-form-item label="收款时间：">
                   <el-input v-model="form.receiveAt" disabled placeholder="请输入" />
                 </el-form-item>
+                <el-form-item label="去零金额：" required>
+                  <el-input v-model="form.noFractionAmount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="维修项目应付金额：" required>
+                  <el-input v-model="form.repairItemPayableAmount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="数据来源：" required>
+                  <el-input v-model="form.dataSourceLabel" disabled placeholder="请输入" />
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" :model="form" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="实际应付总金额：" required>
                   <el-input v-model="form.payableAmount" disabled placeholder="请输入" />
+                </el-form-item>
+                <el-form-item label="零件金额：" required>
+                  <el-input v-model="form.partAmount" disabled placeholder="请输入" />
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" :model="form" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="剩余应付款金额：" required>
+                  <el-input v-model="form.remainAmount" disabled placeholder="请输入" />
                 </el-form-item>
                 <el-form-item label="零件优惠金额：" required>
                   <el-input v-model="form.partDiscount" disabled placeholder="请输入" />
                 </el-form-item>
-                <el-form-item label="剩余应付款金额：" required>
-                  <el-input v-model="form.remainAmount" disabled placeholder="请输入" />
-                </el-form-item>
+              </el-form>
+              <el-form :inline="true" :model="form" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="零件应付金额：" required>
                   <el-input v-model="form.partPayableAmount" disabled placeholder="请输入" />
                 </el-form-item>
+                <el-form-item label="权益金额：" required>
+                  <el-input v-model="form.rightsAmount" disabled placeholder="请输入" />
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" :model="form"  :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="原因说明：" prop="reason" class="form-item-full">
                   <el-input
                     v-model="form.reason"
@@ -134,8 +142,8 @@
                 <el-form-item label="销账标识：">
                   {{ form.accountTypeLabel || '-' }}
                 </el-form-item>
-                <el-form-item label="数据来源：">
-                  {{ form.dataSourceLabel || '-' }}
+                <el-form-item label="结算人员：">
+                  {{ form.statementPersonName || '-' }}
                 </el-form-item>
                 <el-form-item label="厅店：">
                   <el-link type="success" @click.prevent="goToDealerDetail">{{ form.dealerName || '-' }}</el-link>
@@ -143,29 +151,14 @@
                 <el-form-item label="结算单状态：">
                   {{ form.statementStatusLabel || '-' }}
                 </el-form-item>
+                <el-form-item label="结算时间：">
+                  {{ form.statementTime || '-' }}
+                </el-form-item>
                 <el-form-item label="总金额：">
                   {{ form.totalAmount || '-' }}
                 </el-form-item>
                 <el-form-item label="维修项目金额：">
                   {{ form.repairItemAmount || '-' }}
-                </el-form-item>
-                <el-form-item label="结算人员：">
-                  {{ form.statementPersonName || '-' }}
-                </el-form-item>
-                <el-form-item label="去零金额：">
-                  {{ form.noFractionAmount || '-' }}
-                </el-form-item>
-                <el-form-item label="维修项目优惠金额：">
-                  {{ form.repairItemDiscount || '-' }}
-                </el-form-item>
-                <el-form-item label="结算时间：">
-                  {{ form.statementTime || '-' }}
-                </el-form-item>
-                <el-form-item label="权益金额：">
-                  {{ form.rightsAmount || '-' }}
-                </el-form-item>
-                <el-form-item label="维修项目应付金额：">
-                  {{ form.repairItemPayableAmount || '-' }}
                 </el-form-item>
                 <el-form-item label="收款人：">
                   {{ form.payeeName || '-' }}
@@ -173,24 +166,47 @@
                 <el-form-item label="优惠总金额：">
                   {{ form.discountAmount || '-' }}
                 </el-form-item>
-                <el-form-item label="零件金额：">
-                  {{ form.partAmount || '-' }}
+                <el-form-item label="维修项目优惠金额：">
+                  {{ form.repairItemDiscount || '-' }}
                 </el-form-item>
                 <el-form-item label="收款时间：">
                   {{ form.receiveAt || '-' }}
                 </el-form-item>
+                <el-form-item label="去零金额：">
+                  {{ form.noFractionAmount || '-' }}
+                </el-form-item>
+                <el-form-item label="维修项目应付金额：">
+                  {{ form.repairItemPayableAmount || '-' }}
+                </el-form-item>
+                <el-form-item label="数据来源：">
+                  {{ form.dataSourceLabel || '-' }}
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="实际应付总金额：">
                   {{ form.payableAmount || '-' }}
+                </el-form-item>
+                <el-form-item label="零件金额：">
+                  {{ form.partAmount || '-' }}
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="剩余应付款金额：">
+                  {{ form.remainAmount || '-' }}
                 </el-form-item>
                 <el-form-item label="零件优惠金额：">
                   {{ form.partDiscount || '-' }}
                 </el-form-item>
-                <el-form-item label="剩余应付款金额：">
-                  {{ form.remainAmount || '-' }}
-                </el-form-item>
+              </el-form>
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="零件应付金额：">
                   {{ form.partPayableAmount || '-' }}
                 </el-form-item>
+                <el-form-item label="权益金额：">
+                  {{ form.rightsAmount || '-' }}
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="原因说明：" class="form-item-full">
                   {{ form.reason || '-' }}
                 </el-form-item>
@@ -242,14 +258,14 @@
       width="500px"
       :close-on-click-modal="false"
     >
-      <el-form :model="auditForm" :rules="auditRules" ref="auditFormRef" label-width="100px" label-position="left">
+      <el-form :model="auditForm" :rules="auditRules" ref="auditFormRef" label-width="100px" label-position="right">
         <el-form-item label="审核操作" prop="auditAction" required>
           <el-select v-model="auditForm.auditAction" placeholder="请选择" style="width: 100%" @change="handleAuditActionChange">
             <el-option label="同意" :value="1" />
             <el-option label="拒绝" :value="2" />
           </el-select>
         </el-form-item>
-        <el-form-item label="审核意见" prop="auditOpinion">
+        <el-form-item label="审核意见" prop="auditOpinion" :required="auditForm.auditAction == 2">
           <el-input
             v-model="auditForm.auditOpinion"
             type="textarea"
@@ -261,8 +277,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button @click="auditDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleAuditConfirm" :loading="auditLoading">确定</el-button>
+        <el-button size="small" @click="auditDialogVisible = false">取消</el-button>
+        <el-button size="small" type="primary" @click="handleAuditConfirm" :loading="auditLoading">确定</el-button>
       </span>
     </el-dialog>
   </edit-page-layout>
@@ -363,7 +379,16 @@ export default {
           { required: true, message: '请选择审核操作', trigger: 'change' }
         ],
         auditOpinion: [
-          { required: true, message: '请输入审核意见', trigger: 'blur' }
+          {
+            validator: (rule, value, callback) => {
+              if (this.auditForm.auditAction === 2 && !value) {
+                callback(new Error('请输入审核意见'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur'
+          }
         ]
       },
       auditLoading: false,
@@ -410,13 +435,15 @@ export default {
       });
     },
     handleAuditActionChange (value) {
-      if (value === 2) {
-        this.$nextTick(() => {
-          if (this.$refs.auditFormRef) {
+      this.$nextTick(() => {
+        if (this.$refs.auditFormRef) {
+          if (value === 1) {
+            this.$refs.auditFormRef.clearValidate('auditOpinion');
+          } else {
             this.$refs.auditFormRef.validateField('auditOpinion');
           }
-        });
-      }
+        }
+      });
     },
     handleAuditConfirm () {
       this.$refs.auditFormRef.validate((valid) => {

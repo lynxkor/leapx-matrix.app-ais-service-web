@@ -13,6 +13,18 @@
         :detailRequest="detailRequest"
         :dataTransform="dataTransform"
       >
+        <template #extraButtons>
+          <el-button
+            v-if="form.activityStatus === '0' && permissions.has(moduleKey + '-submitPartsPreparation')"
+            size="small"
+            @click="handleSubmitPartsPreparation"
+          >提交零配件准备</el-button>
+          <el-button
+            v-if="form.activityStatus === '1' && permissions.has(moduleKey + '-partsPreparationCompleted')"
+            size="small"
+            @click="handlePartsPreparationCompleted"
+          >零配件准备完成</el-button>
+        </template>
         <template>
           <el-main>
             <section class="common-section">
@@ -26,6 +38,7 @@
                       placeholder="请输入"
                       v-model="form.activityCode"
                       clearable
+                      :disabled="form.activityStatus === '2'"
                     />
                   </el-form-item>
                   <el-form-item label="活动名称：" prop="activityName">
@@ -57,14 +70,23 @@
                       v-model="form.autoApprove">
                     </el-switch>
                   </el-form-item>
-                  <el-form-item class="form-item-half" label="活动时间：" prop="activityTime">
+                  <el-form-item label="活动开始时间：" prop="startTime">
                     <el-date-picker
-                      v-model="form.activityTime"
-                      type="datetimerange"
-                      :picker-options="pickerOptions"
-                      range-separator="至"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
+                      v-model="form.startTime"
+                      type="datetime"
+                      :picker-options="startPickerOptions"
+                      placeholder="开始日期"
+                      size="small"
+                      align="right"
+                      :disabled="form.activityStatus === '2'">
+                    </el-date-picker>
+                  </el-form-item>
+                  <el-form-item label="活动结束时间：" prop="endTime">
+                    <el-date-picker
+                      v-model="form.endTime"
+                      type="datetime"
+                      :picker-options="endPickerOptions"
+                      placeholder="结束日期"
                       size="small"
                       align="right">
                     </el-date-picker>
@@ -146,7 +168,7 @@
                     />
                   </el-form-item>
                 </el-form>
-                <el-form :inline="true"  label-width="150px" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="活动编码：">
                     {{ form.activityCode }}
                   </el-form-item>
@@ -208,6 +230,7 @@
                       clearable
                       remote
                       reserve-keyword
+                      disabled
                       v-model="form.checkoutTypeId"
                       :remote-method="checkoutTypeRemote"
                       :params="form.checkoutTypeName"
@@ -251,6 +274,8 @@
               :moduleKey="moduleKey"
               @change="schemeChange"
               :isServiceCareActivity="isServiceCareActivity"
+              :activityStatus="form.activityStatus"
+              :isEditing="isEditing"
             />
             <fault
               v-if="!isServiceCareActivity"
@@ -288,8 +313,8 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import { getList } from '../../../../../api/maintain/basic/checkoutType';
-import { getList as repairGetList } from '../../../../../api/maintain/basic/repairItemType';
-import { getDetail, addOrUpdate } from '../../../../../api/claimreturn/claim/basic/serviceActivity';
+import { listItem as repairGetList } from '../../../../../api/maintain/basic/repairItemType';
+import { getDetail, addOrUpdate, submitPartsPreparation, partsPreparationCompleted } from '../../../../../api/claimreturn/claim/basic/serviceActivity';
 import PlanInfo from './PlanInfo.vue';
 import FileConfig from './FileConfig/index.vue';
 import { formatDateTime } from '@/libs/utils';
@@ -305,7 +330,6 @@ const defaultForm = {
   activityStatus: '',
   startTime: '',
   endTime: '',
-  activityTime: [],
   attachmentRequired: false,
   description: '',
   vehicleCount: '',
@@ -326,9 +350,9 @@ const defaultForm = {
   costContent: '',
   faultPhenomenon: '',
   troubleshootingFlow: '',
-  checkoutTypeId: '',
-  checkoutTypeName: '',
-  repairItemTypeId: '',
+  checkoutTypeId: '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF',
+  checkoutTypeName: '保修',
+  repairItemTypeId: '64A3066F-82AC-E911-B0BB-FC82BA5F9EDF',
   repairItemTypeName: '',
 };
 
@@ -359,7 +383,23 @@ export default {
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
-    }
+    },
+    startPickerOptions () {
+      const endTime = this.form.endTime;
+      return {
+        disabledDate (time) {
+          return endTime ? time.getTime() > new Date(endTime).getTime() : false;
+        },
+      };
+    },
+    endPickerOptions () {
+      const startTime = this.form.startTime;
+      return {
+        disabledDate (time) {
+          return startTime ? time.getTime() < new Date(startTime).getTime() : false;
+        },
+      };
+    },
   },
   watch: {
     id: {
@@ -394,8 +434,11 @@ export default {
         activityType: [
           { required: !isServiceCareActivity, message: '请选择活动类型', trigger: 'change' }
         ],
-        activityTime: [
-          { required: true, message: '请选择活动时间', trigger: 'change' },
+        startTime: [
+          { required: true, message: '请选择活动开始时间', trigger: 'change' },
+        ],
+        endTime: [
+          { required: true, message: '请选择活动结束时间', trigger: 'change' },
         ],
         attachmentRequired: [
           { required: true, message: '请输入施工单必需上传附件（1&#x3D;是，0&#x3D;否）', trigger: 'blur' }
@@ -410,10 +453,10 @@ export default {
           { required: true, message: '请输入是否自动审核', trigger: 'blur' }
         ],
         faultPhenomenon: [
-          { required: true, message: '请输入故障现象描述', trigger: 'blur' }
+          { required: false, message: '请输入故障现象描述', trigger: 'blur' }
         ],
         troubleshootingFlow: [
-          { required: true, message: '请输入故障排查流程', trigger: 'blur' }
+          { required: false, message: '请输入故障排查流程', trigger: 'blur' }
         ],
         checkoutTypeId: [
           { required: !isServiceCareActivity, message: '请选择结算类型', trigger: 'change' }
@@ -433,6 +476,7 @@ export default {
   },
   mounted () {
     if (this.isServiceCareActivity) {
+      this.form.checkoutTypeId = '352BB70C-82AC-E911-B0BB-FC82BA5F9EDF';
       this.form.checkoutTypeName = '自费';
       this.form.activityTypeLabel = '服务关爱活动';
       this.form.activityType = '4';
@@ -447,17 +491,15 @@ export default {
     },
     dataTransform (data) {
       Object.assign(this.form, data);
-      this.form.activityTime = [
-        new Date(data.startTime),
-        new Date(data.endTime),
-      ];
+      this.form.startTime = data.startTime;
+      this.form.endTime = data.endTime;
       this.form.autoApprove = data.autoApprove === '1';
       this.form.attachmentRequired = data.attachmentRequired === '1';
       return this.form;
     },
     async submitRequest () {
-      const startTime = formatDateTime(this.form.activityTime[0]);
-      const endTime = formatDateTime(this.form.activityTime[1]);
+      const startTime = formatDateTime(this.form.startTime);
+      const endTime = formatDateTime(this.form.endTime);
       return addOrUpdate({
         ...this.form,
         startTime,
@@ -493,14 +535,31 @@ export default {
     handleCheckoutType (val, record) {
       if (record) {
         this.form.checkoutTypeName = record.name;
+        // 结算类型改变时清空保修类型，触发重新查询
+        this.form.repairItemTypeId = '';
+        this.form.repairItemTypeName = '';
       }
     },
     // 维修类型
     repairItemTypeRemote (query) {
-      return repairGetList({
-        nameLike: query,
-        pageSize: 20,
-        pageNum: 1,
+      const checkoutTypeId = this.form.checkoutTypeId;
+      // 如果结算类型没有选择，默认查询 "10", "20"  目前写死 只查询保修类型
+      // const checkoutTypeIds = checkoutTypeId ? [checkoutTypeId] : ['10', '20'];
+      const categorys = ['20'];
+      return new Promise(resolve => {
+        repairGetList({
+          nameLike: query,
+          categorys,
+          pageSize: 20,
+          pageNum: 1,
+        }).then(res => {
+          const list = (res || []).filter(
+            item => item.checkoutTypeId === checkoutTypeId
+          );
+          resolve(list);
+        }).catch(() => {
+          resolve([]);
+        });
       });
     },
     // 维修类型
@@ -513,9 +572,33 @@ export default {
     schemeChange (id) {
       this.schemeId = id;
     },
+    handleSubmitPartsPreparation () {
+      submitPartsPreparation({ id: this._id }).then(() => {
+        this.$message.success('提交配件准备成功');
+        this.$refs.containerRef.loadDetail();
+      });
+    },
+    handlePartsPreparationCompleted () {
+      partsPreparationCompleted({ id: this._id }).then(() => {
+        this.$message.success('零配件准备完成');
+        this.$refs.containerRef.loadDetail();
+      });
+    },
     filterActivityType (options) {
       return options.filter(item => item.code !== '4');
     },
   }
 };
 </script>
+<style lang="scss" scoped>
+::v-deep .vxe-table--empty-placeholder {
+  justify-content: flex-start;
+}
+::v-deep .vxe-table--empty-content {
+  width: auto;
+}
+::v-deep .m-vxe-table-empty-text {
+  text-align: left;
+  padding: 0 12px;
+}
+</style>

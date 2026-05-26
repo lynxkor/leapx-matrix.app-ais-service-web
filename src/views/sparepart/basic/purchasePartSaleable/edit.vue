@@ -13,7 +13,7 @@
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
-          <span class="status primary">状态</span>
+          <!-- <span class="status primary">状态</span> -->
         </template>
         <el-main>
           <section class="common-section">
@@ -97,7 +97,9 @@
                   {{ form.orderTypeLabel }}
                 </el-form-item>
                 <el-form-item label="备件编码：" prop="partCode">
-                  {{ form.partCode }}
+                  <el-link type="primary" :href="`/service/sparepart/basic/sparePart/detail?id=${form.sparePartId}`" target="_blank">
+                    {{ form.partCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="备件名称：" prop="partName">
                   {{ form.partName }}

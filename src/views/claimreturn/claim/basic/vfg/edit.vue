@@ -9,7 +9,6 @@
         :isEditing.sync="isEditing"
         :form.sync="form"
         :originalForm.sync="originalForm"
-        direction="vertical"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
@@ -72,7 +71,11 @@
                     {{ form.vfgName }}
                   </el-form-item>
                   <el-form-item label="VRT名称：" prop="vrtName">
-                    {{ form.vrtName }}
+                    <el-link
+                      type="primary"
+                      :href="`/claimreturn/claim/basic/vrt/edit?id=${form.vrtId}`"
+                      target="_blank"
+                    >{{ form.vrtName }}</el-link>
                   </el-form-item>
                   <el-form-item label="状态：" prop="status">
                     {{ form.statusLabel }}

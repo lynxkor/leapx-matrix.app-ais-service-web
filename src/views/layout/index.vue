@@ -226,8 +226,8 @@
       </el-form>
       <template v-slot:footer>
         <span  class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="onSubmit">确 定</el-button>
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="onSubmit">确定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -240,7 +240,7 @@ import { getOutLink } from '@/api/thirdPart';
 import { getOwnerTree } from '@/api/crm/page-source';
 import pageTitle from '@/libs/components/AisPageTitle';
 import { changeRoute } from './routeData';
-import { changeUserPsd, getOnlineOperation, getServiceOnlineStatus, queryClientByUserId, getRedirectUrl, getTrUrl } from '@/api/user';
+import { changeUserPsd, getOnlineOperation, getServiceOnlineStatus, queryClientByUserId, getRedirectUrl, getTrUrl, getAreaTree as fetchAreaTree } from '@/api/user';
 import waterMark from '@/components/watermark';
 import { formatDateTime, decryptUC } from '@/utils';
 export default {
@@ -333,6 +333,13 @@ export default {
       this.getOwnerTree();
       this.getOwnerTree1();
       this.queryClientByUserId('lxp');
+    }
+
+    if (!localStorage.getItem('areaTree')) {
+      fetchAreaTree().then(res => {
+        localStorage.setItem('areaTree', JSON.stringify(res));
+        this.$store.commit('SET_AREATREE', res);
+      }).catch(() => {});
     }
 
     this.show = this.$route.path !== '/home' && !this.$route.path.startsWith('/leapx/biEmbed');

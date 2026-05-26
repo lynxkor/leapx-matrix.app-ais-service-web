@@ -23,8 +23,8 @@
     </div>
     <template v-slot:footer>
       <div class="dialog-footer">
-        <el-button size="small" @click="close">取 消</el-button>
-        <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确 定</el-button>
+        <el-button size="small" @click="close">取消</el-button>
+        <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确定</el-button>
       </div>
     </template>
   </el-dialog>
@@ -54,7 +54,7 @@ export default {
       },
       rules: {
         rejectReason: [
-          { required: true, message: '请选择验收结果', trigger: 'change' }
+          { required: true, message: '请输入驳回说明', trigger: 'change' }
         ],
       },
     };

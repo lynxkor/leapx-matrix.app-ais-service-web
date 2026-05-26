@@ -159,12 +159,17 @@ export default {
 @import '@/libs/assets/styles/variables.scss';
 
 .m-update-activity-dialog {
+  ::v-deep .el-dialog {
+    height: 600px;
+    overflow: hidden;
+  }
   ::v-deep .el-dialog__body {
     padding: 0;
     overflow: hidden;
   }
 
   .tabs-wrapper {
+    flex-shrink: 0;
     padding: 12px 20px 0;
     border-bottom: 1px solid $--leap-color-default-light-4;
   }
@@ -202,9 +207,9 @@ export default {
   }
 
   .content-wrapper {
+    flex: 1;
     display: flex;
-    overflow: hidden;
-    min-height: 500px;
+    height: 495px;
   }
 
   .placeholder-content {

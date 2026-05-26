@@ -13,12 +13,17 @@
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="发运日期">
-        <el-input
-          placeholder="请输入"
-          v-model="form.shippingDate"
-          clearable
-        />
-      </el-form-item>
+          <el-date-picker
+            v-model="form.shippingDate"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
       <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
         <fetch-select
           :remote-method="getDealerList"
@@ -40,6 +45,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -52,6 +58,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -111,7 +118,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/purchase/shippingOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
@@ -193,7 +200,18 @@ export default {
             }]
           },
           { props: 'shippingDate', label: '发运日期', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'totalPieces', label: '总件数', visible: true, width: 140, align: 'right' },
           { props: 'totalBoxes', label: '总箱数', visible: true, width: 140, align: 'right' },
@@ -211,6 +229,7 @@ export default {
             buttons: [{
               name: '打印',
               click: (rowIndex, row) => {
+                this.handlePrint(row);
               },
               type: 'info'
             }]
@@ -467,29 +486,15 @@ export default {
         apiFunc: enableItem,
         refreshFunc: this.getData
       });
-      // const ids = this.selectionList.map(item => item.id) || [];
-      // this.$confirm(`此操作将${status ? '启用' : '停用'}选中项，是否继续?`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
-      //   enableItem({
-      //     idSet: ids,
-      //     status
-      //   }).then(() => {
-      //     this.$message({
-      //       type: 'success',
-      //       message: '操作成功!'
-      //     });
-      //     this.getData();
-      //   }).catch(() => {
-      //     this.$message({
-      //       type: 'error',
-      //       message: '操作失败!'
-      //     });
-      //   });
-      // });
-    }
+    },
+    // 打印备件发运单
+    handlePrint (row) {
+      this.$print.show({
+        id: row.id, // 必选，对应数据id
+        template: 'SparePartsShipment', // 必选，文件名.vue
+        title: `${row.dealerName}备件发运单`// 可选，打印标题
+      });
+    },
   }
 };
 </script>

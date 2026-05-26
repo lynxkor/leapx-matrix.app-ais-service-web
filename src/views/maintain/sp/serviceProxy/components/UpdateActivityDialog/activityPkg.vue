@@ -19,7 +19,7 @@
       <div class="search-box">
         <el-input
           v-model="searchKey"
-          placeholder="输入代码、名称"
+          placeholder="输入名称"
           prefix-icon="el-icon-search"
           size="small"
           clearable
@@ -192,7 +192,7 @@
 
       <!-- 空状态 -->
       <div v-else class="empty-state">
-        <span>请选择左侧套餐查看详情</span>
+        <span>请选择左侧活动查看详情</span>
       </div>
     </div>
   </div>
@@ -447,8 +447,8 @@ export default {
         checkoutTypeName: activityRes.checkoutTypeName,
         warrantyTypeId: activityRes.repairItemTypeId,
         warrantyTypeName: activityRes.repairItemTypeName,
-        workHour: item.workHour || 1,
-        isAddItems: 0,
+        workHour: item.quantity || 1,
+        isAddItems: this.vehicleInfo.isAddItems,
         discountAmount: item.discountAmount || 0,
         packageType: String(activityRes.activityType) === ActivityTypeEnum.SERVICE_CARE ? PackageTypeEnum.CARE_ACTIVITY : PackageTypeEnum.TECH_ACTIVITY,
         packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
@@ -485,7 +485,7 @@ export default {
             checkoutTypeName: activityRes.checkoutTypeName,
             warrantyTypeId: activityRes.repairItemTypeId,
             warrantyTypeName: activityRes.repairItemTypeName,
-            isOemPart: 0,
+            isOemPart: part.isOemPart || part.oemPart || 0,
             quantity: part.quantity,
             discountAmount: part.discountAmount || 0,
             spRepairItemId: part.serviceActivityItemId,
@@ -629,7 +629,6 @@ export default {
       flex: 1;
       overflow-y: auto;
       padding: 0 12px;
-      max-height: 520px;
     }
 
     .list-item {
@@ -708,7 +707,7 @@ export default {
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      padding: 16px;
+      padding: 16px 16px 0 16px;
 
       .detail-header {
         font-size: 16px;
@@ -727,7 +726,6 @@ export default {
       .project-list {
         flex: 1;
         overflow-y: auto;
-        max-height: 500px;
         .project-item {
           margin-bottom: 16px;
           // border: 1px solid var(--leap-color-default-light-4);
@@ -856,7 +854,9 @@ export default {
       }
 
       .footer-bar {
-        padding: 16px 0 0;
+        flex-shrink: 0;
+        padding: 16px 20px;
+        margin: 0 -20px;
         border-top: 1px solid var(--leap-color-default-light-4);
         text-align: right;
       }

@@ -37,7 +37,7 @@
                 </thead>
                 <tbody id="data-main">
                     <tr>
-                        <td> 待做 </td>
+                        <td> {{info.code}} </td>
                         <td>零售出库</td>
                         <td>{{info.dealerName}}</td>
                         <td>--</td>
@@ -87,7 +87,7 @@
 
 <script>
 // 对应业务的接口
-import { getDetail, retailOrderDetailPage } from '@/api/sparepart/sale/retailOrder/index';
+import { getDetail, retailOrderDetailPrintPage } from '@/api/sparepart/sale/retailOrder/index';
 
 export default {
   props: {
@@ -135,7 +135,7 @@ export default {
         pageSize: 1000,
         retailOrderId: this.id
       };
-      const res = await retailOrderDetailPage(params);
+      const res = await retailOrderDetailPrintPage(params);
       this.tableData = res.records || [];
     },
     getCurrentTime () {

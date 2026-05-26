@@ -8,6 +8,13 @@
           <span v-if="form.status" class="status primary">{{ form.status }}</span>
         </template>
         <template #extraButtons>
+          <el-button v-if="showAgreeLoss" plain size="small" :loading="actionLoading" @click="handleAgreeLoss">盘亏同意</el-button>
+          <el-button v-if="showRejectLoss" plain size="small" :loading="actionLoading" @click="handleRejectLoss">盘亏拒绝</el-button>
+          <el-button v-if="showAgreeProfit" plain size="small" :loading="actionLoading" @click="handleAgreeProfit">盘盈同意</el-button>
+          <el-button v-if="showRejectProfit" plain size="small" :loading="actionLoading" @click="handleRejectProfit">盘盈拒绝</el-button>
+          <el-button v-if="showInbound" plain size="small" :loading="actionLoading" @click="handleInbound">入库</el-button>
+          <el-button v-if="showOutbound" plain size="small" :loading="actionLoading" @click="handleOutbound">出库</el-button>
+           <el-button v-if="showApply" type="primary" plain size="small" :loading="actionLoading" @click="handleApply">申请</el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -17,31 +24,31 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="差异单号：" prop="code">
-                  {{ form.code }}
+                  <el-input v-model="form.code" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-input v-model="form.dealerName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="差异单状态：" prop="orderStatus">
-                  {{ form.orderStatusLabel }}
+                  <el-input v-model="form.orderStatus" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="盘点单号：" prop="stockTakingCode">
-                  {{ form.stockTakingCode }}
+                  <el-input v-model="form.stockTakingCode" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="母公司名称：" prop="companyName">
-                  {{ form.companyName }}
+                  <el-input v-model="form.companyName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="差异类型：" prop="differencesType">
-                  {{ form.differencesTypeLabel }}
+                  <el-input v-model="form.differencesType" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
-                  {{ form.warehouseName }}
+                  <el-input v-model="form.warehouseName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="盘点类型：" prop="stockType">
-                  {{ form.stockTypeLabel }}
+                  <el-input v-model="form.stockType" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" style="width: 100%;">
-                  {{ form.remark }}
+                  <el-input v-model="form.remark" type="textarea" maxlength="500" show-word-limit placeholder="请输入" disabled></el-input>
                 </el-form-item>
               </el-form>
             </div>
@@ -53,31 +60,31 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="申请人：" prop="apply">
-                  {{ form.apply }}
+                  <el-input v-model="form.applyName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="申请时间：" prop="applyTime">
-                  {{ form.applyTime }}
+                  <el-input v-model="form.applyTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="审批人：" prop="approver">
-                  {{ form.approver }}
+                  <el-input v-model="form.approverName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
-                  {{ form.approvalTime }}
+                  <el-input v-model="form.approvalTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="审批说明：" prop="approvalDescription">
-                  {{ form.approvalDescription }}
+                  <el-input v-model="form.approvalDescription" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="出入库操作人：" prop="operationOperator">
-                  {{ form.operationOperator }}
+                  <el-input v-model="form.operationOperator" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="出入库操作时间：" prop="operationTime">
-                  {{ form.operationTime }}
+                  <el-input v-model="form.operationTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="出入库状态：" prop="outInboundStatus">
-                  {{ form.outInboundStatusLabel }}
+                  <el-input v-model="form.outInboundStatusLabel" placeholder="请输入" disabled></el-input>
                 </el-form-item>
-                <el-form-item label="申请说明：" prop="applyDescription">
-                  <el-input type="textarea" :rows="3" placeholder="请输入" v-model="form.applyDescription" clearable />
+                <el-form-item label="申请说明：" prop="applyDescription" style="width: 100%;">
+                  <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.applyDescription" clearable />
                 </el-form-item>
               </el-form>
             </div>
@@ -125,7 +132,7 @@
             <div class="common-section-body">
               <el-form :inline="true" class="form-detail">
                 <el-form-item label="申请人：" prop="apply">
-                  {{ form.apply }}
+                  {{ form.applyName }}
                 </el-form-item>
                 <el-form-item label="申请时间：" prop="applyTime">
                   {{ form.applyTime }}
@@ -134,7 +141,7 @@
                   {{ form.applyDescription }}
                 </el-form-item>
                 <el-form-item label="审批人：" prop="approver">
-                  {{ form.approver }}
+                  {{ form.approverName }}
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
                   {{ form.approvalTime }}
@@ -201,13 +208,14 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, differencesDetailPage } from '@/api/sparepart/warehouse/stockTakingDifferences/index';
+import { getDetail, addOrUpdate, differencesDetailPage, getApply, agreeLoss, rejectLoss, agreeProfit, rejectProfit, getInbound, getOutbound } from '@/api/sparepart/warehouse/stockTakingDifferences/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, getPartDealer, getLoginUser } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { handleCommonAction, handleCommonPrompt } from '@/libs/utils';
 
 const defaultForm = {
   applyDescription: '',
@@ -234,6 +242,16 @@ const defaultForm = {
   operationTime: '',
 };
 
+const ACTION_CONFIG = {
+  apply: { title: '此操作将提交申请, 是否继续?', success: '申请成功' },
+  agreeLoss: { title: '此操作将同意盘亏, 是否继续?', success: '同意盘亏成功' },
+  rejectLoss: { title: '拒绝盘亏', placeholder: '请输入拒绝原因', success: '拒绝盘亏成功' },
+  agreeProfit: { title: '此操作将同意盘盈, 是否继续?', success: '同意盘盈成功' },
+  rejectProfit: { title: '拒绝盘盈', placeholder: '请输入拒绝原因', success: '拒绝盘盈成功' },
+  inbound: { title: '确定入库吗, 是否继续?', success: '入库成功' },
+  outbound: { title: '确定出库吗, 是否继续?', success: '出库成功' }
+};
+
 export default {
   name: 'stockTakingDifferencesEdit',
   props: {
@@ -253,6 +271,27 @@ export default {
     },
     title () {
       return '盘点差异单号：' + this.form.code;
+    },
+    showApply () {
+      return this._id && this.form.orderStatus === '0' && this.permissions.has('AISPART-stockTakingDifferences-apply');
+    },
+    showAgreeLoss () {
+      return this._id && this.form.orderStatus === '1' && this.form.differencesType === '20' && this.permissions.has('AISPART-stockTakingDifferences-agreeLoss');
+    },
+    showRejectLoss () {
+      return this._id && this.form.orderStatus === '1' && this.form.differencesType === '20' && this.permissions.has('AISPART-stockTakingDifferences-rejectLoss');
+    },
+    showAgreeProfit () {
+      return this._id && this.form.orderStatus === '1' && this.form.differencesType === '10' && this.permissions.has('AISPART-stockTakingDifferences-agreeProfit');
+    },
+    showRejectProfit () {
+      return this._id && this.form.orderStatus === '1' && this.form.differencesType === '10' && this.permissions.has('AISPART-stockTakingDifferences-rejectProfit');
+    },
+    showInbound () {
+      return this._id && this.form.orderStatus === '2' && this.form.differencesType === '10' && this.form.outInboundStatus === '2' && this.permissions.has('AISPART-stockTakingDifferences-inbound');
+    },
+    showOutbound () {
+      return this._id && this.form.orderStatus === '2' && this.form.differencesType === '20' && this.form.outInboundStatus === '0' && this.permissions.has('AISPART-stockTakingDifferences-outbound');
     }
   },
   watch: {
@@ -285,6 +324,7 @@ export default {
       loading: false,
       submitLoading: false,
       stockStatusType: false, // 是否可编辑
+      actionLoading: false,
       form: { ...form },
       originalForm: { ...form },
       pageSize: 10,
@@ -387,6 +427,119 @@ export default {
       this.pageSize = pageSize;
       this.pageNum = 1;
       this.getData();
+    },
+    // 调用二次确认弹框
+    _handleAction (apiFn, config) {
+      this.actionLoading = true;
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.$refs.containerRef.loadDetail();
+          this.getData();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
+      });
+    },
+    // 申请
+    handleApply () {
+      this.actionLoading = true;
+      if (this.form.differencesType === '10') {
+        this.$prompt('请输入申请理由', '申请', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          inputValue: ''
+        }).then(({ value }) => {
+          getApply({
+            id: this._id,
+            description: value
+          }).then(() => {
+            this.actionLoading = false;
+            this.$message({
+              type: 'success',
+              message: '申请成功!'
+            });
+            this.$refs.containerRef.loadDetail();
+            this.getData();
+          });
+        }).catch(() => {
+          this.actionLoading = false;
+        });
+      } else {
+        getApply({
+          id: this._id,
+        }).then(() => {
+          this.actionLoading = false;
+          this.$message({
+            type: 'success',
+            message: '申请成功!'
+          });
+          this.$refs.containerRef.loadDetail();
+          this.getData();
+        }).catch(() => {
+          this.actionLoading = false;
+        });
+      }
+    },
+    // 盘亏同意
+    handleAgreeLoss () {
+      this._handleAction(agreeLoss, ACTION_CONFIG.agreeLoss);
+    },
+    // 盘亏拒绝
+    handleRejectLoss () {
+      this.actionLoading = true;
+      handleCommonPrompt({
+        $prompt: this.$prompt,
+        $message: this.$message,
+        apiFn: rejectLoss,
+        id: this._id,
+        config: ACTION_CONFIG.rejectLoss,
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.$refs.containerRef.loadDetail();
+          this.getData();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
+      });
+    },
+    // 盘盈同意
+    handleAgreeProfit () {
+      this._handleAction(agreeProfit, ACTION_CONFIG.agreeProfit);
+    },
+    // 盘盈拒绝
+    handleRejectProfit () {
+      this.actionLoading = true;
+      handleCommonPrompt({
+        $prompt: this.$prompt,
+        $message: this.$message,
+        apiFn: rejectProfit,
+        id: this._id,
+        config: ACTION_CONFIG.rejectProfit,
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.$refs.containerRef.loadDetail();
+          this.getData();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
+      });
+    },
+    // 入库
+    handleInbound () {
+      this._handleAction(getInbound, ACTION_CONFIG.inbound);
+    },
+    // 出库
+    handleOutbound () {
+      this._handleAction(getOutbound, ACTION_CONFIG.outbound);
     },
   }
 };

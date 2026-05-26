@@ -17,7 +17,7 @@
               :business-id="form.auditId"
               :uploadConfig="uploadConfig"
               :readonly="true"
-              businessType="待签署整改报告"
+              attachType="待签署整改报告"
             />
           </el-form-item>
           <el-form-item prop="fileId" class="form-item-full" label="已签署整改报告：">
@@ -27,7 +27,7 @@
               :business-id="form.auditId"
               :uploadConfig="uploadConfig"
               :noEcho="true"
-              businessType="已签署整改报告"
+              attachType="已签署整改报告"
               @upload-loading-change="handleUploadLoadingChange"
             />
           </el-form-item>

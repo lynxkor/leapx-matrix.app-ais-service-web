@@ -26,12 +26,12 @@
           filterable
         />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="创建时间"  v-show="this.visibleCount === 2 || show">
+      <el-form-item label="创建时间"  v-show="this.visibleCount === 3 || show">
         <el-date-picker
          :default-time="['00:00:00', '23:59:59']"
           v-model="form.createTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -39,11 +39,13 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
+      <template v-if="show">
         <el-form-item label="修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -102,7 +104,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/claimreturn/claim/basic/warrantyAttachmentSetting/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -121,6 +123,7 @@ const defaultForm = {
   autoApproval: '',
   createTime: '',
   updateTime: '',
+  autoApprovals: []
 };
 
 const pageSize = 20;

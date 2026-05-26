@@ -35,6 +35,7 @@
                   clearable
                   remote
                   reserve-keyword
+                  :disabled="!!_id"
                   v-model="form.partCode"
                   :remote-method="getSparePart"
                   labelKey="name"
@@ -68,6 +69,7 @@
                     placeholder="请选择"
                     clearable
                     filterable
+                    :disabled="!!_id"
                   />
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode" v-if="form.type==='dealer'">
@@ -83,6 +85,7 @@
                     collapseTags
                     filterable
                     @change="handleDealerChange"
+                    :disabled="!!_id"
                   />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName" v-if="form.type==='dealer'">
@@ -106,13 +109,17 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="备件编码：" prop="sparePartId">
-                  {{ form.partCode }}
+                  <el-link type="primary" :href="`/service/sparepart/basic/sparePart/detail?id=${form.sparePartId}`" target="_blank">
+                    {{ form.partCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="备件名称：" prop="sparePartId">
                   {{ form.partName }}
                 </el-form-item>
                 <el-form-item label="门店编码：" v-if="form.type==='dealer'">
-                  {{ form.dealerCode }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称：" v-if="form.type==='dealer'">
                   {{ form.dealerName }}
@@ -130,55 +137,6 @@
                   {{ form.remark }}
                 </el-form-item>
               </el-form>
-            </div>
-          </section>
-          <section class="common-section" v-if="_id">
-            <div class="common-section-header">
-              <h2>子表标题</h2>
-            </div>
-            <div class="common-section-body">
-              <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
-              </div>
-              <div class="common-section-table">
-                <vxe-table
-                  ref="tableRef"
-                  stripe
-                  :data="tableData"
-                  show-overflow
-                  resizable
-                  border="inner"
-                  size="medium"
-                  min-height="0"
-                  max-height="400px"
-                >
-                  <vxe-column field="name" title="名称" min-width="30%" />
-                  <vxe-column field="age" title="年龄" min-width="30%" />
-                  <vxe-column field="email" title="邮箱" min-width="30%" />
-                  <vxe-column title="操作" width="100" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
-                  <template #empty>
-                    <div class="m-vxe-table-empty-text">{{emptyText}}</div>
-                  </template>
-                </vxe-table>
-              </div>
             </div>
           </section>
         </el-main>
@@ -207,8 +165,8 @@ const defaultForm = {
   // 多选时字段有变化，自行修复
   code: '',
   sparePartId: '',
-  filterType: '',
-  type: '',
+  filterType: 'blacklist',
+  type: 'standard',
   status: '',
   remark: '',
   createTime: '',

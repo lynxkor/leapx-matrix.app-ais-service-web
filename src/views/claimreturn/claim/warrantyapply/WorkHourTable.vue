@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="common-section-table pb-0">
   <vxe-table
     ref="editTable"
     :data="tableData"
@@ -13,9 +13,10 @@
     max-height="400px"
     >
     <vxe-column title="是否主因" width="80">
-      <template #default="{ row, rowIndex }">
+      <template #default="{ row }">
         <el-switch
-          v-if="editRowIndex === rowIndex"
+          v-if="canAddOrUpdate"
+          @change="saveRowEdit(row)"
           v-model="row.isMainItem">
         </el-switch>
         <span v-else>{{ row.isMainItem ? '是' : '否' }}</span>
@@ -26,21 +27,31 @@
     <vxe-column field="workHour" title="工时数"></vxe-column>
     <vxe-column field="workHourUnitPrice" title="工时单价"></vxe-column>
     <vxe-column field="totalCostAmount" title="总金额"></vxe-column>
-    <vxe-column field="remark" title="备注"></vxe-column>
-    <vxe-column title="操作" :width="200" align="center" fixed="right" :resizable="false">
+    <vxe-column field="remark" title="备注">
+      <template #default="{ row, rowIndex }">
+        <el-input
+          v-if="editRowIndex === rowIndex"
+          v-model="row.remark"
+          placeholder="请输入"
+          clearable
+          size="small"
+          :disabled="disabled"
+        ></el-input>
+        <span v-else>{{ row.remark }}</span>
+      </template>
+    </vxe-column>
+    <vxe-column title="操作" :width="200" align="center" fixed="right" :resizable="false" v-if="canAddOrUpdate">
       <template #default="{ row, rowIndex }">
         <template v-if="editRowIndex === rowIndex">
           <span
             class="action-button btn-edit"
-            @click="saveRowEdit(row, rowIndex)"
-            v-if="canAddOrUpdate"
+            @click="saveRowEdit(row)"
           >
             保存
           </span>
           <span
             class="action-button btn-edit"
             @click="cancelEdit(row, rowIndex)"
-            v-if="canAddOrUpdate"
           >
             取消
           </span>
@@ -49,14 +60,12 @@
           <span
             class="action-button btn-edit"
             @click="editRow(row, rowIndex)"
-            v-if="canAddOrUpdate"
           >
             编辑
           </span>
           <el-popconfirm
             title="确定要删除这条记录吗？"
             @confirm="handleRemoveRow(row, rowIndex)"
-            v-if="canAddOrUpdate"
           >
             <el-button
               class="action-button btn-delete"
@@ -194,6 +203,7 @@ export default {
         id: row.id,
         applyId: this._id,
         isMainItem: row.isMainItem ? 1 : 0,
+        remark: row.remark,
       }).then(id => {
         this.$message.success('更新成功');
         this.getDetailPageApi();

@@ -92,9 +92,14 @@
                     placeholder="请选择"
                     clearable
                     filterable
+                    @change="handleDevicePurposeChange"
                   />
                 </el-form-item>
-                <el-form-item label="工位名称：" prop="dealerStationName">
+                <el-form-item
+                  label="工位名称："
+                  prop="dealerStationName"
+                  :rules="form.devicePurpose === '20' || form.devicePurpose === 20 ? rules.dealerStationName : []"
+                >
                   <fetch-select
                     v-model="form.dealerStationName"
                     placeholder="请选择工位"
@@ -236,7 +241,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '监控设备用途-配置表管理',
+      pageTitle: '监控设备用途',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-monitoringEquipmentConfig',
@@ -276,43 +281,7 @@ export default {
           { required: true, message: '请输入设备用途', trigger: 'change' }
         ],
         dealerStationName: [
-          { required: true, message: '请输入工位名称', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        ownerOrgId: [
-          { required: true, message: '请输入归属门店ID（组织ID），当数据权限归属到本组织以及本下级', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'change' }
-        ],
-        dealerStationId: [
-          { required: true, message: '请输入工位ID', trigger: 'change' }
+          { required: true, message: '请选择工位', trigger: 'change' }
         ],
       }
     };
@@ -320,8 +289,12 @@ export default {
   mounted () {
   },
   methods: {
+    handleDevicePurposeChange (val) {
+      this.$set(this.form, 'devicePurpose', val);
+      console.log(this.form.devicePurpose);
+    },
     async queryDealerStations (query) {
-      return await getDealerStationList({ stationName: query });
+      return await getDealerStationList({ name: query, dealerCodes: [this.form.dealerCode] });
     },
     handleStationChange (data, obj) {
       this.form.dealerStationId = data;

@@ -23,7 +23,7 @@
             <div class="dialog-footer">
                 <el-button size="small" type="primary" :loading="submitLoading" @click="submit">清空异常清单&生成差异单</el-button>
                 <el-button size="small" type="primary" :loading="submitLoading">导 出</el-button>
-                <el-button size="small" @click="close">取 消</el-button>
+                <el-button size="small" @click="close">取消</el-button>
             </div>
         </template>
     </el-dialog>

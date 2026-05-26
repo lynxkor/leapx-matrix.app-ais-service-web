@@ -24,6 +24,7 @@
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -36,6 +37,7 @@
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -57,29 +59,35 @@
       is-checkbox
       is-page
       checkboxFixed
+      centralized
+      :save-or-update="saveOrUpdate"
+      @listSelect="handleListSelect"
       :option-obj="optionObj"
       :get-config="getConfig"
       @paginationChange="paginationChange"
       @handleSelect="handleSelectionChange"
-    />
+    >
+    <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+  </LPVxeTable>
   </div>
 </template>
 
 <script>
 import { getList, enableItem } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditErrorConfig/index';
-import { getTableConfig, getEnum } from '@/api/common';
+import { getTableConfig, getEnum, tableAddOrUpdate } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import EditPage from './edit.vue';
 
 const defaultForm = {
   errorCode: '',
   errorCategoryLike: '',
-  statusList: [],
+  statusIncludeList: [],
   createTime: '',
   updateTime: ''
 };
@@ -92,7 +100,8 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    FetchSelect
+    FetchSelect,
+    EditPage
   },
   data () {
     return {
@@ -103,6 +112,7 @@ export default {
       selectionList: [],
       show: false,
       loading: false,
+      clickItemId: '',
       optionObj: {
         id: 'warrantyAuditErrorConfigTable',
         dataList: [],
@@ -142,7 +152,7 @@ export default {
             type: 'operate',
             visible: true,
             fixed: 'right',
-            width: 120,
+            width: 200,
             buttons: [{
               name: '编辑',
               click: (rowIndex, row) => {
@@ -154,6 +164,20 @@ export default {
                   }
                 });
               },
+              type: 'info'
+            }, {
+              name: '启用',
+              click: (rowIndex, row) => {
+                this.handleSingleEnable(row, 1);
+              },
+              show: (row) => row.status === 0,
+              type: 'info'
+            }, {
+              name: '停用',
+              click: (rowIndex, row) => {
+                this.handleSingleEnable(row, 0);
+              },
+              show: (row) => row.status === 1,
               type: 'info'
             }]
           }
@@ -228,6 +252,25 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    handleSingleEnable (row, status) {
+      const statusText = status === 1 ? '启用' : '停用';
+      this.$confirm(`确认${statusText}该条数据?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        enableItem({ idSet: [row.id], status }).then(() => {
+          this.$message.success(`${statusText}成功`);
+          this.getData();
+        });
+      }).catch(() => {});
+    },
+    handleListSelect (row) {
+      this.clickItemId = row.id;
+    },
+    saveOrUpdate (data) {
+      return tableAddOrUpdate(data);
     },
     handleBatchEnable (status) {
       handleBatchStatusChange.call(this, {

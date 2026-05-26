@@ -62,7 +62,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="BackOrderStatusEnum"
-            v-model="form.backStatus"
+            v-model="form.backStatusList"
             placeholder="请选择"
             clearable
             multiple
@@ -74,6 +74,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -86,6 +87,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -112,12 +114,10 @@
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
-    <div class="ais-tabs">
-      <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
-        <el-tab-pane label="缺货明细看板" name="outOfStock"></el-tab-pane>
-      </el-tabs>
-    </div>
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
+      <el-tab-pane label="缺货明细看板" name="outOfStock"></el-tab-pane>
+    </el-tabs>
     <div
       class="ais-table-c"
       v-if="activeName === 'homePage'"
@@ -231,7 +231,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, reportPage } from '@/api/sparepart/purchase/backOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
@@ -253,7 +253,7 @@ const defaultForm = {
   purchaseApplyCode: '',
   dealerCode: '',
   purchaseOrderTypeList: [],
-  backStatus: '',
+  backStatusList: '',
   createTime: '',
   updateTime: '',
 };
@@ -335,7 +335,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
           { props: 'pendingVarietyCount', label: '待处理品种数', visible: true, align: 'right', width: 140 },
@@ -391,10 +402,37 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
-          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180 },
+          {
+            props: 'sparePartCode',
+            label: '备件编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/sparePart/edit',
+                  query: {
+                    id: row.sparePartId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
           { props: 'backDays', label: '缺货天数', visible: true, align: 'right', width: 120 },
           { props: 'estimatedFactoryDeliveryTime', label: '预计厂端发货时间', visible: true, width: 200 },
@@ -422,7 +460,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/purchase/backOrder/outOfStock/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
@@ -658,6 +697,7 @@ export default {
     // 点击tabs栏切换
     handleClick (item) {
       this.activeName = item.name;
+      this.show = false;
       this.getData();
     },
     // 跳转详情页

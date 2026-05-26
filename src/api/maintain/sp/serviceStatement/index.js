@@ -163,3 +163,11 @@ export function getStatementPayRecord (data) {
 export function getPrintInfo (data) {
   return api.jsonPost(prefix + 'print', data);
 }
+
+/**
+ * 重推签字短信
+ * @param {Object} data
+ */
+export function resendSignSms (data) {
+  return api.jsonPost(prefix + 'resendSignSms', data);
+}

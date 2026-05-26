@@ -137,17 +137,17 @@
         <!-- 底部操作栏 -->
         <div class="footer-bar">
           <el-popconfirm
-            :title="!selectedPackage?.used ? '确定取消使用该维修套餐？' : '确定选择使用该维修套餐？'"
+            :title="selectedPackage?.used ? '确定取消使用该维修套餐？' : '确定选择使用该维修套餐？'"
             @confirm="handleConfirm"
           >
-            <el-button :type="!selectedPackage?.used ? 'primary' : 'plain'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :type="!selectedPackage?.used ? 'primary' : ''" size="small" slot="reference">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
 
       <!-- 空状态 -->
       <div v-else class="empty-state">
-        <span>请选择左侧套餐查看详情</span>
+        <span>请选择左侧维修套餐查看详情</span>
       </div>
     </div>
   </div>
@@ -256,6 +256,8 @@ export default {
     },
     handleSelectPackage (item) {
       if (this.detailLoading) return;
+      console.log('handleSelectPackage', item);
+
       this.selectedPackage = item;
       this.loadProjectDetail(item);
     },
@@ -390,7 +392,6 @@ export default {
       flex: 1;
       overflow-y: auto;
       padding: 0 12px;
-      max-height: 520px;
     }
 
     .list-item {
@@ -466,7 +467,7 @@ export default {
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      padding: 16px;
+      padding: 16px 16px 0 16px;
 
       .detail-header {
         font-size: 16px;
@@ -478,7 +479,6 @@ export default {
       .project-list {
         flex: 1;
         overflow-y: auto;
-        max-height: 500px;
         .project-item {
           margin-bottom: 16px;
           // border: 1px solid var(--leap-color-default-light-4);
@@ -577,7 +577,9 @@ export default {
       }
 
       .footer-bar {
-        padding: 16px 0 0;
+        flex-shrink: 0;
+        padding: 16px 20px;
+        margin: 0 -20px;
         border-top: 1px solid var(--leap-color-default-light-4);
         text-align: right;
       }

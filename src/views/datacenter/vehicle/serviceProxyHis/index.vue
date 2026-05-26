@@ -65,7 +65,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/datacenter/vehicle/serviceProxyHis/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -108,7 +108,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: '接车施工单-维修履历信息管理',
+      pageTitle: '维修履历',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-serviceProxyHis',
@@ -193,7 +193,20 @@ export default {
             }]
           },
           { props: 'carPlate', label: '车牌号', visible: true, width: 200 },
-          { props: 'vehModelName', label: '基本车型', visible: true, width: 200 },
+          {
+            props: 'vehModelName',
+            label: '基本车型',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.vehModelId) {
+                  window.open(`/service/datacenter/materials/vehicleModel/detail?id=${row.vehModelId}`, '_blank');
+                }
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'mileage', label: '进店里程数（KM）', visible: true, width: 200 },
           { props: 'netMileageExtend', label: '车联网里程数（增）', visible: true, width: 200 },
           { props: 'customerFaultDescription', label: '客户故障描述', visible: true, width: 200 },

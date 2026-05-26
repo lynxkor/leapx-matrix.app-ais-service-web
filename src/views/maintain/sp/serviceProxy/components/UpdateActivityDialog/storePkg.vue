@@ -115,7 +115,7 @@
                   border="inner"
                   size="small"
                   min-height="0"
-                  max-height="300px"
+                  max-height="3000px"
                   show-overflow
                 >
 									<vxe-column field="partsName" title="零件名称" min-width="200" />
@@ -140,7 +140,7 @@
         <!-- 底部操作栏 -->
         <div class="footer-bar">
           <el-popconfirm
-            :title="!selectedPackage?.used ? '确定取消使用该商城订单？' : '确定选择使用该商城订单？'"
+            :title="selectedPackage?.used ? '确定取消使用该商城订单？' : '确定选择使用该商城订单？'"
             @confirm="handleConfirm"
           >
             <el-button :disabled="projectList.length === 0" :type="selectedPackage?.used ? 'plain' : 'primary'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
@@ -150,7 +150,7 @@
 
       <!-- 空状态 -->
       <div v-else class="empty-state">
-        <span>请选择左侧套餐查看详情</span>
+        <span>请选择左侧商城订单查看详情</span>
       </div>
     </div>
   </div>
@@ -378,7 +378,6 @@ export default {
       flex: 1;
       overflow-y: auto;
       padding: 0 12px;
-      max-height: 520px;
 
       .list-empty {
           flex: 1;
@@ -467,7 +466,7 @@ export default {
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      padding: 16px;
+      padding: 16px 16px 0 16px;
 
       .detail-header {
         font-size: 16px;
@@ -479,7 +478,6 @@ export default {
       .project-list {
         flex: 1;
         overflow-y: auto;
-        max-height: 500px;
         .project-item {
           margin-bottom: 16px;
           // border: 1px solid var(--leap-color-default-light-4);
@@ -578,7 +576,9 @@ export default {
       }
 
       .footer-bar {
-        padding: 16px 0 0;
+        flex-shrink: 0;
+        padding: 16px 20px;
+        margin: 0 -20px;
         border-top: 1px solid var(--leap-color-default-light-4);
         text-align: right;
       }

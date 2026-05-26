@@ -24,8 +24,8 @@
     </el-form>
 
     <span slot="footer" class="dialog-footer">
-      <el-button size="small" @click="handleClose">取 消</el-button>
-      <el-button size="small" type="primary" @click="handleConfirm">确 定</el-button>
+      <el-button size="small" @click="handleClose">取消</el-button>
+      <el-button size="small" type="primary" :loading="confirmLoading" @click="handleConfirm">确定</el-button>
     </span>
   </el-dialog>
 </template>
@@ -45,6 +45,7 @@ export default {
   data () {
     return {
       dialogVisible: false,
+      confirmLoading: false,
       unresolvedReasonOptions: [],
       form: {
         isProblemResolved: true,
@@ -84,6 +85,8 @@ export default {
       this.$emit('update:visible', val);
       if (val) {
         this.resetForm();
+      } else {
+        this.confirmLoading = false;
       }
     },
     'form.isProblemResolved' (val) {
@@ -112,8 +115,10 @@ export default {
       return [];
     },
     handleConfirm () {
+      if (this.confirmLoading) return;
       this.$refs.ruleForm.validate((valid) => {
         if (valid) {
+          this.confirmLoading = true;
           this.$emit('confirm', {
             faultSolve: this.form.isProblemResolved,
             reason: this.form.unresolvedReason

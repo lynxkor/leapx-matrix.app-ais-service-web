@@ -54,13 +54,13 @@
                   </tr>
                   <tr>
                     <td>车主</td>
-                    <td>{{ info.serviceProxyResp?.bindingUser }}</td>
+                    <td>{{ info.serviceProxyResp?.customerName }}</td>
                     <td>电话</td>
-                    <td>{{ info.serviceProxyResp?.bindingPhone }}</td>
+                    <td>{{ info.serviceProxyResp?.customerPhone }}</td>
                     <td>车牌号码</td>
                     <td>{{ info.serviceProxyResp?.carPlate }}</td>
                     <td>型号</td>
-                    <td>{{ info.serviceProxyResp?.vehRegisteredModelName }}</td>
+                    <td>{{ info.serviceProxyResp?.vehModelName }}</td>
                   </tr>
                   <tr>
                     <td>进店里程(Km)</td>
@@ -70,7 +70,7 @@
                     <td>送修人</td>
                     <td>{{ info.serviceProxyResp?.shuttleName }}</td>
                     <td>销售日期</td>
-                    <td>{{ info.serviceProxyResp?.saleDate }}</td>
+                    <td>{{ (info.serviceProxyResp?.saleDate)?.slice(0, 10) }}</td>
                   </tr>
                   <tr>
                     <td>离店里程(Km)</td>
@@ -80,7 +80,7 @@
                     <td>送修人电话</td>
                     <td>{{ info.serviceProxyResp?.shuttlePhone }}</td>
                     <td>客户经理</td>
-                    <td>{{ info.serviceProxyResp?.dedicatedServiceManager }}</td>
+                    <td>{{ info.serviceProxyResp?.creatorName }}</td>
                   </tr>
                   <!-- <tr>
                     <td>客户地址</td>
@@ -91,6 +91,10 @@
                     <td style="border-bottom-width:0px; text-align:left" colspan="3">{{ info.serviceProxyResp?.maintenanceTime }}</td>
                     <td style="border-bottom-width:0px">下次保养里程</td>
                     <td style="border-bottom-width:0px; text-align:left" colspan="3">{{ formatNumber(info.serviceProxyResp?.maintenanceMileage) }}</td>
+                  </tr>
+                  <tr>
+                    <td style="border-bottom-width:0px">客户经理建议</td>
+                    <td style="border-bottom-width:0px; text-align:left" colspan="7">{{ info.serviceProxyResp?.testResult }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -234,19 +238,21 @@
                 <tbody>
                   <tr>
                     <td style="width:120px; height:40px">客户经理确认</td>
-                    <td></td>
+                    <td style="width:120px;"></td>
                     <td style="width:120px;">收款人确认</td>
-                    <td></td>
+                    <td style="width:120px;">{{ info.payeeName }}</td>
                     <td style="width:120px;">客户签字</td>
-                    <td></td>
+                    <td style="width:120px;">
+                      <img v-if="signUrl" :src="signUrl"  style="width: 120px; height: 32px" />
+                    </td>
                   </tr>
                   <tr>
                     <td style="border-bottom-width:0px">日期</td>
                     <td style="border-bottom-width:0px"></td>
                     <td style="border-bottom-width:0px">日期</td>
-                    <td style="border-bottom-width:0px"></td>
+                    <td style="border-bottom-width:0px">{{ info.receiveTime }}</td>
                     <td style="border-bottom-width:0px">日期</td>
-                    <td style="border-bottom-width:0px"></td>
+                    <td style="border-bottom-width:0px">{{ info.signCompletedOn }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -297,7 +303,8 @@
 // 对应业务的接口
 import { getPrintInfo } from '@/api/maintain/sp/serviceStatement/index';
 import { getStoreDetailByCode } from '@/api/maintain/sp/serviceProxy/index';
-import { CheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { CheckoutTypeEnum, StatementCheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { getFileList } from '@/libs/api/attachment';
 
 export default {
   props: {
@@ -313,7 +320,8 @@ export default {
   data () {
     return {
       info: {},
-      storeInfo: {}
+      storeInfo: {},
+      signUrl: '',
     };
   },
   watch: {
@@ -328,6 +336,13 @@ export default {
     }
   },
   methods: {
+    loadAttachmentList () {
+      if (!this.id) return;
+      getFileList({ businessId: this.id, attachType: '制单签字' }).then(res => {
+        const imgUrl = res?.[0]?.fileUrl;
+        this.signUrl = imgUrl;
+      });
+    },
     getData () {
       getPrintInfo(this.id).then(res => {
         this.info = res;
@@ -339,6 +354,7 @@ export default {
         // 处理结算类型数据:保修、合同、内转不需要用户付钱,修改为0
         this.processCheckoutTypeData();
       });
+      this.loadAttachmentList();
     },
     // 格式化金额
     formatAmount (value) {
@@ -360,6 +376,9 @@ export default {
     },
     checkoutTypeIncluded (type) {
       return type === CheckoutTypeEnum.WARRANTY || type === CheckoutTypeEnum.CONTRACT || type === CheckoutTypeEnum.INTERNAL_SETTLEMENT;
+    },
+    statementCheckoutTypeEnumIncluded (type) {
+      return type === StatementCheckoutTypeEnum.WARRANTY || type === StatementCheckoutTypeEnum.CONTRACT || type === StatementCheckoutTypeEnum.INTERNAL_SETTLEMENT;
     },
     // 处理结算类型数据,将不需要支付的金额置为0并更新总金额
     processCheckoutTypeData () {
@@ -388,7 +407,7 @@ export default {
       }
 
       const { statementType } = this.info;
-      if (this.checkoutTypeIncluded(statementType)) {
+      if (this.statementCheckoutTypeEnumIncluded(statementType)) {
         this.info.repairItemAmount = 0;
         this.info.partAmount = 0;
         this.info.totalAmount = 0;

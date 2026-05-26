@@ -10,17 +10,18 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
-        :showEditBtn="orderStatusType"
+        :showEditBtn="isEdit"
       >
         <template #status>
-          <span v-if="form.status" class="status primary">{{ form.status }}</span>
+          <span class="status primary">{{ form.transferStatusLabel }}</span>
         </template>
         <template #extraButtons>
           <el-button
             v-for="btn in visibleButtons"
             :key="btn.key"
-            type="primary"
+            plain
             size="small"
+            :loading="actionLoading"
             @click="handleExtraButtonClick(btn.action)"
           >
             {{ btn.label }}
@@ -313,11 +314,20 @@
             <div class="common-section-body">
               <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
-                    value-key="id" label-key="name" subLabelKey="code" :disabled="!orderStatusType"
-                    @change="handleAddTableData" />
-                  <el-button type="primary" size="small">添加</el-button>
-                  <el-button size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
+                  <base-search
+                    style="width: 300px;"
+                    filterable
+                    clearable
+                    remote
+                    placeholder="请选择"
+                    :remote-method="queryListData"
+                    @change="handleAddTableData"
+                    value-key="id"
+                    label-key="name"
+                    subLabelKey="code"
+                    :disabled="!orderStatusType"
+                  />
+                  <el-button class="search-btn" size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -338,15 +348,15 @@
                   <vxe-column field="availableQty" title="可用库存" min-width="10%" />
                   <vxe-column field="purchasePriceTax" title="采购价格(含税)" min-width="10%" />
                   <vxe-column field="purchasePriceNotax" title="采购价格(不含税)" min-width="10%" />
-                  <vxe-column field="costUnitPriceTax" title="金额(含税)" min-width="10%" />
+                  <vxe-column field="purchaseAmountTax" title="金额（含税）" min-width="10%" />
                   <vxe-column field="transferQty" title="调拨数量" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.transferQty" :disabled="!orderStatusType" :max="row.availableQuantity" type="number" min="1" @blur="handleQtyBlur(row)"/>
+                      <el-input v-model="row.transferQty" :disabled="!orderStatusType" :max="row.availableQty" type="number" min="1" @change="handleQtyBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="remark" title="备注" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.remark" :disabled="!orderStatusType" @blur="handleRemarkBlur(row)"/>
+                      <el-input v-model="row.remark" :disabled="!orderStatusType" @change="handleRemarkBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />
@@ -388,7 +398,14 @@
       :businessParams="_id"
       id="sparepartTransferOutboundDetail"
       @close="handleUploadDialogClose"
-      @submit="getDetailData"
+      @submit="handleRefresh"
+    />
+    <!-- 发运弹窗 -->
+    <ShipmentDialog
+      :visible.sync="shipmentDialogVisible"
+      :id="_id"
+      @update:visible="val => shipmentDialogVisible = val"
+      @success="handleRefresh"
     />
   </edit-page-layout>
 </template>
@@ -408,6 +425,8 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
 import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
+import ShipmentDialog from './ShipmentDialog';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
   code: '',
@@ -463,7 +482,9 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    Upload
+    Upload,
+    ShipmentDialog,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -472,67 +493,73 @@ export default {
     title () {
       return '调拨出库单号：' + this.form.code;
     },
+    isEdit () {
+      return this.form.transferStatus === '0' || this.form.transferStatus === '3';
+    },
     extraButtons () {
       const buttons = [
         {
           key: 'submit',
           label: '提交',
           action: 'submit',
-          visible: this._id && (this.form.transferStatus === '0' || this.form.transferStatus === '3')
+          visible: this._id && (this.form.transferStatus === '0' || this.form.transferStatus === '3') && this.permissions.has('AISPART-transferOutbound-submit')
         },
         {
           key: 'approve',
           label: '同意',
           action: 'approve',
-          visible: this._id && this.form.transferStatus === '1'
+          visible: this._id && this.form.transferStatus === '1' && this.permissions.has('AISPART-transferOutbound-approve')
         },
         {
           key: 'reject',
           label: '驳回',
           action: 'reject',
-          visible: this._id && this.form.transferStatus === '1'
+          visible: this._id && this.form.transferStatus === '1' && this.permissions.has('AISPART-transferOutbound-reject')
         },
         {
           key: 'revoke',
           label: '撤回',
           action: 'revoke',
-          visible: this._id && this.form.transferStatus === '2' && this.form.outboundStatus === '0'
+          visible: this._id && this.form.transferStatus === '2' && this.form.outboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-revoke')
         },
         {
           key: 'ship',
           label: '发运',
           action: 'ship',
-          visible: this._id && this.form.transferStatus === '2' && this.form.outboundStatus === '0'
+          visible: this._id && this.form.transferStatus === '2' && this.form.outboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-ship')
         },
         {
           key: 'applyCancel',
           label: '申请撤销',
           action: 'applyCancel',
-          visible: this._id && (this.form.cancelStatus === '10' || this.form.cancelStatus === '40') && this.form.outboundStatus === '1'
+          visible: this._id && (this.form.cancelStatus === '10' || this.form.cancelStatus === '40') && this.form.outboundStatus === '1' && this.permissions.has('AISPART-transferOutbound-applyCancel')
         },
         {
           key: 'approveCancel',
           label: '同意撤销',
           action: 'approveCancel',
-          visible: this._id && this.form.cancelStatus === '20'
+          visible: this._id && this.form.cancelStatus === '20' && this.permissions.has('AISPART-transferOutbound-approveCancel')
         },
         {
           key: 'rejectCancel',
           label: '驳回撤销',
           action: 'rejectCancel',
-          visible: this._id && this.form.cancelStatus === '20'
+          visible: this._id && this.form.cancelStatus === '20' && this.permissions.has('AISPART-transferOutbound-rejectCancel')
         },
         {
           key: 'inbound',
           label: '入库',
           action: 'inbound',
-          visible: this._id && this.form.cancelStatus === '30' && this.form.inboundStatus === '0'
+          visible: this._id && this.form.cancelStatus === '30' && this.form.inboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-inbound')
         },
       ];
       return buttons;
     },
     visibleButtons () {
       return this.extraButtons.filter(btn => btn.visible);
+    },
+    orderStatusType () {
+      return this.form.transferStatus === '0' || this.form.transferStatus === '3';
     }
   },
   watch: {
@@ -548,9 +575,6 @@ export default {
       handler (val) {
         if (val) {
           this.getData();
-          if (this.form.transferStatus === '0') {
-            this.orderStatusType = true;
-          }
         }
       },
       immediate: true
@@ -565,7 +589,8 @@ export default {
       moduleKey: 'AISPART-transferOutbound',
       loading: false,
       submitLoading: false,
-      orderStatusType: false, // 是否可编辑
+      actionLoading: false, // 操作按钮 loading
+      shipmentDialogVisible: false, // 发运弹窗是否显示
       pageNum: 1,
       pageSize: 10,
       total: 0,
@@ -581,7 +606,7 @@ export default {
           { required: true, message: '请输入入库门店编码', trigger: 'change' }
         ],
         inboundContactName: [
-          { required: true, message: '请输入入库方联系人', trigger: 'change' }
+          { required: false, message: '请输入入库方联系人', trigger: 'change' }
         ],
       }
     };
@@ -616,7 +641,7 @@ export default {
     },
     async getDealerList (query) {
       try {
-        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query, isPartOrder: true, authority: false });
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query, authority: false, excludeDealerCode: this.form.outboundDealerCode });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
@@ -655,7 +680,7 @@ export default {
         return;
       }
       // 检查是否已存在
-      const exists = this.tableData.some(item => item.partCode === record.partCode);
+      const exists = this.tableData.some(item => item.id === record.id);
       if (exists) {
         this.$message.warning('请勿重复添加');
       }
@@ -668,6 +693,16 @@ export default {
     },
     // 数量输入框失去焦点时触发
     handleQtyBlur (row) {
+      // 1. 先转为数字
+      const qty = Number(row.transferQty);
+      const stock = Number(row.availableQty);
+
+      // 2. 增加 isNaN 判断，防止非法字符绕过校验
+      if (isNaN(qty) || qty === 0 || qty > stock) {
+        this.$message.warning('请输入小于等于可用库存且大于 0 的值');
+
+        return;
+      }
       const params = {
         transferOutboundId: this._id,
         id: row.id,
@@ -691,7 +726,6 @@ export default {
         this.$message.success('操作成功');
         this.getData();
       } catch (error) {
-        this.$message.error('操作失败');
       }
     },
     // 删除备件
@@ -701,7 +735,6 @@ export default {
         this.$message.success('删除成功');
         this.getData();
       } catch (error) {
-        this.$message.error('删除失败');
       }
     },
     getDefautlForm () {
@@ -764,18 +797,26 @@ export default {
       }
     },
     // 刷新接口
-    handleRefresh () {
-      this.$refs.containerRef.loadDetail();
+    async handleRefresh () {
+      await this.$refs.containerRef.loadDetail();
+      this.getData();
     },
     // 调用二次确认弹框
     _handleAction (apiFn, config) {
+      this.actionLoading = true;
       handleCommonAction({
         $confirm: this.$confirm,
         $message: this.$message,
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.handleRefresh();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     // --- 业务方法调用 ---
@@ -796,6 +837,7 @@ export default {
     },
     // 通用 备注弹窗
     _execPrompt (api, title, placeholder, successMsg) {
+      this.actionLoading = true;
       handleCommonPrompt({
         $prompt: this.$prompt,
         $message: this.$message,
@@ -806,7 +848,13 @@ export default {
           placeholder,
           success: successMsg
         },
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.handleRefresh();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     handleReject () {
@@ -826,6 +874,10 @@ export default {
         title: `${this.form.dealerName}厅店调拨出库单`// 可选，打印标题
       });
     },
+    // 发运弹窗
+    handleShip () {
+      this.shipmentDialogVisible = true;
+    }
   }
 };
 </script>

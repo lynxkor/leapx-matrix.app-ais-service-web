@@ -4,6 +4,7 @@
     width="600px"
     :visible.sync="dialogVisible"
     :close-on-click-modal="false"
+    destroy-on-close
     @close="close"
   >
     <div class="page-common-edit vertical">
@@ -19,6 +20,7 @@
               :business-id="traceOrderId"
               attachType="申诉凭证"
               :uploadConfig="uploadConfig"
+              hint="default"
               @upload-loading-change="handleUploadLoadingChange"
             />
           </el-form-item>
@@ -63,7 +65,7 @@ export default {
         appealDesc: [{ required: true, message: '请输入申诉说明', trigger: 'blur' }],
       },
       uploadConfig: {
-        acceptSuffix: '.rar,.zip,.doc,.docx,.pdf,.jpg,.jpeg,.xlsx,.xls,.mp4',
+        acceptSuffix: '.rar,.zip,.doc,.docx,.pdf,.png,.jpg,.jpeg,.xlsx,.xls,.mp4',
         maxSize: 50,
         maxNum: 9,
       },
@@ -89,12 +91,20 @@ export default {
       this.$refs.ruleForm.validate((valid) => {
         if (!valid) return;
         const attachFileList = this.$refs.attachment.getAttachment();
-        if (!attachFileList || attachFileList.length === 0) {
+        const fileList = this.$refs.attachment.getFileList() || [];
+        const files = fileList.reduce((p, c) => {
+          if (c.response) {
+            p.push(c.response);
+          }
+          return p;
+        }, []);
+        const allFiles = [...files, ...attachFileList];
+        if (!allFiles || allFiles.length === 0) {
           this.$message.warning('请上传申诉凭证');
           return;
         }
         this.submitLoading = true;
-        submitAppeal({ ...this.form, attachFileList }).then(() => {
+        submitAppeal({ ...this.form, attachFileList: allFiles }).then(() => {
           this.$message.success('申诉成功');
           this.close();
           this.$emit('success');

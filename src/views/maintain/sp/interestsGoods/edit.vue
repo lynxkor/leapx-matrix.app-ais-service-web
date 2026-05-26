@@ -219,7 +219,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, deleteGoodsRepairItem } from '@/api/maintain/sp/interestsGoods/index';
+import { getDetail, addOrUpdate, deleteGoodsRepairItem, checkCodeExist } from '@/api/maintain/sp/interestsGoods/index';
 import { getPage as getRepairItemPage } from '@/api/maintain/basic/repairItem/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import BaseSearch from '@/libs/components/BaseSearch';
@@ -308,7 +308,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '权益商品管理',
+      pageTitle: '权益商品',
       pageType: 'edit',
       moduleKey: 'AISMC-interestsGoods',
       loading: false,
@@ -327,7 +327,8 @@ export default {
       totalClaimAmount: 0.00, // 索赔费用合计
       rules: {
         code: [
-          { required: true, message: '请输入权益商品代码', trigger: 'change' }
+          { required: true, message: '请输入权益商品代码', trigger: 'change' },
+          { validator: this.validateCodeUnique, trigger: 'blur' } // 使用 blur 触发，避免每次输入都请求
         ],
         commodityName: [
           { required: true, message: '请输入权益商品名称', trigger: 'change' }
@@ -544,6 +545,28 @@ export default {
       }
 
       callback();
+    },
+
+    validateCodeUnique (rule, value, callback) {
+      if (!value) {
+        return callback(new Error('请输入权益商品代码'));
+      }
+      // 如果代码没有变化，且是编辑模式，可以直接通过（可选优化，取决于后端接口是否支持排除自身）
+      // 这里我们直接调用接口，让后端判断
+      checkCodeExist({ code: value, id: this._id }).then(res => {
+        // 后端返回 true 表示存在，false 表示不存在；
+        if (res) {
+          // 注意：这里需要根据你后端接口的实际返回来判断是否重复
+          // 后端返回 { data: true } 表示代码已存在
+          return callback(new Error('权益商品代码已存在，请修改'));
+        } else {
+          callback();
+        }
+      }).catch(() => {
+        // 接口错误时，通常为了不阻断用户操作，可以选择通过或提示网络错误
+        // 这里选择通过，避免因为网络问题导致无法保存，但最好有提示
+        callback();
+      });
     },
     /**
      * 初始化新增时的默认值

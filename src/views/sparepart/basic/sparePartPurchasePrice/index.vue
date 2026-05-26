@@ -57,6 +57,7 @@
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.effectiveStartDate"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -69,6 +70,7 @@
           :default-time="['00:00:00', '23:59:59']"
             v-model="form.effectiveEndDatetime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -88,6 +90,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -100,6 +103,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -154,7 +158,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/sparePartPurchasePrice/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
@@ -231,9 +235,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePartPurchasePrice/detail',
+                  path: '/sparepart/basic/sparePartPurchasePrice/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },
@@ -250,7 +255,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/sparePart/detail',
                   query: {
-                    id: row.sparePartId
+                    id: row.sparePartId,
+                    isEditing: false
                   }
                 });
               },
@@ -260,7 +266,18 @@ export default {
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
           { props: 'pricingModelLabel', label: '定价模式', visible: true, width: 180 },
           { props: 'dealerPurchasePrice', label: '采购价格', visible: true, align: 'right', width: 120 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'adjustmentRatio', label: '调价比例（%）', visible: true, width: 140 },
           { props: 'effectiveStartDate', label: '生效开始日期', visible: true, width: 200 },
@@ -293,7 +310,8 @@ export default {
                   this.$router.push({
                     path: '/sparepart/basic/sparePartPurchasePrice/edit',
                     query: {
-                      id: row.id
+                      id: row.id,
+                      isEditing: true
                     }
                   });
                 },
@@ -552,36 +570,25 @@ export default {
       });
     },
     // 单条信息停用
-    handleFailure (val) {
-      console.log('val', val);
-      const promptConfig = {
+    async handleFailure (val) {
+      this.$prompt('失效说明', '失效', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        showClose: true,
-        message: '失效说明'
-      };
-
-      this.$prompt(promptConfig.message, promptConfig).then(({ value }) => {
-        if (value) {
-          const params = {
-            idSet: [val],
-            status: 0,
-            statusDesc: value
-          };
-          enableItem(params).then(() => {
-            this.$message({
-              type: 'success',
-              message: '失效成功!'
-            });
-            this.getData();
-          }).catch(() => {
-            this.$message({
-              type: 'error',
-              message: '失效失败!'
-            });
-          });
+        inputPattern: /.+/, // 校验非空
+        inputErrorMessage: '请输入失效说明',
+      }).then(async ({ value }) => {
+        // 2. 二次校验：防止通过特殊手段绕过前端限制或处理粘贴超长文本的情况
+        if (!value || value.length > 100) {
+          this.$message.warning('请输入不超过 100 字的失效说明');
+          return Promise.reject(new Error('中断链条')); //  中断链条
         }
-      }).catch(() => {});
+        // 调用 API，并传入用户输入的备注
+        await enableItem({ idSet: [val], statusDesc: value, status: 0 });
+        this.$message.success('失效成功!');
+        this.getData();
+      }).catch(() => {
+        // 用户取消或校验失败，静默处理
+      });
     }
   }
 };

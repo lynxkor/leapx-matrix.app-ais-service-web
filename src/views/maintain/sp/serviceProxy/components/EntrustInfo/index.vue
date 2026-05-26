@@ -32,7 +32,12 @@
           />
         </el-form-item>
         <el-form-item label="是否已生成结算单：" prop="isCreateStatementInfo">
-          <el-switch :active-value="1" :inactive-value="0" v-model="form.isCreateStatementInfo" disabled/>
+          <el-input
+            placeholder="请输入"
+            v-model="form.isCreateStatementInfoLabel"
+            clearable
+            disabled
+          />
         </el-form-item>
         <el-form-item label="预计交车时间：" prop="expectFinishAt">
           <el-date-picker
@@ -48,14 +53,39 @@
             :disabled="!_id"
           />
         </el-form-item>
-        <el-form-item label="是否直播：" prop="isLive">
-          <el-input
-            placeholder="请输入"
-            v-model="form.isLiveLabel"
+        <!--
+        <el-form-item label="是否门店开启直播：" prop="isStoreLive">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.isStoreLive"
+            placeholder="请选择"
             clearable
-            disabled
+            filterable
           />
         </el-form-item>
+        <el-form-item label="是否锁定直播开关：" prop="isLockLive">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.isLockLive"
+            placeholder="请选择"
+            clearable
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="是否直播：" prop="isLive">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="LiveStatusEnum"
+            v-model="form.isLive"
+            placeholder="请选择"
+            clearable
+            filterable
+            :disabled="isLiveDisabled"
+            @change="handleIsLiveChange"
+          />
+        </el-form-item> -->
         <el-form-item label="预检完成时间：" prop="previewingFinishAt">
           <el-date-picker
             type="datetime"
@@ -163,10 +193,10 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="未解决问题原因：" prop="unresolvedReason">
+        <el-form-item label="未解决问题原因：" prop="unresolvedReasonLabel">
           <el-input
             placeholder="请输入"
-            v-model="form.unresolvedReason"
+            v-model="form.unresolvedReasonLabel"
             clearable
             disabled
           />
@@ -187,10 +217,18 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="最早故障施工单（周期内）：" prop="earliestfaultServiceProxy">
+        <el-form-item label="最近故障施工单（周期内）：" prop="recentlyfaultServiceProxyCode">
           <el-input
             placeholder="请输入"
-            v-model="form.earliestfaultServiceProxy"
+            v-model="form.recentlyfaultServiceProxyCode"
+            clearable
+            disabled
+          />
+        </el-form-item>
+        <el-form-item label="最早故障施工单（周期内）：" prop="earliestfaultServiceProxyCode">
+          <el-input
+            placeholder="请输入"
+            v-model="form.earliestfaultServiceProxyCode"
             clearable
             disabled
           />
@@ -200,6 +238,13 @@
             placeholder="请输入"
             v-model="form.faultAlert"
             clearable
+            disabled
+          />
+        </el-form-item>
+        <el-form-item label="故障现象确认：" prop="confirmFaultLabel">
+          <el-input
+            placeholder="请输入"
+            v-model="form.confirmFaultLabel"
             disabled
           />
         </el-form-item>
@@ -234,7 +279,7 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="本次进店是否存在故障：" prop="currentFault">
+        <el-form-item label="本次是否因故障进店：" prop="currentFault">
           <el-switch :active-value="1" :inactive-value="0" v-model="form.currentFault" :disabled="currentFaultDisabled" @change="handleCurrentFaultChange" />
         </el-form-item>
         <el-form-item label="客户故障描述：" prop="customerContent" class="form-item-half">
@@ -245,6 +290,7 @@
             placeholder="请输入"
             v-model="form.customerContent"
             clearable
+            :disabled="!form.currentFault || form.confirmFault === 1"
           />
         </el-form-item>
         <el-form-item label="作废描述：" prop="invaildDesc" class="form-item-full">
@@ -284,9 +330,9 @@
         <el-form-item label="预计交车时间：" prop="expectFinishAt">
           {{ form.expectFinishAt }}
         </el-form-item>
-        <el-form-item label="是否直播：" prop="isLiveLabel">
+        <!-- <el-form-item label="是否直播：" prop="isLiveLabel">
           {{ form.isLiveLabel }}
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="预检完成时间：" prop="previewingFinishAt">
           {{ form.previewingFinishAt }}
         </el-form-item>
@@ -317,8 +363,8 @@
         <el-form-item label="实际作业时间：" prop="startAt">
           {{ form.startAt }}
         </el-form-item>
-        <el-form-item label="预授权信息：" prop="preAuthId">
-          {{ form.preAuthId }}
+        <el-form-item label="预授权信息：" prop="preAuthCode">
+          <el-link type="success" :href="`/service/maintain/sp/preAuth/edit?id=${form.preAuthId}`" target="_blank">{{ form.preAuthCode }}</el-link>
         </el-form-item>
         <el-form-item label="完成作业时间：" prop="finishAt">
           {{ form.finishAt }}
@@ -326,8 +372,8 @@
         <el-form-item label="客户反馈故障是否全部解决：" prop="faultSolveLabel">
           {{ form.faultSolveLabel }}
         </el-form-item>
-        <el-form-item label="未解决问题原因：" prop="unresolvedReason">
-          {{ form.unresolvedReason }}
+        <el-form-item label="未解决问题原因：" prop="unresolvedReasonLabel">
+          {{ form.unresolvedReasonLabel }}
         </el-form-item>
         <el-form-item label="本次进店情况（周期内）：" prop="currentSituationLabel">
           {{ form.currentSituationLabel }}
@@ -335,11 +381,19 @@
         <el-form-item label="原因说明：" prop="faultDesc">
           {{ form.faultDesc }}
         </el-form-item>
-        <el-form-item label="最早故障施工单（周期内）：" prop="earliestfaultServiceProxy">
-          {{ form.earliestfaultServiceProxy }}
+        <el-form-item label="最近故障施工单（周期内）：" prop="recentlyfaultServiceProxyCode">
+          <el-link v-if="form.recentlyfaultServiceProxy" type="success" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.recentlyfaultServiceProxy}`" target="_blank">{{ form.recentlyfaultServiceProxyCode }}</el-link>
+          <span v-else>{{ form.recentlyfaultServiceProxyCode }}</span>
+        </el-form-item>
+        <el-form-item label="最早故障施工单（周期内）：" prop="earliestfaultServiceProxyCode">
+          <el-link  v-if="form.earliestfaultServiceProxy" type="success" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.earliestfaultServiceProxy}`" target="_blank">{{ form.earliestfaultServiceProxyCode }}</el-link>
+          <span v-else>{{ form.earliestfaultServiceProxyCode }}</span>
         </el-form-item>
         <el-form-item label="故障提醒内容：" prop="faultAlert">
           {{ form.faultAlert }}
+        </el-form-item>
+        <el-form-item label="故障现象确认：" prop="confirmFaultLabel">
+          {{ form.confirmFaultLabel }}
         </el-form-item>
         <el-form-item label="车联网故障描述：" prop="inCustomerContent" class="form-item-full">
           {{ form.inCustomerContent }}
@@ -350,7 +404,7 @@
         <el-form-item label="客户经理建议：" prop="testResult" class="form-item-full">
           {{ form.testResult }}
         </el-form-item>
-        <el-form-item label="本次进店是否存在故障：" prop="currentFault">
+        <el-form-item label="本次是否因故障进店：" prop="currentFault">
           {{ form.currentFaultLabel }}
         </el-form-item>
         <el-form-item label="客户故障描述：" prop="customerContent" class="form-item-half">
@@ -366,23 +420,23 @@
       <div class="table-section">
         <div class="table-section-header">
           <h3>添加故障模块</h3>
-          <base-search
-            style="width: 450px;"
-            filterable
-            clearable
-            remote
-            :placeholder="form.currentFault && _id ? '请输入VRT/VFG/CCC模糊搜索' : '当前工单为已提交结算或者不存在故障，无需添加CCC'"
-            :remote-method="getAlertModule"
-            @change="handleAlertModuleChange"
-            collapse-tags
-            value-key="id"
-            label-key="name"
-            :disabled="formDisabled || !form.currentFault"
-          />
         </div>
+        <base-search
+          style="width: 450px;margin-bottom: 10px;"
+          filterable
+          clearable
+          remote
+          :placeholder="form.currentFault ? '请输入VRT/VFG/CCC模糊搜索' : '当前工单为已提交结算或者不存在故障，无需添加CCC'"
+          :remote-method="getAlertModule"
+          @change="handleAlertModuleChange"
+          collapse-tags
+          value-key="id"
+          label-key="name"
+          :disabled="formDisabled || !form.currentFault"
+        />
         <vxe-table
           ref="faultTable"
-          :data="form.faultAlertRecordRespList"
+          :data="faultTableData"
           stripe
           show-overflow
           :row-config="{ isHover: true }"
@@ -431,6 +485,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord, addFaultRecord, getDetail } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum } from '../../constant';
+import { getLoginUser } from '@/api/common';
 
 export default {
   props: {
@@ -459,11 +514,24 @@ export default {
     formDisabled () {
       return this.formData.orderStatus === RepairOrderStatusEnum.CANCEL || this.formData.orderStatus === RepairOrderStatusEnum.DELIVERED;
     },
+    faultTableData () {
+      if (this._id) {
+        return this.form.faultAlertRecordRespList || [];
+      }
+      return this.form.faultAlertRecordParams || [];
+    },
     currentFaultDisabled () {
       // 枚举：是、否，非必填，开单默认为 否；工单为：已作废、已交车或【是否已生成结算单】为是时，该字段锁定不可修改；
       return this.formData.orderStatus === RepairOrderStatusEnum.CANCEL ||
              this.formData.orderStatus === RepairOrderStatusEnum.DELIVERED ||
              this.formData.isCreateStatementInfo === 1;
+    },
+    isLiveDisabled () {
+      // 若【是否锁定直播开关】为：是，【是否直播】开关不允许操作；
+      // 若【是否锁定直播开关】为：否，【是否直播】开关允许门店操作（工单状态非已作废、生成结算单）；
+      return Number(this.form.isLockLive) === 1 || !this.loginUser ||
+      (!this.loginUser.admin && this.loginUser.accountFlag && this.loginUser.currentOrgCode !== this.formData.dealerCode) ||
+      this.formData.orderStatus === RepairOrderStatusEnum.CANCEL || this.formData.isCreateStatementInfo === 1;
     }
   },
   watch: {
@@ -474,6 +542,10 @@ export default {
           // 确保 faultAlertRecordRespList 存在
           if (!this.form.faultAlertRecordRespList) {
             this.$set(this.form, 'faultAlertRecordRespList', []);
+          }
+          // 新增模式下暂存故障模块
+          if (!this._id && !this.form.faultAlertRecordParams) {
+            this.$set(this.form, 'faultAlertRecordParams', []);
           }
           // 记录初始 currentFault 值
           if (this.form._prevCurrentFault === undefined) {
@@ -494,11 +566,25 @@ export default {
           ]);
         }
       }
-    }
+    },
+    'form.currentFault': {
+      handler (val) {
+        if (val) {
+          this.rules.customerContent = [
+            { required: true, message: '请输入故障描述', trigger: 'change' }
+          ];
+        } else {
+          this.rules.customerContent = [
+            { required: false, message: '请输入故障描述', trigger: 'change' }
+          ];
+        }
+      }
+    },
   },
   data () {
     return {
       form: {},
+      loginUser: null,
       rules: {
         businessType: [
           { required: true, message: '请选择业务类型', trigger: 'change' }
@@ -510,14 +596,32 @@ export default {
           { required: true, message: '请输入异常描述', trigger: 'change' }
         ],
         customerContent: [
-          { required: false, message: '请输入故障描述', trigger: 'change' }
+          { required: true, message: '请输入故障描述', trigger: 'change' }
         ]
       },
       RepairOrderStatusEnum,
       isExpectFinishEditable: true
     };
   },
+  mounted () {
+    this.getLoginUser();
+  },
   methods: {
+    async getLoginUser () {
+      try {
+        const res = await getLoginUser();
+        this.loginUser = res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+    handleIsLiveChange (val) {
+      if (Number(val) === 20) {
+        this.form.isStoreLive = '0';
+      } else if (Number(val) === 30) {
+        this.form.isStoreLive = '1';
+      }
+    },
     validateForm () {
       if (this.formData?.costCountResp?.repairItemRespList?.length === 0 && this.formData?.costCountResp?.sparePartRespList?.length === 0) {
         this.$message.warning('请添加维修项目或配件');
@@ -588,105 +692,145 @@ export default {
       });
     },
     clearValidate () {
-      this.$refs.ruleForm.clearValidate();
+      this.$refs.ruleForm?.clearValidate();
     },
     handleCurrentFaultChange (val) {
-      if (val === 0 && this._id) {
+      if (val === 0) {
         const oldVal = this.form._prevCurrentFault;
-        // 记录当前值，供下次对比
+        const oldCustomerContent = this.form.customerContent;
+        // 签字弹框确认：用户点击【准确】后，门店修改本次是否因故障进店，由是修改成否，不用清空【客户故障描述】字段内容
+        const newCustomerContent = this.form.confirmFault === 1 ? oldCustomerContent : '本次进店车辆无故障'; // 1 为准确 2 为不准确
         this.form._prevCurrentFault = val;
-        // 从是变到否时弹确认
         if (oldVal === 1) {
-          const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
-          this.$confirm(message, '', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            dangerouslyUseHTMLString: true,
-            customClass: 'ais-leave-tips',
-            showClose: false
-          }).then(() => {
-            addFaultRecord({
-              id: this._id,
-              currentFault: 0,
-              customerContent: null
-            }).then(() => {
-              this.$message.success('本次故障信息清除成功');
-              this.$emit('refresh', false);
-              this.$emit('update:isEditing', false);
-            });
-          }).catch(() => {
-            // 取消则恢复为是
-            this.$set(this.form, 'currentFault', 1);
-            this.form._prevCurrentFault = 1;
-          });
-          return;
-        }
-      }
-      // 记录当前值
-      this.form._prevCurrentFault = val;
-    },
-    handleAlertModuleChange (val, record) {
-      // 确保 faultAlertRecordRespList 存在
-      if (!this.form.faultAlertRecordRespList) {
-        this.$set(this.form, 'faultAlertRecordRespList', []);
-      }
-
-      // 检查是否已存在相同的记录（根据 vrtId 判断）
-      const isExist = this.form.faultAlertRecordRespList.some(
-        item => item.cccId === record.id
-      );
-
-      // 如果不存在才添加
-      if (!isExist && record) {
-        this.form.faultAlertRecordRespList.push(record);
-        // 强制触发响应式更新
-        this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
-        updateSpFaultAlertRecord({ serviceProxyId: this._id, ...record }).then(res => {
-          this.$message({
-            message: '保存成功',
-            type: 'success'
-          });
-          // 从后端重新获取最新的故障列表数据
-          this.refreshFaultList();
-          if (res) {
-            const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>故障模块消息提醒</div><div class="ais-leave-tips-sub">${res}</div>`;
+          if (this._id) {
+            const message = '<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">若本次无故障，将自动清空【故障模块】信息，请确认是否操作！</div>';
             this.$confirm(message, '', {
               confirmButtonText: '确定',
-              showCancelButton: false,
               cancelButtonText: '取消',
               dangerouslyUseHTMLString: true,
               customClass: 'ais-leave-tips',
               showClose: false
             }).then(() => {
+              if (this._id) {
+                addFaultRecord({
+                  id: this._id,
+                  currentFault: 0,
+                  customerContent: newCustomerContent
+                }).then(() => {
+                  this.$message.success('本次故障信息清除成功');
+                  this.form.customerContent = newCustomerContent;
+                  this.$emit('refresh', false);
+                  this.$emit('update:isEditing', false);
+                });
+              } else {
+                this.$set(this.form, 'faultAlertRecordParams', []);
+                this.$message.success('本次故障信息清除成功');
+              }
             }).catch(() => {
+              this.$set(this.form, 'currentFault', 1);
+              this.form._prevCurrentFault = 1;
+              this.form.customerContent = oldCustomerContent;
             });
+          } else {
+            this.form.customerContent = newCustomerContent;
           }
-        });
+          return;
+        }
       } else {
-        this.$message({
-          message: '请勿重复添加',
-          type: 'warning'
-        });
+        // 不准确时，从否切到是，需要清空故障模块描述
+        if (this.form.confirmFault !== 1) {
+          this.form.customerContent = '';
+        }
+      }
+      this.form._prevCurrentFault = val;
+    },
+    handleAlertModuleChange (val, record) {
+      if (this._id) {
+        // 编辑模式：即时保存到后端
+        if (!this.form.faultAlertRecordRespList) {
+          this.$set(this.form, 'faultAlertRecordRespList', []);
+        }
+        const isExist = this.form.faultAlertRecordRespList.some(
+          item => item.cccId === record.id
+        );
+        if (!isExist && record) {
+          this.form.faultAlertRecordRespList.push(record);
+          this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
+          updateSpFaultAlertRecord({ serviceProxyId: this._id, ...record }).then(res => {
+            this.$message({
+              message: '保存成功',
+              type: 'success'
+            });
+            if (res) {
+              const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>故障模块消息提醒</div><div class="ais-leave-tips-sub">${res}</div>`;
+              this.$confirm(message, '', {
+                confirmButtonText: '确定',
+                showCancelButton: false,
+                cancelButtonText: '取消',
+                dangerouslyUseHTMLString: true,
+                customClass: 'ais-leave-tips',
+                showClose: false
+              }).then(() => {
+              }).catch(() => {
+              });
+            }
+          });
+        } else {
+          this.$message({
+            message: '请勿重复添加',
+            type: 'warning'
+          });
+        }
+      } else {
+        // 新增模式：暂存到 faultAlertRecordParams
+        if (!this.form.faultAlertRecordParams) {
+          this.$set(this.form, 'faultAlertRecordParams', []);
+        }
+        const isExist = this.form.faultAlertRecordParams.some(
+          item => item.cccId === record.id
+        );
+        if (!isExist && record) {
+          record.cccId = record.id;
+          delete record.id;
+          this.form.faultAlertRecordParams.push(record);
+          this.$set(this.form, 'faultAlertRecordParams', [...this.form.faultAlertRecordParams]);
+        } else {
+          this.$message({
+            message: '请勿重复添加',
+            type: 'warning'
+          });
+        }
       }
     },
     handleDeleteFault (row) {
-      // 根据主键id查找并删除记录
-      const index = this.form.faultAlertRecordRespList.findIndex(
-        item => item.id === row.id
-      );
-
-      if (index > -1) {
-        deleteSpFaultAlertRecord([row.id]).then(res => {
-          this.form.faultAlertRecordRespList.splice(index, 1);
-          // 强制触发响应式更新
-          this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
+      if (this._id) {
+        // 编辑模式：调后端 API 删除
+        const index = this.form.faultAlertRecordRespList.findIndex(
+          item => item.id === row.id
+        );
+        if (index > -1) {
+          deleteSpFaultAlertRecord([row.id]).then(res => {
+            this.form.faultAlertRecordRespList.splice(index, 1);
+            this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
+            this.$message({
+              message: '保存成功',
+              type: 'success'
+            });
+            this.refreshFaultList();
+          });
+        }
+      } else {
+        // 新增模式：从本地暂存中删除
+        const list = this.form.faultAlertRecordParams || [];
+        const index = list.findIndex(item => item.cccId === row.cccId);
+        if (index > -1) {
+          list.splice(index, 1);
+          this.$set(this.form, 'faultAlertRecordParams', [...list]);
           this.$message({
-            message: '保存成功',
+            message: '删除成功',
             type: 'success'
           });
-          // 从后端重新获取最新的故障列表数据
-          this.refreshFaultList();
-        });
+        }
       }
     },
     getAlertModule (query) {
@@ -719,6 +863,10 @@ export default {
         if (res && res.faultAlertRecordRespList) {
           // 只更新故障列表数据，不影响其他字段
           this.$set(this.form, 'faultAlertRecordRespList', res.faultAlertRecordRespList);
+          this.$set(this.form, 'currentSituationLabel', res.currentSituationLabel);
+          this.$set(this.form, 'faultAlert', res.faultAlert);
+          this.$set(this.form, 'recentlyfaultServiceProxyCode', res.recentlyfaultServiceProxyCode);
+          this.$set(this.form, 'earliestfaultServiceProxyCode', res.earliestfaultServiceProxyCode);
         }
       }).catch(err => {
         console.error('刷新故障列表失败:', err);
@@ -764,5 +912,8 @@ export default {
       opacity: 0.5;
     }
   }
+}
+.form-item-half {
+  flex: 1;
 }
 </style>

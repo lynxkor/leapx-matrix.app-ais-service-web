@@ -29,6 +29,192 @@
         <el-form-item label="门店">
           <dealer-select v-model="form.dealerCodes" multiple />
         </el-form-item>
+        <el-form-item label="签字状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="SignStatusEnum"
+            v-model="form.signStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="签字渠道">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="SignChannelEnum"
+            v-model="form.signChannelList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="签字生成时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.signGeneratedOn"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="签字完成时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.signCompletedOn"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="结算单状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="SettlementStatusEnum"
+            v-model="form.statementStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="结算单类型">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="StatementOrderTypeEnum"
+            v-model="form.statementTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="数据来源">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="dataSource"
+            v-model="form.dataSourceList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="销账标识">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="WriteOffFlagEnum"
+            v-model="form.accountTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="是否已推送满意度">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="SatisfactionPushStatusEnum"
+            v-model="form.isPushVisitResultList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="结算时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.statementTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="收款时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.receiveTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="维修类型（汇总）">
+          <!-- <fetch-select
+            :remote-method="getRepairItemTypeList"
+            remote
+            v-model="form.repairItemTypeCollectList"
+            placeholder="请输入"
+            labelKey="name"
+            valueKey="id"
+            clearable
+            multiple
+            filterable
+          /> -->
+          <el-input
+            placeholder="请输入"
+            v-model="form.warrantyTypeCollectLike"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="结算人员">
+          <fetch-select
+            :remote-method="getUserList"
+            remote
+            v-model="form.statementPersonNameList"
+            placeholder="请输入"
+            labelKey="username"
+            valueKey="username"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="收款人员">
+          <fetch-select
+            :remote-method="getUserList"
+            remote
+            v-model="form.payeeNameList"
+            placeholder="请输入"
+            labelKey="username"
+            valueKey="username"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canPage"
@@ -118,7 +304,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import {
   getList,
@@ -131,6 +317,9 @@ import {
   tableAddOrUpdate,
   exportTable,
   getEnum,
+  repairItemType,
+  listVehicleModel,
+  getUserByNameOrNo,
 } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -140,6 +329,8 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select';
+import FetchSelect from '@/libs/components/FetchSelect';
+import moment from 'moment';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -148,6 +339,18 @@ const defaultForm = {
   vehProfileVin: '',
   createReStatement: '',
   statementStatus: '',
+  statementStatusList: [],
+  statementTypeList: [],
+  dataSourceList: [],
+  accountTypeList: [],
+  isPushVisitResultList: [],
+  createTime: [],
+  statementTime: [],
+  receiveTime: [],
+  warrantyTypeCollectLike: '',
+  statementPersonNameList: [],
+  payeeNameList: [],
+  repairItemTypeDetailCollectLike: ''
 };
 
 const pageSize = 20;
@@ -163,15 +366,17 @@ export default {
     EditPage,
     Upload,
     DealerSelect,
+    FetchSelect
   },
   data () {
+    const defaultData = this.getDefautlForm();
     return {
       pageTitle: '结算单表管理',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-serviceStatement',
       form: {
-        ...defaultForm,
+        ...defaultData,
       },
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
@@ -231,7 +436,6 @@ export default {
             label: '接车施工单',
             visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [
               {
                 click: (rowIndex, row) => {
@@ -395,6 +599,30 @@ export default {
             visible: true,
             width: 200,
           },
+          {
+            props: 'signStatusLabel',
+            label: '签字状态',
+            visible: true,
+            width: 200,
+          },
+          {
+            props: 'signChannelLabel',
+            label: '签字渠道',
+            visible: true,
+            width: 200,
+          },
+          {
+            props: 'signGeneratedOn',
+            label: '签字生成时间',
+            visible: true,
+            width: 200,
+          },
+          {
+            props: 'signCompletedOn',
+            label: '签字完成时间',
+            visible: true,
+            width: 200,
+          },
           { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true, fixed: 'right' },
         ],
         total: 0,
@@ -421,7 +649,9 @@ export default {
       this.getData();
     },
     getTabsList () {
-      getStatistics().then((res) => {
+      getStatistics({
+        ...this.getFormData(),
+      }).then((res) => {
         const target = res || {};
         this.tabList = [
           { statementStatusLabel: '全部', statementStatus: '', count: null },
@@ -454,7 +684,8 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      const defaultData = this.getDefautlForm() || {};
+      this.form = { ...defaultData };
       this.optionObj.form.page = 1;
       this.optionObj.form.pageSize = pageSize;
       this.getData();
@@ -566,6 +797,40 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
+      // 处理签字生成时间
+      if (this.form.signGeneratedOn) {
+        delete data.signGeneratedOn;
+        if (this.form.signGeneratedOn.length > 1) {
+          data.signGeneratedOnStart = this.form.signGeneratedOn[0];
+          data.signGeneratedOnEnd = this.form.signGeneratedOn[1];
+        }
+      }
+      // 处理签字完成时间
+      if (this.form.signCompletedOn) {
+        delete data.signCompletedOn;
+        if (this.form.signCompletedOn.length > 1) {
+          data.signCompletedOnStart = this.form.signCompletedOn[0];
+          data.signCompletedOnEnd = this.form.signCompletedOn[1];
+        }
+      }
+      // 处理结算时间
+      if (this.form.statementTime) {
+        delete data.statementTime;
+        if (this.form.statementTime.length > 1) {
+          data.statementTimeStart = this.form.statementTime[0];
+          data.statementTimeEnd = this.form.statementTime[1];
+        }
+      }
+      // 处理收款时间
+      if (this.form.receiveTime) {
+        delete data.receiveTime;
+        if (this.form.receiveTime.length > 1) {
+          data.receiveTimeStart = this.form.receiveTime[0];
+          data.receiveTimeEnd = this.form.receiveTime[1];
+        }
+      }
+      // 转换statementStatusList
+      data.statementStatusList = this.form.statementStatusList.map((item) => +item);
       data.sortColumns = this.sortColumns;
       return data;
     },
@@ -574,6 +839,39 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    async getRepairItemTypeList (query) {
+      try {
+        const res = await repairItemType({ nameOrCodeLike: query });
+        return res;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async getUserList (query) {
+      try {
+        const res = await getUserByNameOrNo({ name: query });
+        return res;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async getVehicleModelList (query) {
+      try {
+        const res = await listVehicleModel({ modelNameLike: query });
+        return res;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    getDefautlForm () {
+      // 获取前30天的日期
+      const startTime = moment().subtract(90, 'day').format('YYYY-MM-DD 00:00:00');
+      const endTime = moment().format('YYYY-MM-DD 23:59:59');
+      return {
+        ...defaultForm,
+        createTime: [startTime, endTime]
+      };
     },
     // 批量删除
     handleBatchDelete () {

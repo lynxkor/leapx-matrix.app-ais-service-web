@@ -62,6 +62,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -74,6 +75,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -133,7 +135,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getSign } from '@/api/sparepart/transfer/sharedTransferInbound/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
@@ -218,7 +220,23 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'sharedTransferOutboundCode', label: '调拨出库单号', visible: true, width: 200 },
+          {
+            props: 'sharedTransferOutboundCode',
+            label: '调拨出库单号',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/transfer/sharedTransferOutbound/edit',
+                  query: {
+                    id: row.sharedTransferOutboundId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180 },
           { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
           { props: 'inboundWarehouseName', label: '入库仓库', visible: true, width: 200 },
@@ -240,7 +258,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/transfer/sharedTransferInbound/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
@@ -248,7 +267,7 @@ export default {
             }, {
               name: '签收',
               show: (row) => {
-                return row.signStatus === '0';
+                return row.signStatus === '0' && this.permissions.has('AISPART-sharedTransferInbound-sign');
               },
               popconfirmTitle: '确定签收吗?',
               click: (rowIndex, row) => {
@@ -269,6 +288,7 @@ export default {
             },
             {
               name: '打印',
+              show: (row) => this.permissions.has('AISPART-sharedTransferInbound-print'),
               click: (rowIndex, row) => {
                 this.handlePrint(row);
               },
@@ -323,7 +343,7 @@ export default {
     },
     async getDealerList (query) {
       try {
-        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query, authority: false });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);

@@ -76,7 +76,9 @@ export default {
       dialogVisible: this.visible,
       datePickerOptions: {
         disabledDate (time) {
-          return time.getTime() < Date.now() - 86400000;
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          return time.getTime() <= today.getTime();
         }
       },
       rules: {

@@ -9,17 +9,18 @@
     :originalForm.sync="originalForm"
     :submitRequest="submitRequest"
     :detailRequest="detailRequest"
+    :showEditBtn="EDITABLE_STATUSES.includes(form.applyStatus)"
   >
     <template #extraButtons>
-      <el-button v-if="canSubmit && (form.applyStatus === '10' || form.applyStatus === '40')" type="primary" size="small" @click="handleSubmit">提交</el-button>
-      <el-button v-if="canApprove && ['20', '25', '30'].includes(form.applyStatus)" type="primary" size="small" @click="handleApprove">同意</el-button>
-      <el-button v-if="canReject && ['20', '25', '30'].includes(form.applyStatus)" type="primary" size="small" @click="handleReject(false)">驳回</el-button>
-      <el-button v-if="canApplyReject && ['20', '25', '30'].includes(form.applyStatus)" type="primary" size="small" @click="handleReject(true)">申请驳回</el-button>
-      <el-button v-if="canWithdraw && ['60', '50'].includes(form.applyStatus)" type="primary" size="small" @click="handleWithdraw">撤回</el-button>
-      <el-button v-if="canDeny && ['20', '25', '30'].includes(form.applyStatus)" type="danger" plain size="small" @click="handleDeny">拒赔</el-button>
-      <el-button v-if="canCancel && (form.applyStatus === '10' || form.applyStatus === '40')" type="danger" plain size="small" @click="handleCancel">作废</el-button>
       <el-button :loading="printLoading" size="small" @click="handlePrint">打印标签</el-button>
       <el-button size="small" @click="handleViewRights">查看权益</el-button>
+      <el-button v-if="canApplyReject && (isPendingCurrentUserReview || form.applyStatus === APPLY_STATUS.APPROVED)" size="small" @click="handleReject(true)">申请驳回</el-button>
+      <el-button v-if="canWithdraw && WITHDRAWABLE_STATUSES.includes(form.applyStatus)" size="small" @click="handleWithdraw">撤回</el-button>
+      <el-button v-if="canDeny && isPendingCurrentUserReview" plain size="small" @click="handleDeny">拒赔</el-button>
+      <el-button v-if="canReject && isPendingCurrentUserReview" size="small" @click="handleReject(false)">驳回</el-button>
+      <el-button v-if="canCancel && (EDITABLE_STATUSES.includes(form.applyStatus))" plain size="small" @click="handleCancel">作废</el-button>
+      <el-button v-if="canApprove && isPendingCurrentUserReview" type="primary" size="small" @click="handleApprove">同意</el-button>
+      <el-button v-if="canSubmit && (EDITABLE_STATUSES.includes(form.applyStatus))" type="primary" size="small" @click="handleSubmit">提交</el-button>
     </template>
     <el-main>
       <section class="common-section">
@@ -47,8 +48,8 @@
             <el-form-item label="保修单状态：" prop="applyStatusLabel">
               <el-input placeholder="" v-model="form.applyStatusLabel" clearable disabled />
             </el-form-item>
-            <el-form-item label="结算类型：" prop="checkoutTypeCode">
-              <el-input placeholder="" v-model="form.checkoutTypeCode" clearable disabled />
+            <el-form-item label="结算类型：" prop="checkoutTypeName">
+              <el-input placeholder="" v-model="form.checkoutTypeName" clearable disabled />
             </el-form-item>
             <el-form-item label="结算单号：" prop="statementCode">
               <el-input placeholder="" v-model="form.statementCode" clearable disabled />
@@ -144,11 +145,11 @@
             <el-form-item label="保修单状态：" prop="applyStatusLabel">
               {{ form.applyStatusLabel }}
             </el-form-item>
-            <el-form-item label="结算类型：" prop="checkoutTypeCode">
-              {{ form.checkoutTypeCode }}
+            <el-form-item label="结算类型：" prop="checkoutTypeName">
+              {{ form.checkoutTypeName }}
             </el-form-item>
             <el-form-item label="结算单号：" prop="statementCode">
-              <el-link type="success" :href="`/maintain/sp/servicestatement/edit?id=${form.statementId}`" target="_blank">{{ form.statementCode }}</el-link>
+              <el-link type="success" :href="`/service/maintain/sp/serviceStatement/edit?id=${form.statementId}`" target="_blank">{{ form.statementCode }}</el-link>
             </el-form-item>
             <el-form-item label="当前提交时间：" prop="currentSubmitTime">
               {{ form.currentSubmitTime }}
@@ -160,13 +161,19 @@
               {{ form.repairItemTypeName }}
             </el-form-item>
             <el-form-item label="门店编码：" prop="dealerCode">
-              {{ form.dealerCode }}
+              <el-link
+                v-if="form.dealerCode"
+                type="primary"
+                :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                target="_blank"
+              >{{ form.dealerCode }}</el-link>
+              <span v-else>{{ form.dealerCode }}</span>
             </el-form-item>
             <el-form-item label="审批时间：" prop="approvalTime">
               {{ form.approvalTime }}
             </el-form-item>
             <el-form-item label="预授权单：" prop="preAuthCode">
-              <el-link type="success" :href="`/maintain/sp/preAuth/edit?id=${form.preAuthId}`" target="_blank">{{ form.preAuthCode }}</el-link>
+              <el-link type="success" :href="`/service/maintain/sp/preAuth/edit?id=${form.preAuthId}`" target="_blank">{{ form.preAuthCode }}</el-link>
             </el-form-item>
             <el-form-item label="维修开始时间：" prop="repairStartTime">
               {{ form.repairStartTime }}
@@ -210,7 +217,13 @@
               </LPEncrypted>
             </el-form-item>
             <el-form-item label="车牌号：" prop="vehiclePlateNo">
-              <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled />
+              <LPEncrypted
+                :value.sync="form.vehiclePlateNo"
+                :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
+                >
+                <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled />
+              </LPEncrypted>
+              <!-- <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled /> -->
             </el-form-item>
             <el-form-item label="生产日期：" prop="produceDate">
               <el-date-picker
@@ -292,7 +305,11 @@
               </LPEncrypted>
             </el-form-item>
             <el-form-item label="车牌号：" prop="vehiclePlateNo">
-              {{ form.vehiclePlateNo }}
+              <LPEncrypted
+                :value.sync="form.vehiclePlateNo"
+                :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
+                >
+              </LPEncrypted>
             </el-form-item>
             <el-form-item label="生产日期：" prop="produceDate">
               {{ form.produceDate }}
@@ -330,17 +347,17 @@
             <el-form-item label="车辆用途：" prop="vehicleProperty">
               {{ form.vehicleProperty }}
             </el-form-item>
-            <el-form-item label="开单预警信息：">
-              {{ remindContent }}
-            </el-form-item>
-            <el-form-item label="保修预警信息：" prop="warrantyWarningMsg">
-              {{ form.warrantyWarningMsg }}
-            </el-form-item>
             <el-form-item label="整车是否在保(预测)：" prop="isLifetimeWarrantyForecastLabel">
               {{ form.isLifetimeWarrantyForecastLabel }}
             </el-form-item>
             <el-form-item label="三包预警：" prop="alarmLevelLabel">
               {{ form.alarmLevelLabel }}
+            </el-form-item>
+            <el-form-item label="开单预警信息：" style="width: 100%;">
+              {{ remindContent }}
+            </el-form-item>
+            <el-form-item label="保修预警信息：" prop="warrantyWarningMsg" style="width: 100%;">
+              {{ form.warrantyWarningMsg }}
             </el-form-item>
           </el-form>
         </div>
@@ -424,28 +441,28 @@
             <el-form-item label="索赔总金额：" prop="totalClaimAmount">
               <el-input v-model="form.totalClaimAmount" clearable disabled />
             </el-form-item>
-            <el-form-item label="工时费用小计：" prop="workCostCount">
+            <el-form-item label="工时费用小计：" prop="workCostCount" v-if="isGoodwillWarranty">
               <el-input v-model="form.workCostCount" clearable disabled />
             </el-form-item>
-            <el-form-item label="零件费用小计：" prop="partsCostTotal">
+            <el-form-item label="零件费用小计：" prop="partsCostTotal" v-if="isGoodwillWarranty">
               <el-input v-model="form.partsCostTotal" clearable disabled />
             </el-form-item>
-            <el-form-item label="其他费用小计：" prop="otherCostTotal">
+            <el-form-item label="其他费用小计：" prop="otherCostTotal" v-if="isGoodwillWarranty">
               <el-input v-model="form.otherCostTotal" clearable disabled />
             </el-form-item>
-            <el-form-item label="费用总金额：" prop="totalCostAmount">
+            <el-form-item label="费用总金额：" prop="totalCostAmount" v-if="isGoodwillWarranty">
               <el-input v-model="form.totalCostAmount" clearable disabled />
             </el-form-item>
-            <el-form-item label="工时分担比例：" prop="laborShareRatio">
+            <el-form-item label="工时分担比例：" prop="laborShareRatio" v-if="isGoodwillWarranty">
               <el-input v-model="form.laborShareRatio" clearable disabled />
             </el-form-item>
-            <el-form-item label="零件分担比例：" prop="partsShareRatio">
+            <el-form-item label="零件分担比例：" prop="partsShareRatio" v-if="isGoodwillWarranty">
               <el-input v-model="form.partsShareRatio" clearable disabled />
             </el-form-item>
-            <el-form-item label="其他分担比例：" prop="otherShareRatio">
+            <el-form-item label="其他分担比例：" prop="otherShareRatio" v-if="isGoodwillWarranty">
               <el-input v-model="form.otherShareRatio" clearable disabled />
             </el-form-item>
-            <el-form-item label="平台单号：" prop="platformApprovalNo">
+            <el-form-item label="平台单号：" prop="platformApprovalNo" v-if="isGoodwillWarranty">
               <el-input v-model="form.platformApprovalNo" clearable disabled />
             </el-form-item>
           </el-form>
@@ -459,15 +476,15 @@
             <el-form-item label="其他索赔小计：">{{ form.otherClaimTotal }}</el-form-item>
             <el-form-item label="索赔总金额：">{{ form.totalClaimAmount }}</el-form-item>
 
-            <el-form-item label="工时费用小计：">{{ form.workCostCount }}</el-form-item>
-            <el-form-item label="备件费用小计：">{{ form.partsCostTotal }}</el-form-item>
-            <el-form-item label="其他费用小计：">{{ form.otherCostTotal }}</el-form-item>
-            <el-form-item label="费用总金额：">{{ form.totalCostAmount }}</el-form-item>
+            <el-form-item label="工时费用小计：" v-if="isGoodwillWarranty">{{ form.workCostCount }}</el-form-item>
+            <el-form-item label="备件费用小计：" v-if="isGoodwillWarranty">{{ form.partsCostTotal }}</el-form-item>
+            <el-form-item label="其他费用小计：" v-if="isGoodwillWarranty">{{ form.otherCostTotal }}</el-form-item>
+            <el-form-item label="费用总金额：" v-if="isGoodwillWarranty">{{ form.totalCostAmount }}</el-form-item>
 
-            <el-form-item label="工时分担比例：">{{ form.laborShareRatio }}</el-form-item>
-            <el-form-item label="备件分担比例：">{{ form.partsShareRatio }}</el-form-item>
-            <el-form-item label="其他分担比例：">{{ form.otherShareRatio }}</el-form-item>
-            <el-form-item label="平台单号：">{{ form.platformApprovalNo }}</el-form-item>
+            <el-form-item label="工时分担比例：" v-if="isGoodwillWarranty">{{ form.laborShareRatio }}</el-form-item>
+            <el-form-item label="备件分担比例：" v-if="isGoodwillWarranty">{{ form.partsShareRatio }}</el-form-item>
+            <el-form-item label="其他分担比例：" v-if="isGoodwillWarranty">{{ form.otherShareRatio }}</el-form-item>
+            <el-form-item label="平台单号：" v-if="isGoodwillWarranty">{{ form.platformApprovalNo }}</el-form-item>
           </el-form>
         </div>
       </section>
@@ -478,7 +495,7 @@
         <div class="common-section-body">
           <work-hour-table
             :id="_id"
-            :canAddOrUpdate="canAddOrUpdate"
+            :canAddOrUpdate="canEdit"
             @update="handleTableUpdate"
           />
         </div>
@@ -490,9 +507,10 @@
           </h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+          <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isEditing || !_id || canEditMainPart">
             <el-form-item label="主因零件编码：" prop="mainPartId">
               <fetch-select
+                ref="mainPartSelectRef"
                 :remote-method="partRemote"
                 remote
                 v-model="form.partAndSupplierId"
@@ -505,7 +523,8 @@
                 filterable
               >
                 <template #option="{ item }">
-                  <span>{{ item.partCode }}/{{ item.partName }}————{{ item.supplierName }}({{ item.supplierCode }})</span>
+                  <span v-if="item.disabled">{{ item.placeholder }}</span>
+                  <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
                 </template>
               </fetch-select>
             </el-form-item>
@@ -519,7 +538,7 @@
               <el-input placeholder="" v-model="form.mainPartSupplierName" clearable disabled />
             </el-form-item>
           </el-form>
-          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id) && !canEditMainPart">
             <el-form-item label="主因零件编码：" prop="mainPartCode">
               {{ form.mainPartCode }}
             </el-form-item>
@@ -536,7 +555,9 @@
           <part-table
             ref="partTableRef"
             :id="_id"
-            :canAddOrUpdate="canAddOrUpdate"
+            :canAddOrUpdate="canEdit"
+            :canEditMainPart="canEditMainPart"
+            @update="handleTableUpdate"
           />
         </div>
       </section>
@@ -547,15 +568,16 @@
         <div class="common-section-body">
           <other-table
             :id="_id"
-            :canAddOrUpdate="canAddOrUpdate"
+            :canAddOrUpdate="canEdit"
           />
         </div>
       </section>
       <warranty-apply-file
         :id="_id"
-        :canAddOrUpdate="canAddOrUpdate"
+        :canAddOrUpdate="canEdit"
         :repairItemTypeId="form.repairItemTypeId"
-        :disabled="form.applyStatus !== '10' && form.applyStatus !== '40'"
+        :serviceActivityId="form.serviceActivityId"
+        :disabled="!EDITABLE_STATUSES.includes(form.applyStatus)"
       />
       <section class="common-section">
         <div class="common-section-header">
@@ -564,7 +586,7 @@
         <div class="common-section-body">
           <activity-table
             :vehicleProfileId="form.vehicleProfileId"
-            :canAddOrUpdate="canAddOrUpdate"
+            :canAddOrUpdate="canEdit"
           />
         </div>
       </section>
@@ -575,7 +597,7 @@
         <div class="common-section-body">
           <approval-record-table
             :id="_id"
-            :canAddOrUpdate="canAddOrUpdate"
+            :canAddOrUpdate="canEdit"
           />
         </div>
       </section>
@@ -626,9 +648,15 @@ import {
   batchCancel,
   print,
 } from '@/api/claimreturn/claim/warrantyapply/index';
+import {
+  APPLY_STATUS,
+  EDITABLE_STATUSES,
+  PENDING_REVIEW_STATUSES,
+  WITHDRAWABLE_STATUSES,
+} from './constants';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, getLoginUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -650,7 +678,8 @@ import ApproveDialog from './ApproveDialog/index.vue';
 import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 // 旧件供应商
-import { getList } from '@/api/sparepart/basic/sparePartSupplier/index';
+import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
+import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -670,7 +699,7 @@ const defaultForm = {
   statementId: '',
   statementCode: '',
   checkoutTypeId: '',
-  checkoutTypeCode: '',
+  checkoutTypeName: '',
   repairItemTypeId: '',
   repairItemTypeName: '',
   dealerCode: '',
@@ -781,6 +810,8 @@ const defaultForm = {
   cancelTime: '',
   cancelReason: '',
   dataSource: '',
+  isInApproval: false,
+  currentApproverIdList: [],
 };
 
 export default {
@@ -818,6 +849,25 @@ export default {
     },
     title () {
       return '保修申请单号：' + (this.form.applyNo);
+    },
+    canEdit () {
+      return EDITABLE_STATUSES.includes(this.form.applyStatus) && this.canAddOrUpdate;
+    },
+    isFactoryAccount () {
+      return this.accountFlag === false;
+    },
+    canEditMainPart () {
+      return this.isFactoryAccount && this.isPendingCurrentUserReview;
+    },
+    isPendingCurrentUserReview () {
+      if (!this.form.isInApproval) return false;
+      const list = this.form.currentApproverIdList?.map(id => Number(id)) || [];
+      if (!list || list.length === 0) return true;
+      const userId = this.$store.state.user.userInfo.userId;
+      return list.includes(userId);
+    },
+    isGoodwillWarranty () {
+      return this.form.repairItemTypeName === '善意保修';
     },
     remindContent () {
       let result = '';
@@ -864,6 +914,10 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
+      APPLY_STATUS,
+      EDITABLE_STATUSES,
+      PENDING_REVIEW_STATUSES,
+      WITHDRAWABLE_STATUSES,
       defaultNewRow: {
         name: '',
       },
@@ -892,6 +946,7 @@ export default {
       withdrawDialogVisible: false,
       withdrawIds: [],
       rightsDialogVisible: false,
+      accountFlag: null,
     };
   },
   created () {
@@ -902,13 +957,16 @@ export default {
     this.canWithdraw = this.permissions.has(`${this.moduleKey}-withdraw`);
     this.canDeny = this.permissions.has(`${this.moduleKey}-deny`);
     this.canCancel = this.permissions.has(`${this.moduleKey}-cancel`);
+    getLoginUser().then(res => {
+      this.accountFlag = res.accountFlag;
+    });
   },
   mounted () {
     // 571005W202603271622250001
   },
   methods: {
-    getDetailDecryptField () {
-      return getDetailDecryptField(this.form.id, 'vin');
+    getDetailDecryptField (id, field) {
+      return getDetailDecryptField(id, field);
     },
     handleTableUpdate () {
       this.$refs.containerRef.loadDetail();
@@ -917,15 +975,31 @@ export default {
       const id = this._id;
       if (id) {
         return getDetail(id).then(res => {
+          const warningMsg = res.warrantyWarningMsg;
+          if (warningMsg) {
+            this.$nextTick(() => {
+              this.$alert(warningMsg, '保修预警提醒', {
+                closeOnClickModal: false,
+                type: 'warning',
+              });
+            });
+          }
           return {
             ...res,
-            partAndSupplierId: res.mainPartId + res.mainPartSupplierId,
+            partAndSupplierId: res.mainPartId ? res.mainPartId + res.mainPartSupplierId : '',
           };
         });
       }
     },
-    submitRequest () {
-      return addOrUpdate({ ...this.form });
+    async submitRequest () {
+      const res = await addOrUpdate({ ...this.form });
+      // 保存成功后刷新零件表格
+      this.$nextTick(() => {
+        if (this.$refs.partTableRef) {
+          this.$refs.partTableRef.getDetailPageApi();
+        }
+      });
+      return res;
     },
     // 打开侧边栏
     openPane () {
@@ -951,20 +1025,24 @@ export default {
       this.form.cccId = data.id;
       this.form.cccCode = data.code;
 
-      const vrtNode = node?.parent;
-      this.form.vrtId = vrtNode?.data.id;
-      this.form.vrtName = vrtNode?.data.name;
-
-      const vfgNode = vrtNode?.parent;
+      const vfgNode = node?.parent;
       this.form.vfgId = vfgNode?.data.id;
       this.form.vfgName = vfgNode?.data.name;
+
+      const vrtNode = vfgNode?.parent;
+      this.form.vrtId = vrtNode?.data.id;
+      this.form.vrtName = vrtNode?.data.name;
     },
     getReportList (query) {
+      const fifteenDaysAgo = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000);
+      const dateStr = fifteenDaysAgo.toISOString().slice(0, 10);
       return getRelatedReports({
         pageNum: 1,
         pageSize: 20,
         codeOrNameLike: query,
         serviceProxyId: this.form.serviceProxyId,
+        createTimeStart: dateStr,
+        applyStatusList: ['30', '50'],
       });
     },
     onReportChange (val, row) {
@@ -976,44 +1054,78 @@ export default {
       this.form.vfgName = row.vfgName;
       this.form.vrtId = row.vrtId;
       this.form.vrtName = row.vrtName;
-      this.form.faultPhenomenon = row.customerContent;
-      this.form.troubleshootingFlow = row.troubleshootingFlow;
+      this.form.faultPhenomenon = row.customerContent; // 故障排查信息 赋值
+      this.form.troubleshootingFlow = row.troubleshootingProcess;
+      // this.form.troubleshootingFlow = row.troubleshootingFlow;
 
-      this.form.mainPartName = row.mainPartName;
-      this.form.mainPartCode = row.mainPartCode;
-      this.form.mainPartId = row.mainPartId;
+      this.form.mainPartName = row.causePartName;
+      this.form.mainPartCode = row.causePartCode;
+      this.form.mainPartId = row.causePartId;
 
-      this.form.mainPartSupplierName = row.mainPartSupplierName;
-      this.form.mainPartSupplierCode = row.mainPartSupplierCode;
-      this.form.mainPartSupplierId = row.mainPartSupplierId;
+      this.form.mainPartSupplierName = row.supplierName;
+      this.form.mainPartSupplierCode = row.supplierCode;
+      this.form.mainPartSupplierId = row.supplierId;
+      // 更新 partAndSupplierId 以同步 fetch-select 显示
+      this.form.partAndSupplierId = row.causePartId && row.supplierId ? row.causePartId + row.supplierId : '';
+      // 重新加载下拉框选项，使选项列表更新为新的零件编码
+      this.$nextTick(() => {
+        if (this.$refs.mainPartSelectRef) {
+          this.$refs.mainPartSelectRef.loadRemoteMethod(this.form.mainPartCode);
+        }
+      });
     },
     // 搜索主因零件
     partRemote (query) {
-      return getList({
-        pageNum: 1,
-        pageSize: 20,
-        partCodeOrNameLike: query,
-      }).then(res => {
-        const records = res.records?.map(item => {
-          return {
-            ...item,
-            partAndSupplierId: item.sparePartId + item.supplierInfoId,
-          };
+      return new Promise((resolve, reject) => {
+        getLists({
+          pageNum: 1,
+          pageSize: 20,
+          oemPart: 1,
+          partCodeOrNameLike: query,
+          status: 1,
+        }).then(res => {
+          if (!res?.length) {
+            resolve([
+              {
+                placeholder: `备件编码：${query}不存在备件供应商关系信息`,
+                disabled: true,
+              }
+            ]);
+          } else {
+            const records = res.map(item => {
+              return {
+                ...item,
+                partAndSupplierId: item.sparePartId + item.supplierInfoId,
+              };
+            });
+            resolve(records);
+          }
         });
-        return {
-          ...res,
-          records,
-        };
       });
     },
     // 主因零件选择变更
     onMainPartChange (val, row) {
+      if (!row) {
+        this.form.mainPartCode = '';
+        this.form.mainPartName = '';
+        this.form.mainPartId = '';
+        this.form.mainPartSupplierCode = '';
+        this.form.mainPartSupplierName = '';
+        this.form.mainPartSupplierName = '';
+        this.form.partAndSupplierId = '';
+        return;
+      }
       this.form.mainPartCode = row?.partCode;
       this.form.mainPartName = row?.partName;
       this.form.mainPartId = row?.sparePartId;
-      this.form.mainPartSupplierCode = row?.supplierCode;
-      this.form.mainPartSupplierName = row?.supplierName;
-      this.form.mainPartSupplierId = row?.supplierInfoId;
+      this.form.mainPartSupplierCode = row?.supplierCode || '';
+      this.form.mainPartSupplierName = row?.supplierName || '';
+      this.form.mainPartSupplierId = row?.supplierInfoId || '';
+    },
+    // 刷新页面所有接口
+    async refreshAll () {
+      await this.$refs.containerRef.loadDetail();
+      this.$refs.partTableRef.getDetailPageApi();
     },
     // 提交
     handleSubmit () {

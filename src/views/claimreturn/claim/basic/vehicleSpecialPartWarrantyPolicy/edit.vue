@@ -70,6 +70,7 @@
                   </el-form-item>
                   <el-form-item label="车型名称：" prop="modelId">
                     <list-select
+                      v-if="!$route.query.id||form.id"
                       listUrl="/datacenter/web/materials/vehicleModel/list"
                       placeholder="请选择"
                       v-model="form.modelId"
@@ -83,6 +84,7 @@
                   </el-form-item>
                   <el-form-item label="车辆年款：" prop="yearTypeId">
                     <list-select
+                      v-if="!$route.query.id||form.id"
                       listUrl="/datacenter/web/materials/vehicleYearType/list"
                       placeholder="请选择"
                       v-model="form.yearTypeId"
@@ -147,10 +149,22 @@
                     {{ form.partName }}
                   </el-form-item>
                   <el-form-item label="车系名称：" prop="seriesName">
-                    {{ form.seriesName }}
+                    <el-link
+                      v-if="form.seriesId"
+                      type="primary"
+                      :href="`/sales/datacenter/materials/vehicleSeries/edit?id=${form.seriesId}`"
+                      target="_blank"
+                    >{{ form.seriesName }}</el-link>
+                    <span v-else>{{ form.seriesName }}</span>
                   </el-form-item>
                   <el-form-item label="车型名称：" prop="modelName">
-                    {{ form.modelName }}
+                    <el-link
+                      v-if="form.modelId"
+                      type="primary"
+                      :href="`/sales/datacenter/materials/vehicleModel/edit?id=${form.modelId}`"
+                      target="_blank"
+                    >{{ form.modelName }}</el-link>
+                    <span v-else>{{ form.modelName }}</span>
                   </el-form-item>
                   <el-form-item label="车辆年款：" prop="yearTypeName">
                     {{ form.yearTypeName }}

@@ -21,7 +21,7 @@
                         />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="物流商：">
+                <!-- <el-form-item label="物流商：">
                     <el-input v-model="formData.logisticsProvider" placeholder="请填写物流商"></el-input>
                 </el-form-item>
                 <el-form-item label="物流单号：" prop="approvalDescription">
@@ -29,7 +29,7 @@
                 </el-form-item>
                 <el-form-item label="物流备注：">
                     <el-input v-model="formData.logisticsRemark" type="textarea" maxlength="500" show-word-limit placeholder="请填写物流备注"></el-input>
-                </el-form-item>
+                </el-form-item> -->
             </el-form>
         </div>
 
@@ -37,7 +37,7 @@
         <template v-slot:footer>
             <div class="dialog-footer">
                 <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确 认</el-button>
-                <el-button size="small" @click="close">取 消</el-button>
+                <el-button size="small" @click="close">取消</el-button>
             </div>
         </template>
     </el-dialog>
@@ -50,9 +50,9 @@ import { getUserByNameOrNo, getLoginUser } from '@/api/common';
 const getInitialFormData = () => ({ // 初始值
   outboundOperator: null,
   outboundOperatorName: '',
-  logisticsProvider: '',
-  logisticsOrderNo: '',
-  logisticsRemark: ''
+  // logisticsProvider: '',
+  // logisticsOrderNo: '',
+  // logisticsRemark: ''
 });
 
 export default {

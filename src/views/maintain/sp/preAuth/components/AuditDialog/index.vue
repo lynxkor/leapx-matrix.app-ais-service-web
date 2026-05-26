@@ -20,8 +20,8 @@
           placeholder="请选择错误代码"
           :options="errorCodeOptions"
           value-key="value"
-          label-key="label"
-          subLabelKey="desc"
+          label-key="desc"
+          subLabelKey="label"
           filterable
           clearable
         />
@@ -39,7 +39,6 @@
       <el-form-item label="附件信息" v-if="form.auditStaus === '20'">
         <AisAttachment
           ref="attachment"
-          :business-id="businessId"
           :upload-config="uploadConfig"
         />
       </el-form-item>

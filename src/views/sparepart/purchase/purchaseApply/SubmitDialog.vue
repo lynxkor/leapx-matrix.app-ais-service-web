@@ -14,7 +14,7 @@
             <div class="dialog-footer">
                 <el-button size="small" :loading="exportLoading" @click="exportExcel">导 出</el-button>
                 <el-button size="small" @click="deleteUnPurchaseDetail">删除不可采购备件</el-button>
-                <el-button size="small" @click="close">取 消</el-button>
+                <el-button size="small" @click="close">取消</el-button>
             </div>
         </template>
     </el-dialog>

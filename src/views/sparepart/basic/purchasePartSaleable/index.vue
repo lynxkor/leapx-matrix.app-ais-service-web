@@ -35,9 +35,8 @@
             filterable
               />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="是否可售">
-          <fetch-select
+      <el-form-item label="是否可售" v-show="this.visibleCount === 3 || show">
+        <fetch-select
           :request="fetchOptions"
           enumCode="BooleanEnum"
           v-model="form.saleableIs"
@@ -45,12 +44,14 @@
           clearable
           filterable
         />
-        </el-form-item>
+      </el-form-item>
+      <template v-if="show">
         <el-form-item label="创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -63,6 +64,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -120,7 +122,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, addOrUpdate } from '@/api/sparepart/basic/purchasePartSaleable/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, sparePartListShort } from '@/api/common';
@@ -252,7 +254,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/purchasePartSaleable/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

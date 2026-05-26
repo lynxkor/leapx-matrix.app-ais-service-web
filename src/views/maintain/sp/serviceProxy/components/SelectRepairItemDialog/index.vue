@@ -86,13 +86,14 @@
               :trigger-on-focus="false"
               :disabled="disabled"
               clearable
+              popper-class="repair-item-autocomplete-popper"
             >
               <template #suffix>
                 <i class="iconfont icon-lxppc-search"></i>
               </template>
               <template #default="{item}">
-                <div v-if="item.value === 'empty'" style="pointer-events: none;">您当前搜索的项目，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
-                <div v-else>
+                <div v-if="item.value === 'empty'" style="pointer-events: none; white-space: nowrap;">您当前搜索的项目，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
+                <div v-else style="white-space: nowrap;">
                   {{ item.value }}
                 </div>
               </template>
@@ -107,13 +108,14 @@
               :trigger-on-focus="false"
               :disabled="disabled"
               clearable
+              popper-class="repair-part-autocomplete-popper"
             >
               <template #suffix>
                 <i class="iconfont icon-lxppc-search"></i>
               </template>
               <template #default="{item}">
-                <div v-if="item.value === 'empty'" style="pointer-events: none;">未搜索到配件</div>
-                <div v-else>
+                <div v-if="item.value === 'empty'" style="pointer-events: none; white-space: nowrap;">未搜索到配件</div>
+                <div v-else style="white-space: nowrap;">
                   {{ item.value }}
                 </div>
               </template>
@@ -436,15 +438,15 @@
                 <template #default="{ row, rowIndex }">
                   <span class="btn-delete disabled" v-if="disabled">删除</span>
                   <span slot="reference" v-else-if="row.packageId" :class="['btn-delete', {'disabled': !!row.isOutstock}]" @click="handleRemovePartRow(rowIndex, row)">删除</span>
-                  <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex, row)" :disabled="!!!!row.isOutstock">
+                  <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemovePartRow(rowIndex, row)" :disabled="!!row.isOutstock">
                     <span slot="reference" :class="['btn-delete', {'disabled': !!row.isOutstock}]">删除</span>
                   </el-popconfirm>
-                  <el-dropdown v-if="row.replaceSparePartRespList && row.replaceSparePartRespList.length > 0" trigger="click" @command="v => handlePartReplaceChange(v, row)">
-                    <span class="el-dropdown-link">
+                  <el-dropdown v-if="row.replaceSparePartRespList && row.replaceSparePartRespList.length > 0" :disabled="!!row.isOutstock" trigger="click" @command="v => handlePartReplaceChange(v, row)">
+                    <span class="el-dropdown-link"  :style="{color: !!row.isOutstock ? 'var(--leap-color-default-light-2)': ''}" @click.stop="e => handlePartReplaceClick(e, row)">
                       替换件<i class="el-icon-arrow-down el-icon--right"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown" placement="bottom-start" style="max-height: 200px;overflow-y: auto;overflow-x: hidden;">
-                      <el-dropdown-item v-for="el in row.replaceSparePartRespList" :command="el" :key="el.id">{{el.partsName}}-库存:{{el.stockCount || 0}}-{{el.partsCode}}</el-dropdown-item>
+                      <el-dropdown-item v-for="el in row.replaceSparePartRespList" :command="el" :key="el.id">{{el.partsCode}}/{{el.partsName}}-库存({{el.stockCount || 0}})-￥{{el.price || 0}}</el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
                 </template>
@@ -458,7 +460,7 @@
       </div>
       <template v-slot:footer>
         <div class="dialog-footer">
-          <el-button size="small" @click="close">取 消</el-button>
+          <el-button size="small" @click="close">取消</el-button>
           <el-button size="small" :loading="submitLoading" type="primary" @click="submit" :disabled="disabled">保 存</el-button>
         </div>
       </template>
@@ -743,9 +745,10 @@ export default {
         statusLabel: '',
         packageCode: selectedItem.packageCode || '',
         isWarranty: selectedItem.isWarranty || 0,
-        isProdType: selectedItem.isProdType || 0
+        isProdType: selectedItem.isProdType || 0,
+        _originalWorkHour: selectedItem.workhour || 0
       };
-
+      this.updateCheckoutType(newItem, this.partRepairType);
       this.itemData.push(newItem);
 
       // 如果维修项目带有关联零件列表，自动添加这些零件
@@ -779,6 +782,8 @@ export default {
             isBindltem: 1,
             autoImport: 1 // 标记为自动导入
           };
+
+          this.updateCheckoutType(newPart, this.partRepairType);
           this.partData.push(newPart);
         });
       }
@@ -838,7 +843,7 @@ export default {
         isBindltem: 0, // 手动添加的零件，标记为非自动导入
         packageCode: selectedPart.packageCode || ''
       };
-
+      this.updateCheckoutType(newPart, this.partRepairType);
       this.partData.push(newPart);
 
       // 清空输入
@@ -885,6 +890,7 @@ export default {
       if (JSON.stringify(data) === this.originalDataJson) {
         this.$emit('update:visible', false);
         this.submitLoading = false;
+        this.$emit('check');
         return;
       }
 
@@ -892,17 +898,17 @@ export default {
         this.submitLoading = false;
         this.$message.success('保存成功');
 
-        // 检查维修类型变化
-        this.checkRepairTypeChange();
-
         this.$emit('update:visible', false);
         this.$emit('refresh');
-        this.$emit('check');
+        // 检查维修类型变化
+        this.checkRepairTypeChange(() => {
+          this.$emit('check');
+        });
       }).catch(e => {
         this.submitLoading = false;
       });
     },
-    checkRepairTypeChange () {
+    checkRepairTypeChange (callback) {
       // 检查原来的维修项目是否包含"一般维修"或"三电维修"
       const originalRepairItems = this.vehicleInfo.costCountResp?.repairItemRespList || [];
       const originalHasTargetRepair = originalRepairItems.some(item =>
@@ -918,7 +924,16 @@ export default {
 
       // 如果原来不包含，但现在包含，则显示提示
       if (!originalHasTargetRepair && currentHasTargetRepair) {
-        this.showMsg('维修类型为："一般维修"或"三电维修"，系统默认调整 【本次进店是否存在故障】为：是，存在故障，请填写故障模块信息！');
+        this.$confirm('维修类型为："一般维修"或"三电维修"，系统默认调整 【本次是否因故障进店】为：是，存在故障，请填写故障模块信息！', '提醒', {
+          confirmButtonText: '确定',
+          type: 'warning'
+        }).then(() => {
+          callback && callback();
+        }).catch(() => {
+          callback && callback();
+        });
+      } else {
+        callback && callback();
       }
     },
     getEnumData () {
@@ -956,7 +971,10 @@ export default {
     getRepairItemInfo () {
       getRepairItemInfo(this.vehicleInfo.id).then(res => {
         this.info = res || {};
-        this.itemData = res.repairItemRespList || [];
+        this.itemData = (res.repairItemRespList || []).map(item => ({
+          ...item,
+          _originalWorkHour: item.workHour
+        }));
         this.partData = (res.sparePartRespList || []).map(part => ({
           ...part,
           // 如果零件有关联的维修项目ID，标记为自动导入
@@ -1153,16 +1171,33 @@ export default {
       this.partData = this.partData.filter(part => part.packageId !== row.packageId);
       this.itemData = this.itemData.filter(item => item.packageId !== row.packageId);
     },
+    updateCheckoutType (row, repairItemTypeId) {
+      if (repairItemTypeId === MaintenanceTypeEnum.WARRANTY) {
+        const target = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeId === CheckoutTypeEnum.WARRANTY);
+        row.checkoutTypeId = CheckoutTypeEnum.WARRANTY;
+        row.checkoutTypeName = target.checkoutTypeName;
+      } else {
+        const target = this.itemOptions.checkoutTypeName?.[0];
+        row.checkoutTypeId = target.checkoutTypeId;
+        row.checkoutTypeName = target.checkoutTypeName;
+      }
+    },
     // ==================== 维修项目表格事件处理 ====================
     // 维修类型变化
     handleRepairItemTypeChange (row) {
+      const wasTimeEditable = this.checkIfTimeEditable(row);
       const selected = this.itemOptions.repairItemTypeName.find(item => item.repairItemTypeName === row.repairItemTypeName);
       if (selected) {
         row.repairItemTypeId = selected.repairItemTypeId;
       }
+      this.updateCheckoutType(row, selected.repairItemTypeId);
+      if (wasTimeEditable && !this.checkIfTimeEditable(row)) {
+        this.restoreWorkHour(row);
+      }
     },
     // 结算类型变化
     handleCheckoutTypeChange (row) {
+      const wasTimeEditable = this.checkIfTimeEditable(row);
       const selected = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeName === row.checkoutTypeName);
       if (selected) {
         row.checkoutTypeId = selected.checkoutTypeId;
@@ -1172,6 +1207,12 @@ export default {
         const allowType = warrantyTypes.filter(el => this.checkIfWarrantyTypeEditable(row, el.warrantyTypeId));
         row.warrantyTypeId = allowType?.[0]?.warrantyTypeId;
         row.warrantyTypeName = allowType?.[0]?.warrantyTypeName;
+      }
+      if (wasTimeEditable && !this.checkIfTimeEditable(row)) {
+        this.restoreWorkHour(row);
+      }
+      if (this.checkoutTypeIncluded(row.checkoutTypeId)) {
+        this.restoreItemDiscountAmount(row);
       }
     },
     // 保修类型变化
@@ -1205,6 +1246,7 @@ export default {
       if (selected) {
         row.repairItemTypeId = selected.repairItemTypeId;
       }
+      this.updateCheckoutType(row, selected.repairItemTypeId);
     },
     // 结算类型变化
     handlePartCheckoutTypeChange (row) {
@@ -1217,6 +1259,9 @@ export default {
         const allowType = warrantyTypes.filter(el => this.checkIfWarrantyTypeEditable(row, el.warrantyTypeId));
         row.warrantyTypeId = allowType?.[0]?.warrantyTypeId;
         row.warrantyTypeName = allowType?.[0]?.warrantyTypeName;
+      }
+      if (this.checkoutTypeIncluded(row.checkoutTypeId)) {
+        this.restorePartDiscountAmount(row);
       }
     },
     // 保修类型变化
@@ -1324,6 +1369,20 @@ export default {
       }
       return false;
     },
+    restoreWorkHour (row) {
+      if (row._originalWorkHour !== undefined) {
+        row.workHour = row._originalWorkHour;
+        this.handleWorkHourChange(row);
+      }
+    },
+    restoreItemDiscountAmount (row) {
+      row.discountAmount = 0;
+      this.handleItemDiscountAmountChange(row);
+    },
+    restorePartDiscountAmount (row) {
+      row.discountAmount = 0;
+      this.handlePartDiscountAmountChange(row);
+    },
     getRepairItemTypeList () {
       getRepairItemTypeList({
         categorys: [20]
@@ -1379,6 +1438,7 @@ export default {
     // ----------替换件逻辑-----------------
     handlePartReplaceChange (current, row) {
       const discountAmount = Number(current.price || 0) * (Number(this.selectedDiscount?.discountPartRate || 0) || 0);
+      const old = JSON.parse(JSON.stringify(row));
       Object.assign(row, {
         partsId: current.partsId,
         partsCode: current.partsCode,
@@ -1399,9 +1459,19 @@ export default {
         repairItemId: current.repairItemId || '',
         isBindltem: 0, // 手动添加的零件，标记为非自动导入
         packageCode: row.packageCode || '',
-        packageId: row.packageId || ''
+        packageId: row.packageId || '',
+        // 原零件信息，如果不存在，证明是第一次替换，需要带上
+        originPartsId: row.originPartsId || row.partsId,
+        originPartsCode: row.originPartsCode || row.partsCode,
+        replaceSparePartRespList: [old]
       });
     },
+    handlePartReplaceClick (e, row) {
+      if (row.isOutstock) {
+        this.$message.warning('该零件已经领料出库，不允许替换，请全部退料后再操作，谢谢');
+        e.stopPropagation();
+      }
+    }
   }
 };
 </script>
@@ -1532,7 +1602,7 @@ export default {
   .container {
     display: flex;
     gap: 16px;
-    height: calc(100% - 85px);
+    height: calc(100% - 5%);
 
     .leftmenu {
       width: 280px;
@@ -1639,5 +1709,11 @@ export default {
       background-color: rgba(245, 108, 108, 0.2) !important;
     }
   }
+}
+</style>
+<style lang="scss">
+.repair-item-autocomplete-popper,
+.repair-part-autocomplete-popper {
+  width: 400px !important;
 }
 </style>

@@ -88,7 +88,9 @@
                     {{ form.code }}
                   </el-form-item>
                   <el-form-item label="门店编码：" prop="dealerCode">
-                    {{ form.dealerCode }}
+                    <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                      {{ form.dealerCode }}
+                    </el-link>
                   </el-form-item>
                   <el-form-item label="出库状态：" prop="outboundStatus">
                     {{ form.outboundStatusLabel }}
@@ -106,7 +108,7 @@
                     {{ form.remark }}
                   </el-form-item>
                   <el-form-item label="客户经理：" prop="remark">
-                    {{ form.username }}
+                    {{ form.serviceAdvisorName }}
                   </el-form-item>
                 </el-form>
               </div>

@@ -59,7 +59,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="RepairPackageDataSourceEnum"
-            v-model="form.dataSourceList"
+            v-model="form.dataFromList"
             placeholder="请选择"
             clearable
             multiple
@@ -90,6 +90,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -109,6 +110,18 @@
           />
         </el-form-item>
       </template>
+      <template v-if="show">
+        <el-form-item label="状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="StatusEnum"
+            v-model="form.statusIncludeList"
+            placeholder="请选择"
+            clearable
+            multiple
+          />
+        </el-form-item>
+      </template>
       <page-search-action
         v-if="canList"
         v-model="show"
@@ -122,9 +135,9 @@
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
+      <el-button size="small" @click="handleBatchMaintenance">套餐类型维护</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button size="small" @click="handleBatchMaintenance">套餐类型维护</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
@@ -163,7 +176,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, issue, backout } from '@/api/maintain/basic/repairPackages/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -186,8 +199,8 @@ const defaultForm = {
   spellCode: '',
   vehicleSeriesId: '',
   vehicleSeriesIds: '',
-  dataSource: '',
-  dataSourceList: '',
+  dataFrom: '',
+  dataFromList: '',
   dealerName: '',
   status: '',
   totalAmount: '',
@@ -242,7 +255,7 @@ export default {
             props: 'code',
             label: '套餐代码',
             visible: true,
-            width: 200,
+            width: 120,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -256,19 +269,19 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'packageName', label: '套餐名称', visible: true, width: 200 },
-          { props: 'typeNames', label: '套餐类型', visible: true, width: 200 },
-          { props: 'spellCode', label: '拼音简码', visible: true, width: 200 },
-          { props: 'vehicleSeriesNames', label: '车系', visible: true, width: 200 },
-          { props: 'carModelNames', label: '车型年型', visible: true, width: 200 },
-          { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 200 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
-          { props: 'totalAmount', label: '总金额', visible: true, width: 200 },
-          { props: 'modifierName', label: '修改者名称', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          { props: 'creatorName', label: '创建者名称', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'packageName', label: '套餐名称', visible: true, width: 120 },
+          { props: 'typeNames', label: '套餐类型', visible: true, width: 160 },
+          { props: 'spellCode', label: '拼音简码', visible: true, width: 160 },
+          { props: 'vehicleSeriesNames', label: '车系', visible: true, width: 120 },
+          { props: 'carModelNames', label: '车型年型', visible: true, width: 160 },
+          { props: 'dataFromLabel', label: '数据来源', visible: true, width: 120 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 220 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 60 },
+          { props: 'totalAmount', label: '总金额', visible: true, width: 100, align: 'right', headerAlign: 'right' },
+          { props: 'modifierName', label: '修改者名称', visible: true, width: 150 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 160 },
+          { props: 'creatorName', label: '创建者名称', visible: true, width: 150 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 160 },
           {
             props: 'operate',
             label: '操作',
@@ -288,12 +301,12 @@ export default {
               },
               type: 'info',
               disabled: (row) => {
-                return (this.isDealer && row.dataSource === 20) || (!this.isDealer && row.dataSource === 10);
+                return (this.isDealer && row.dataFrom === 20) || (!this.isDealer && row.dataFrom === 10);
               },
             }, {
               name: '下发',
               show: (row) => {
-                return !this.isDealer && row.dataSource === 20 && row.comboStatus === 10;
+                return !this.isDealer && row.dataFrom === 20 && row.comboStatus === 10;
               },
               popconfirmTitle: '确认下发该维修套餐',
               click: (rowIndex, row) => {
@@ -314,7 +327,7 @@ export default {
             }, {
               name: '撤回',
               show: (row) => {
-                return !this.isDealer && row.dataSource === 20 && row.comboStatus !== 10;
+                return !this.isDealer && row.dataFrom === 20 && row.comboStatus !== 10;
               },
               popconfirmTitle: '确认撤回该维修套餐',
               click: (rowIndex, row) => {
@@ -335,7 +348,7 @@ export default {
             }, {
               name: '删除',
               disabled: (row) => {
-                return (this.isDealer && row.dataSource === 20) || (!this.isDealer && row.dataSource === 10);
+                return (this.isDealer && row.dataFrom === 20) || (!this.isDealer && row.dataFrom === 10);
               },
               popconfirmConfirmButtonType: 'danger',
               popconfirmConfirmButtonText: '删除',

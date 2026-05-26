@@ -5,6 +5,7 @@
       class="ais-search-form">
       <el-form-item label="创建时间">
         <el-date-picker v-model="form.createTime" type="daterange" range-separator="至"
+        unlink-panels
           value-format="yyyy-MM-dd HH:mm:ss" start-placeholder="开始日期" end-placeholder="结束日期" />
       </el-form-item>
       <el-form-item label="行政区域名称">
@@ -62,7 +63,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { deleteItem, enableItem, getPage } from '@/api/maintain/basic/cityLaborLevel/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -153,11 +154,11 @@ export default {
             }]
           },
           { props: 'areaName', label: '行政区名称', visible: true, width: 200 },
-          { props: 'areaLevelLabel', label: '行政区域级别', visible: true, width: 200 },
-          { props: 'parentId', label: '父级id', visible: true, width: 200 },
+          { props: 'areaLevelLabel', label: '行政区域级别', visible: true, width: 120 },
+          { props: 'parentId', label: '父级id', visible: true, width: 120 },
           { props: 'parentName', label: '父级行政区名称', visible: true, width: 200 },
-          { props: 'laborLevelLabel', label: '城市工时等级', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'laborLevelLabel', label: '城市工时等级', visible: true, width: 120 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 80 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
 
         ],

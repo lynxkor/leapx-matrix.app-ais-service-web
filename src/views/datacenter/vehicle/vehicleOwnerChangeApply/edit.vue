@@ -12,10 +12,10 @@
     :showEditBtn="showEditBtn"
   >
     <template #extraButtons>
-      <el-button v-if="canSubmit && (form.applyStatus === '10' || form.applyStatus === '40')" type="primary" size="small" @click="handleSubmit">提交</el-button>
-      <el-button v-if="canCancel && (form.applyStatus === '10' || form.applyStatus === '40')" type="danger" plain size="small" @click="handleCancel">作废</el-button>
-      <el-button v-if="canApprove && form.applyStatus === '20'" type="primary" size="small" @click="handleApprove">审批通过</el-button>
-      <el-button v-if="canReject && form.applyStatus === '20'" type="danger" plain size="small" @click="handleReject">审批驳回</el-button>
+      <el-button v-if="canCancel && (form.applyStatus === APPLY_STATUS.DRAFT || form.applyStatus === APPLY_STATUS.REJECTED)" type="danger" size="small" @click="handleCancel">作废</el-button>
+      <el-button v-if="canSubmit && (form.applyStatus === APPLY_STATUS.DRAFT || form.applyStatus === APPLY_STATUS.REJECTED)" type="primary" size="small" @click="handleSubmit">提交</el-button>
+      <el-button v-if="canReject && form.applyStatus === APPLY_STATUS.PENDING" type="danger" size="small" @click="handleReject">审批驳回</el-button>
+      <el-button v-if="canApprove && form.applyStatus === APPLY_STATUS.PENDING" type="primary" size="small" @click="handleApprove">审批通过</el-button>
     </template>
     <el-main>
       <section class="common-section">
@@ -44,6 +44,7 @@
                 clearable
                 filterable
                 :format="formatFun"
+                :disabled="Boolean(_id)"
                 @change="onBusinessType"
               />
             </el-form-item>
@@ -132,7 +133,11 @@
               </LPEncrypted>
             </el-form-item>
             <el-form-item label="门店编码：" prop="dealerCode">
-              {{ form.dealerCode }}
+              <el-link
+                type="primary"
+                :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                target="_blank"
+              >{{ form.dealerCode }}</el-link>
             </el-form-item>
             <el-form-item label="门店名称：" prop="dealerName">
              {{ form.dealerName }}
@@ -212,7 +217,7 @@
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
             <el-form-item label="是否自动审批：" prop="isAutoAudit">
-              {{ form.isAutoAudit }}
+              {{ form.isAutoAuditLabel }}
             </el-form-item>
             <el-form-item label="未满足自动审批原因：" prop="autoApprovalFailReason">
               {{ form.autoApprovalFailReason }}
@@ -231,8 +236,8 @@
             <h3>变更信息</h3>
           </div>
           <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm3" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-            <template v-if="form.businessType !== '60'">
-              <el-form-item v-if="form.businessType === '10'" label="变更后车主姓名：" prop="targetOwnerName">
+            <template v-if="form.businessType !== BUSINESS_TYPE.SCRAP">
+              <el-form-item v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND" label="变更后车主姓名：" prop="targetOwnerName">
                 <el-input
                   placeholder="请输入"
                   v-model="form.targetOwnerName"
@@ -247,7 +252,7 @@
                   maxLength="11"
                 />
               </el-form-item>
-              <el-form-item v-if="form.businessType === '10'"  label="变更后车主证件类型：" prop="targetIdType">
+              <el-form-item v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND"  label="变更后车主证件类型：" prop="targetIdType">
                 <fetch-select
                   :request="fetchOptions"
                   enumCode="vehretail_id_card_type"
@@ -257,7 +262,7 @@
                   filterable
                 />
               </el-form-item>
-              <el-form-item v-if="form.businessType === '10'"  label="变更后车主证件号码：" prop="targetIdNo">
+              <el-form-item v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND"  label="变更后车主证件号码：" prop="targetIdNo">
                 <el-input
                   placeholder="请输入"
                   v-model="form.targetIdNo"
@@ -282,22 +287,22 @@
                 clearable
                 filterable
                 :format="formatVehicleProperty"
-                :disabled="form.businessType === '60'"
+                :disabled="form.businessType === BUSINESS_TYPE.SCRAP"
               />
             </el-form-item>
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-            <template v-if="form.businessType !== '60'">
-              <el-form-item v-if="form.businessType === '10'" label="变更后车主姓名：" prop="targetOwnerName">
+            <template v-if="form.businessType !== BUSINESS_TYPE.SCRAP">
+              <el-form-item v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND" label="变更后车主姓名：" prop="targetOwnerName">
                 {{ form.targetOwnerName }}
               </el-form-item>
               <el-form-item label="变更后车主手机号：" prop="targetOwnerPhone">
                 {{ form.targetOwnerPhone }}
               </el-form-item>
-              <el-form-item v-if="form.businessType === '10'" label="变更后车主证件类型：" prop="targetIdTypeLabel">
+              <el-form-item v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND" label="变更后车主证件类型：" prop="targetIdTypeLabel">
                 {{ form.targetIdTypeLabel }}
               </el-form-item>
-              <el-form-item v-if="form.businessType === '10'" label="变更后车主证件号码：" prop="targetIdNo">
+              <el-form-item v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND" label="变更后车主证件号码：" prop="targetIdNo">
                 {{ form.targetIdNo }}
               </el-form-item>
               <el-form-item label="变更后车牌号：" prop="targetPlateNo">
@@ -305,7 +310,7 @@
               </el-form-item>
             </template>
             <el-form-item label="变更后车辆属性：" prop="targetVehicleProperty">
-              {{ form.targetVehicleProperty }}
+              {{ form.targetVehiclePropertyLabel }}
             </el-form-item>
           </el-form>
           <div class="common-section-sub-header">
@@ -494,7 +499,7 @@
         </div>
         <div v-if="_id" class="common-section-body">
           <div class="common-section-table">
-            <el-tabs v-model="activeTab" v-if="form.businessType === '10'">
+            <el-tabs v-model="activeTab" v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND">
               <el-tab-pane label="个人" name="1" lazy>
                 <AisAttachment
                   v-for="value in ['车主身份证-正面', '车主身份证-反面', '车辆登记证书', '车辆行驶证']"
@@ -524,7 +529,7 @@
                 />
               </el-tab-pane>
             </el-tabs>
-            <el-tabs value="1" v-else-if="form.businessType === '40' && [1, 2, 3, 4, 5, 20].includes(form.oldIdType)">
+            <el-tabs value="1" v-else-if="form.businessType === BUSINESS_TYPE.OWNER_ADJUST && PERSONAL_ID_TYPES.includes(String(form.oldIdType))">
               <el-tab-pane label="个人" name="1">
                 <AisAttachment
                   v-for="value in ['车主身份证-正面', '车主身份证-反面', '车辆行驶证']"
@@ -540,7 +545,7 @@
                 />
               </el-tab-pane>
             </el-tabs>
-            <el-tabs value="1" v-else-if="form.businessType === '40' && [6, 7].includes(form.oldIdType)">
+            <el-tabs value="1" v-else-if="form.businessType === BUSINESS_TYPE.OWNER_ADJUST && ENTERPRISE_ID_TYPES.includes(String(form.oldIdType))">
               <el-tab-pane label="企业" name="1">
                 <AisAttachment
                   v-for="value in ['营业执照', '车辆行驶证']"
@@ -556,7 +561,7 @@
                 />
               </el-tab-pane>
             </el-tabs>
-            <div v-else-if="form.businessType==='60'">
+            <div v-else-if="form.businessType === BUSINESS_TYPE.SCRAP">
               <AisAttachment
                 :businessId="_id"
                 configCode="mcs_vehownerchange"
@@ -610,8 +615,15 @@ import { loginUserGet } from '@/libs/api/common';
 import LPEncrypted from '@/libs/components/LPEncrypted';
 import FormCancelDialog from './FormCancelDialog';
 import FormRejectDialog from './FormRejectDialog';
+import {
+  APPLY_STATUS,
+  BUSINESS_TYPE,
+  ALLOWED_BUSINESS_TYPES,
+  PERSONAL_ID_TYPES,
+  ENTERPRISE_ID_TYPES,
+  VEHICLE_PROPERTY,
+} from './constant';
 
-// vehicle_profile_id_type 证件类型枚举：（身份证，军官证）
 const defaultForm = {
   // 多选时字段有变化，自行修复
   applyNo: '',
@@ -650,21 +662,10 @@ const defaultForm = {
   ocrIdUser: '',
   ocrLicenseOwner: '',
   ocrLicenseVin: '',
+  dealerName: '',
+  dealerCode: '',
+  ownerOrgId: ''
 };
-// 申请状态，10:草稿; 20:待审批; 30:审批通过; 40:审批驳回; 50:已作废
-// 业务类型，10:二手车信息变更; 20:绑车人调整; 30:二手车+绑车人调整; 40:原车主调整（非二手车）; 50:原车主+绑车人调整（非二手车）; 60:报废灭失;
-
-// oldIdType
-// [
-//   {"code": "1", "message": "身份证"},
-//   {"code": "2", "message": "护照"},
-//   {"code": "3", "message": "驾驶证"},
-//   {"code": "4", "message": "港澳来往内地通行证"},
-//   {"code": "5", "message": "军官证"},
-//   {"code": "6", "message": "组织机构代码"},
-//   {"code": "7", "message": "统一社会信用代码"},
-//   {"code": "20", "message": "台湾通行证"}
-// ]
 export default {
   name: 'vehicleOwnerChangeApplyEdit',
   // 集中视图预留
@@ -697,10 +698,10 @@ export default {
       return JSON.stringify(data);
     },
     showEditBtn () {
-      return this.form.applyStatus === '10' || this.form.applyStatus === '40';
+      return this.form.applyStatus === APPLY_STATUS.DRAFT || this.form.applyStatus === APPLY_STATUS.REJECTED;
     },
     attachmentDisabled () {
-      return !(this.form.applyStatus === '10' || this.form.applyStatus === '40');
+      return !(this.form.applyStatus === APPLY_STATUS.DRAFT || this.form.applyStatus === APPLY_STATUS.REJECTED);
     }
   },
   watch: {
@@ -716,6 +717,12 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
+      APPLY_STATUS,
+      BUSINESS_TYPE,
+      ALLOWED_BUSINESS_TYPES,
+      PERSONAL_ID_TYPES,
+      ENTERPRISE_ID_TYPES,
+      VEHICLE_PROPERTY,
       activeTab: '1',
       pageTitle: '车主信息变更',
       pageType: 'edit',
@@ -726,35 +733,6 @@ export default {
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        name: '',
-      },
-      emptyText: '若要启用此内容，请创建记录',
-      columns: [
-        {
-          field: 'name',
-          title: '姓名',
-          width: '33%',
-          editable: true,
-          editRender: { name: 'ElInput' },
-          rules: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ]
-        },
-        {
-          field: 'age',
-          title: '年龄',
-          editable: true,
-          width: '33%',
-          editRender: { name: 'ElInput', props: { type: 'number' } }
-        },
-        {
-          field: 'email',
-          title: '邮箱',
-          width: '33%',
-          editRender: { name: 'ElInput' }
-        },
-      ],
       rules: {
         businessType: [
           { required: true, message: '请选择业务类型', trigger: 'change' }
@@ -803,11 +781,35 @@ export default {
     ocrSuccess () {
       this.$refs.containerRef.loadDetail();
     },
-    onBusinessType (value, option) {
-      if (value === '10' || value === '40') {
+    onBusinessType (value) {
+      // 切换业务类型时清空已录入信息
+      this.form.targetOwnerName = '';
+      this.form.targetOwnerPhone = '';
+      this.form.targetIdType = '';
+      this.form.targetIdTypeLabel = '';
+      this.form.targetIdNo = '';
+      this.form.targetPlateNo = '';
+      this.form.ocrIdType = '';
+      this.form.ocrIdTypeLabel = '';
+      this.form.ocrIdNo = '';
+      this.form.ocrIdUser = '';
+      this.form.ocrLicenseOwner = '';
+      this.form.ocrLicenseVin = '';
+      this.form.oldOwnerName = '';
+      this.form.oldOwnerPhone = '';
+      this.form.oldIdType = '';
+      this.form.oldIdTypeLabel = '';
+      this.form.oldIdNo = '';
+      this.form.oldPlateNo = '';
+      this.form.oldVehicleProperty = '';
+      this.form.oldVehiclePropertyLabel = '';
+      this.form.vin = '';
+      this.form.vehicleProfileId = '';
+
+      if (value === BUSINESS_TYPE.SCRAP) {
+        this.form.targetVehicleProperty = VEHICLE_PROPERTY.SCRAP;
+      } else {
         this.form.targetVehicleProperty = '';
-      } else if (value === '60') {
-        this.form.targetVehicleProperty = '60';
       }
     },
     detailRequest () {
@@ -817,10 +819,41 @@ export default {
       }
     },
     submitRequest () {
+      if (this.form.targetVehicleProperty === VEHICLE_PROPERTY.OPERATIONAL &&
+        this.form.oldVehicleProperty !== VEHICLE_PROPERTY.HOUSEHOLD) {
+        this.$message.warning('当前只支持从家用车辆属性申请变更为运营车辆属性');
+        return Promise.reject(new Error('validation failed'));
+      }
       return addOrUpdate({ ...this.form });
     },
     // 提交
     handleSubmit () {
+      const bt = this.form.businessType;
+
+      if (bt === BUSINESS_TYPE.SECOND_HAND) {
+        const hasAny = this.form.targetOwnerName || this.form.targetOwnerPhone ||
+          this.form.targetIdType || this.form.targetIdNo;
+        if (hasAny) {
+          if (!this.form.targetOwnerName || !this.form.targetOwnerPhone ||
+            !this.form.targetIdType || !this.form.targetIdNo) {
+            this.$message.warning('变更后车主姓名、手机号、证件类型、证件号码需同时填写');
+            return;
+          }
+        }
+        if (this.form.targetIdNo && this.form.oldIdNo &&
+          this.form.targetIdNo === this.form.oldIdNo) {
+          this.$message.warning('变更后车主证件号码和原车主一致，不允许提报二手车调整业务');
+          return;
+        }
+      }
+
+      if (bt === BUSINESS_TYPE.OWNER_ADJUST) {
+        if (!this.form.targetOwnerPhone && !this.form.targetPlateNo && !this.form.targetVehicleProperty) {
+          this.$message.warning('变更后信息未维护，请维护后再提交');
+          return;
+        }
+      }
+
       submit({ id: this._id }).then(() => {
         this.$message.success('提交成功');
         this.$refs.containerRef.loadDetail();
@@ -903,13 +936,12 @@ export default {
       this.form.oldVehiclePropertyLabel = record?.usageTypeLabel;
     },
     formatFun (options) {
-      const allowedCodes = ['10', '40', '60'];
       return options.filter(item =>
-        allowedCodes.includes(String(item.code)));
+        ALLOWED_BUSINESS_TYPES.includes(String(item.code)));
     },
     formatVehicleProperty (options) {
-      if (['10', '40'].includes(this.form.businessType)) {
-        return options.filter(item => item.code === '2');
+      if ([BUSINESS_TYPE.SECOND_HAND, BUSINESS_TYPE.OWNER_ADJUST].includes(this.form.businessType)) {
+        return options.filter(item => item.code === VEHICLE_PROPERTY.OPERATIONAL);
       }
       return options;
     }

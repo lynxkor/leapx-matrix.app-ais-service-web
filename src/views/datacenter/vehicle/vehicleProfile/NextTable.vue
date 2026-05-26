@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="common-section-table pb-0">
   <vxe-table
     ref="editTable"
     :data="tableData"
@@ -14,7 +14,13 @@
     min-height="0"
     max-height="400px"
     >
-    <vxe-column field="name" title="备件名称" ></vxe-column>
+    <vxe-column field="name" title="保养零件名称" ></vxe-column>
+    <vxe-column field="maintenancePartCode" title="保养零件代码" >
+      <template #default="{ row }">
+        <el-link v-if="row.maintenancePartId" type="success" :href="`/service/maintain/basic/maintenancePartData/edit?id=${row.maintenancePartId}`" target="_blank">{{ row.maintenancePartCode }}</el-link>
+        <span v-else>{{ row.maintenancePartCode }}</span>
+      </template>
+    </vxe-column>
     <vxe-column field="mileageTypeLabel" title="里程类型" ></vxe-column>
     <vxe-column field="nextMaintenanceDate" title="下次保养日期" >
       <template #default="{ row, rowIndex }">
@@ -84,6 +90,7 @@
       :page-size="pageSize"
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
+      v-if="tableData.length"
     >
     </el-pagination>
   </div>
@@ -198,7 +205,7 @@ export default {
     currentPageChange (current) {
       this.current = current;
       this.getDetailPageApi();
-    },
+    }
   },
 };
 

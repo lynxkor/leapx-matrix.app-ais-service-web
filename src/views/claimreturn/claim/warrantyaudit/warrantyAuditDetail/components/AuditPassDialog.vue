@@ -1,18 +1,20 @@
 <template>
   <el-dialog
     title="审计通过"
-    :visible="visible"
+    :visible.sync="dialogVisible"
     width="500px"
     :close-on-click-modal="false"
     @close="handleClose"
   >
-    <el-form :model="form" :rules="rules" ref="ruleForm" label-width="150px">
+    <el-form :model="form" :rules="rules" ref="ruleForm" label-width="120px">
       <el-form-item label="审计说明：" prop="auditDesc">
         <el-input
           type="textarea"
           :rows="3"
           placeholder="请输入审计说明"
           v-model="form.auditDesc"
+          maxlength="500"
+          show-word-limit
         />
       </el-form-item>
     </el-form>
@@ -37,50 +39,51 @@ export default {
       type: Boolean,
       default: false
     },
-    selectionList: {
-      type: Array,
-      default: () => []
+    id: {
+      type: String,
+      default: ''
     },
   },
   data () {
     return {
       form: { ...defaultForm },
+      dialogVisible: false,
       submitLoading: false,
       rules: {
         auditDesc: [
-          { required: false, message: '请输入审计说明', trigger: 'blur' }
+          { required: true, message: '请输入审计说明', trigger: 'blur' }
         ],
       },
     };
   },
   watch: {
     visible (val) {
+      this.dialogVisible = val;
       if (val) {
-        this.initForm();
+        this.form = { ...defaultForm };
+        this.$nextTick(() => {
+          this.$refs.ruleForm.clearValidate();
+        });
       }
     }
   },
   methods: {
-    initForm () {
-      this.form = { ...defaultForm };
-    },
     handleClose () {
+      this.form = { ...defaultForm };
       this.$emit('update:visible', false);
     },
     handleSubmit () {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
           this.submitLoading = true;
-          const ids = this.selectionList.map(item => item.id);
           auditPass({
-            ids,
+            detailId: this.id,
             auditDesc: this.form.auditDesc,
           }).then(() => {
             this.$message.success('审计通过成功');
             this.$emit('success');
             this.handleClose();
           }).catch(() => {
-            this.$message.error('审计通过失败');
           }).finally(() => {
             this.submitLoading = false;
           });

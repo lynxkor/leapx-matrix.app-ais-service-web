@@ -31,10 +31,11 @@
                   filterable
                   remote
                   :remote-method="(query) => querySearchAsync(query, rowIndex)"
+                  @focus="handleSelectFocus(rowIndex)"
                   @change="handleWorkstationChange(row, rowIndex, $event)"
                 >
                   <el-option
-                    v-for="item in getFilteredUserList(rowIndex)"
+                    v-for="item in userList"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
@@ -43,12 +44,24 @@
               </template>
             </vxe-column>
           </vxe-table>
+          <div class="table-pagination">
+            <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="pageNum"
+              :page-sizes="[10, 20, 50, 100]"
+              :page-size="pageSize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+            >
+            </el-pagination>
+          </div>
         </div>
 
       <!-- 底部按钮 -->
       <template v-slot:footer>
         <div class="dialog-footer">
-          <el-button size="small" @click="close">取 消</el-button>
+          <el-button size="small" @click="close">取消</el-button>
           <el-button size="small" type="primary" :loading="submitLoading" @click="submit">{{ btnTitle }}</el-button>
         </div>
       </template>
@@ -82,12 +95,13 @@ export default {
       selectedRows: [],
       // 领料人
       userList: [],
-      sameAsPreviousId: 0, // 同上选项的固定ID
-      sameAsPreviousLabel: '同上',
       // 模拟表格数据
       tableData: [],
       title: '销售出库',
-      btnTitle: '出 库'
+      btnTitle: '出 库',
+      pageNum: 1,
+      pageSize: 10,
+      total: 0,
     };
   },
   watch: {
@@ -113,29 +127,46 @@ export default {
   methods: {
     initData () {
       const params = {
-        pageNum: 1,
-        pageSize: 50,
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
         retailOrderId: this.id,
       };
       if (this.titleDialog === '1') {
         params.outboundIs = '0';
       }
       if (this.titleDialog === '2') {
-        params.applyReturnMaterialIs = '0';
+        params.applyReturnMaterialIs = '1';
+        params.outboundIs = '1';
       }
       retailOrderDetailPage(params).then(res => {
         this.tableData = res.records || [];
+        this.total = res.total || 0;
       });
     },
+    handleCurrentChange (pageNum) {
+      this.pageNum = pageNum;
+      this.initData();
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
+      this.initData();
+    },
     close () {
+      this.userList = [];
       this.$emit('update:visible', false);
     },
     async submit () {
       // 检查所有记录是否都选择了领料人
-      const rowsWithoutPicker = this.tableData.filter(row => !row.picker);
-      if (rowsWithoutPicker.length > 0) {
-        const rowNumbers = rowsWithoutPicker.map((row, index) => index + 1);
-        this.$message.warning(`第 ${rowNumbers.join('、')} 行未选择领料人`);
+      const rowNumbers = [];
+      this.tableData.forEach((row, index) => {
+        if (!row.picker) {
+          rowNumbers.push(index + 1); // 在原始索引基础上加1
+        }
+      });
+
+      if (rowNumbers.length > 0) {
+        this.$message.warning(`第 ${rowNumbers.join('、')} 行未选择${this.titleDialog === '1' ? '领料人' : '入库操作人'}`);
         return;
       }
       let flanApi = shipOrder;
@@ -149,10 +180,15 @@ export default {
       //  构建参数
       const params = {
         id: this.id,
-        detailList: this.tableData.map(row => ({
-          detailId: row.id, // 行数据的唯一标识
-          operator: row.picker // 领料人ID
-        }))
+        detailList: this.tableData.map(row => {
+          // 根据 picker（userId）查找对应的用户名
+          const selectedUser = this.userList.find(user => user.value === row.picker);
+          return {
+            detailId: row.id, // 行数据的唯一标识
+            operator: row.picker, // 领料人ID
+            operatorName: selectedUser ? selectedUser.label : '' // 领料人名称
+          };
+        })
       };
       // 批量更新选中行的实际作业时间
       this.submitLoading = true;
@@ -167,8 +203,15 @@ export default {
         this.submitLoading = false;
       }
     },
-    // 远程搜索方法，接收行索引参数
-    querySearchAsync (queryString, rowIndex) {
+    // 下拉框获得焦点时调用接口
+    handleSelectFocus (rowIndex) {
+      if (this.userList && this.userList.length === 0) {
+        this.loadUserList('');
+      }
+    },
+
+    // 加载用户列表
+    loadUserList (queryString) {
       getUserByNameOrNo({ name: queryString }).then(res => {
         const list = res?.map(item => {
           return {
@@ -184,59 +227,27 @@ export default {
       });
     },
 
-    // 获取过滤后的用户列表（根据行索引决定是否显示"同上"）
-    getFilteredUserList (rowIndex) {
-      // 如果是第一行，不显示"同上"选项
-      if (rowIndex === 0) {
-        return this.userList;
-      }
-
-      // 其他行，添加"同上"选项到列表前面
-      return [
-        {
-          value: this.sameAsPreviousId,
-          label: this.sameAsPreviousLabel
-        },
-        ...this.userList
-      ];
+    // 远程搜索方法，接收行索引参数
+    querySearchAsync (queryString, rowIndex) {
+      this.loadUserList(queryString);
     },
 
     // 处理领料人选择变化
     handleWorkstationChange (row, rowIndex, ele) {
+      // 设置当前行的领料人
       row.picker = ele;
-      // 如果选择了"同上"
-      if (row.picker === this.sameAsPreviousId) {
-        // 获取上一行的值
-        const previousRow = this.tableData[rowIndex - 1];
 
-        if (previousRow && previousRow.picker !== this.sameAsPreviousId) {
-          // 如果上一行有值且不是"同上"，则使用上一行的值
-          row.picker = previousRow.picker;
-        } else if (previousRow && previousRow.picker === this.sameAsPreviousId) {
-          // 如果上一行也是"同上"，则需要递归找到实际值
-          let actualValue = this.findActualWorkstation(rowIndex - 1);
-          row.picker = actualValue || '';
-        } else {
-          // 上一行没有值，重置选择
-          row.picker = '';
-          this.$message.warning('上一行没有选择领料人，无法选择"同上"');
-        }
-      };
-    },
+      // 检查是否所有其他行都没有领料人值
+      const allEmpty = this.tableData.every((r, idx) => idx === rowIndex || !r.picker);
 
-    // 递归查找实际的工作站值（处理连续"同上"的情况）
-    findActualWorkstation (rowIndex) {
-      if (rowIndex < 0) return null;
-
-      const currentRow = this.tableData[rowIndex];
-
-      // 如果当前行不是"同上"，返回当前值
-      if (currentRow.picker !== this.sameAsPreviousId) {
-        return currentRow.picker;
+      if (allEmpty && this.tableData.length > 1) {
+        // 如果所有其他行都没有值，则将所有行设置为当前选择的值
+        this.tableData.forEach((r, idx) => {
+          if (idx !== rowIndex) {
+            r.picker = ele;
+          }
+        });
       }
-
-      // 如果是"同上"，继续向上查找
-      return this.findActualWorkstation(rowIndex - 1);
     },
   }
 };

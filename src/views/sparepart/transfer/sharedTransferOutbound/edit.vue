@@ -4,11 +4,11 @@
       <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
         :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest">
         <template #status>
-          <span v-if="form.status" class="status primary">{{ form.status }}</span>
+          <span v-if="form.status" class="status primary">{{ form.outboundStatusLabel }}</span>
         </template>
         <template #extraButtons>
+          <el-button v-if="_id && form.outboundStatus === '0' && permissions.has('AISPART-sharedTransferOutbound-print')" plain size="small" @click="handleShipment">发运</el-button>
           <el-button v-if="_id" type="primary" size="small" @click="handlePrint">打印</el-button>
-          <el-button v-if="_id && form.outboundStatus === '0'" type="primary" size="small" @click="handleShipment">发运</el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -161,16 +161,16 @@
                   <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
                   <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
                   <vxe-column field="locationName" title="库位" min-width="10%" />
-                  <vxe-column field="availableQuantity" title="可用库存" min-width="10%" />
+                  <vxe-column field="availableQty" title="可用库存" min-width="10%" />
                   <vxe-column field="purchasePriceTax" title="采购价格(含税)" min-width="10%" />
                   <vxe-column field="purchasePriceNotax" title="采购价格(不含税)" min-width="10%" />
-                  <vxe-column field="costUnitPriceTax" title="金额(含税)" min-width="10%" />
-                  <vxe-column field="inboundQty" title="调拨数量" min-width="10%">
+                  <vxe-column field="purchaseAmountTax" title="金额（含税）" min-width="10%" />
+                  <vxe-column field="transferQty" title="调拨数量" min-width="10%">
                     <!-- <template #default="{ row }">
                       <el-input v-model="row.transferQty" type="number" min="1" @blur="handleBlur(row)"/>
                     </template> -->
                   </vxe-column>
-                  <vxe-column field="inboundQty" title="备注" min-width="10%">
+                  <vxe-column field="remark" title="备注" min-width="10%">
                     <!-- <template #default="{ row }">
                       <el-input v-model="row.remark" @blur="handleBlur(row)"/>
                     </template> -->
@@ -398,6 +398,9 @@ export default {
     },
     // 物流信息接口
     async getLogisticsInfo () {
+      if (!this.form.logisticsOrderNo) {
+        return;
+      }
       this.loadingLogistics = true;
       const params = {
         waybillCode: this.form.logisticsOrderNo,
@@ -415,6 +418,7 @@ export default {
     // 刷新接口
     handleRefresh () {
       this.$refs.containerRef.loadDetail();
+      this.getData();
     },
     // 打印备件调拨出库单
     handlePrint () {

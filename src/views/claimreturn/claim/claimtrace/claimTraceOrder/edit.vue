@@ -56,22 +56,28 @@
                   :params="{}" />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerCode">
-                  <dealer-select v-model="form.dealerCode" :disabled="!!_id" />
+                  <dealer-select v-model="form.dealerCode" disabled />
                 </el-form-item>
                 <el-form-item label="首次下发时间：">
                   <el-input v-model="form.firstIssueTime" disabled />
                 </el-form-item>
                 <el-form-item label="追溯说明：" prop="traceDesc">
-                  <el-input placeholder="请输入" v-model="form.traceDesc" clearable type="textarea" :rows="1" :disabled="!!_id" />
+                  <el-input v-model="form.traceDesc" clearable type="textarea" :rows="1" disabled />
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
-                  <el-input placeholder="请输入" v-model="form.vin" clearable disabled />
+                  <LPEncrypted
+                    :value.sync="form.vin"
+                    :decryptMethod="getDetailDecryptField"
+                    :disabled="!_id"
+                  >
+                    <el-input  v-model="form.vin" clearable disabled />
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="最新下发时间：">
                   <el-input v-model="form.latestIssueTime" disabled />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
-                  <el-input placeholder="请输入" v-model="form.remark" clearable type="textarea" :rows="1" :disabled="!!_id && (![TRACE_STATUS.DRAFT, TRACE_STATUS.DRAFT.PENDING_CONFIRM].includes(form.traceStatus))" />
+                  <el-input placeholder="请输入" v-model="form.remark" clearable type="textarea" :rows="1" :disabled="!!_id && (![TRACE_STATUS.DRAFT, TRACE_STATUS.AUDITING, TRACE_STATUS.REJECTED].includes(form.traceStatus))" />
                 </el-form-item>
                 <el-form-item label="系统自动同意时间：">
                   <el-input v-model="form.sysAutoAgreeDate" disabled />
@@ -93,15 +99,40 @@
                 </el-form-item>
               </el-form>
               <!-- 详情页：基础信息 -->
-              <el-form :inline="true" label-width="150px" class="form-detail" v-show="!isEditing && _id">
+              <el-form :inline="true" class="form-detail" v-show="!isEditing && _id">
                 <el-form-item label="索赔追溯单号：">{{ form.claimTraceCode }}</el-form-item>
-                <el-form-item label="门店编码：">{{ form.dealerCode }}</el-form-item>
+                <el-form-item label="门店编码：">
+                  <el-link
+                    v-if="form.dealerCode"
+                    type="primary"
+                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    target="_blank"
+                  >{{ form.dealerCode }}</el-link>
+                  <span v-else>{{ form.dealerCode }}</span>
+                </el-form-item>
                 <el-form-item label="追溯状态：">{{ form.traceStatusLabel }}</el-form-item>
-                <el-form-item label="保修申请单：">{{ form.warrantyCode }}</el-form-item>
-                <el-form-item label="门店名称：">{{ form.dealerName }}</el-form-item>
+                <el-form-item label="保修申请单：">
+                  <el-link
+                    v-if="form.warrantyId"
+                    type="primary"
+                    :href="`/service/claimreturn/claim/warrantyApply/edit?id=${form.warrantyId}`"
+                    target="_blank"
+                  >{{ form.warrantyCode }}</el-link>
+                  <span v-else>{{ form.warrantyCode }}</span>
+                </el-form-item>
+                <el-form-item label="门店名称：">
+                  {{ form.dealerName }}
+                </el-form-item>
                 <el-form-item label="首次下发时间：">{{ form.firstIssueTime }}</el-form-item>
                 <el-form-item label="追溯说明：">{{ form.traceDesc }}</el-form-item>
-                <el-form-item label="VIN：">{{ form.vin }}</el-form-item>
+                <el-form-item label="VIN：">
+                  <LPEncrypted
+                    :value.sync="form.vin"
+                    :decryptMethod="getDetailDecryptField"
+                  >
+                    {{ form.vin }}
+                  </LPEncrypted>
+                </el-form-item>
                 <el-form-item label="最新下发时间：">{{ form.latestIssueTime }}</el-form-item>
                 <el-form-item label="备注：">{{ form.remark }}</el-form-item>
                 <el-form-item label="系统自动同意时间：">{{ form.sysAutoAgreeDate }}</el-form-item>
@@ -164,7 +195,7 @@
                 </el-form-item>
               </el-form>
               <!-- 详情页：处理信息 -->
-              <el-form :inline="true" label-width="150px" class="form-detail" v-show="!isEditing && _id">
+              <el-form :inline="true" class="form-detail" v-show="!isEditing && _id">
                 <el-form-item label="门店处理意见：">{{ form.dealerProcessOpinion }}</el-form-item>
                 <el-form-item label="同意追溯时间：">{{ form.agreeTraceTime }}</el-form-item>
                 <el-form-item label="追溯金调整人：">{{ form.traceAmountAdjuster }}</el-form-item>
@@ -193,7 +224,7 @@
                 attachType="不合格凭证"
                 configCode="mcs_claimtrack_form"
                 emptyText="暂无不合格凭证"
-                :readonly="!detailButtons.includes('编辑')"
+                :readonly="!detailButtons.includes('提交审核')"
               />
             </div>
           </section>
@@ -208,7 +239,7 @@
                 attachType="申诉凭证"
                 configCode="mcs_claimtrack_form"
                 emptyText="暂无申诉凭证"
-                :readonly="!detailButtons.includes('编辑')"
+                :readonly="!detailButtons.includes('申诉')"
               />
             </div>
           </section>
@@ -262,7 +293,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, agreeIssue, agreeTrace } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
+import { getDetail, addOrUpdate, agreeIssue, agreeTrace, getDetailDecryptField } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
 import { claimTraceOrderDetailList } from '@/api/claimreturn/claim/claimtrace/claimTraceOrderDetail/index';
 import { getList } from '@/api/claimreturn/claim/warrantyapply/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -273,7 +304,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import FetchSelect from '@/libs/components/FetchSelect';
 import DealerSelect from '@/components/dealer-select/index.vue';
-import { getDetailVisibleButtons, TRACE_STATUS } from './constant';
+import { getDetailVisibleButtons, TRACE_STATUS, TRACE_TYPE } from './constant';
 import SubmitAuditDialog from './components/SubmitAuditDialog';
 import CancelOrderDialog from './components/CancelOrderDialog';
 import AdjustAmountDialog from './components/AdjustAmountDialog';
@@ -284,6 +315,7 @@ import RejectAppealDialog from './components/RejectAppealDialog';
 import RefuseAppealDialog from './components/RefuseAppealDialog';
 import AisAttachment from '@/libs/components/AisAttachment';
 import ListSelect from '@/libs/components/list-select';
+import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
 
 const defaultForm = {
   claimTraceCode: '',
@@ -348,7 +380,8 @@ export default {
     RejectAppealDialog,
     RefuseAppealDialog,
     AisAttachment,
-    ListSelect
+    ListSelect,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -384,9 +417,6 @@ export default {
       originalForm: { ...form },
       TRACE_STATUS,
       rules: {
-        dealerCode: [
-          { required: true, message: '请输入门店编码或名称', trigger: 'change' }
-        ],
         warrantyCode: [
           { required: true, message: '请输入保修申请单', trigger: 'change' }
         ],
@@ -413,6 +443,9 @@ export default {
     }
   },
   methods: {
+    getDetailDecryptField () {
+      return getDetailDecryptField(this.form.id, 'vin');
+    },
     queryListData (query) {
       return getList({
         limitSize: 20,
@@ -516,6 +549,7 @@ export default {
     getTraceTableData () {
       claimTraceOrderDetailList({
         businessId: this._id,
+        traceType: TRACE_TYPE.CLAIM_TRACE,
         pageNum: this.traceCurrent,
         pageSize: this.tracePageSize,
       }).then(res => {

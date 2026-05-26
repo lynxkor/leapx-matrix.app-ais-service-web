@@ -64,6 +64,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -76,6 +77,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -111,12 +113,16 @@
         is-checkbox
         is-page
         checkboxFixed
+        centralized
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
         @handleSelect="handleSelectionChange"
-      />
+        @listSelect="handleListSelect"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
     <Upload
@@ -129,7 +135,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/basic/sparePartReplacer/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -140,6 +146,7 @@ import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
+import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
@@ -167,7 +174,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     Upload,
-    TagInput
+    TagInput,
+    EditPage
   },
   data () {
     return {
@@ -184,6 +192,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      clickItemId: '',
       optionObj: {
         id: 'sparePartReplacerTable',
         dataList: [],
@@ -203,7 +212,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/sparePart/detail',
                   query: {
-                    id: row.beforeSparePartId
+                    id: row.beforeSparePartId,
+                    isEditing: false
                   }
                 });
               },
@@ -221,7 +231,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/basic/sparePart/detail',
                   query: {
-                    id: row.afterSparePartId
+                    id: row.afterSparePartId,
+                    isEditing: false
                   }
                 });
               },
@@ -309,6 +320,9 @@ export default {
     this.getData();
   },
   methods: {
+    handleListSelect (row) {
+      this.clickItemId = row.id;
+    },
     handleImport () {
       this.uploadDialogVisible = true;
     },

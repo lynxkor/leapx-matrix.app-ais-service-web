@@ -86,6 +86,7 @@
              :default-time="['00:00:00', '23:59:59']"
               v-model="form.submitTime"
               type="daterange"
+              unlink-panels
               :picker-options="pickerOptions"
               range-separator="至"
               value-format="yyyy-MM-dd HH:mm:ss"
@@ -105,6 +106,7 @@
              :default-time="['00:00:00', '23:59:59']"
               v-model="form.createTime"
               type="daterange"
+              unlink-panels
               :picker-options="pickerOptions"
               range-separator="至"
               value-format="yyyy-MM-dd HH:mm:ss"
@@ -117,6 +119,7 @@
              :default-time="['00:00:00', '23:59:59']"
               v-model="form.updateTime"
               type="daterange"
+              unlink-panels
               :picker-options="pickerOptions"
               range-separator="至"
               value-format="yyyy-MM-dd HH:mm:ss"
@@ -174,7 +177,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getCommit, getAgree, getAgreeBatch, getReject, getRejectBatch } from '@/api/sparepart/fund/accountOperateApply/index';
 import { getUserByNameOrNo, getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse } from '@/api/common';
@@ -265,7 +268,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'companyCode', label: '公司编码', visible: true, width: 180 },
           { props: 'companyName', label: '公司名称', visible: true, width: 200 },
@@ -295,13 +309,16 @@ export default {
                 this.$router.push({
                   path: '/sparepart/fund/accountOperateDeductionApply/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
               type: 'info'
             }, {
               name: '删除',
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '删除',
               show: (row) => {
                 return row.approvalStatus === '10' || row.approvalStatus === '40';
               },

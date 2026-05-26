@@ -69,6 +69,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -81,6 +82,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -148,7 +150,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, dealerInboundOrderCommit, dealerInboundOrderAgree, dealerInboundOrderReject, dealerInboundOrderInbound } from '@/api/sparepart/inbound/dealerInboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSupplierInfo, getLoginUser } from '@/api/common';
@@ -236,7 +238,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
           { props: 'supplierName', label: '供应商名称', visible: true, width: 200 },
@@ -261,6 +274,7 @@ export default {
                   path: '/sparepart/inbound/dealerInboundOrder/edit',
                   query: {
                     id: row.id,
+                    isEditing: true
                   }
                 });
               },
@@ -311,10 +325,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '提交失败!'
-                  });
                 });
               },
               type: 'info'
@@ -332,10 +342,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '通过失败!'
-                  });
                 });
               },
               type: 'info'
@@ -362,10 +368,6 @@ export default {
                   });
                   this.getData();
                 }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '入库失败!'
-                  });
                 });
               },
               type: 'info'
@@ -620,7 +622,7 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
       }).then(({ value }) => {
-        if (!value || value.length > 100) {
+        if (!value || value.length > 10) {
           this.$message.warning('请输入不超过 100 字的审批原因');
           return; // 阻止后续代码执行
         }

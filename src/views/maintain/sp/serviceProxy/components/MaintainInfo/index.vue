@@ -33,7 +33,7 @@
           <vxe-column field="customerFaultDescription" title="客户故障描述" min-width="150"/>
           <vxe-column field="managerSuggestion" title="客户经理建议" min-width="150"/>
           <vxe-column field="customerRequest" title="客户诉求" min-width="150"/>
-          <vxe-column field="servicerecordUpload" title="是否已上传健康档案" width="150" align="center">
+          <vxe-column field="servicerecordUpload" title="是否已上传健康档案" width="150">
             <template #default="{ row }">
               <span>{{ row.servicerecordUpload === 1 ? '是' : '否' }}</span>
             </template>
@@ -48,6 +48,7 @@
 	</section>
 </template>
 <script>
+
 export default {
   props: {
     formData: {

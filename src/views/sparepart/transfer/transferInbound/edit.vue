@@ -12,11 +12,11 @@
         :detailRequest="detailRequest"
       >
         <template #status>
-          <span v-if="form.status" class="status primary">{{ form.status }}</span>
+          <span v-if="form.status" class="status primary">{{ form.signStatusLabel }}</span>
         </template>
         <template #extraButtons>
+          <el-button v-if="_id && form.signStatus === '0'" :loading="actionLoading" size="small" plain @click="handleSign">签收</el-button>
           <el-button v-if="_id" size="small" type="primary" @click="handlePrint">打印</el-button>
-          <el-button v-if="_id && form.signStatus === '0'" size="small" type="primary" @click="handleSign">签收</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -26,34 +26,34 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="调拨入库单号：" prop="code">
-                  {{ form.code }}
+                  <el-input v-model="form.code" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="调拨出库单：" prop="transferOutboundCode">
-                  {{ form.transferOutboundCode }}
+                  <el-input v-model="form.transferOutboundCode" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="入库门店编码：" prop="inboundDealerCode">
-                  {{ form.inboundDealerCode }}
+                  <el-input v-model="form.inboundDealerCode" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="入库门店名称：" prop="inboundDealerName">
-                  {{ form.inboundDealerName }}
+                  <el-input v-model="form.inboundDealerName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="入库仓库：" prop="inboundWarehouseId">
-                  {{ form.inboundWarehouseName }}
+                  <el-input v-model="form.inboundWarehouseName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="出库门店编码：" prop="outboundDealerCode">
-                  {{ form.outboundDealerCode }}
+                  <el-input v-model="form.outboundDealerCode" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="出库门店名称：" prop="outboundDealerName">
-                  {{ form.outboundDealerName }}
+                  <el-input v-model="form.outboundDealerName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="签收人：" prop="signUserName">
-                  {{ form.signUserName }}
+                  <el-input v-model="form.signUserName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="签收状态：" prop="signStatus">
-                  {{ form.signStatusLabel }}
+                  <el-input v-model="form.signStatusLabel" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="签收时间：" prop="signTime">
-                  {{ form.signTime }}
+                  <el-input v-model="form.signTime" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" style="width: 100%;">
                   <el-input
@@ -119,22 +119,16 @@
                   min-height="0"
                   max-height="400px"
                 >
+                  <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
                   <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
                   <vxe-column field="locationName" title="库位" min-width="10%" />
                   <vxe-column field="availableQty" title="可用库存" min-width="10%" />
                   <vxe-column field="purchasePriceTax" title="采购价格(含税)" min-width="10%" />
                   <vxe-column field="purchasePriceNotax" title="采购价格(不含税)" min-width="10%" />
-                  <vxe-column field="costUnitPriceTax" title="金额(含税)" min-width="10%" />
+                  <vxe-column field="purchaseAmountTax" title="金额（含税）" min-width="10%" />
                   <vxe-column field="transferQty" title="调拨数量" min-width="10%"/>
                   <vxe-column field="remark" title="备注" min-width="10%"/>
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />
-                  <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
-                    <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
-                        <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
-                      </el-popconfirm>
-                    </template>
-                  </vxe-column>
                   <template #empty>
                     <div class="m-vxe-table-empty-text">{{ emptyText }}</div>
                   </template>
@@ -235,6 +229,7 @@ export default {
       moduleKey: 'AISPART-transferInbound',
       loading: false,
       submitLoading: false,
+      actionLoading: false,
       pageNum: 1,
       pageSize: 10,
       total: 0,
@@ -308,6 +303,7 @@ export default {
     },
     // 签收调拨入库单
     async handleSign () {
+      this.actionLoading = true;
       const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将签收调拨入库单, 是否继续?</div>';
       this.$confirm(message, '', {
         confirmButtonText: '确定',
@@ -322,8 +318,11 @@ export default {
           type: 'success',
           message: '签收成功!'
         });
+        this.actionLoading = false;
         this.$refs.containerRef.loadDetail();
+        this.getData();
       }).catch(() => {
+        this.actionLoading = false;
       });
     },
   }

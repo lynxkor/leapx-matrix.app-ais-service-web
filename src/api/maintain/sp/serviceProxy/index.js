@@ -383,3 +383,43 @@ export function getActivityInfo (data) {
 export function addFaultRecord (data) {
   return api.jsonPost('maintain/web/sp/spFaultAlertRecord/addFaultRecord', data);
 }
+
+/**
+ * 签字短信重推
+ * @param {Object} data - vin
+ */
+export function resendSignSms (data) {
+  return api.jsonPost(prefix + 'resendSignSms', data);
+}
+
+/**
+ * 查询当天最近的一条施工单
+ * @param {Object} data - vin
+ */
+export function getRecentlyServiceProxy (data) {
+  return api.jsonPost(prefix + 'getRecentlyServiceProxy', data);
+}
+
+/**
+ * 出厂台次名细分页查询
+ * @param {Object} data
+ */
+export function pageDepartureDetail (data) {
+  return api.jsonPost(prefix + 'pageDepartureDetail', data);
+}
+
+/**
+ * 车间作业时效表分页查询
+ * @param {Object} data
+ */
+export function pageRepairWorkTimeliness (data) {
+  return api.jsonPost(prefix + 'pageRepairWorkTimeliness', data);
+}
+
+/**
+ * 车间作业时效表分页查询
+ * @param {Object} data
+ */
+export function getLastStoreMileage (data) {
+  return api.jsonPost(prefix + 'getLastStoreMileage', data);
+}

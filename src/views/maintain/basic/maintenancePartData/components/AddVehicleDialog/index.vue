@@ -96,8 +96,8 @@
 
     <!-- 弹窗底部按钮 -->
     <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="handleClose">取 消</el-button>
-        <el-button type="primary" size="small" @click="handleConfirm">确 定</el-button>
+        <el-button size="small" @click="handleClose">取消</el-button>
+        <el-button type="primary" size="small" @click="handleConfirm">确定</el-button>
     </div>
     </el-dialog>
   </template>
@@ -203,7 +203,7 @@ export default {
       });
     },
     async getVehicleList () {
-      const res = await listVehicleSeries({ status: 1 });
+      const res = await listVehicleSeries({ status: 1, pageSize: 1000 });
       this.seriesList = res || [];
       // 初始化时默认选择第一个车系
       if (this.seriesList.length > 0) {
@@ -212,7 +212,7 @@ export default {
     },
     // 年款接口
     async getYearList () {
-      const res = await listVehicleYearType({ status: 1 });
+      const res = await listVehicleYearType({ status: 1, pageSize: 1000 });
       // 在数组开头添加"无年款"选项
       this.options.vehicleYearTypeName = [
         { value: '0', label: '无年款' },
@@ -234,7 +234,7 @@ export default {
 
     // 选择车系 车系id查询 车型
     async getModelList (seriesId) {
-      const res = await listVehicleYearTypeFull({ seriesId: seriesId, status: 1 });
+      const res = await listVehicleYearTypeFull({ seriesId: seriesId, status: 1, pageSize: 1000 });
       this.applicableModelList = res || [];
     },
     // 选择车型
@@ -252,21 +252,29 @@ export default {
       }
       // 获取当前 tableData 的长度作为起始索引
       const startIndex = this.tableData.length;
+      // 已存在的数据集合，以 vehicleModelId + vehicleSeriesId + vehicleYearTypeId 组合去重
+      const existingKeys = new Set(this.tableData.map(item => `${item.vehicleModelId}_${item.vehicleSeriesId}_${item.vehicleYearTypeId}`));
+      const currentYearTypeId = this.yearDetail.vehicleYearTypeId;
       // 更新当前行的车型选择
-      const list = modelArray.map((item) => {
-        return {
-          index: startIndex + 1,
-          value: item.id,
-          label: item.modelName,
-          vehicleModelId: item.id,
-          vehicleModelName: item.modelName,
-          vehicleSeriesId: item.seriesId,
-          vehicleSeriesName: item.seriesName,
-          vehicleModelDesc: item.remark,
-          vehicleYearTypeId: this.yearDetail.vehicleYearTypeId,
-          vehicleYearTypeName: this.yearDetail.vehicleYearTypeName,
-        };
-      }) || [];
+      const list = modelArray
+        .filter(item => !existingKeys.has(`${item.id}_${item.seriesId}_${currentYearTypeId}`))
+        .map((item, i) => {
+          return {
+            index: startIndex + i + 1,
+            value: item.id,
+            label: item.modelName,
+            vehicleModelId: item.id,
+            vehicleModelName: item.modelName,
+            vehicleSeriesId: item.seriesId,
+            vehicleSeriesName: item.seriesName,
+            vehicleModelDesc: item.remark,
+            vehicleYearTypeId: this.yearDetail.vehicleYearTypeId,
+            vehicleYearTypeName: this.yearDetail.vehicleYearTypeName,
+          };
+        });
+      // if (modelArray.length > list.length) {
+      //   this.$message.warning(`${modelArray.length - list.length} 条车型已存在，已自动去重`);
+      // }
       this.tableData.push(...list);
     },
     // 选择车系
@@ -284,6 +292,7 @@ export default {
         vehicleYearTypeId: year?.value,
         vehicleYearTypeName: year?.label || '无年款',
       };
+      this.selectedModelIndex = null;
     },
 
     // 年款下拉选择变更

@@ -460,7 +460,9 @@
                   {{ form.purchaseApplyCode }}
                 </el-form-item>
                 <el-form-item label="门店编码（组织code）：" prop="dealerCode">
-                  {{ form.dealerCode }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称（组织名称）：" prop="dealerName">
                   {{ form.dealerName }}

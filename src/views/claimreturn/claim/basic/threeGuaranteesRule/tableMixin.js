@@ -184,10 +184,10 @@ export default {
           return {
             value: item.id,
             label: item.code,
-            labelDesc: item.name,
+            labelDesc: item.name || '-',
             partId: item.id, // 表格
             partCode: item.code, // 表格
-            partName: item.name,
+            partName: item.name || '-',
           };
         });
         this.options.partCode = list;

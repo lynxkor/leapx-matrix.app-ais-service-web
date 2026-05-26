@@ -13,6 +13,7 @@
           <el-date-picker
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -87,7 +88,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/basic/repairItemType/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -144,28 +145,29 @@ export default {
             props: 'code',
             label: '维修类型代码',
             visible: true,
-            width: 200,
+            width: 240,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/repairItemType/detail',
+                  path: '/maintain/basic/repairItemType/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: false
                   }
                 });
               },
               type: 'primary'
             }]
           },
-          { props: 'categoryLabel', label: '类别 ', visible: true, width: 200 },
-          { props: 'name', label: '维修类型名称', visible: true, width: 200 },
-          { props: 'sort', label: '排序', visible: true, width: 200 },
+          { props: 'categoryLabel', label: '类别 ', visible: true, width: 100 },
+          { props: 'name', label: '维修类型名称', visible: true, width: 180 },
+          { props: 'sort', label: '排序', visible: true, width: 80 },
           {
             props: 'checkoutTypeName',
             label: '结算类型',
             visible: true,
-            width: 200,
+            width: 140,
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -178,9 +180,9 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
-          { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 120 },
+          { props: 'remark', label: '备注', visible: true, width: 400 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 160 },
           {
             props: 'operate',
             label: '操作',
@@ -193,7 +195,8 @@ export default {
                 this.$router.push({
                   path: '/maintain/basic/repairItemType/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },

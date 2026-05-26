@@ -111,8 +111,8 @@ export default {
       });
     },
     vinChange (val, record) {
-      this.form.beforeDealerCode = record?.salesDealerCode;
-      this.form.beforeDealerName = record?.salesDealerName;
+      this.form.beforeDealerCode = record?.vehicleProfileServiceResp.serviceDealerCode;
+      this.form.beforeDealerName = record?.vehicleProfileServiceResp.serviceDealerName;
       this.form.salesDate = record?.salesDate;
     },
     getDealerList (query) {
@@ -122,6 +122,13 @@ export default {
       });
     },
     handleDealerChange (val, record) {
+      if (record?.orgCode && record.orgCode === this.form.beforeDealerCode) {
+        this.$message.warning('变更后的门店和原门店一致，请重新选择');
+        this.form.afterDealerCode = '';
+        this.form.afterDealerName = '';
+        this.form.afterDealerId = '';
+        return;
+      }
       this.form.afterDealerCode = record?.orgCode;
       this.form.afterDealerName = record?.orgName;
       this.form.afterDealerId = record?.orgId;

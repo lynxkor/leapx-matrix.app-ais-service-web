@@ -34,6 +34,10 @@ export function getVehicleProfile (data) {
   return api.jsonPost('datacenter/web/vehicle/vehicleProfile/listFull', data);
 }
 
+export function getCustomerInfo (data) {
+  return api.jsonPost(prefix + 'getCustomerInfo', data);
+}
+
 /**
  * getVin
  * @param {Object} data
@@ -188,6 +192,9 @@ export function refundOrder (data) {
  */
 export function retailOrderDetailPage (data) {
   return api.jsonPost(prefixDetail + 'page', data);
+}
+export function retailOrderDetailPrintPage (data) {
+  return api.jsonPost(prefixDetail + 'printPage', data);
 }
 
 /**

@@ -9,8 +9,16 @@
           <!-- <span class="status primary">状态</span> -->
         </template>
         <template #extraButtons>
-          <!-- <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button> -->
+          <el-button
+            v-for="btn in visibleButtons"
+            :key="btn.key"
+            size="small"
+            :loading="actionLoading"
+            @click="handleExtraButtonClick(btn.action)"
+          >
+            {{ btn.label }}
+          </el-button>
+          <el-button v-if="_id && permissions.has('AISPART-dealerInboundOrder-printInbound')" type="primary" size="small" @click="handlePrint">打印入库单</el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -21,10 +29,10 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="外购入库单号：" prop="code">
-                  {{ form.code }}
+                  <el-input v-mode="form.code" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
-                  {{ form.warehouseName }}
+                  <el-input v-mode="form.warehouseName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="供应商名称：">
                   <fetch-select :remote-method="getSupplierList" remote v-model="form.supplierInfoId"
@@ -32,10 +40,10 @@
                     filterable />
                 </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
-                  {{ form.orderStatusLabel }}
+                  <el-input v-mode="form.orderStatusLabel" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-input v-mode="form.dealerName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark" style="width: 100%">
                   <el-input placeholder="请输入" v-model="form.remark" clearable type="textarea" maxLength="500" show-word-limit />
@@ -51,19 +59,19 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="提交人：" prop="submitterName">
-                  {{ form.submitterName }}
+                  <el-input v-mode="form.submitterName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
-                  {{ form.submitTime }}
+                  <el-input v-mode="form.submitTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="审批人：" prop="approverName">
-                  {{ form.approverName }}
+                  <el-input v-mode="form.approverName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
-                  {{ form.approvalTime }}
+                  <el-input v-mode="form.approvalTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="审批说明：" prop="approvalDescription">
-                  {{ form.approvalDescription }}
+                  <el-input v-mode="form.approvalDescription" placeholder="请输入" disabled></el-input>
                 </el-form-item>
               </el-form>
             </div>
@@ -76,16 +84,16 @@
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit">
                 <el-form-item label="入库操作人：" prop="inboundOperatorName">
-                  {{ form.inboundOperatorName }}
+                  <el-input v-mode="form.inboundOperatorName" placeholder="请输入" disabled></el-input>
                 </el-form-item>
-                <el-form-item label="入库状态：" prop="inboundStatus">
-                  {{ form.inboundStatusLabel }}
+                <el-form-item label="入库状态：" prop="inboundStatusLabel">
+                  <el-input v-mode="form.inboundStatusLabel" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="入库总金额：" prop="totalAmount">
-                  {{ form.totalAmount }}
+                  <el-input v-mode="form.totalAmount" placeholder="请输入" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="入库时间：" prop="inboundTime">
-                  {{ form.inboundTime }}
+                  <el-input v-mode="form.inboundTime" placeholder="请输入" disabled></el-input>
                 </el-form-item>
               </el-form>
             </div>
@@ -169,10 +177,18 @@
             <div class="common-section-body">
               <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
-                    value-key="partCode" label-key="partName" @change="handleAddTableData" :disabled="!orderStatusType" />
-                  <el-button type="primary" size="small">添加</el-button>
-                  <el-button size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
+                  <base-search
+                    style="width: 300px;"
+                    filterable
+                    clearable
+                    remote
+                    :remote-method="queryListData"
+                    @change="handleAddTableData"
+                    value-key="partCode"
+                    label-key="partName"
+                    :disabled="!orderStatusType"
+                  />
+                  <el-button class="search-btn" size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -180,7 +196,7 @@
                   min-height="0" max-height="400px">
                   <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
                   <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
-                  <vxe-column field="locationCode" title="库位编码" min-width="10%" />
+                  <vxe-column field="locationName" title="库位编码" min-width="10%" />
                   <vxe-column field="availableQty" title="可用库存" min-width="10%" />
                   <vxe-column field="returnableQty" title="可退数量" min-width="10%" />
                   <vxe-column field="purchaseUnitPrice" title="采购单价" min-width="10%" />
@@ -230,13 +246,24 @@
       :businessParams="_id"
       id="sparepartDealerInboundOrderDetail"
       @close="handleUploadDialogClose"
-      @submit="getDetailData"
+      @submit="handleRefresh"
+    />
+    <!-- 退货弹窗 -->
+    <OrderReturnDialog
+      ref="orderReturnDialogRef"
+      :visible.sync="orderReturnDialogVisible"
+      :orderId="_id"
+      @update:visible="val => orderReturnDialogVisible = val"
+      @confirm="handleRefresh"
     />
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate, dealerInboundOrderDetailPage, dealerInboundOrderDetailDelete, dealerInboundOrderDetailAdd } from '@/api/sparepart/inbound/dealerInboundOrder/index';
+import {
+  getDetail, addOrUpdate, dealerInboundOrderDetailPage, dealerInboundOrderDetailDelete, dealerInboundOrderDetailAdd,
+  dealerInboundOrderCommit, dealerInboundOrderAgree, dealerInboundOrderReject, dealerInboundOrderInbound
+} from '@/api/sparepart/inbound/dealerInboundOrder/index';
 import { listDealerPart } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -247,7 +274,9 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
-import { formatNumberInput } from '@/libs/utils/index';
+import { formatNumberInput, handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
+import OrderReturnDialog from './OrderReturnDialog.vue';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -300,7 +329,9 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    Upload
+    Upload,
+    OrderReturnDialog,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -308,6 +339,44 @@ export default {
     },
     title () {
       return '外购入库单号，开头OPO：' + this.form.code;
+    },
+    extraButtons () {
+      const buttons = [
+        {
+          key: 'submit',
+          label: '提交',
+          action: 'submit',
+          visible: this._id && (this.form.orderStatus === '10' || this.form.orderStatus === '40') && this.permissions.has('AISPART-dealerInboundOrder-commit')
+        },
+        {
+          key: 'pass',
+          label: '通过',
+          action: 'pass',
+          visible: this._id && this.form.orderStatus === '20' && this.permissions.has('AISPART-dealerInboundOrder-agree')
+        },
+        {
+          key: 'reject',
+          label: '驳回',
+          action: 'reject',
+          visible: this._id && this.form.orderStatus === '20' && this.permissions.has('AISPART-dealerInboundOrder-reject')
+        },
+        {
+          key: 'warehousing',
+          label: '入库',
+          action: 'warehousing',
+          visible: this._id && this.form.orderStatus === '30' && this.form.inboundStatus === '10' && this.permissions.has('AISPART-dealerInboundOrder-inbound')
+        },
+        {
+          key: 'return',
+          label: '申请退货',
+          action: 'return',
+          visible: this._id && this.form.orderStatus === '30' && this.form.inboundStatus === '20' && this.permissions.has('AISPART-dealerInboundOrder-returnApply')
+        },
+      ];
+      return buttons;
+    },
+    visibleButtons () {
+      return this.extraButtons.filter(btn => btn.visible);
     }
   },
   watch: {
@@ -341,11 +410,13 @@ export default {
       moduleKey: 'AISPART-dealerInboundOrder',
       loading: false,
       submitLoading: false,
+      actionLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
       emptyText: '暂无数据',
       orderStatusType: false, // 订单状态 是否可编辑
+      orderReturnDialogVisible: false, // 申请退货弹窗
       pageNum: 1,
       pageSize: 10,
       total: 0,
@@ -432,7 +503,7 @@ export default {
     queryListData (queryString) {
       return new Promise(resolve => {
         // 根据需求调用接口
-        listDealerPart({ partCodeOrNameLike: queryString, status: 1, pageSize: 20 }).then(res => {
+        listDealerPart({ partCodeOrNameLike: queryString, status: 1, pageSize: 20, dealerCode: this.form.dealerCode, oemPart: 1 }).then(res => {
           const list = res || [];
           resolve(list);
         });
@@ -537,6 +608,92 @@ export default {
       this.pageSize = pageSize;
       this.pageNum = 1;
       this.getData();
+    },
+    // 处理额外按钮点击事件
+    handleExtraButtonClick (action) {
+      const actionMap = {
+        submit: 'handleSubmit',
+        pass: 'handleApprove',
+        reject: 'handleReject',
+        warehousing: 'handleInbound',
+        return: 'handleReturn',
+      };
+      const handlerName = actionMap[action];
+      if (handlerName && typeof this[handlerName] === 'function') {
+        this[handlerName]();
+      } else {
+        console.warn(`未找到处理方法: ${handlerName}`);
+      }
+    },
+    // 刷新接口
+    handleRefresh () {
+      this.$refs.containerRef.loadDetail();
+      this.getData();
+    },
+    // 打印外购件入库单
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'OutsourcedPartsReceipt', // 必选，对应 ./template/文件名.vue
+        title: `${this.form.dealerName}厅店外购件入库单`// 可选，打印标题
+      });
+    },
+    // 调用二次确认弹框
+    _handleAction (apiFn, config) {
+      this.actionLoading = true;
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.handleRefresh();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
+      });
+    },
+    // --- 业务方法调用 ---
+    handleSubmit () {
+      this._handleAction(dealerInboundOrderCommit, { title: '此操作将提交订单, 是否继续?', success: '提交成功' });
+    },
+    handleApprove () {
+      this._handleAction(dealerInboundOrderAgree, { title: '此操作将通过订单, 是否继续?', success: '通过成功' });
+    },
+    handleInbound () {
+      this._handleAction(dealerInboundOrderInbound, { title: '此操作将入库订单, 是否继续?', success: '入库成功' });
+    },
+    // 申请退货
+    handleReturn () {
+      this.orderReturnDialogVisible = true;
+    },
+    // 通用 备注弹窗
+    _execPrompt (api, title, placeholder, successMsg) {
+      this.actionLoading = true;
+      handleCommonPrompt({
+        $prompt: this.$prompt,
+        $message: this.$message,
+        apiFn: api,
+        id: this._id,
+        config: {
+          title,
+          placeholder,
+          success: successMsg
+        },
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.handleRefresh();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
+      });
+    },
+    handleReject () {
+      this._execPrompt(dealerInboundOrderReject, '驳回', '请输入审批原因！', '驳回成功');
     },
   }
 };

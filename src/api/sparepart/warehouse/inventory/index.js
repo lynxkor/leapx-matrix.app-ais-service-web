@@ -12,6 +12,14 @@ export function getList (data) {
   return api.jsonPost(prefix + 'page', data);
 };
 
+export function getShareList (data) {
+  return api.jsonPost(prefix + 'sharePage', data);
+};
+
+export function flowReport (data) {
+  return api.jsonPost(prefix + 'flowReport', data);
+};
+
 /**
  * 新增或修改
  * @param {Object} data

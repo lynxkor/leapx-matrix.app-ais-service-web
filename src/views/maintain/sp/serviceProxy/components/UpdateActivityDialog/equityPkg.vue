@@ -38,6 +38,7 @@
       <div v-if="selectedItem.useId" class="detail-content" v-loading="detailLoading">
         <div class="detail-title">{{ selectedItem.name }}</div>
 
+        <div class="detail-scroll">
         <!-- 维修项目表格 -->
         <div class="detail-section">
           <div class="section-title">维修项目</div>
@@ -94,6 +95,7 @@
           </vxe-table>
         </div>
 
+        </div>
         <!-- 底部操作栏 -->
         <div class="footer-bar">
           <el-button type="primary" size="small" @click="handleConfirm">
@@ -219,7 +221,7 @@ export default {
           const remindRes = await equityRemind({ id: this.vehicleInfo.id });
           if (Array.isArray(remindRes) && remindRes.length > 0) {
             const content = remindRes.join('<br/>');
-            const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-circle"></i>提醒</div><div class="ais-leave-tips-sub">${content}</div>`;
+            const message = `<div class="ais-leave-tips-main warn"><i class="iconfont icon-lxppc-prompt"></i>提醒</div><div class="ais-leave-tips-sub">${content}</div>`;
             this.$confirm(message, '', {
               confirmButtonText: '确定',
               showCancelButton: false,
@@ -265,7 +267,6 @@ export default {
       flex: 1;
       overflow-y: auto;
       padding: 0 12px 12px 12px;
-      max-height: 520px;
     }
 
     .list-empty {
@@ -362,7 +363,7 @@ export default {
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      padding: 16px;
+      padding: 16px 16px 0 16px;
 
       .detail-title {
         font-size: 16px;
@@ -370,6 +371,11 @@ export default {
         line-height: 24px;
         color: $--leap-color-default-dark-1;
         margin-bottom: 16px;
+      }
+
+      .detail-scroll {
+        flex: 1;
+        overflow-y: auto;
       }
 
       .detail-section {
@@ -389,7 +395,9 @@ export default {
       }
 
       .footer-bar {
-        padding: 16px 0 0;
+        flex-shrink: 0;
+        padding: 16px 20px;
+        margin: 0 -20px;
         border-top: 1px solid var(--leap-color-default-light-4);
         text-align: right;
         margin-top: auto;

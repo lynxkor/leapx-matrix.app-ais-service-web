@@ -46,6 +46,7 @@
         v-model="show"
         is-expandable
         :loading="loading"
+        :isExpandable="false"
         @submit="onSubmit"
         @reset="onReset"
       />
@@ -85,10 +86,14 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/inventory/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser, listDealerPartWithOem } from '@/api/common';
+import { getShareList, deleteItem, enableItem } from '@/api/sparepart/warehouse/inventory/index';
+import {
+  getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo,
+  listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer,
+  getLoginUser, listDealerPartWithOem, getDesensitize
+} from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -148,7 +153,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/warehouse/inventory/edit',
+                  path: '/sparepart/basic/sparePart/detail',
                   query: {
                     id: row.id
                   }
@@ -158,13 +163,38 @@ export default {
             }]
           },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'sharedQty', label: '共享数量', visible: true, width: 120, align: 'right' },
           { props: 'purchasePrice', label: '采购价格', visible: true, width: 120, align: 'right' },
           { props: 'suggestedSharedPrice', label: '共享价格', visible: true, width: 140, align: 'right' },
-          { props: 'sharedContactPerson', label: '联系人', visible: true, width: 160 },
-          { props: 'sharedContactInfo', label: '联系方式', visible: true, width: 180 },
+          {
+            props: 'sharedContactPerson',
+            label: '联系人',
+            visible: true,
+            width: 160,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'inventory', 'sharedContactPerson')
+          },
+          {
+            props: 'sharedContactInfo',
+            label: '联系方式',
+            visible: true,
+            width: 180,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'inventory', 'sharedContactInfo')
+          },
           { props: 'sharedDescription', label: '共享说明', visible: true, width: 200 },
           {
             props: 'operate',
@@ -295,7 +325,7 @@ export default {
       }
       exportTable({
         businessType: '共享呆滞件库存',
-        dataFetchPath: 'sparepart/web/warehouse/sharedInventory/page',
+        dataFetchPath: 'sparepart/web/warehouse/sharedInventory/sharePage',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
@@ -323,7 +353,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), sharedIs: '1', orderBySparePartCode: true, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getShareList({ ...this.getFormData(), sharedIs: '1', orderBySparePartCode: true, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

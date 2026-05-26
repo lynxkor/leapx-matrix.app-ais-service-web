@@ -89,13 +89,11 @@
                     />
                     <AisAttachment
                       ref="auditor1SignRef"
-                      v-if="_id"
                       :businessId="_id"
                       attachType="审计专员1签名"
                       :show-pagination="false"
                       :noEcho="true"
-                      :uploadConfig="uploadConfig"
-                      title="审计专员1签名"
+                      :uploadConfig="signUploadConfig"
                       :buttonText="sign1Label"
                       :showFilelist="false"
                       @addParam="data => handleUpdate(data, 'auditor1Sign')"
@@ -127,13 +125,11 @@
                     />
                     <AisAttachment
                       ref="auditor2SignRef"
-                      v-if="_id"
                       :businessId="_id"
                       attachType="审计专员2签名"
                       :show-pagination="false"
                       :noEcho="true"
-                      :uploadConfig="uploadConfig"
-                      title="审计专员2签名"
+                      :uploadConfig="signUploadConfig"
                       :buttonText="sign2Label"
                       :showFilelist="false"
                       @addParam="data => handleUpdate(data, 'auditor2Sign')"
@@ -153,6 +149,7 @@
                     type="date"
                     format="yyyy-MM-dd"
                     value-format="yyyy-MM-dd"
+                    :picker-options="approvalStartPickerOptions"
                     placeholder="选择日期">
                   </el-date-picker>
                 </el-form-item>
@@ -169,6 +166,7 @@
                     type="date"
                     format="yyyy-MM-dd"
                     value-format="yyyy-MM-dd"
+                    :picker-options="approvalEndPickerOptions"
                     placeholder="选择日期">
                   </el-date-picker>
                 </el-form-item>
@@ -185,18 +183,34 @@
                   <el-input v-model="form.auditDetailTotalAmount" disabled />
                 </el-form-item>
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="保修审计单号：">{{ form.auditCode }}</el-form-item>
                 <el-form-item label="审计类型：">{{ form.auditTypeLabel || form.auditType }}</el-form-item>
                 <el-form-item label="审计单状态：">{{ form.auditStatusLabel || form.auditStatus }}</el-form-item>
                 <el-form-item label="保修审计主题：">{{ form.auditTheme }}</el-form-item>
                 <el-form-item label="审计开始日期：">{{ form.auditStartDate }}</el-form-item>
                 <el-form-item label="提交截止日期：">{{ form.submitDeadline }}</el-form-item>
-                <el-form-item label="门店编码：">{{ form.dealerCode }}</el-form-item>
+                <el-form-item label="门店编码：">
+                  <el-link
+                    v-if="form.dealerCode"
+                    type="primary"
+                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    target="_blank"
+                  >{{ form.dealerCode }}</el-link>
+                  <span v-else>{{ form.dealerCode }}</span>
+                </el-form-item>
                 <el-form-item label="审计专员1：">{{ form.auditor1Name }}</el-form-item>
                 <!-- <el-form-item label="审计专员1签名：">{{ form.auditor1Sign }}</el-form-item> -->
                 <el-form-item label="计划扣款金额：">{{ form.planDeductAmount }}</el-form-item>
-                <el-form-item label="门店名称：">{{ form.dealerName }}</el-form-item>
+                <el-form-item label="门店名称：">
+                  <el-link
+                    v-if="form.dealerCode"
+                    type="primary"
+                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    target="_blank"
+                  >{{ form.dealerName }}</el-link>
+                  <span v-else>{{ form.dealerName }}</span>
+                </el-form-item>
                 <el-form-item label="审计专员2：">{{ form.auditor2Name }}</el-form-item>
                 <!-- <el-form-item label="审计专员2签名：">{{ form.auditor2Sign }}</el-form-item> -->
                 <el-form-item label="已扣款金额：">{{ form.deductedAmount }}</el-form-item>
@@ -237,7 +251,7 @@
                   <el-input v-model="form.techManager" clearable placeholder="请输入" />
                 </el-form-item>
               </el-form>
-              <el-form label-width="150px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="法人：">{{ form.legalPerson }}</el-form-item>
                 <el-form-item label="服务店长：">{{ form.serviceManager }}</el-form-item>
                 <el-form-item label="保修经理：">{{ form.warrantyManager }}</el-form-item>
@@ -250,8 +264,8 @@
           <search-add-table
             v-if="_id"
             :_id="_id"
-            :canAddOrUpdate="canAddOrUpdate"
-            :canImport="canImport"
+            :canAddOrUpdate="canAddOrUpdate && form.auditStatus === AUDIT_STATUS.DRAFT"
+            :canImport="canAddOrUpdate && form.auditStatus === AUDIT_STATUS.DRAFT"
             :formData="form"
             @data-change="() => {}"
             @checkboxChange="checkboxChange"
@@ -260,7 +274,9 @@
           <!-- 总结报告 -->
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>总结报告<el-button type="text" class="download-link" @click="handleDownloadUnsignedSummary" v-if="form.summarySignTime">下载未签署总结报告</el-button></h2>
+              <h2>总结报告
+                <el-button type="text" class="download-link" @click="handleDownloadUnsignedSummary" v-if="form.summarySignTime">下载未签署总结报告</el-button>
+              </h2>
             </div>
             <div class="common-section-body">
               <div class="report-section">
@@ -278,7 +294,7 @@
                   />
                 </div>
                 <div class="report-info">
-                  <el-form label-width="120px" :inline="true" class="form-detail">
+                  <el-form :inline="true" class="form-detail">
                     <el-form-item label="总结签署人：">{{ form.summarySignerName || '--' }}</el-form-item>
                     <el-form-item label="总结签署时间：">{{ form.summarySignTime || '--' }}</el-form-item>
                     <el-form-item label="总结签署说明：">{{ form.summarySignDesc || '--' }}</el-form-item>
@@ -311,7 +327,7 @@
                   />
                 </div>
                 <div class="report-info">
-                  <el-form label-width="120px" :inline="true" class="form-detail">
+                  <el-form :inline="true" class="form-detail">
                     <el-form-item label="整改签署人：">{{ form.rectifySignerName || '--' }}</el-form-item>
                     <el-form-item label="整改签署时间：">{{ form.rectifySignTime || '--' }}</el-form-item>
                     <el-form-item label="整改签署说明：">{{ form.rectifySignDesc || '--' }}</el-form-item>
@@ -421,8 +437,9 @@ import {
   agreeRectify,
   regenerateUnsignedSummary,
   regenerateUnsignedRectify,
-  getClaimTraceOrderDetail
+  getClaimTraceOrderDetail,
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAudit/index';
+import { getFileList } from '@/libs/api/attachment';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -540,6 +557,30 @@ export default {
     isDraftWithDetails () {
       return this.form.auditStatus === AUDIT_STATUS.DRAFT && this._id && this.form.actualAuditCount > 0;
     },
+    approvalStartPickerOptions () {
+      return {
+        disabledDate: (time) => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          return time.getTime() >= today.getTime();
+        }
+      };
+    },
+    approvalEndPickerOptions () {
+      return {
+        disabledDate: (time) => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          if (time.getTime() >= today.getTime()) return true;
+          if (this.form.warrantyApprovalStartDate) {
+            const start = new Date(this.form.warrantyApprovalStartDate);
+            start.setHours(0, 0, 0, 0);
+            return time.getTime() < start.getTime();
+          }
+          return false;
+        }
+      };
+    },
   },
   watch: {
     id: {
@@ -568,6 +609,12 @@ export default {
         maxNum: 1,
         required: '1',
       },
+      signUploadConfig: {
+        acceptSuffix: '.png,.jpg,.jpeg',
+        maxSize: 50,
+        maxNum: 1,
+        required: '1',
+      },
       rules: {
         auditTheme: [
           { required: true, message: '请输入保修审计主题', trigger: 'blur' }
@@ -591,7 +638,19 @@ export default {
           { required: true, message: '请选择审计专员1', trigger: 'change' }
         ],
         auditor1Sign: [
-          { required: true, message: '请输入审计专员1签名', trigger: 'blur' }
+          { required: true, message: '请上传审计专员1签名', trigger: 'change' }
+        ],
+        auditor2Sign: [
+          {
+            validator: (rule, value, callback) => {
+              if (this.form.auditor2Id && !value) {
+                callback(new Error('审计专员2有内容时签名必传'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'change'
+          }
         ],
         planAuditCount: [
           { required: true, message: '请输入计划审计数量', trigger: 'blur' }
@@ -785,13 +844,21 @@ export default {
     handleUploadUnsignedRectify () {
       this.uploadUnsignedRectifyDialogVisible = true;
     },
-    handleDownloadUnsignedSummary () {
-      // TODO: 替换为实际下载接口
-      this.$message.info('下载未签署总结报告（接口待对接）');
+    async handleDownloadUnsignedSummary () {
+      const list = await getFileList({ businessId: this._id, attachType: '待签署总结报告' });
+      if (list && list.length) {
+        window.open(list[0].fileUrl);
+      } else {
+        this.$message.warning('暂无可下载的报告');
+      }
     },
-    handleDownloadUnsignedRectify () {
-      // TODO: 替换为实际下载接口
-      this.$message.info('下载未签署整改报告（接口待对接）');
+    async handleDownloadUnsignedRectify () {
+      const list = await getFileList({ businessId: this._id, attachType: '待签署整改报告' });
+      if (list && list.length) {
+        window.open(list[0].fileUrl);
+      } else {
+        this.$message.warning('暂无可下载的报告');
+      }
     },
     getTraceTableData () {
       getClaimTraceOrderDetail({

@@ -82,7 +82,7 @@
         <el-form-item label="撤销状态">
           <fetch-select
             :request="fetchOptions"
-            enumCode="TransferOutboundCancelStatusEnum"
+            enumCode="TransferOutboundCancelStatusEnumCancel"
             v-model="form.cancelStatusList"
             placeholder="请选择"
             clearable
@@ -113,6 +113,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -125,6 +126,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -191,7 +193,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getSubmit, getApprove, getReject, getRevoke, applyCancel, approveCancel, rejectCancel, getInbound } from '@/api/sparepart/transfer/transferOutbound/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
@@ -314,7 +316,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/transfer/transferOutbound/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
@@ -322,7 +325,7 @@ export default {
             }, {
               name: '提交',
               show: (row) => {
-                return row.transferStatus === '0' || row.transferStatus === '3';
+                return (row.transferStatus === '0' || row.transferStatus === '3') && this.permissions.has('AISPART-transferOutbound-submit');
               },
               popconfirmTitle: '此操作将提交, 是否继续?',
               click: (rowIndex, row) => {
@@ -338,7 +341,7 @@ export default {
             }, {
               name: '同意',
               show: (row) => {
-                return row.transferStatus === '1';
+                return row.transferStatus === '1' && this.permissions.has('AISPART-transferOutbound-approve');
               },
               popconfirmTitle: '此操作将同意, 是否继续?',
               click: (rowIndex, row) => {
@@ -354,7 +357,7 @@ export default {
             }, {
               name: '驳回',
               show: (row) => {
-                return row.transferStatus === '1';
+                return row.transferStatus === '1' && this.permissions.has('AISPART-transferOutbound-reject');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入驳回原因！', '驳回', {
@@ -375,7 +378,7 @@ export default {
             }, {
               name: '撤回',
               show: (row) => {
-                return row.transferStatus === '2' && row.outboundStatus === '0';
+                return row.transferStatus === '2' && row.outboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-revoke');
               },
               popconfirmTitle: '此操作将撤回该出库单, 是否继续?',
               click: (rowIndex, row) => {
@@ -391,7 +394,7 @@ export default {
             }, {
               name: '发运',
               show: (row) => {
-                return row.transferStatus === '2' && row.outboundStatus === '0';
+                return row.transferStatus === '2' && row.outboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-ship');
               },
               click: (rowIndex, row) => {
                 this.handleShipment(row);
@@ -413,7 +416,7 @@ export default {
             }, {
               name: '申请撤销',
               show: (row) => {
-                return (row.cancelStatus === '10' || row.cancelStatus === '40') && row.outboundStatus === '1';
+                return (row.cancelStatus === '10' || row.cancelStatus === '40') && row.outboundStatus === '1' && this.permissions.has('AISPART-transferOutbound-applyCancel');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入申请撤销原因！', '申请撤销', {
@@ -433,7 +436,7 @@ export default {
             }, {
               name: '同意撤销',
               show: (row) => {
-                return row.cancelStatus === '20';
+                return row.cancelStatus === '20' && this.permissions.has('AISPART-transferOutbound-approveCancel');
               },
               popconfirmTitle: '此操作将同意撤销, 是否继续?',
               click: (rowIndex, row) => {
@@ -449,7 +452,7 @@ export default {
             }, {
               name: '驳回撤销',
               show: (row) => {
-                return row.cancelStatus === '20';
+                return row.cancelStatus === '20' && this.permissions.has('AISPART-transferOutbound-rejectCancel');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入驳回撤销原因！', '驳回撤销', {
@@ -469,7 +472,7 @@ export default {
             }, {
               name: '入库',
               show: (row) => {
-                return row.cancelStatus === '30' && row.inboundStatus === '0';
+                return row.cancelStatus === '30' && row.inboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-inbound');
               },
               popconfirmTitle: '此操作将入库, 是否继续?',
               click: (rowIndex, row) => {
@@ -642,7 +645,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size, isCancel: true })
         .then(res => {
           console.log(res);
           this.optionObj.dataList = res.records.map(item => {

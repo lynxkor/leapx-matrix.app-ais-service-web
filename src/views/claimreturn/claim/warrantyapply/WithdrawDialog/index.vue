@@ -8,7 +8,7 @@
     <div class="page-common-edit">
       <section class="common-section">
         <div class="common-section-body">
-          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="100px" class="form-edit" >
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="90px" class="form-edit" >
             <el-form-item class="form-item-full" label="撤回说明：" prop="withdrawRemark">
               <base-input
                 type="textarea"
@@ -25,8 +25,8 @@
     <!-- 底部按钮 -->
     <template v-slot:footer>
       <div class="dialog-footer">
-        <el-button size="small" @click="close">取 消</el-button>
-        <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确 定</el-button>
+        <el-button size="small" @click="close">取消</el-button>
+        <el-button size="small" type="primary" :loading="submitLoading" @click="submit">确定</el-button>
       </div>
     </template>
   </el-dialog>

@@ -5,18 +5,38 @@
     </div>
     <div class="common-section-body">
       <div class="common-section-table">
+        <!-- 非技术服务活动：原有逻辑 -->
         <AttachmentList
+          v-if="!isTechServiceActivity"
           :business-id="_id"
           :config-code="configCode"
           type="card"
           :readonly="disabled || !canAddOrUpdate"
+        />
+        <!-- 技术服务活动：根据服务活动ID动态获取配置 -->
+        <div v-else v-loading="loadingActivityConfigs">
+          <AisAttachment
+            v-for="config in activityFileConfigs"
+            :key="config.id"
+            :businessId="_id"
+            :attachType="config.attachType"
+            :title="config.attachType"
+            :uploadConfig="config.uploadConfig"
+            :readonly="disabled || !canAddOrUpdate"
+            :config-code="'TECHNICAL_SERVICE_ACTIVITY'"
+            type="card"
           />
+        </div>
       </div>
     </div>
   </section>
 </template>
 <script>
 import AttachmentList from '@/libs/components/AttachmentList/index.vue';
+import AisAttachment from '@/libs/components/AisAttachment';
+import { getServiceActivityFileConfigPage } from '@/api/claimreturn/claim/warrantyapply/index.js';
+
+const TECH_SERVICE_ACTIVITY_TYPE_ID = '64A3066F-82AC-E911-B0BB-FC82BA5F9EDF';
 
 const repairItemTypeArr = [
   {
@@ -55,7 +75,7 @@ const repairItemTypeArr = [
     code: 'PDI',
   },
   {
-    id: '64A3066F-82AC-E911-B0BB-FC82BA5F9EDF',
+    id: TECH_SERVICE_ACTIVITY_TYPE_ID,
     name: '技术服务活动',
     code: 'TECHNICAL_SERVICE_ACTIVITY',
   },
@@ -110,6 +130,7 @@ export default {
   name: 'WarrantyApplyFile',
   components: {
     AttachmentList,
+    AisAttachment,
   },
   props: {
     id: {
@@ -125,18 +146,67 @@ export default {
     repairItemTypeId: {
       type: String,
     },
+    serviceActivityId: {
+      type: String,
+      default: '',
+    },
+  },
+  data () {
+    return {
+      activityFileConfigs: [],
+      loadingActivityConfigs: false,
+    };
   },
   computed: {
     _id () {
       return this.id || this.$route.query.id;
     },
+    isTechServiceActivity () {
+      return this.repairItemTypeId === TECH_SERVICE_ACTIVITY_TYPE_ID;
+    },
     configCode () {
+      if (this.isTechServiceActivity) return '';
       const item = repairItemTypeArr.find(i => i.id === this.repairItemTypeId);
       return item ? item.code : '';
     },
   },
-  mounted () {
-  }
+  watch: {
+    serviceActivityId: {
+      handler (val) {
+        if (this.isTechServiceActivity && val) {
+          this.loadActivityFileConfigs();
+        } else {
+          this.activityFileConfigs = [];
+        }
+      },
+      immediate: true,
+    },
+  },
+  methods: {
+    async loadActivityFileConfigs () {
+      if (!this.serviceActivityId) return;
+      try {
+        this.loadingActivityConfigs = true;
+        const res = await getServiceActivityFileConfigPage({ activityId: this.serviceActivityId });
+        const records = (res && res.records) || [];
+        this.activityFileConfigs = records.map(item => ({
+          id: item.id,
+          attachType: item.fileType,
+          uploadConfig: {
+            attachType: item.fileType,
+            maxNum: item.quantity || 9,
+            acceptSuffix: '.jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx',
+            maxSize: 50,
+            required: '0',
+          },
+        }));
+      } catch (e) {
+        console.error('获取服务活动附件配置失败:', e);
+      } finally {
+        this.loadingActivityConfigs = false;
+      }
+    },
+  },
 };
 </script>
 <style lang="less" scoped></style>

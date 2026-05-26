@@ -125,8 +125,8 @@
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button size="small" @click="dialogFormVisible = false">取 消</el-button>
-          <el-button size="small" :loading="loadingDialog" type="primary" @click="executeDestroy">确 定</el-button>
+          <el-button size="small" @click="dialogFormVisible = false">取消</el-button>
+          <el-button size="small" :loading="loadingDialog" type="primary" @click="executeDestroy">确定</el-button>
         </div>
       </el-dialog>
       <!-- 旧件销毁审批 -->
@@ -143,8 +143,8 @@
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button size="small" @click="dialogFormVisible2 = false">取 消</el-button>
-          <el-button size="small" type="primary" @click="approveSubmit">确 定</el-button>
+          <el-button size="small" @click="dialogFormVisible2 = false">取消</el-button>
+          <el-button size="small" type="primary" @click="approveSubmit">确定</el-button>
         </div>
       </el-dialog>
     </template>
@@ -269,13 +269,6 @@ export default {
           title: '接车施工单',
           width: '160',
           click: (row) => {
-            this.navigateToRoute({
-              path: '/maintain/sp/serviceProxy/edit',
-              query: {
-                id: row.serviceProxyId
-              }
-            });
-            // BUG: 保修申请单跳转路径未设置
             this.$router.push(`/maintain/sp/serviceProxy/edit?id=${row.serviceProxyId}`);
           }
         },
@@ -283,8 +276,8 @@ export default {
           field: 'warrantyNo',
           title: '保修申请单',
           width: '180',
-          click (row) {
-            // TODO 这里需要跳转
+          click: (row) => {
+            this.$router.push(`/claimreturn/claim/warrantyApply/edit?id=${row.warrantyId}`);
           }
         },
         {

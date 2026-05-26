@@ -83,6 +83,20 @@
           :default-time="['00:00:00', '23:59:59']"
           v-model="form.currentSubmitTime"
           type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
+      <el-form-item label="审批时间：">
+        <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+          v-model="form.approvalTime"
+          type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -114,6 +128,7 @@
           :default-time="['00:00:00', '23:59:59']"
           v-model="form.warrantyStartdate"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -126,6 +141,7 @@
           :default-time="['00:00:00', '23:59:59']"
           v-model="form.repairStartTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -142,7 +158,7 @@
           reserve-keyword
           v-model="form.mainPartCodeList"
           :remote-method="partRemote"
-          value-key="id"
+          value-key="partCode"
           label-key="partName"
           subLabelKey="partCode"
           placeholder="请输入零件编码/名称"
@@ -165,6 +181,7 @@
           :default-time="['00:00:00', '23:59:59']"
           v-model="form.createTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -177,6 +194,7 @@
           :default-time="['00:00:00', '23:59:59']"
           v-model="form.updateTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -201,6 +219,11 @@
       <el-button size="small" @click="handleCancel">批量作废</el-button>
       <el-button size="small" @click="handlePrint">打印标签</el-button>
     </div>
+    <el-tabs v-model="activeTab" @tab-click="handleTabChange">
+      <el-tab-pane label="全部" name="all" />
+      <el-tab-pane label="保修经理" name="manager" />
+      <el-tab-pane label="总经理" name="gm" />
+    </el-tabs>
     <div
       class="ais-table-c"
     >
@@ -259,7 +282,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import {
   getList,
@@ -270,6 +293,13 @@ import {
   getDetailDecryptField,
   print,
 } from '@/api/claimreturn/claim/warrantyapply/index';
+import {
+  APPLY_STATUS,
+  EDITABLE_STATUSES,
+  PENDING_REVIEW_STATUSES,
+  WITHDRAWABLE_STATUSES,
+  validateBatchStatus,
+} from './constants';
 import {
   getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel, getScopeTypeOrg,
   sparePartList
@@ -303,6 +333,7 @@ const defaultForm = {
   dealerName: '',
   dealerRegionName: '',
   currentSubmitTime: '',
+  approvalTime: '',
   vehiclePlateNo: '',
   ownerName: '',
   vehicleModelName: '',
@@ -310,6 +341,7 @@ const defaultForm = {
   repairStartTime: '',
   mainPartCode: '',
   mainPartName: '',
+  mainPartNameList: '',
   serviceMonth: '',
   laborShareRatio: '',
   partsShareRatio: '',
@@ -353,6 +385,7 @@ export default {
       show: false,
       loading: false,
       exportLoading: false,
+      activeTab: 'all',
       clickItemId: '',
       //
       tableDataList: [],
@@ -478,12 +511,24 @@ export default {
           },
           { props: 'applyStatusLabel', label: '保修单状态', visible: true, width: 200 },
           { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 200 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              }
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'dealerRegionName', label: '门店所属区域', visible: true, width: 200 },
           { props: 'currentSubmitTime', label: '当前提交时间', visible: true, width: 200 },
-          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 200 },
-          { props: 'ownerName', label: '车主姓名', visible: true, width: 200 },
+          { props: 'approvalTime', label: '审批时间', visible: true, width: 200 },
+          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 200, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vehiclePlateNo') },
+          { props: 'ownerName', label: '车主姓名', visible: true, width: 200, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'ownerName') },
           { props: 'vehicleModelName', label: '车型', visible: true, width: 200 },
           { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 200 },
           { props: 'repairStartTime', label: '维修开始日期', visible: true, width: 200 },
@@ -513,6 +558,21 @@ export default {
             fixed: 'right',
             buttons: [
               {
+                name: '编辑 ',
+                show: (row) => {
+                  return row.applyStatus === '10' || row.applyStatus === '30';
+                },
+                click: (rowIndex, row) => {
+                  this.$router.push({
+                    path: '/claimreturn/claim/warrantyapply/edit',
+                    query: {
+                      id: row.id,
+                      isEditing: true
+                    }
+                  });
+                },
+                type: 'info'
+              }, {
                 name: '提交',
                 // popconfirmTitle: '确认提交?',
                 click: (rowIndex, row) => {
@@ -529,7 +589,7 @@ export default {
                     return false;
                   }
                   // 未提交，已驳回
-                  if (row.applyStatus === '10' || row.applyStatus === '40') {
+                  if (EDITABLE_STATUSES.includes(row.applyStatus)) {
                     return true;
                   }
                   return false;
@@ -545,11 +605,7 @@ export default {
                   if (!this.approve) {
                     return false;
                   }
-                  // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
-                  if (['20', '25', '30'].includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
+                  return this.isRowPendingCurrentUserReview(row);
                 },
               },
               {
@@ -562,11 +618,7 @@ export default {
                   if (!this.reject) {
                     return false;
                   }
-                  // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
-                  if (['20', '25', '30'].includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
+                  return this.isRowPendingCurrentUserReview(row);
                 },
               },
               {
@@ -579,11 +631,7 @@ export default {
                   if (!this.applyReject) {
                     return false;
                   }
-                  // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
-                  if (['20', '25', '30'].includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
+                  return this.isRowPendingCurrentUserReview(row) || row.applyStatus === APPLY_STATUS.APPROVED;
                 },
               },
               {
@@ -597,7 +645,7 @@ export default {
                     return false;
                   }
                   // 【保修单状态】为审核通过，已拒赔 显示此按钮
-                  if (['60', '50'].includes(row.applyStatus)) {
+                  if (WITHDRAWABLE_STATUSES.includes(row.applyStatus)) {
                     return true;
                   }
                   return false;
@@ -613,11 +661,7 @@ export default {
                   if (!this.deny) {
                     return false;
                   }
-                  // 【保修单状态】为审核中，待保修经理审核，待总经理审核显示此按钮
-                  if (['20', '25', '30'].includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
+                  return this.isRowPendingCurrentUserReview(row);
                 },
               },
               {
@@ -631,7 +675,7 @@ export default {
                     return false;
                   }
                   // 保修单状态】为未提交，已驳回，显示此按钮
-                  if (['10', '40'].includes(row.applyStatus)) {
+                  if (EDITABLE_STATUSES.includes(row.applyStatus)) {
                     return true;
                   }
                   return false;
@@ -672,6 +716,13 @@ export default {
     this.submit = this.permissions.has(`${this.moduleKey}-submit`);
   },
   methods: {
+    isRowPendingCurrentUserReview (row) {
+      if (!row.isInApproval) return false;
+      const list = row.currentApproverIdList?.map(id => Number(id));
+      if (!list || list.length === 0) return true;
+      const userId = this.$store.state.user.userInfo.userId;
+      return list.includes(userId);
+    },
     handlePrint (paramIds) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList?.length && !isRow) {
@@ -711,11 +762,17 @@ export default {
     handleReject (paramIds, isApplyReject = false) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList.length && !isRow) {
-        this.$message({
-          type: 'warning',
-          message: '请选择数据'
-        });
+        this.$message({ type: 'warning', message: '请选择数据' });
         return;
+      }
+      if (!isRow) {
+        const list = this.selectionList;
+        const allowedStatuses = isApplyReject ? [...PENDING_REVIEW_STATUSES, APPLY_STATUS.APPROVED] : PENDING_REVIEW_STATUSES;
+        const check = validateBatchStatus(list, allowedStatuses, '驳回');
+        if (!check.valid) {
+          this.$message.warning(check.message);
+          return;
+        }
       }
       const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
       this.rejectIds = ids;
@@ -725,11 +782,16 @@ export default {
     handleApprove (paramIds) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList.length && !isRow) {
-        this.$message({
-          type: 'warning',
-          message: '请选择数据'
-        });
+        this.$message({ type: 'warning', message: '请选择数据' });
         return;
+      }
+      if (!isRow) {
+        const list = this.selectionList;
+        const check = validateBatchStatus(list, PENDING_REVIEW_STATUSES, '审批');
+        if (!check.valid) {
+          this.$message.warning(check.message);
+          return;
+        }
       }
       const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
       this.approveIds = ids;
@@ -738,11 +800,16 @@ export default {
     handleDeny (paramIds) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList.length && !isRow) {
-        this.$message({
-          type: 'warning',
-          message: '请选择数据'
-        });
+        this.$message({ type: 'warning', message: '请选择数据' });
         return;
+      }
+      if (!isRow) {
+        const list = this.selectionList;
+        const check = validateBatchStatus(list, PENDING_REVIEW_STATUSES, '拒赔');
+        if (!check.valid) {
+          this.$message.warning(check.message);
+          return;
+        }
       }
       const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
       this.denyIds = ids;
@@ -751,11 +818,16 @@ export default {
     handleCancel (paramIds) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList.length && !isRow) {
-        this.$message({
-          type: 'warning',
-          message: '请选择数据'
-        });
+        this.$message({ type: 'warning', message: '请选择数据' });
         return;
+      }
+      if (!isRow) {
+        const list = this.selectionList;
+        const check = validateBatchStatus(list, EDITABLE_STATUSES, '作废');
+        if (!check.valid) {
+          this.$message.warning(check.message);
+          return;
+        }
       }
       const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
       this.cancelIds = ids;
@@ -764,11 +836,16 @@ export default {
     handleWithdraw (paramIds) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList.length && !isRow) {
-        this.$message({
-          type: 'warning',
-          message: '请选择数据'
-        });
+        this.$message({ type: 'warning', message: '请选择数据' });
         return;
+      }
+      if (!isRow) {
+        const list = this.selectionList;
+        const check = validateBatchStatus(list, WITHDRAWABLE_STATUSES, '撤回');
+        if (!check.valid) {
+          this.$message.warning(check.message);
+          return;
+        }
       }
       const ids = isRow ? paramIds : this.selectionList.map(item => item.id);
       this.withdrawIds = ids;
@@ -787,6 +864,10 @@ export default {
       this.form = { ...defaultForm };
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
+      this.getData();
+    },
+    handleTabChange () {
+      this.tableForm.page = 1;
       this.getData();
     },
     getData () {
@@ -854,6 +935,13 @@ export default {
           data.currentSubmitTimeEnd = this.form.currentSubmitTime[1];
         }
       }
+      if (this.form.approvalTime) {
+        delete data.approvalTime;
+        if (this.form.approvalTime.length > 1) {
+          data.approvalTimeStart = this.form.approvalTime[0];
+          data.approvalTimeEnd = this.form.approvalTime[1];
+        }
+      }
       if (this.form.warrantyStartdate) {
         delete data.warrantyStartdate;
         if (this.form.warrantyStartdate.length > 1) {
@@ -889,6 +977,14 @@ export default {
 
       // 排序字段
       data.sortColumns = this.sortColumns;
+
+      // Tab 固定条件
+      if (this.activeTab === 'manager') {
+        data.isWarrantyManagerApproval = 1;
+      } else if (this.activeTab === 'gm') {
+        data.isGeneralManagerApproval = 1;
+      }
+
       return data;
     },
     async fetchOptions (code) {
@@ -901,11 +997,19 @@ export default {
       return listVehicleModel({ modelNameLike: query });
     },
     repairItemTypeRemote (query) {
-      return repairGetList({
-        nameLike: query,
-        pageSize: 20,
-        pageNum: 1,
-        categorys: ['20'],
+      return new Promise((resolve, reject) => {
+        repairGetList({
+          nameLike: query,
+          pageSize: 20,
+          pageNum: 1,
+          categorys: ['20'],
+        }).then(res => {
+          const data = res.records?.filter(item => ['保修', '合同'].includes(item.checkoutTypeName));
+          resolve(data);
+        }).catch(err => {
+          console.error(err);
+          resolve([]);
+        });
       });
     },
     getScopeTypeOrg () {
@@ -920,5 +1024,14 @@ export default {
 
 <style lang="scss" scoped>
 .m-warranty-apply-list {
+  ::v-deep .m-vxe-table .m-vxe-table-options {
+    top: -96px;
+  }
+  .ais-actions {
+    margin-bottom: 8px;
+  }
+  .ais-table-c {
+    height: calc(100% - 168px);
+  }
 }
 </style>

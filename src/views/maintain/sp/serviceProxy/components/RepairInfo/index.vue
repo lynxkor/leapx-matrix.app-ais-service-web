@@ -8,7 +8,7 @@
         <div class="table-section-header">
           <h3>费用估算</h3>
         </div>
-        <el-form :inline="true" label-width="150px" class="form-edit">
+        <el-form :inline="true" class="form-edit">
           <el-form-item label="本次维修估算费用：">
             {{ costCountResp.maintenanceCostEstimation }}
           </el-form-item>
@@ -70,7 +70,8 @@
           <vxe-column field="packageTypeLabel" title="套餐类型" width="200px" />
           <vxe-column field="packageCode" title="套餐代码" width="200px"  >
             <template #default="{ row }">
-              <el-link v-if="linkMap[row.packageType]" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageId}`" target="_blank">{{ row.packageCode }}</el-link>
+              <el-link v-if="row.packageType == PackageTypeEnum.EQUITY" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageCode}&serviceProxyId=${_id}`" target="_blank">{{ row.packageCode }}</el-link>
+              <el-link v-else-if="linkMap[row.packageType]" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageId}`" target="_blank">{{ row.packageCode }}</el-link>
               <span v-else>{{ row.packageCode }}</span>
             </template>
           </vxe-column>
@@ -141,7 +142,8 @@
           <vxe-column field="packageTypeLabel" title="套餐类型" width="200px" />
           <vxe-column field="packageCode" title="套餐代码" width="200px"  >
             <template #default="{ row }">
-              <el-link v-if="linkMap[row.packageType]" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageId}`" target="_blank">{{ row.packageCode }}</el-link>
+              <el-link v-if="row.packageType == PackageTypeEnum.EQUITY" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageCode}&serviceProxyId=${_id}`" target="_blank">{{ row.packageCode }}</el-link>
+              <el-link v-else-if="linkMap[row.packageType]" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageId}`" target="_blank">{{ row.packageCode }}</el-link>
               <span v-else>{{ row.packageCode }}</span>
             </template>
           </vxe-column>
@@ -271,9 +273,10 @@ export default {
       repairItemRespList: [],
       sparePartRespList: [],
       costCountResp: {},
+      PackageTypeEnum,
       linkMap: {
         [PackageTypeEnum.REPAIR]: '/service/maintain/basic/repairPackages/edit',
-        [PackageTypeEnum.EQUITY]: '',
+        [PackageTypeEnum.EQUITY]: '/service/maintain/sp/spEquity/detail',
         [PackageTypeEnum.STORE]: '/service/maintain/sp/ownersEquityOrder/edit',
         [PackageTypeEnum.FREE]: '/service/claimreturn/claim/basic/freeMaintenancePolicy/edit',
         [PackageTypeEnum.TECH_ACTIVITY]: '/service/claimreturn/claim/basic/techServiceActivity/edit',

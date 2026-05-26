@@ -126,7 +126,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/sp/qualityOrderReport/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
@@ -138,6 +138,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -181,6 +182,7 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      accountFlag: false,
       optionObj: {
         id: 'qualityOrderReportTable',
         dataList: [],
@@ -212,7 +214,6 @@ export default {
             label: '接车施工单',
             visible: true,
             width: 200,
-            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -372,6 +373,7 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+    this.getAccountFlag();
   },
   methods: {
     // 排序
@@ -576,6 +578,12 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
+    getAccountFlag () {
+      loginUserGet().then(res => {
+        this.accountFlag = res.accountFlag;
+        console.log('res.accountFlag: ' + res.accountFlag);
+      });
+    }
   }
 };
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="page-common-nav">
+  <div class="page-common-nav" :style="{top: _id ? '73px': '0px'}">
     <div :class="{'nav-item': true, 'active': +item.code <= current}" v-for="item in list" :key="item.code" @click="handleClick(item.code)">
       <span class="nav-item-text">{{ item.message }}</span>
       <div class="arrow-shape">
@@ -18,6 +18,10 @@ export default {
     current: {
       type: [Number, String],
       default: 0
+    },
+    _id: {
+      type: [Number, String],
+      default: null
     }
   },
   data () {
@@ -44,9 +48,9 @@ export default {
 .page-common-nav {
   display: flex;
   align-items: center;
-  padding-top: 16px;
+  padding: 16px 0;
   position: sticky;
-  top: 0px;
+  top: 73px;
   z-index: 20;
   background-color: #fff;
   gap: 8px 20px;

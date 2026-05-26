@@ -75,6 +75,7 @@
              :default-time="['00:00:00', '23:59:59']"
               v-model="form.createTime"
               type="daterange"
+              unlink-panels
               :picker-options="pickerOptions"
               range-separator="至"
               value-format="yyyy-MM-dd HH:mm:ss"
@@ -87,6 +88,7 @@
              :default-time="['00:00:00', '23:59:59']"
               v-model="form.updateTime"
               type="daterange"
+              unlink-panels
               :picker-options="pickerOptions"
               range-separator="至"
               value-format="yyyy-MM-dd HH:mm:ss"
@@ -152,10 +154,10 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/inbound/maintenanceReturnInbound/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse, getDesensitize } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -242,7 +244,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
           {
@@ -262,8 +275,22 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vehProfileVin', label: 'vin', visible: true, width: 200 },
-          { props: 'carPlate', label: '车牌号', visible: true, width: 140 },
+          {
+            props: 'vehProfileVin',
+            label: 'vin',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'maintenanceOutboundOrder', 'vehProfileVin')
+          },
+          {
+            props: 'carPlate',
+            label: '车牌号',
+            visible: true,
+            width: 140,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'maintenanceOutboundOrder', 'carPlate')
+          },
           { props: 'returnMaterialStatusLabel', label: '入库状态', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },

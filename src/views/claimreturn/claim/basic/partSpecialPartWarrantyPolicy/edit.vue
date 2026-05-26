@@ -9,7 +9,6 @@
         :isEditing.sync="isEditing"
         :form.sync="form"
         :originalForm.sync="originalForm"
-        direction="vertical"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
@@ -90,6 +89,8 @@
                 </el-form-item>
                 <el-form-item label="车型名称：" prop="modelId">
                   <list-select
+                    v-if="!$route.query.id||form.id"
+
                     listUrl="/datacenter/web/materials/vehicleModel/list"
                     placeholder="请选择"
                     v-model="form.modelId"
@@ -99,10 +100,11 @@
                     collapseTags
                     filterable
                     clearable
-                    :params="{seriesIdList: form.seriesId?[form.seriesId]:[]}" />
+                    :params="{seriesIdList: [form.seriesId]}" />
                 </el-form-item>
                 <el-form-item label="车辆年款：" prop="yearTypeId">
                   <list-select
+                    v-if="!$route.query.id||form.id"
                     listUrl="/datacenter/web/materials/vehicleYearType/list"
                     placeholder="请选择"
                     v-model="form.yearTypeId"
@@ -125,7 +127,7 @@
                   />
                 </el-form-item>
               </el-form>
-              <el-form :inline="true" label-width="150px"  class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="政策名称：" prop="policyName">
                   {{ form.policyName }}
                 </el-form-item>
@@ -136,7 +138,13 @@
                   {{ form.partName }}
                 </el-form-item>
                 <el-form-item label="车系名称：" prop="seriesName">
-                  {{ form.seriesName }}
+                  <el-link
+                    v-if="form.seriesId"
+                    type="primary"
+                    :href="`/sales/datacenter/materials/vehicleSeries/edit?id=${form.seriesId}`"
+                    target="_blank"
+                  >{{ form.seriesName }}</el-link>
+                  <span v-else>{{ form.seriesName }}</span>
                 </el-form-item>
                 <el-form-item label="里程数（KM）：" prop="mileage">
                   {{ form.mileage }}
@@ -145,7 +153,13 @@
                   {{ form.warrantyPeriod }}
                 </el-form-item>
                 <el-form-item label="车型名称：" prop="modelName">
-                  {{ form.modelName }}
+                  <el-link
+                    v-if="form.modelId"
+                    type="primary"
+                    :href="`/sales/datacenter/materials/vehicleModel/edit?id=${form.modelId}`"
+                    target="_blank"
+                  >{{ form.modelName }}</el-link>
+                  <span v-else>{{ form.modelName }}</span>
                 </el-form-item>
                 <el-form-item label="车辆年款：" prop="yearTypeName">
                   {{ form.yearTypeName }}

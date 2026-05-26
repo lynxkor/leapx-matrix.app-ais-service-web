@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="common-section-table pb-0">
     <vxe-table
       ref="editTable"
       :data="tableData"
@@ -26,20 +26,18 @@
           <span v-else>{{ row.remark }}</span>
         </template>
       </vxe-column>
-      <vxe-column title="操作" :width="200" align="center" fixed="right" :resizable="false">
+      <vxe-column title="操作" :width="200" align="center" fixed="right" :resizable="false" v-if="canAddOrUpdate">
         <template #default="{ row, rowIndex }">
           <template v-if="editRowIndex === rowIndex">
             <span
               class="action-button btn-edit"
               @click="saveRowEdit(row, rowIndex)"
-              v-if="canAddOrUpdate"
             >
               保存
             </span>
             <span
               class="action-button btn-edit"
               @click="cancelEdit(row, rowIndex)"
-              v-if="canAddOrUpdate"
             >
               取消
             </span>
@@ -48,14 +46,12 @@
             <span
               class="action-button btn-edit"
               @click="editRow(row, rowIndex)"
-              v-if="canAddOrUpdate"
             >
               编辑
             </span>
             <el-popconfirm
               title="确定要删除这条记录吗？"
               @confirm="handleRemoveRow(row, rowIndex)"
-              v-if="canAddOrUpdate"
             >
               <el-button
                 class="action-button btn-delete"

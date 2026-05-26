@@ -307,7 +307,7 @@ export default {
     async initData () {
       try {
         this.tableLoading = true;
-        const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id });
+        const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id, pageSize: 1000 });
         this.filterForm.plannedTime = moment().format('YYYY-MM-DD HH:mm:ss');
         this.tableData = res || [];
         this.tableData.forEach(row => {
@@ -404,6 +404,10 @@ export default {
     },
     // 获取技师选项
     async getTechnicianOptions () {
+      if (!this.filterForm.team) {
+        this.technicianOptions = [];
+        return;
+      }
       try {
         const res = await getDealerTeamUserRelation({
           teamId: this.filterForm.team
@@ -476,9 +480,20 @@ export default {
         return;
       }
 
+      // 去除数据中为空字符串的属性
+      const target = this.selectedRows.map(item => {
+        const newItem = {};
+        for (const key in item) {
+          if (item[key] !== '') {
+            newItem[key] = item[key];
+          }
+        }
+        return newItem;
+      });
+
       try {
         this.dispatchLoading = true;
-        dispatchWorkers(this.selectedRows).then(res => {
+        dispatchWorkers(target).then(res => {
           this.initData();
           this.$message.success('派工成功');
           this.$refs.dispatchTable.clearCheckboxRow();

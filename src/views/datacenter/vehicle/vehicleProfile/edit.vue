@@ -109,34 +109,70 @@
                     maxLength="50"
                   />
                 </el-form-item>
-                <el-form-item label="特殊备注：" prop="remark">
+                <el-form-item label="特殊备注：" prop="remark" v-if="!accountFlag">
                   <el-input clearable v-model="form.remark" placeholder="请输入内容"></el-input>
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="整车订单：">
-                  {{ form.vehicleOrder }}
+                  <el-link
+                    v-if="form.vehicleOrderId"
+                    type="primary"
+                    :href="`/service/sales/vehretail/orderManager/retailOrderInfo/edit?id=${form.vehicleOrderId}`"
+                    target="_blank"
+                  >{{ form.vehicleOrder }}</el-link>
+                  <span v-else>{{ form.vehicleOrder }}</span>
                 </el-form-item>
                 <el-form-item label="企业客户整车订单：">
-                  {{ form.vehicleEnterpriseOrder }}
+                  <el-link
+                    v-if="form.vehicleEnterpriseOrderId"
+                    type="primary"
+                    :href="`/service/sales/vehwholesale/entorder/entVehicleOrder/edit?id=${form.vehicleEnterpriseOrderId}`"
+                    target="_blank"
+                  >{{ form.vehicleEnterpriseOrder }}</el-link>
+                  <span v-else>{{ form.vehicleEnterpriseOrder }}</span>
                 </el-form-item>
                 <el-form-item label="商城订单号：">
-                  {{ form.shopcode }}
+                  <el-link
+                    v-if="form.shopcode"
+                    type="primary"
+                    :href="`/service/sales/vehretail/productManager/productCenter/edit?code=${form.shopcode}`"
+                    target="_blank"
+                  >{{ form.shopcode }}</el-link>
+                  <span v-else>{{ form.shopcode }}</span>
                 </el-form-item>
                 <el-form-item label="销售门店：">
-                  {{ form.salesDealerName }}
+                  <el-link
+                    v-if="form.salesDealerCode"
+                    type="primary"
+                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.salesDealerCode}`"
+                    target="_blank"
+                  >{{ form.salesDealerName }}</el-link>
+                  <span v-else>{{ form.salesDealerName }}</span>
                 </el-form-item>
                 <el-form-item label="销售顾问：">
                   {{ form.salesUserName }}
                 </el-form-item>
                 <el-form-item label="交付门店：">
-                  {{ form.deliveryDealerName }}
+                  <el-link
+                    v-if="form.deliveryDealerCode"
+                    type="primary"
+                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.deliveryDealerCode}`"
+                    target="_blank"
+                  >{{ form.deliveryDealerName }}</el-link>
+                  <span v-else>{{ form.deliveryDealerName }}</span>
                 </el-form-item>
                 <el-form-item label="交付顾问：">
                   {{ form.deliveryUserName }}
                 </el-form-item>
                 <el-form-item label="服务门店：">
-                  {{ form.serviceDealerName }}
+                  <el-link
+                    v-if="form.serviceDealerCode"
+                    type="primary"
+                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.serviceDealerCode}`"
+                    target="_blank"
+                  >{{ form.serviceDealerName }}</el-link>
+                  <span v-else>{{ form.serviceDealerName }}</span>
                 </el-form-item>
                 <el-form-item label="服务顾问：">
                   {{ form.serviceUserName }}
@@ -144,7 +180,7 @@
                 <el-form-item label="是否用户修改服务门店：">
                   {{ form.isUserChangeDealer === 0 ? '否' : '是' }}
                 </el-form-item>
-                <el-form-item label="特殊备注：" prop="remark">
+                <el-form-item label="特殊备注：" prop="remark" v-if="!accountFlag">
                   {{ form.remark }}
                 </el-form-item>
               </el-form>
@@ -179,22 +215,35 @@
                 <el-button v-if="modifyMaintenanceRecord" size="small" @click="onInfo">调整保养信息</el-button>
               </div>
               <el-form label-width="150px" :inline="true" :model="form" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="最近保养时间：">
+                  {{ form.lastMaintainDate }}
+                </el-form-item>
+                <el-form-item label="最近保养里程：">
+                  {{ form.lastMaintainMileages }}
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form-item label="最近保养时间：">
+                  {{ form.lastMaintainDate }}
+                </el-form-item>
+                <el-form-item label="最近保养里程：">
+                  {{ form.lastMaintainMileages }}
+                </el-form-item>
+              </el-form>
+              <el-form label-width="150px" :inline="true" :model="form" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="下次保养时间：" prop="nextMaintainDate">
-                  <el-date-picker
-                    v-model="form.nextMaintainDate"
-                    type="date"
-                    value-format="yyyy-MM-dd"
-                    placeholder="选择日期"
-                  />
+                  {{ form.nextMaintainDate }}
                 </el-form-item>
                 <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
-                  <el-input
-                    clearable
-                    v-model="form.nextMaintainMileages"
-                    placeholder="请输入"
-                    :controls="false"
-                    :precision="2"
-                  />
+                  {{ form.nextMaintainMileages }}
+                </el-form-item>
+              </el-form>
+              <el-form label-width="150px" :inline="true" :model="form" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="下次保养时间：" prop="nextMaintainDate">
+                  {{ form.nextMaintainDate }}
+                </el-form-item>
+                <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
+                  {{ form.nextMaintainMileages }}
                 </el-form-item>
                 <el-form-item class="form-item-full">
                   <next-table
@@ -464,7 +513,7 @@
                   <vxe-column field="vin" title="VIN" min-width="10%" />
                   <vxe-column field="realnameStatusLabel" title="实名状态" min-width="10%" />
                   <vxe-column field="operateTime" title="操作时间" min-width="10%" />
-                  <vxe-column field="desc" title="描述" min-width="10%" />
+                  <vxe-column field="remark" title="描述" min-width="10%" />
                   <vxe-column field="iccid" title="卡ICCID" min-width="10%" />
                   <vxe-column field="operatore" title="运营商" min-width="10%" />
                   <template #empty>
@@ -473,6 +522,7 @@
                 </vxe-table>
                 <div class="table-pagination">
                   <el-pagination
+                    v-if="tableData.length"
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                     :current-page="pageNum"
@@ -614,13 +664,12 @@
                   </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车牌号：">
-                  <el-input clearable v-model="form.vehiclePlateNo" placeholder="请输入" disabled />
-                  <!-- <LPEncrypted
+                  <LPEncrypted
                     :value.sync="form.vehiclePlateNo"
                     :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
                   >
                     {{ form.vehiclePlateNo }}
-                  </LPEncrypted> -->
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="合格证号：">
                   <el-input clearable v-model="form.certNumber" placeholder="请输入" disabled />
@@ -718,13 +767,12 @@
                   </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车牌号：">
-                  {{ form.vehiclePlateNo }}
-                  <!-- <LPEncrypted
+                  <LPEncrypted
                     :value.sync="form.vehiclePlateNo"
                     :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
                   >
                     {{ form.vehiclePlateNo }}
-                  </LPEncrypted> -->
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="合格证号：">
                   {{ form.certNumber }}
@@ -860,13 +908,14 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
-import { getAreaInfo } from '@/utils';
+import { getAreaInfo, getAreaTree } from '@/utils';
 import ChangeHistory from './ChangeHistory';
 import ServiceHistory from './ServiceHistory';
 import NextTable from './NextTable.vue';
 import BenefitDialog from './BenefitDialog';
 import InfoDialog from './InfoDialog';
 import ReturnDialog from './ReturnDialog';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // 基础信息
@@ -1051,7 +1100,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      areaOptions: JSON.parse(localStorage.areaTree),
+      areaOptions: getAreaTree(),
       pageTitle: '车辆档案管理',
       pageType: 'edit',
       title: 'VIN码：' + form.vin,
@@ -1090,6 +1139,7 @@ export default {
       pageSize: 10,
       total: 0,
       tableData: [],
+      accountFlag: false, // 是否是[店端账号]?， true:是店端账号;false:ㄏ端账号
     };
   },
   created () {
@@ -1101,6 +1151,9 @@ export default {
     this.serviceProxyHis = !!(this.$store.state.pageSource?.aisPageSource || []).find(item => (item === 'AISMC-serviceProxyHis-page'));
   },
   mounted () {
+    loginUserGet().then(data => {
+      this.accountFlag = data.accountFlag;
+    });
   },
   methods: {
     onBenefit () {
@@ -1198,6 +1251,7 @@ export default {
     },
     onInfoSuccess () {
       this.$refs?.nextTable?.getDetailPageApi();
+      this.$refs?.containerRef?.loadDetail();
     },
     onReturnSuccess () {
       this.$refs.containerRef.loadDetail();

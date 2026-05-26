@@ -5,9 +5,14 @@
         :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest"
         :showEditBtn="stockStatusType">
         <template #status>
-          <span v-if="form.status" class="status primary">{{ form.status }}</span>
+          <span v-if="form.status" class="status primary">{{ form.stockStatusLabel }}</span>
         </template>
         <template #extraButtons>
+          <el-button v-if="showImportRes" plain size="small" @click="handleImport('sparepartStockTakingDetailRes')">盘点结果导入</el-button>
+          <el-button v-if="showInitialize" plain size="small" :loading="actionLoading" @click="handleInitialize">初始化</el-button>
+          <el-button v-if="showCancel" plain size="small" :loading="actionLoading" @click="handleCancel">作废</el-button>
+          <el-button v-if="showGenerateDifferences" plain size="small" :loading="actionLoading" @click="handleDifference">生成差异单</el-button>
+          <el-button v-if="showPrint" type="primary" size="small" @click="handlePrint">打印</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -21,13 +26,13 @@
                   <el-input placeholder="自动生成" v-model="form.code" clearable disabled />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-input placeholder="请输入" v-model="form.dealerName" disabled />
                 </el-form-item>
                 <el-form-item label="备件仓库：" prop="warehouseId">
-                  {{ form.warehouseName }}
+                  <el-input placeholder="请输入" v-model="form.warehouseName" disabled />
                 </el-form-item>
                 <el-form-item label="母公司名称：" prop="companyCode">
-                  {{ form.companyName }}
+                  <el-input placeholder="请输入" v-model="form.companyName" disabled />
                 </el-form-item>
                 <el-form-item label="盘点类型：" prop="stockType">
                   <fetch-select :request="fetchOptions" enumCode="StockTakingTypeEnum" v-model="form.stockType"
@@ -54,7 +59,9 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
@@ -90,12 +97,21 @@
             <div class="common-section-body">
               <div class="common-section-header">
                 <div class="ais-select-group">
-                  <fetch-select style="width: 300px;" :remote-method="queryListData" remote placeholder="请选择" clearable
-                    value-key="partCode" label-key="partName" :disabled="form.stockStatus !== '0'"
-                    @change="handleAddTableData" />
-                  <el-button type="primary" size="small">添加</el-button>
-                  <el-button size="small" @click="handleImport('sparepartStockTakingDetail')" :disabled="form.stockStatus !== '0'">导入备件清单</el-button>
-                  <el-button size="small" @click="handleImport('sparepartStockTakingDetailRes')" :disabled="form.stockStatus !== '0'">盘点结果导入</el-button>
+                    <base-search
+                      style="width: 300px;"
+                      filterable
+                      clearable
+                      remote
+                      placeholder="请选择"
+                      :remote-method="queryListData"
+                      @change="handleAddTableData"
+                      value-key="partCode"
+                      label-key="partCode"
+                      sub-label-key="partName"
+                      :disabled="form.stockStatus !== '0'"
+                    />
+                  <el-button class="search-btn" size="small" @click="handleImport('sparepartStockTakingDetail')" :disabled="form.stockStatus !== '0'">导入备件清单</el-button>
+                  <el-button class="search-btn" size="small" @click="handleImport('sparepartStockTakingDetailRes')" :disabled="form.stockStatus !== '2'">盘点结果导入</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -107,24 +123,24 @@
                   <vxe-column field="totalQty" title="库存总数" min-width="12.5%" />
                   <vxe-column field="actualQty" title="实盘库存" min-width="12.5%">
                     <template #default="{ row }">
-                      <el-input v-model="row.actualQty" :disabled="!row.stockStatusType"
+                      <el-input v-model="row.actualQty" :disabled="!stockStatusType"
                         @change="handleActualQtyBlur(row)" type="number" min="1" />
                     </template>
                   </vxe-column>
                   <vxe-column field="remark" title="备注" min-width="12.5%">
                     <template #default="{ row }">
-                      <el-input v-model="row.remark" @change="handleRemarkBlur(row)" :disabled="!row.stockStatusType" />
+                      <el-input v-model="row.remark" @change="handleRemarkBlur(row)" :disabled="!stockStatusType" />
                     </template>
                   </vxe-column>
-                  <vxe-column field="operator" title="操作人" min-width="12.5%">
+                  <vxe-column field="operatorName" title="操作人" min-width="12.5%">
                     <template #default="{ row }">
                       <el-select
-                        v-model="row.operator"
+                        v-model="row.operatorName"
                         size="mini"
                         placeholder="请选择"
                         filterable
                         remote
-                        :disabled="!row.stockStatusType"
+                        :disabled="!stockStatusType"
                         :remote-method="(query) => querySearchAsync(query)"
                         @change="handleOperatorChange(row, $event)"
                       >
@@ -171,22 +187,36 @@
       :businessParams="_id"
       :id="importType"
       @close="handleUploadDialogClose"
-      @submit="getDetailData"
+      @submit="refreshForm"
+    />
+    <!-- 生成差异单弹窗 -->
+    <DifferenceDialog
+      ref="differenceDialogRef"
+      :visible.sync="differenceDialogVisible"
+      :differenceId="differenceId"
+      :differenceList="differenceTableData"
+      @update:visible="val => differenceDialogVisible = val"
+      @confirm="refreshForm"
     />
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate, stockTakingDetailPage, stockTakingDetailAddOrUpdate, stockTakingDetailDelete } from '@/api/sparepart/warehouse/stockTaking/index';
+import { getDetail, addOrUpdate, stockTakingDetailPage, stockTakingDetailAddOrUpdate, stockTakingDetailDelete, initializeItem, cancelItem } from '@/api/sparepart/warehouse/stockTaking/index';
+import { getExceptionList, initDifferences } from '@/api/sparepart/warehouse/stockTakingDifferences/index';
 import { listDealerPartWithOem } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
+// import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getPartDealer, getLoginUser, getUserByNameOrNo } from '@/api/common';
+import { getEnum, getPartDealer, getLoginUser, userQuery } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
+import DifferenceDialog from './DifferenceDialog.vue';
+import { handleCommonAction } from '@/libs/utils';
+import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
   code: '',
@@ -204,6 +234,11 @@ const defaultForm = {
   companyName: '',
 };
 
+const ACTION_CONFIG = { // 按钮配置
+  initiaLize: { title: '此操作将初始化该库存盘点, 是否继续?', success: '初始化成功' },
+  cancel: { title: '此操作将作废该库存盘点, 是否继续?', success: '作废成功' }
+};
+
 export default {
   name: 'stockTakingEdit',
   props: {
@@ -217,7 +252,9 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    Upload
+    Upload,
+    DifferenceDialog,
+    BaseSearch
   },
   computed: {
     _id () {
@@ -225,6 +262,24 @@ export default {
     },
     title () {
       return '盘点单号：' + this.form.code;
+    },
+    showInitialize () {
+      return this._id && this.form.stockStatus === '0' && this.permissions.has('AISPART-stockTaking-initialize');
+    },
+    showCancel () {
+      return this._id && (this.form.stockStatus === '0' || this.form.stockStatus === '2') && this.permissions.has('AISPART-stockTaking-cancel');
+    },
+    showImportRes () {
+      return this._id && this.form.stockStatus === '2' && this.permissions.has('AISPART-stockTaking-importRes');
+    },
+    showGenerateDifferences () {
+      return this._id && this.form.stockStatus === '2' && this.permissions.has('AISPART-stockTaking-generateDifferences');
+    },
+    showPrint () {
+      return this._id && this.permissions.has('AISPART-stockTaking-print');
+    },
+    stockStatusType () {
+      return this.form.stockStatus === '0' || this.form.stockStatus === '2';
     }
   },
   watch: {
@@ -240,9 +295,6 @@ export default {
       handler (val) {
         if (val) {
           this.getData();
-          if (this.form.stockStatus === '0' || this.form.stockStatus === '2') {
-            this.stockStatusType = true;
-          }
         }
       },
       immediate: true
@@ -253,12 +305,15 @@ export default {
     return {
       importType: '',
       uploadDialogVisible: false,
+      differenceDialogVisible: false, // 生成差异单弹窗
+      actionLoading: false, // 操作loading
+      differenceId: '', // 差异单id
+      differenceTableData: [], // 差异单数据
       pageTitle: '库存盘点',
       pageType: 'edit',
       moduleKey: 'AISPART-stockTaking',
       loading: false,
       submitLoading: false,
-      stockStatusType: false, // 查看状态是否可编辑, 可编辑哪些内容
       form: { ...form },
       originalForm: { ...form },
       pageSize: 10,
@@ -314,6 +369,10 @@ export default {
         return getDetail(id);
       }
     },
+    async refreshForm () { // 刷新表单
+      await this.$refs.containerRef.loadDetail();
+      this.getData();
+    },
     submitRequest () {
       return addOrUpdate({ ...this.form });
     },
@@ -325,7 +384,7 @@ export default {
       if (id) {
         await stockTakingDetailDelete([id]);
         this.$message.success('删除成功');
-        this.getData();
+        this.refreshForm();
       }
     },
     async queryListData (queryString) {
@@ -390,10 +449,7 @@ export default {
       };
       const res = await stockTakingDetailPage(params);
       this.total = res.total || 0;
-      this.tableData = res.records.map(item => ({
-        ...item,
-        stockStatusType: this.stockStatusType,
-      })) || [];
+      this.tableData = res.records || [];
       console.log(this.tableData);
     },
     handleCurrentChange (pageNum) {
@@ -411,35 +467,18 @@ export default {
         const params = {
           id: val.id,
           actualQty: val.actualQty,
+          remark: val.remark,
         };
         this.handleAddOrUpdate(params);
-        // if (val.actualQty > val.totalQty) {
-        //   if (val.remark) {
-        //     this.$message.warning('实盘库存大于库存总数,请填写备注!');
-        //   }
-        // } else {
-        //   this.handleAddOrUpdate(params);
-        // }
       }
     },
     // 失焦以后 输入的备注 判断是否 实盘库存是否超过库存总数
     handleRemarkBlur (val) {
-      if (val.remark) {
-        let params = {
-          id: val.id,
-          remark: val.remark,
-        };
-        if (val.actualQty > val.totalQty) { // 超过总数 把实盘库存参数一起放进去 否则直接提交
-          params.actualQty = val.actualQty;
-          this.handleAddOrUpdate(params);
-        } else {
-          this.handleAddOrUpdate(params);
-        }
-      }
+      this.handleActualQtyBlur(val);
     },
     // 远程搜索方法，接收行索引参数
     querySearchAsync (queryString) {
-      getUserByNameOrNo({ name: queryString }).then(res => {
+      userQuery({ keyword: queryString }).then(res => {
         const list = res?.map(item => {
           return {
             value: item.userId,
@@ -454,14 +493,87 @@ export default {
       });
     },
     handleOperatorChange (row, val) {
+      row.operator = this.userList.find(item => item.value === val)?.value;
       row.operatorName = this.userList.find(item => item.value === val)?.label;
       const params = {
         id: row.id,
         operator: val,
         operatorName: row.operatorName,
+        actualQty: val.actualQty,
+        remark: val.remark,
       };
       this.handleAddOrUpdate(params);
+    },
+    // 调用二次确认弹框
+    _handleAction (apiFn, config) {
+      this.actionLoading = true;
+      handleCommonAction({
+        $confirm: this.$confirm,
+        $message: this.$message,
+        apiFn,
+        id: this._id,
+        config,
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.refreshForm();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
+      });
+    },
+    // 初始化
+    handleInitialize () {
+      this._handleAction(initializeItem, ACTION_CONFIG.initiaLize);
+    },
+    // 作废
+    handleCancel () {
+      this._handleAction(cancelItem, ACTION_CONFIG.cancel);
+    },
+    // 生成差异单
+    async handleDifference () {
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将生成差异单, 是否继续?</div>';
+
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        // 调用 API
+        const res = await getExceptionList({ id: this._id });
+        if (res.length > 0) {
+          this.differenceId = this._id;
+          this.differenceTableData = res;
+          this.differenceDialogVisible = true;
+        } else {
+          await initDifferences({ id: this._id });
+          this.$message.success('生成差异单成功!');
+          this.refreshForm();
+        }
+      }).catch((err) => {
+        // 错误处理
+        if (err !== 'cancel') {
+          console.error('操作失败:', err);
+        }
+      });
+    },
+    // 打印
+    handlePrint () {
+      this.$print.show({
+        id: this._id,
+        template: 'InventoryCount',
+        title: `${this.form.dealerName}厅店库存盘点单`
+      });
     },
   }
 };
 </script>
+
+<style scoped lang="scss">
+.search-btn {
+  margin-left: 8px;
+  border-radius: 4px;
+}
+</style>

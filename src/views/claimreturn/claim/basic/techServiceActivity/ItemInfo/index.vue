@@ -1,6 +1,6 @@
 <template>
   <section class="common-section">
-    <div class="common-section-body" v-if="id && schemeId">
+    <div class="" v-if="id && schemeId">
       <section class="common-section">
         <enhanced-tabs
           ref="tabs"
@@ -25,6 +25,7 @@
             placeholder: '维修项目代码/名称',
           }"
           close-tip="确定删除该项目零件吗？"
+          closeText="删除"
           :disabled="!isEditing"
           @remove="onRemove"
           @add="onTabAdd"
@@ -107,6 +108,14 @@
                 disabled
               />
             </el-form-item>
+            <el-form-item v-if="isServiceCareActivity" label="门店支持费用：" prop="dealerSupportAmount">
+              <base-input
+                placeholder="请输入"
+                v-model="form.dealerSupportAmount"
+                clearable
+                @change="onSubmit(form)"
+              />
+            </el-form-item>
             <el-form-item label="维修类型：" prop="repairItemTypeName">
               <fetch-select
                 filterable
@@ -122,15 +131,15 @@
                 sub-label-key="code"
               />
             </el-form-item>
-            <el-form-item label="工时是否允许修改：" prop="allowDelete">
+            <el-form-item label="工时是否允许删除：" prop="allowDelete">
               <el-switch
-                @change="onUpdate(form)"
+                @change="onSubmit(form)"
                 v-model="form.allowDelete">
               </el-switch>
             </el-form-item>
             <el-form-item v-if="!isServiceCareActivity" label="工时是否主因工时：" prop="isMainRepairItem">
               <el-switch
-                @change="onUpdate(form)"
+                @change="onSubmit(form)"
                 v-model="form.isMainRepairItem">
               </el-switch>
             </el-form-item>
@@ -147,8 +156,8 @@
               零件明细
             </div>
             <div
+              class="common-section"
               v-if="canAddOrUpdate && id"
-              class="common-section-header"
             >
               <base-search
                 filterable
@@ -159,8 +168,7 @@
                 :remote-method="partRemote"
                 @change="handlePartChange"
                 value-key="id"
-                label-key="partName"
-                subLabelKey="partCode"
+                label-key="displayText"
                 placeholder="请输入备件编码/名称"
               />
             </div>
@@ -172,6 +180,7 @@
             :schemeId="schemeId"
             :serviceActivityItemId="partId"
             :isServiceCareActivity="isServiceCareActivity"
+            @saved="onPartSaved"
             />
         </section>
     </div>
@@ -186,6 +195,7 @@ import {
   techServiceActivityItemGet,
   techServiceActivityItemUpdate,
   techServiceActivityItemDelete,
+  techServiceActivityPartUpdate,
 } from '@/api/claimreturn/claim/basic/serviceActivity';
 // 维修保养 -> 维修项目
 import { getList as repairList } from '@/api/maintain/basic/repairItem';
@@ -195,6 +205,7 @@ import EnhancedTabs from '@/libs/components/EnhancedTabs/index.vue';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum, sparePartList } from '@/api/common';
+import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
 import PartTable from './PartTable.vue';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { debounce } from 'lodash';
@@ -215,6 +226,7 @@ const defaultForm = {
   isMainRepairItem: false,
   repairItemTypeName: '',
   repairItemTypeId: '',
+  dealerSupportAmount: ''
 };
 const repairItemTypeCode = 'WXLX002';
 const repairItemTypeId = '898A364C-DD79-EC11-B0F9-9216EACB73F2';
@@ -326,7 +338,7 @@ export default {
       const maxDiscount = row.quantity * row.unitPrice;
       this.$set(row, 'amount', (maxDiscount - row.discountAmount).toFixed(2));
       if (isUpdate) {
-        this.onUpdate(this.form);
+        this.onSubmit(this.form);
       }
     },
     resetForm () {
@@ -351,6 +363,7 @@ export default {
         repairItemTypeName,
       }).then(res => {
         defer.resolve(res);
+        this.partId = res;
       }).catch((e) => {
         defer.reject(e);
       });
@@ -360,6 +373,15 @@ export default {
         ...data,
         allowDelete: data.allowDelete ? '1' : '0',
         isMainRepairItem: data.isMainRepairItem ? '1' : '0',
+      });
+    },
+    onSubmit (data) {
+      techServiceActivityItemUpdate({
+        ...data,
+        allowDelete: data.allowDelete ? '1' : '0',
+        isMainRepairItem: data.isMainRepairItem ? '1' : '0',
+      }).then(res => {
+        this.$message.success('保存成功');
       });
     },
     // 获取项目零件列表
@@ -443,13 +465,41 @@ export default {
       this.form.repairItemTypeName = record?.name;
       this.form.repairItemTypeCode = record?.code;
       this.form.repairItemTypeId = record?.id;
-      this.onUpdate(this.form);
+      this.onSubmit(this.form);
     },
     // ------------
     // 零件
+    // partRemote (query) {
+    //   // 是否OEM, 是否启用
+    //   return sparePartList({ partCodeOrNameLike: query, oemPart: 1, status: 1 });
+    // },
     partRemote (query) {
-      // 是否OEM, 是否启用
-      return sparePartList({ partCodeOrNameLike: query, oemPart: 1, status: 1 });
+      return new Promise((resolve, reject) => {
+        getLists({
+          pageNum: 1,
+          pageSize: 20,
+          oemPart: 1,
+          partCodeOrNameLike: query,
+          status: 1,
+        }).then(res => {
+          if (!res?.length) {
+            resolve([
+              {
+                displayText: `备件编码：${query}不存在备件供应商关系信息`,
+                disabled: true,
+              }
+            ]);
+          } else {
+            const records = res.map(item => {
+              return {
+                ...item,
+                displayText: `${item.partCode}/${item.partName}${item.supplierCode ? `-${item.supplierName}-${item.supplierCode}` : ''}`,
+              };
+            });
+            resolve(records);
+          }
+        });
+      });
     },
     handlePartChange (val, record) {
       this.curPart = record;
@@ -467,19 +517,19 @@ export default {
         return;
       }
 
-      const partId = this.part;
       const cur = this.curPart;
       this.part = '';
 
       const newItem = {
-        partId: partId,
+        partId: cur.sparePartId,
         partCode: cur.partCode,
         partName: cur.partName,
-        oldPartId: partId,
+        oldPartId: cur.sparePartId,
         oldPartCode: cur.partCode,
         oldPartName: cur.partName,
-        returnType: cur.oldReturnType,
-        returnTypeLabel: cur.oldReturnTypeLabel,
+        oldSupplierId: cur.supplierInfoId, // 旧件供应商
+        // returnType: cur.oldReturnType,
+        // returnTypeLabel: cur.oldReturnTypeLabel,
         discountAmount: 0,
         quantity: 1,
         unitPrice: cur.purchasePrice, // 【单价】：默认备件主数据采购价格
@@ -487,9 +537,27 @@ export default {
         repairItemTypeCode,
         repairItemTypeId,
         repairItemTypeName,
+        activityId: this.id,
+        schemeId: this.schemeId,
+        serviceActivityItemId: this.getServiceActivityItemId(),
+        allowDelete: '1',
+        mainPart: '0',
       };
-      this.$refs.partTable.handleAdd(partId, newItem);
+
+      // 直接调用接口保存
+      techServiceActivityPartUpdate(newItem).then(() => {
+        this.$message.success('添加成功');
+        this.$refs.partTable.getDetailPageApi();
+      }).catch(() => {
+      });
     }, 200),
+    getServiceActivityItemId () {
+      return this.partId === '全部备件' ? '' : this.partId;
+    },
+    // 零件保存后通知父组件刷新方案信息
+    onPartSaved () {
+      this.$emit('part-saved');
+    },
   }
 };
 
@@ -500,7 +568,8 @@ export default {
   font-weight: 500;
 }
 .sub-title{
-  color: #6C6E6C;
+  color: var(--leap-color-default);
+  font-weight: 600;
   font-size: 14px;
   margin-bottom: 8px;
 }

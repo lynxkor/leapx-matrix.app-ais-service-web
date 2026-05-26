@@ -7,6 +7,7 @@
         :title="`单据编号：${form.code}`">
         <template #extraButtons>
           <el-button size="small" @click="rightsList" v-if="buttonPermissions.rights">权益核销</el-button>
+          <el-button size="small" @click="handleResendSignSms" v-if="buttonPermissions.canResendSignSms">补推结算单短信签字</el-button>
           <el-button size="small" @click="submitAndSing" v-if="buttonPermissions.sign">提交结算并签字</el-button>
           <el-button size="small" @click="reject" v-if="buttonPermissions.reject">驳回</el-button>
           <el-button size="small" @click="addInvoiceRecord" v-if="buttonPermissions.addRecord">添加收款记录</el-button>
@@ -65,7 +66,7 @@
                 <el-form-item label="负责人：" prop="serviceOwnerName">
                   <el-input placeholder="请输入" v-model="form.serviceOwnerName" disabled clearable />
                 </el-form-item>
-                <el-form-item label="支付方式：" prop="payTypeLabel">
+                <el-form-item label="支付方式：" prop="payType">
                   <el-input placeholder="请输入" v-model="form.payTypeLabel" disabled clearable />
                   <!-- <fetch-select :request="fetchOptions" enumCode="xxx" v-model="form.payTypeLabel" placeholder="请选择" disabled
                     clearable filterable /> -->
@@ -86,6 +87,23 @@
                 <el-form-item label="备注：" prop="remark" class="form-item-full">
                   <el-input placeholder="请输入" v-model="form.remark" clearable maxlength="500" />
                 </el-form-item>
+                <el-form-item class="form-item-full" />
+                <el-form-item label="签字完成时间：" prop="signCompletedOn">
+                  <el-input placeholder="请输入" v-model="form.signCompletedOn" disabled />
+                </el-form-item>
+                <el-form-item label="签字渠道：" prop="signChannelLabel">
+                  <el-input placeholder="请输入" v-model="form.signChannelLabel" disabled />
+                </el-form-item>
+                <el-form-item label="签字生成时间：" prop="signGeneratedOn">
+                  <el-input placeholder="请输入" v-model="form.signGeneratedOn" disabled />
+                </el-form-item>
+                <el-form-item label="签字状态：" prop="signStatusLabel">
+                  <el-input placeholder="请输入" v-model="form.signStatusLabel" disabled />
+                </el-form-item>
+                <el-form-item label="短信签字链接过期时间：" prop="signUrlExpiredOn">
+                  <el-input placeholder="请输入" v-model="form.signUrlExpiredOn" disabled />
+                </el-form-item>
+                <el-form-item class="form-item-full" />
                 <el-form-item label="总金额：" prop="totalAmount">
                   <el-input placeholder="请输入" v-model="form.totalAmount" disabled clearable />
                 </el-form-item>
@@ -134,6 +152,8 @@
                 <el-form-item label="零件优惠金额：" prop="partDiscount">
                   <el-input placeholder="请输入" v-model="form.partDiscount" disabled clearable />
                 </el-form-item>
+              </el-form>
+              <el-form :inline="true" :model="form" label-width="180px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="剩余应付款金额：" prop="remainAmount">
                   <el-input placeholder="请输入" v-model="form.remainAmount" disabled clearable />
                 </el-form-item>
@@ -175,8 +195,8 @@
                 <el-form-item label="负责人：" prop="serviceOwnerName">
                   {{ form.serviceOwnerName }}
                 </el-form-item>
-                <el-form-item label="支付方式：" prop="payType">
-                  {{ form.payType }}
+                <el-form-item label="支付方式：" prop="payTypeLabel">
+                  {{ form.payTypeLabel }}
                 </el-form-item>
                 <el-form-item label="维修类型（汇总）：" prop="warrantyTypeCollect">
                   {{ form.warrantyTypeCollect }}
@@ -190,17 +210,30 @@
                 <el-form-item label="备注：" prop="remark" class="form-item-full">
                   {{ form.remark }}
                 </el-form-item>
+                <el-form-item class="form-item-full" />
+                <el-form-item label="签字完成时间：" prop="signCompletedOn">
+                  {{ form.signCompletedOn }}
+                </el-form-item>
+                <el-form-item label="签字渠道：" prop="signChannelLabel">
+                  {{ form.signChannelLabel }}
+                </el-form-item>
+                <el-form-item label="签字生成时间：" prop="signGeneratedOn">
+                  {{ form.signGeneratedOn }}
+                </el-form-item>
+                <el-form-item label="签字状态：" prop="signStatusLabel">
+                  {{ form.signStatusLabel }}
+                </el-form-item>
+                <el-form-item label="短信签字链接过期时间：" prop="signUrlExpiredOn">
+                  {{ form.signUrlExpiredOn }}
+                </el-form-item>
+                <el-form-item class="form-item-full" />
+                </el-form>
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="总金额：" prop="totalAmount">
                   {{ form.totalAmount }}
                 </el-form-item>
                 <el-form-item label="维修项目金额：" prop="repairItemAmount">
                   {{ form.repairItemAmount }}
-                </el-form-item>
-                <el-form-item label="维修项优惠金额：" prop="repairItemDiscount">
-                  {{ form.repairItemDiscount }}
-                </el-form-item>
-                <el-form-item label="维修项目应付金额：" prop="repairItemPayableAmount">
-                  {{ form.repairItemPayableAmount }}
                 </el-form-item>
                 <el-form-item label="结算人员：" prop="statementPersonName">
                   <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.statementPersonId}`">{{ form.statementPersonName }}</el-link>
@@ -208,11 +241,17 @@
                 <el-form-item label="去零金额：" prop="noFractionAmount">
                   {{ form.noFractionAmount }}
                 </el-form-item>
+                <el-form-item label="维修项目优惠金额：" prop="repairItemDiscount">
+                  {{ form.repairItemDiscount }}
+                </el-form-item>
                 <el-form-item label="结算时间：" prop="statementTime">
                   {{ form.statementTime }}
                 </el-form-item>
                 <el-form-item label="权益金额：" prop="rightsAmount">
                   {{ form.rightsAmount }}
+                </el-form-item>
+                <el-form-item label="维修项目应付金额：" prop="repairItemPayableAmount">
+                  {{ form.repairItemPayableAmount }}
                 </el-form-item>
                 <el-form-item label="收款人：" prop="payeeName">
                   <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.payeeId}`">{{ form.payeeName }}</el-link>
@@ -232,6 +271,8 @@
                 <el-form-item label="零件优惠金额：" prop="partDiscount">
                   {{ form.partDiscount }}
                 </el-form-item>
+                </el-form>
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="剩余应付款金额：" prop="remainAmount">
                   {{ form.remainAmount }}
                 </el-form-item>
@@ -269,12 +310,12 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, reject, receiptCompletion, createCounterSettlement } from '@/api/maintain/sp/serviceStatement/index';
+import { getDetail, addOrUpdate, reject, receiptCompletion, createCounterSettlement, resendSignSms } from '@/api/maintain/sp/serviceStatement/index';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
-import { CheckoutTypeEnum, PackageTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { StatementCheckoutTypeEnum, PackageTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 import CreateWarrantyApplyDialog from './components/CreateWarrantyApplyDialog';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -353,7 +394,8 @@ const defaultForm = {
   rightsUsageRecordResps: [],
   repairItemResps: [],
   partResps: [],
-  partMaintenanceResps: []
+  partMaintenanceResps: [],
+  payTypeLabel: ''
 };
 
 export default {
@@ -403,9 +445,9 @@ export default {
     // 按钮权限控制 - 使用计算属性确保响应式更新
     buttonPermissions () {
       // 驳回按钮：自费、保险、内部结算类型，且状态为待收款
-      const baseType = [CheckoutTypeEnum.SELF_PAY, CheckoutTypeEnum.INSURANCE, CheckoutTypeEnum.INTERNAL_SETTLEMENT];
-      const baseType2 = [CheckoutTypeEnum.WARRANTY, CheckoutTypeEnum.CONTRACT];
-      const { statementType, statementStatus, isCheck } = this.form;
+      const baseType = [StatementCheckoutTypeEnum.SELF_PAY, StatementCheckoutTypeEnum.INSURANCE, StatementCheckoutTypeEnum.INTERNAL_SETTLEMENT];
+      const baseType2 = [StatementCheckoutTypeEnum.WARRANTY, StatementCheckoutTypeEnum.CONTRACT];
+      const { statementType, statementStatus, isCheck, signGeneratedOn, signStatus } = this.form;
       return {
         // 权益核销：结算类型为自费/保险/内部结算，状态为待结算，商城订单不显示
         rights: baseType.includes(statementType) && statementStatus === 10 && !this.isStoreOrder,
@@ -424,8 +466,15 @@ export default {
         reCreate1: baseType2.includes(statementType) && [40, 30].includes(statementStatus),
         // 添加收款记录：结算类型为自费/保险/内部结算，状态为待收款
         addRecord: baseType.includes(statementType) && statementStatus === 30,
+        // 重推签字短信
+        canResendSignSms: signStatus === 10 && signGeneratedOn,
       };
-    }
+    },
+
+    // 创建保修申请单 按钮权限
+    canCreateWarrantyApply () {
+      return [StatementCheckoutTypeEnum.WARRANTY, StatementCheckoutTypeEnum.CONTRACT].includes(this.form.statementType) && this.form.statementStatus === 30;
+    },
   },
   watch: {
     id: {
@@ -436,14 +485,14 @@ export default {
       },
       immediate: true
     },
-    'form.serviceProxyId': {
-      handler (val) {
-        if (val) {
-          this.checkCanCreate();
-        }
-      },
-      immediate: true,
-    }
+    // 'form.serviceProxyId': {
+    //   handler (val) {
+    //     if (val) {
+    //       this.checkCanCreate();
+    //     }
+    //   },
+    //   immediate: true,
+    // }
   },
   data () {
     const form = this.getDefautlForm();
@@ -471,7 +520,7 @@ export default {
         // 如 type: [{label: 'xxx', value: 'xxx'}]
       },
       // 创建保修申请单
-      canCreateWarrantyApply: false,
+      // canCreateWarrantyApply: false,
       warrantyApplyVisible: false,
     };
   },
@@ -483,7 +532,8 @@ export default {
         statementId: this._id,
         serviceProxyId: this.form.serviceProxyId,
       }).then(res => {
-        this.canCreateWarrantyApply = res?.canCreate;
+        // 【结算单类型】为保修、合同 且 结算单状态为【待收款】
+        this.canCreateWarrantyApply = res?.canCreate && [StatementCheckoutTypeEnum.WARRANTY, StatementCheckoutTypeEnum.CONTRACT].includes(this.form.statementType) && this.form.statementStatus === 30;
       });
     },
     showMsg (msg) {
@@ -565,10 +615,6 @@ export default {
     },
     addInvoiceRecord () {
       // 实现添加收款记录功能
-      if (this.form.remainAmount <= 0) {
-        this.$message.warning('剩余可添加的收款记录金额为0,暂时无法添加新的收款记录');
-        return;
-      }
       this.addPayrecordDialogVisible = true;
     },
 
@@ -639,7 +685,6 @@ export default {
                 id: restatementId
               }
             });
-            this.handleRefresh();
           } else {
             this.$message.warning('未找到反结算申请单 ID');
           }
@@ -697,6 +742,7 @@ export default {
       });
     },
     handleRefresh () {
+      // this.checkCanCreate();
       this.$refs.containerRef.handleRefresh();
     },
     detailRequest () {
@@ -749,7 +795,31 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    /**
+     * 补推结算单短信签字
+     */
+    handleResendSignSms () {
+      const message = '此操作将再次推送短信给用户进行结算单签字，是否继续？';
+      this.$confirm(message, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        showClose: false
+      }).then(() => {
+        // 调用接口
+        // 假设接口参数为 id
+        resendSignSms(this._id).then(res => {
+          this.$message.success('推送成功');
+          // 可选：刷新页面数据以更新最新状态
+          this.detailRequest();
+        }).catch(err => {
+          // 错误处理通常由拦截器统一处理，如需特殊处理可在此添加
+          console.error(err);
+        });
+      }).catch(() => {
+        // 用户取消操作，无需处理
+      });
+    },
   }
 };
 </script>

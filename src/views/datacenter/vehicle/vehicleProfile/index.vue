@@ -10,11 +10,7 @@
       class="ais-search-form"
     >
       <el-form-item label="VIN码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.vin"
-          clearable
-        />
+        <tag-input v-model="form.vinList" placeholder="请输入" :min-length="6" />
       </el-form-item>
       <el-form-item label="车主手机号">
         <el-input
@@ -23,7 +19,6 @@
           clearable
         />
       </el-form-item>
-      <template v-if="visibleCount === 3 || show">
         <el-form-item label="车牌号">
           <el-input
             placeholder="请输入"
@@ -31,11 +26,13 @@
             clearable
           />
         </el-form-item>
+        <template v-if="show">
         <el-form-item label="销售日期">
           <el-date-picker
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.salesDate"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -57,6 +54,7 @@
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.warrantyStartdate"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -115,6 +113,7 @@
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.bindingOn"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -150,6 +149,7 @@
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.vdcInboundOn"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -260,6 +260,7 @@
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.nextMaintainDate"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -272,6 +273,7 @@
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -284,6 +286,7 @@
             :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -303,9 +306,9 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="canImportIovVehicle" size="small" @click="handleImportIovVehicle">导入车联网对接车辆</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -332,6 +335,11 @@
       :visible="uploadDialogVisible"
       id="vehicle_profile"
       @close="handleUploadDialogClose"
+    />
+    <Upload
+      :visible="uploadIovVehicleDialogVisible"
+      id="iovVehicleImport"
+      @close="handleIovVehicleUploadDialogClose"
     />
     <return-dialog
       :visible.sync="retrunVisible"
@@ -369,7 +377,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getDetailDecryptField, getList, deleteItem, enableItem } from '@/api/datacenter/vehicle/vehicleProfile/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -393,6 +401,7 @@ import BenefitDialog from './BenefitDialog';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   vin: '',
+  vinList: [],
   vehicleMaterialCode: '',
   salesDate: '',
   vehiclePlateNoLike: '',
@@ -453,6 +462,7 @@ export default {
   },
   data () {
     return {
+      canImportIovVehicle: false,
       pageTitle: '车辆档案管理',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
@@ -466,6 +476,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      uploadIovVehicleDialogVisible: false,
       clickItemId: '',
       //
       benefitVisible: false,
@@ -605,11 +616,44 @@ export default {
           },
           { props: 'bindingOn', label: '绑车时间', visible: true, width: 180 },
           { props: 'salesDealerCode', label: '销售门店编码', visible: true, width: 150 },
-          { props: 'salesDealerName', label: '销售门店名称', visible: true, width: 200 },
+          {
+            props: 'salesDealerName',
+            label: '销售门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.salesDealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'deliveryDealerCode', label: '交付门店编码', visible: true, width: 150 },
-          { props: 'deliveryDealerName', label: '交付门店名称', visible: true, width: 200 },
+          {
+            props: 'deliveryDealerName',
+            label: '交付门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.deliveryDealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'serviceDealerCode', label: '服务门店编码', visible: true, width: 150 },
-          { props: 'serviceDealerName', label: '服务门店名称', visible: true, width: 200 },
+          {
+            props: 'serviceDealerName',
+            label: '服务门店名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.serviceDealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           {
             props: 'vehicleMaterialCode',
             label: '整车物料',
@@ -639,9 +683,10 @@ export default {
           { props: 'interiorName', label: '内饰', visible: true, width: 100 },
           { props: 'wheelHubName', label: '轮毂', visible: true, width: 100 },
           { props: 'nextMaintainDate', label: '下次保养时间', visible: true, width: 160 },
-          { props: 'nextMaintainMileage', label: '下次保养里程', visible: true, width: 150 },
+          { props: 'nextMaintainMileages', label: '下次保养里程', visible: true, width: 150 },
           { props: 'createTime', label: '创建时间', visible: true, width: 180 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
+          { props: 'isIovVehicleLabel', label: '车联网对接', visible: true, width: 120 },
           {
             props: 'operate',
             label: '操作',
@@ -722,6 +767,7 @@ export default {
     this.canReturn = this.permissions.has(`${this.moduleKey}-return`);
     this.canKeyInfoChangeLog = this.permissions.has(`${this.moduleKey}-keyInfoChangeLog`);
     this.serviceProxyHis = !!(this.$store.state.pageSource?.aisPageSource || []).find(item => (item === 'AISMC-serviceProxyHis-page'));
+    this.canImportIovVehicle = this.permissions.has(`${this.moduleKey}-importIovVehicle`);
   },
   methods: {
     onBenefit () {
@@ -733,8 +779,14 @@ export default {
     handleImport () {
       this.uploadDialogVisible = true;
     },
+    handleImportIovVehicle () {
+      this.uploadIovVehicleDialogVisible = true;
+    },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
+    },
+    handleIovVehicleUploadDialogClose () {
+      this.uploadIovVehicleDialogVisible = false;
     },
     handleAdd () {
       this.$router.push({
@@ -742,6 +794,10 @@ export default {
       });
     },
     onSubmit () {
+      if (this.form.vinList && this.form.vinList.some(vin => vin.length < 6)) {
+        this.$message.error('VIN码输入不能少于6位');
+        return;
+      }
       this.optionObj.form.page = 1;
       this.getData();
     },

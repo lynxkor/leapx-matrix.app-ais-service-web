@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="common-section-table pb-0">
     <vxe-table
       ref="editTable"
       :data="tableData"
@@ -80,6 +80,9 @@ export default {
     getDetailPageApi () {
       getList({
         vehicleProfileId: this.vehicleProfileId,
+        activityStatuses: ['2'], // 备件准备完成
+        finished: '0', // 未完成
+        isValid: true, // 有效期内
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {

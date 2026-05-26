@@ -54,6 +54,7 @@
           <el-date-picker
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -65,6 +66,7 @@
           <el-date-picker
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -84,6 +86,7 @@
     </el-form>
     <div class="ais-actions">
       <el-button v-if="exportInvoice" :loading="exportLoading" size="small" @click="onExport">导出发票</el-button>
+      <el-button v-if="canPayConfirm" size="small" @click="handleBatchPayConfirm">批量付款</el-button>
     </div>
     <div class="ais-table-c">
       <LPVxeTable
@@ -121,7 +124,7 @@
     />
     <PayConfirmDialog
       :visible.sync="payConfirmDialogVisible"
-      :id="payConfirmRowId"
+      :ids="payConfirmRowIds"
       @success="getData"
     />
   </div>
@@ -129,7 +132,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, confirm, exportInvoiceZip } from '@/api/claimreturn/claim/warrantysettle/index';
 import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
@@ -215,7 +218,7 @@ export default {
       invoiceReturnDialogVisible: false,
       invoiceReturnRowId: '',
       payConfirmDialogVisible: false,
-      payConfirmRowId: '',
+      payConfirmRowIds: [],
     };
   },
   computed: {
@@ -244,7 +247,18 @@ export default {
             }]
           },
           { props: 'month', label: '月度', visible: true, width: 120 },
-          { props: 'dealerCode', label: '门店编码', visible: true, width: 120 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              }
+            }]
+          },
           { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
           { props: 'storeStatusLabel', label: '门店状态', visible: true, width: 120 },
           { props: 'settleStatusLabel', label: '通知书状态', visible: true, width: 120 },
@@ -430,7 +444,21 @@ export default {
     },
     // 确认付款
     handlePayConfirm (row) {
-      this.payConfirmRowId = row.id;
+      this.payConfirmRowIds = [row.id];
+      this.payConfirmDialogVisible = true;
+    },
+    // 批量付款
+    handleBatchPayConfirm () {
+      if (this.selectionList.length === 0) {
+        this.$message.warning('请选择需要付款的单据');
+        return;
+      }
+      const invalidStatuses = this.selectionList.filter(item => item.settleStatus !== '90');
+      if (invalidStatuses.length > 0) {
+        this.$message.warning('只能选择已验收的单据');
+        return;
+      }
+      this.payConfirmRowIds = this.selectionList.map(item => item.id);
       this.payConfirmDialogVisible = true;
     },
     onSubmit () {

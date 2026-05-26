@@ -101,18 +101,12 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="备注">
-          <el-input
-            placeholder="请输入"
-            v-model="form.remark"
-            clearable
-          />
-        </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -125,6 +119,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -181,7 +176,7 @@
     />
     <!-- 发运弹窗 -->
     <ShipmentDialog
-      :visible="shipmentDialogVisible"
+      :visible.sync="shipmentDialogVisible"
       :id="shipmentId"
       @update:visible="val => shipmentDialogVisible = val"
       @success="getData"
@@ -191,10 +186,13 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getSubmit, getApprove, getReject, getRevoke, applyCancel, approveCancel, rejectCancel, getInbound } from '@/api/sparepart/transfer/transferOutbound/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
+import {
+  getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam,
+  getSparePartCompany, listWarehouse, getPartDealer, getLoginUser, getDesensitize
+} from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -290,8 +288,22 @@ export default {
           { props: 'outboundWarehouseName', label: '出库方仓库', visible: true, width: 200 },
           { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180 },
           { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
-          { props: 'inboundContactName', label: '入库方联系人', visible: true, width: 160 },
-          { props: 'inboundContactPhone', label: '入库方手机', visible: true, width: 180 },
+          {
+            props: 'inboundContactName',
+            label: '入库方联系人',
+            visible: true,
+            width: 160,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'transferOutbound', 'inboundContactName')
+          },
+          {
+            props: 'inboundContactPhone',
+            label: '入库方手机',
+            visible: true,
+            width: 180,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'transferOutbound', 'inboundContactPhone')
+          },
           { props: 'transferStatusLabel', label: '调拨状态', visible: true, width: 120 },
           { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
           { props: 'cancelStatusLabel', label: '撤销状态', visible: true, width: 120 },
@@ -308,13 +320,14 @@ export default {
             buttons: [{
               name: '编辑',
               show: (row) => {
-                return row.transferStatus === '0';
+                return row.transferStatus === '0' || row.transferStatus === '3';
               },
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/transfer/transferOutbound/edit',
                   query: {
-                    id: row.id
+                    id: row.id,
+                    isEditing: true
                   }
                 });
               },
@@ -322,7 +335,7 @@ export default {
             }, {
               name: '提交',
               show: (row) => {
-                return row.transferStatus === '0' || row.transferStatus === '3';
+                return (row.transferStatus === '0' || row.transferStatus === '3') && this.permissions.has('AISPART-transferOutbound-submit');
               },
               popconfirmTitle: '此操作将提交, 是否继续?',
               click: (rowIndex, row) => {
@@ -338,7 +351,7 @@ export default {
             }, {
               name: '同意',
               show: (row) => {
-                return row.transferStatus === '1';
+                return row.transferStatus === '1' && this.permissions.has('AISPART-transferOutbound-approve');
               },
               popconfirmTitle: '此操作将同意, 是否继续?',
               click: (rowIndex, row) => {
@@ -354,7 +367,7 @@ export default {
             }, {
               name: '驳回',
               show: (row) => {
-                return row.transferStatus === '1';
+                return row.transferStatus === '1' && this.permissions.has('AISPART-transferOutbound-reject');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入驳回原因！', '驳回', {
@@ -375,7 +388,7 @@ export default {
             }, {
               name: '撤回',
               show: (row) => {
-                return row.transferStatus === '2' && row.outboundStatus === '0';
+                return row.transferStatus === '2' && row.outboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-revoke');
               },
               popconfirmTitle: '此操作将撤回该出库单, 是否继续?',
               click: (rowIndex, row) => {
@@ -391,7 +404,7 @@ export default {
             }, {
               name: '发运',
               show: (row) => {
-                return row.transferStatus === '2' && row.outboundStatus === '0';
+                return row.transferStatus === '2' && row.outboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-ship');
               },
               click: (rowIndex, row) => {
                 this.handleShipment(row);
@@ -413,7 +426,7 @@ export default {
             }, {
               name: '申请撤销',
               show: (row) => {
-                return (row.cancelStatus === '10' || row.cancelStatus === '40') && row.outboundStatus === '1';
+                return (row.cancelStatus === '10' || row.cancelStatus === '40') && row.outboundStatus === '1' && this.permissions.has('AISPART-transferOutbound-applyCancel');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入申请撤销原因！', '申请撤销', {
@@ -433,7 +446,7 @@ export default {
             }, {
               name: '同意撤销',
               show: (row) => {
-                return row.cancelStatus === '20';
+                return row.cancelStatus === '20' && this.permissions.has('AISPART-transferOutbound-approveCancel');
               },
               popconfirmTitle: '此操作将同意撤销, 是否继续?',
               click: (rowIndex, row) => {
@@ -449,7 +462,7 @@ export default {
             }, {
               name: '驳回撤销',
               show: (row) => {
-                return row.cancelStatus === '20';
+                return row.cancelStatus === '20' && this.permissions.has('AISPART-transferOutbound-rejectCancel');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入驳回撤销原因！', '驳回撤销', {
@@ -469,7 +482,7 @@ export default {
             }, {
               name: '入库',
               show: (row) => {
-                return row.cancelStatus === '30' && row.inboundStatus === '0';
+                return row.cancelStatus === '30' && row.inboundStatus === '0' && this.permissions.has('AISPART-transferOutbound-inbound');
               },
               popconfirmTitle: '此操作将入库, 是否继续?',
               click: (rowIndex, row) => {
@@ -530,7 +543,7 @@ export default {
     },
     async getDealerList (query) {
       try {
-        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query, authority: false });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);

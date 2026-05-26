@@ -36,6 +36,7 @@
                   <el-date-picker
                     v-model="dateRange"
                     type="daterange"
+                    unlink-panels
                     value-format="yyyy-MM-dd HH:mm:ss"
                     range-separator="至"
                     start-placeholder="开始日期"
@@ -59,7 +60,7 @@
                   </el-radio-group>
                 </el-form-item>
               </el-form>
-              <el-form label-width="180px" :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="预授权规则编号：" prop="code">
                   {{ form.code }}
                 </el-form-item>
@@ -143,7 +144,11 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="partsCode" title="零件代码" min-width="200" />
+                  <vxe-column field="partsCode" title="零件代码" min-width="200">
+                    <template #default="{ row }">
+                      <el-link type="primary" :href="`/service/sparepart/basic/sparePart/detail?id=${row.partsId}`" target="_blank">{{ row.partsCode }}</el-link>
+                    </template>
+                  </vxe-column>
                   <vxe-column field="partsName" title="零件名称" min-width="200" />
                   <vxe-column field="remark" title="备注" min-width="200">
                     <template #default="{ row }">
@@ -189,7 +194,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, addPartItem, deletePartItem,deleteModelItem } from '@/api/maintain/sp/preAuthRule/index';
+import { getDetail, addOrUpdate, addPartItem, deletePartItem, deleteModelItem } from '@/api/maintain/sp/preAuthRule/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, sparePartList } from '@/api/common';
@@ -298,24 +303,24 @@ export default {
         code: [
           { required: false, message: '请输入预授权规则编号', trigger: 'change' }
         ],
-     startTime: [
-              {
-                validator: (rule, value, callback) => {
-                  if (this.dateRange && this.dateRange.length === 2) {
-                    const startTime = new Date(this.dateRange[0]).getTime();
-                    const endTime = new Date(this.dateRange[1]).getTime();
-                    if (startTime > endTime) {
-                      callback(new Error('开始日期不能大于结束日期'));
-                    } else {
-                      callback();
-                    }
-                  } else {
-                    callback();
-                  }
-                },
-                trigger: 'change'
+        startTime: [
+          {
+            validator: (rule, value, callback) => {
+              if (this.dateRange && this.dateRange.length === 2) {
+                const startTime = new Date(this.dateRange[0]).getTime();
+                const endTime = new Date(this.dateRange[1]).getTime();
+                if (startTime > endTime) {
+                  callback(new Error('开始日期不能大于结束日期'));
+                } else {
+                  callback();
+                }
+              } else {
+                callback();
               }
-            ],
+            },
+            trigger: 'change'
+          }
+        ],
         authAmount: [
           { required: true, message: '请输入预授权额度', trigger: 'change' },
           {
@@ -397,7 +402,7 @@ export default {
         return;
       }
       // 检查是否已存在
-      const exists = this.tableDataPart.some(item => item.partCode === record.partCode);
+      const exists = this.tableDataPart.some(item => item.partsCode === record.partCode);
       if (exists) {
         this.$message.warning('该零件已添加');
         return;
@@ -407,6 +412,7 @@ export default {
         partsCode: record.partCode,
         partsName: record.partName,
         partsId: record.id,
+        remark: record.remark
       }).then(res => {
         this.$message.success('添加成功');
         this.$refs.containerRef.loadDetail();

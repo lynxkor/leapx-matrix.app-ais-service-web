@@ -15,10 +15,20 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="任务状态" prop="taskStatus">
+        <fetch-select
+          :options="taskStatusOptions"
+          v-model="form.taskStatusList"
+          placeholder="请选择"
+          clearable
+          multiple
+        />
+      </el-form-item>
       <el-form-item label="创建时间">
         <el-date-picker
           v-model="form.createTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -35,12 +45,6 @@
       />
     </el-form>
     <div class="ais-actions">
-      <el-button size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button size="small" @click="handleImport">导入</el-button>
-      <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -70,17 +74,18 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/excelManagement/commonDataProcessExcelTask/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import commonMixins from '@/libs/mixins/commonMixins';
+import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
-  taskType: '',
+  taskType: 0,
   taskStatus: '',
   creator: '',
   businessType: ''
@@ -95,18 +100,24 @@ export default {
   mixins: [commonMixins],
 
   components: {
+    FetchSelect,
     PageSearchAction,
     LPVxeTable,
     Upload
   },
   data () {
     return {
-      pageTitle: 'Excel模板导出',
+      pageTitle: 'Excel导出任务',
       pageType: 'list',
       form: {
         ...defaultForm
       },
       selectionList: [],
+      taskStatusOptions: [
+        { code: 0, message: '导出中' },
+        { code: 1, message: '导出完成' },
+        { code: 2, message: '导出失败' }
+      ],
       yes_no_enum: YES_NO_ENUM,
       show: false,
       loading: false,
@@ -138,10 +149,10 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'taskType', label: '任务类型', visible: true, width: 200 },
+          { props: 'taskTypeLabel', label: '任务类型', visible: true, width: 200 },
           { props: 'businessType', label: '业务标识', visible: true, width: 200 },
           { props: 'excelUrl', label: '导出下载地址', visible: true, width: 200 },
-          { props: 'taskStatus', label: '任务状态', visible: true, width: 200 },
+          { props: 'taskStatusLabel', label: '任务状态', visible: true, width: 200 },
           { props: 'importRemark', label: '描述', visible: true, width: 200 },
           { props: 'creator', label: '创建者', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -152,38 +163,7 @@ export default {
             type: 'operate',
             visible: true,
             fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/excelManagement/commonDataProcessExcelTask/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }]
+            buttons: []
           }
         ],
         total: 0

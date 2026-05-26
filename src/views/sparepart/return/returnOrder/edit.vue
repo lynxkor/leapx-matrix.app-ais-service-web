@@ -5,14 +5,14 @@
       <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :isEditing.sync="isEditing" :form.sync="form"
         :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest">
         <template #extraButtons>
-          <el-button v-if="_id && permissions.has('AISPART-returnOrder-printReturn')" type="primary" size="small" @click="handlePrint">打印退货单</el-button>
-          <el-button v-if="_id && permissions.has('AISPART-returnOrder-printTag')" type="primary" size="small" @click="handlePrintLabel">打印退货标签</el-button>
-          <el-button v-if="_id && form.returnStatus === '20' && permissions.has('AISPART-returnOrder-agree')" type="primary" size="small" @click="handleAgree">同意</el-button>
-          <el-button v-if="_id && form.returnStatus === '40' && permissions.has('AISPART-returnOrder-revoke')" type="primary" size="small" @click="handleRevoke">撤回</el-button>
-          <el-button v-if="_id && ['10', '30'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-commit')" type="primary" size="small" @click="handleCommit">提交</el-button>
-          <el-button v-if="_id && ['10', '30'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-cancel')" type="primary" size="small" @click="handleCancel">作废</el-button>
-          <el-button v-if="_id && form.returnStatus === '20' && permissions.has('AISPART-returnOrder-reject')" type="primary" size="small" @click="handleReject">驳回</el-button>
-          <el-button v-if="_id && form.returnStatus === '40' && permissions.has('AISPART-returnOrder-shipping')" type="primary" size="small" @click="handleShipping">发运</el-button>
+          <el-button v-if="_id && permissions.has('AISPART-returnOrder-printReturn')" plain size="small" @click="handlePrint">打印退货单</el-button>
+          <el-button v-if="_id && permissions.has('AISPART-returnOrder-printTag')" plain size="small" @click="handlePrintLabel">打印退货标签</el-button>
+          <el-button v-if="_id && form.returnStatus === '20' && permissions.has('AISPART-returnOrder-agree')" plain size="small" :loading="actionLoading" @click="handleAgree">同意</el-button>
+          <el-button v-if="_id && form.returnStatus === '40' && permissions.has('AISPART-returnOrder-revoke')" plain size="small" :loading="actionLoading" @click="handleRevoke">撤回</el-button>
+          <el-button v-if="_id && ['10', '30'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-commit')" plain size="small" :loading="actionLoading" @click="handleCommit">提交</el-button>
+          <el-button v-if="_id && ['10', '30'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-cancel')" plain size="small" :loading="actionLoading" @click="handleCancel">作废</el-button>
+          <el-button v-if="_id && form.returnStatus === '20' && permissions.has('AISPART-returnOrder-reject')" plain size="small" :loading="actionLoading" @click="handleReject">驳回</el-button>
+          <el-button v-if="_id && form.returnStatus === '40' && permissions.has('AISPART-returnOrder-shipping')" type="primary" size="small" :loading="actionLoading" @click="handleShipping">发运</el-button>
         </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
@@ -174,7 +174,9 @@
                   {{ form.returnReasonLabel }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
@@ -292,7 +294,7 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>出库明细信息 <el-button size="mini" v-if="isEditable" @click="handleImport">导入备件</el-button> <el-button size="mini" v-if="isEditable" @click="addPart">添加备件</el-button></h2>
+              <h2>出库明细信息 <el-button size="mini" class="search-btn" v-if="isEditable" @click="handleImport">导入备件</el-button> <el-button class="search-btn" size="mini" v-if="isEditable" @click="addPart">添加备件</el-button></h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -567,6 +569,7 @@ export default {
       moduleKey: 'AISPART-returnOrder',
       loading: false,
       submitLoading: false,
+      actionLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -879,13 +882,17 @@ export default {
     // 添加成功 表格接口刷新
     dialogSuccess () {
       this.sparePartsVisible = false;
-      this.$refs.containerRef.loadDetail();
-      this.getDetailData();
+      this.handleRefresh();
     },
     async handleDel (row) {
       await returnOrderDel([row.id]);
+      this.handleRefresh();
+    },
+    // 刷新整个详情页所有数据
+    handleRefresh () {
       this.$refs.containerRef.loadDetail();
       this.getDetailData();
+      this.getList();
     },
     handleImport () {
       this.uploadDialogVisible = true;
@@ -911,13 +918,20 @@ export default {
     },
     // 调用二次确认弹框
     _handleAction (apiFn, config) {
+      this.actionLoading = true;
       handleCommonAction({
         $confirm: this.$confirm,
         $message: this.$message,
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.handleRefresh();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
     // 同意退货
@@ -934,6 +948,7 @@ export default {
     },
     // 通用 备注弹窗
     _execPrompt (api, title, placeholder, successMsg) {
+      this.actionLoading = true;
       handleCommonPrompt({
         $prompt: this.$prompt,
         $message: this.$message,
@@ -944,59 +959,60 @@ export default {
           placeholder,
           success: successMsg
         },
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => {
+          this.actionLoading = false;
+          this.handleRefresh();
+        },
+        onComplete: () => {
+          this.actionLoading = false;
+        }
       });
     },
-    // 作废退货
-    // async handleCancel () {
-    //   this.$prompt('请输入作废说明', '作废', {
-    //     confirmButtonText: '确定',
-    //     cancelButtonText: '取消',
-    //     inputPattern: /.+/, // 校验非空
-    //     inputErrorMessage: '请输入备注',
-    //   }).then(async ({ value }) => {
-    //     // 调用 API，并传入用户输入的备注
-    //     await returnOrderCancel({ id: this._id, reviewDescription: value });
-    //     this.$message.success('作废成功');
-    //     // 执行额外回调（比如刷新列表）
-    //     this.$refs.containerRef.loadDetail();
-    //   }).catch(() => {
-    //     // 用户取消或校验失败，静默处理
-    //   });
-    // },
     // 作废
     async handleCancel () {
-      const result = await this.$prompt('请输入作废说明', '作废', {
+      this.actionLoading = true;
+      this.$prompt('请输入作废说明', '作废', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        inputPattern: /.+/, // 校验非空
+        inputErrorMessage: '请输入备注',
+      }).then(async ({ value }) => {
+        // 2. 二次校验：防止通过特殊手段绕过前端限制或处理粘贴超长文本的情况
+        if (!value || value.length > 100) {
+          this.$message.warning('请输入不超过 100 字的作废说明');
+          return Promise.reject(new Error('中断链条')); //  中断链条
+        }
+        // 调用 API，并传入用户输入的备注
+        await returnOrderCancel({ id: this._id, reviewDescription: value });
+        this.$message.success('作废成功');
+        this.actionLoading = false;
+        this.handleRefresh();
+      }).catch(() => {
+        this.actionLoading = false;
       });
-      const reviewDescription = result.value;
-      if (!reviewDescription) {
-        return this.$message.warning('请输入作废说明');
-      }
-      const params = { id: this._id, reviewDescription };
-      await returnOrderCancel(params);
-      this.handleRefresh();
     },
     // 驳回
     async handleReject () {
-      const result = await this.$prompt('请输入审批意见', '驳回', {
+      this.actionLoading = true;
+      this.$prompt('请输入审批意见', '驳回', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        inputPattern: /.+/, // 校验非空
+        inputErrorMessage: '请输入备注',
+      }).then(async ({ value }) => {
+        // 2. 二次校验：防止通过特殊手段绕过前端限制或处理粘贴超长文本的情况
+        if (!value || value.length > 100) {
+          this.$message.warning('请输入不超过 100 字的审批意见');
+          return Promise.reject(new Error('中断链条')); //  中断链条
+        }
+        // 调用 API，并传入用户输入的备注
+        await returnOrderReject({ id: this._id, reviewDescription: value });
+        this.$message.success('驳回成功');
+        this.actionLoading = false;
+        this.handleRefresh();
+      }).catch(() => {
+        this.actionLoading = false;
       });
-      const reviewDescription = result.value;
-      if (!reviewDescription) {
-        return this.$message.warning('请输入审批意见');
-      }
-      const params = { id: this._id, reviewDescription };
-      await returnOrderReject(params);
-      this.handleRefresh();
-    },
-    // 刷新接口
-    handleRefresh () {
-      this.$refs.containerRef.loadDetail();
     },
     // 发运
     handleShipping () {

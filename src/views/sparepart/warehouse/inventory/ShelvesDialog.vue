@@ -17,7 +17,7 @@
         <!-- 底部按钮 -->
         <template v-slot:footer>
             <div class="dialog-footer">
-                <el-button size="small" @click="close">取 消</el-button>
+                <el-button size="small" @click="close">取消</el-button>
                 <el-button size="small" type="primary" :loading="submitLoading" @click="submit">下 架</el-button>
             </div>
         </template>
@@ -67,10 +67,10 @@ export default {
       this.$emit('update:visible', false);
     },
     async submit () {
-      if (this.tableData.some(item => item.operateQty > item.sharedQty)) {
-        this.$message.warning('下架库存不能大于共享库存');
-        return;
-      }
+      // if (this.tableData.some(item => item.operateQty > item.sharedQty)) {
+      //   this.$message.warning('下架库存不能大于共享库存');
+      //   return;
+      // }
       const params = {
         partList: this.tableData.map(item => ({
           inventoryId: item.id,
@@ -86,7 +86,6 @@ export default {
         this.close();
         this.$emit('submit');
       } catch (error) {
-        this.$message.error('下架失败');
         this.submitLoading = false;
       }
     },

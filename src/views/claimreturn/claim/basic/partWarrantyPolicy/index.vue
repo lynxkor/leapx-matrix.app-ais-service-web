@@ -69,6 +69,7 @@
           <el-date-picker
             v-model="form.createTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -80,6 +81,7 @@
           <el-date-picker
             v-model="form.updateTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -132,7 +134,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/claimreturn/claim/basic/partWarrantyPolicy';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -211,8 +213,34 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'seriesName', label: '车系名称', visible: true, width: 120 },
-          { props: 'modelName', label: '车型名称', visible: true, width: 180 },
+          {
+            props: 'seriesName',
+            label: '车系名称',
+            visible: true,
+            width: 120,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.seriesId) {
+                  window.open(`/sales/datacenter/materials/vehicleSeries/edit?id=${row.seriesId}`, '_blank');
+                }
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'modelName',
+            label: '车型名称',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.modelId) {
+                  window.open(`/sales/datacenter/materials/vehicleModel/edit?id=${row.modelId}`, '_blank');
+                }
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'yearTypeName', label: '车辆年款', visible: true, width: 120 },
           { props: 'mileage', label: '里程数（KM）', visible: true, width: 160 },
           { props: 'warrantyPeriod', label: '保修期（月）', visible: true, width: 140 },

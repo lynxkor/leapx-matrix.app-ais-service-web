@@ -36,6 +36,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.lastSyncTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -48,6 +49,7 @@
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.lastStatisticsTime"
             type="daterange"
+            unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
             value-format="yyyy-MM-dd HH:mm:ss"
@@ -108,7 +110,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, initDataSyncRecord } from '@/api/maintain/basic/dataSyncRecord/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
@@ -188,10 +190,10 @@ export default {
             }]
           },
           { props: 'oldTableName', label: '老表表名', visible: true, width: 200 },
-          { props: 'newTableSyncedCount', label: '新表已同步数据量', visible: true, width: 200 },
-          { props: 'oldTableTotalCount', label: '老表可同步数据量', visible: true, width: 200 },
+          { props: 'newTableSyncedCount', label: '新表已同步数据量', visible: true, width: 160, align: 'right', headerAlign: 'right' },
+          { props: 'oldTableTotalCount', label: '老表可同步数据量', visible: true, width: 160, align: 'right', headerAlign: 'right' },
           { props: 'syncTaskName', label: '同步任务名称', visible: true, width: 200 },
-          { props: 'syncRate', label: '同步率', visible: true, width: 200 },
+          { props: 'syncRate', label: '同步率', visible: true, width: 120, align: 'right', headerAlign: 'right' },
           { props: 'lastSyncTime', label: '最后同步时间', visible: true, width: 200 },
           { props: 'lastStatisticsTime', label: '最后统计时间', visible: true, width: 200 },
           {

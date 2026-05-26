@@ -78,7 +78,7 @@
                     <td>送修人：</td>
                     <td>{{ info.shuttleName }}</td>
                     <td>销售日期</td>
-                    <td>{{ info.saleDate }}</td>
+                    <td>{{ (info.saleDate)?.slice(0, 10) }}</td>
                   </tr>
                   <tr>
                     <td>离店里程(Km)</td>
@@ -88,7 +88,7 @@
                     <td>送修人手机</td>
                     <td>{{ info.shuttlePhone }}</td>
                     <td>客户经理</td>
-                    <td>{{ info.dedicatedServiceManager }}</td>
+                    <td>{{ info.creatorName }}</td>
                   </tr>
                   <!-- <tr>
                     <td style="border-bottom-width: 0px">客户地址</td>
@@ -118,7 +118,7 @@
                   </tr>
                   <tr>
                     <td style="border-bottom-width: 0px; height: 40px">
-                      维修建议
+                      客户经理建议
                     </td>
                     <td
                       colspan="7"
@@ -388,13 +388,15 @@
                     <td style="height: 40px">客户经理确认</td>
                     <td colspan="2"></td>
                     <td>客户签字</td>
-                    <td colspan="2" id="mcs_snap_ticket"></td>
+                    <td colspan="2" id="mcs_snap_ticket">
+                      <img v-if="signUrl" :src="signUrl"  style="width: 120px; height: 32px" />
+                    </td>
                   </tr>
                   <tr>
                     <td>日期</td>
                     <td colspan="2"></td>
                     <td>日期</td>
-                    <td colspan="2"></td>
+                    <td colspan="2">{{ info.signCompletedOn }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -462,6 +464,7 @@
 // import { getDetail } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
 import { getPrintInfo, getStoreDetailByCode } from '@/api/maintain/sp/serviceProxy/index';
 import { CheckoutTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
+import { getFileList } from '@/libs/api/attachment';
 
 export default {
   props: {
@@ -477,7 +480,8 @@ export default {
   data () {
     return {
       info: {},
-      storeInfo: {}
+      storeInfo: {},
+      signUrl: '',
     };
   },
   watch: {
@@ -492,6 +496,13 @@ export default {
     }
   },
   methods: {
+    loadAttachmentList () {
+      if (!this.id) return;
+      getFileList({ businessId: this.id, attachType: '制单签字' }).then(res => {
+        const imgUrl = res?.[0]?.fileUrl;
+        this.signUrl = imgUrl;
+      });
+    },
     getData () {
       getPrintInfo(this.id).then(res => {
         this.info = res;
@@ -503,6 +514,7 @@ export default {
         // 处理结算类型数据:保修、合同、内转不需要用户付钱,修改为0
         this.processCheckoutTypeData();
       });
+      this.loadAttachmentList();
     },
     // 判断是否为包含的结算类型(保修、合同、内转)
     checkoutTypeIncluded (type) {

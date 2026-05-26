@@ -18,8 +18,7 @@
           <!-- <span class="status primary">状态</span> -->
         </template>
         <template #extraButtons>
-          <!-- <el-button size="small">按钮1</el-button>
-          <el-button size="small">按钮2</el-button> -->
+          <el-button size="small" type="primary" @click="handlePrint">打印</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -132,7 +131,9 @@
                   {{ form.shippingDate }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  {{ form.dealerCode }}
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}
@@ -411,6 +412,14 @@ export default {
       this.pageSize = pageSize;
       this.pageNum = 1;
       this.getData();
+    },
+    // 打印备件发运单
+    handlePrint () {
+      this.$print.show({
+        id: this._id, // 必选，对应数据id
+        template: 'SparePartsShipment', // 必选，文件名.vue
+        title: `${this.form.dealerName}备件发运单`// 可选，打印标题
+      });
     },
   }
 };

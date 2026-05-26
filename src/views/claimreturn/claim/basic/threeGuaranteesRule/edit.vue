@@ -136,18 +136,18 @@
                       maxLength="100"
                     />
                   </el-form-item>
-                  <el-form-item label="黄色预警区间2：" prop="yellowWarning2">
-                    <el-input
-                      placeholder="请输入"
-                      v-model="form.yellowWarning2"
-                      clearable
-                      maxLength="100"
-                    />
-                  </el-form-item>
                   <el-form-item label="黄色预警区间1：" prop="yellowWarning1">
                     <el-input
                       placeholder="请输入"
                       v-model="form.yellowWarning1"
+                      clearable
+                      maxLength="100"
+                    />
+                  </el-form-item>
+                  <el-form-item label="黄色预警区间2：" prop="yellowWarning2">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.yellowWarning2"
                       clearable
                       maxLength="100"
                     />
@@ -201,7 +201,7 @@
                     />
                   </el-form-item>
                 </el-form>
-                <el-form :inline="true"  label-width="150px"  class="form-detail" v-show="!(isEditing || !_id)">
+                <el-form class="form-detail" :inline="true" v-show="!(isEditing || !_id)">
                   <el-form-item label="三包规则编码：" prop="ruleCode">
                     {{ form.ruleCode }}
                   </el-form-item>
@@ -241,11 +241,11 @@
                   <el-form-item label="绿色预警区间2：" prop="greenWarning2">
                     {{ form.greenWarning2 }}
                   </el-form-item>
-                  <el-form-item label="黄色预警区间2：" prop="yellowWarning2">
-                    {{ form.yellowWarning2 }}
-                  </el-form-item>
                   <el-form-item label="黄色预警区间1：" prop="yellowWarning1">
                     {{ form.yellowWarning1 }}
+                  </el-form-item>
+                  <el-form-item label="黄色预警区间2：" prop="yellowWarning2">
+                    {{ form.yellowWarning2 }}
                   </el-form-item>
                   <el-form-item label="红色预警区间1：" prop="redWarning1">
                     {{ form.redWarning1 }}
@@ -271,11 +271,12 @@
             <section class="common-section">
               <div class="common-section-header">
                 <h2>零件明细</h2>
-                <el-button v-if="canAddOrUpdate && _id" size="small" @click="handleAddRow"
-                  ><i class="iconfont icon-lxppc-plus"></i>添加</el-button
-                >
               </div>
               <div class="common-section-body" v-if="_id">
+                <div>
+                  <el-button v-if="canAddOrUpdate && _id" size="small" @click="handleAddRow"
+                  ><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+                </div>
                 <div class="common-section-table">
                   <edit-table
                     ref="editTable"
@@ -413,7 +414,14 @@ export default {
         return getDetail(id);
       }
     },
-    submitRequest () {
+    async submitRequest () {
+      if (this.$refs.editTable) {
+        try {
+          const tableData = await this.$refs.editTable.saveAll();
+        } catch (e) {
+          return Promise.reject(e);
+        }
+      }
       return addOrUpdate({ ...this.form });
     },
     getDefautlForm () {

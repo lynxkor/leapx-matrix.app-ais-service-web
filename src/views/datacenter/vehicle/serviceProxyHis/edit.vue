@@ -17,19 +17,23 @@
               <h2>基础信息</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" label-width="150px" class="form-detail">
+              <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="接车施工单号：">
-                  <el-link
-                    type="primary"
-                    :href="`/service/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`"
-                    target="_blank"
-                  >{{ form.serviceProxyCode }}</el-link>
+                  <el-link type="success" @click="handleLinkClick()">{{ form.serviceProxyCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="VIN码：">
-                  {{ form.vehProfileVin }}
+                  <el-link
+                    type="primary"
+                    :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`"
+                    target="_blank"
+                  >{{ form.vehProfileVin }}</el-link>
                 </el-form-item>
                 <el-form-item label="车型：">
-                  {{ form.vehModelName }}
+                  <el-link
+                    type="primary"
+                    :href="`/service/datacenter/materials/vehicleModel/detail?id=${form.vehModelId}`"
+                    target="_blank"
+                  >{{ form.vehModelName }}</el-link>
                 </el-form-item>
                 <el-form-item label="维修门店名称：">
                   <el-link
@@ -103,7 +107,7 @@
                   <vxe-column field="discountAmount" title="优惠金额" min-width="120" />
                   <vxe-column field="discountRate" title="折扣率" min-width="100" />
                   <vxe-column field="repairAmount" title="项目金额" min-width="120" /> -->
-                  <vxe-column field="packageCode" title="活动编号" min-width="150" />
+                  <!-- <vxe-column field="packageCode" title="活动编号" min-width="150" /> -->
                   <template #empty>
                     <div class="m-vxe-table-empty-text">暂无维修项目数据</div>
                   </template>
@@ -149,7 +153,7 @@
                   <vxe-column field="discountAmount" title="优惠金额" min-width="120" />
                   <vxe-column field="discountRate" title="折扣率" min-width="100" />
                   <vxe-column field="partsAmount" title="配件金额" min-width="120" /> -->
-                  <vxe-column field="packageCode" title="活动编号" min-width="150" />
+                  <!-- <vxe-column field="packageCode" title="活动编号" min-width="150" /> -->
                   <template #empty>
                     <div class="m-vxe-table-empty-text">暂无维修配件数据</div>
                   </template>
@@ -175,6 +179,7 @@ import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { getLoginUser } from '@/api/common';
 
 const defaultForm = {
   id: '',
@@ -241,8 +246,12 @@ export default {
       isEditing: false,
       form: { ...defaultForm },
       repairItemRespList: [],
-      sparePartRespList: []
+      sparePartRespList: [],
+      loginUser: null
     };
+  },
+  mounted () {
+    this.initLoginUser();
   },
   methods: {
     async detailRequest () {
@@ -259,6 +268,16 @@ export default {
         }
         return res;
       }
+    },
+    async initLoginUser () {
+      this.loginUser = await getLoginUser();
+    },
+    handleLinkClick () {
+      if (this.loginUser?.accountFlag && this.loginUser.currentDealerCode !== this.form.dealerCode) {
+        this.$message.warning('权限不足');
+        return;
+      }
+      window.open(`/service/maintain/sp/serviceProxy/edit?id=${this.form.serviceProxyId}`, '_blank');
     }
   }
 };

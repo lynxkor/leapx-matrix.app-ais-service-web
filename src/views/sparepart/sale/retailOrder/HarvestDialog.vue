@@ -8,11 +8,11 @@
                 {{formData.payableTotalAmount}}
             </el-form-item>
             <el-form-item label="剩余应付金额">
-                {{formData.remainingPayableAmount}}
+                {{remainingPayableAmount}}
             </el-form-item>
         </el-form>
         <!-- 数据表格 -->
-        <div class="table-section">
+        <div class="table-section" v-loading="loading">
             <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">
                 <vxe-column title="序号" width="12.5%" align="center">
                     <template #default="{ rowIndex }">
@@ -62,14 +62,14 @@
             <div class="dialog-footer">
                 <el-button size="small" :loading="submitLoading" type="primary" @click="saveSubmit">暂 存</el-button>
                 <el-button size="small" :loading="submitLoading" type="primary" @click="handleSubmit">收款完成</el-button>
-                <el-button size="small" @click="close">取 消</el-button>
+                <el-button size="small" @click="close">取消</el-button>
             </div>
         </template>
     </el-dialog>
 </template>
 
 <script>
-import { collectPayment } from '@/api/sparepart/sale/retailOrder/index';
+import { collectPayment, retailPaymentRecordPage } from '@/api/sparepart/sale/retailOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 
@@ -95,7 +95,17 @@ export default {
       // 模拟表格数据
       tableData: [],
       formData: {},
+      loading: false
     };
+  },
+  computed: {
+    remainingPayableAmount () {
+      const totalPayable = parseFloat(this.formData.payableTotalAmount) || 0;
+      const receivedAmount = this.tableData.reduce((sum, row) => {
+        return sum + (parseFloat(row.actualPaymentAmount) || 0);
+      }, 0);
+      return (totalPayable - receivedAmount).toFixed(2);
+    }
   },
   watch: {
     visible (val) {
@@ -115,16 +125,38 @@ export default {
       }
       return [];
     },
-    // 1. 初始化：打开弹窗时，强制显示一笔“其他”的空记录
-    open () {
-      this.tableData = [
-        {
-          paymentMethod: '60', // 默认为其他
-          actualPaymentAmount: '', // 空值
-          invoiceType: '',
-          invoiceNumber: ''
+    // 1. 初始化：先调用收款明细接口，如果有数据就直接赋值，没有数据再初始化一条空记录
+    async open () {
+      this.loading = true;
+      try {
+        const res = await retailPaymentRecordPage({ retailOrderId: this.form.id });
+        // 如果有数据，直接赋值到表格
+        if (res.records && res.records.length > 0) {
+          this.tableData = res.records;
+        } else {
+          // 没有数据，初始化一条空记录
+          this.tableData = [
+            {
+              paymentMethod: '60', // 默认为其他
+              actualPaymentAmount: '', // 空值
+              invoiceType: '',
+              invoiceNumber: ''
+            }
+          ];
         }
-      ];
+        this.loading = false;
+      } catch (error) {
+        // 接口调用失败，初始化一条空记录
+        this.tableData = [
+          {
+            paymentMethod: '60',
+            actualPaymentAmount: '',
+            invoiceType: '',
+            invoiceNumber: ''
+          }
+        ];
+        this.loading = false;
+      }
     },
 
     // 2. 新增：点击新增，追加一行空记录
@@ -146,50 +178,39 @@ export default {
     },
     // 暂存
     async saveSubmit () {
-      const actualPaymentAmount = this.tableData.reduce((sum, element) => {
-        // 确保元素存在且实际支付金额是数字，防止报错
-        const amount = Number(element.actualPaymentAmount) || 0;
-        return sum + amount;
-      }, 0); // 第二个参数 0 是累加的初始值
-
-      if (actualPaymentAmount > this.formData.remainingPayableAmount) {
-        this.$message.error('实付金额超过订单的应付总金额，不允许保存');
-        return;
-      }
       this.submitLoading = true;
       const params = {
         id: this.formData.id,
         isTemp: true,
         payList: this.tableData
       };
-      await collectPayment(params);
-      this.$emit('update:visible', false);
-      this.$emit('success');
-      this.submitLoading = false;
+      try {
+        await collectPayment(params);
+        this.$message.success('收款成功');
+        this.$emit('update:visible', false);
+        this.$emit('success');
+      } finally {
+        // 无论成功还是失败，都会执行这里
+        this.submitLoading = false;
+      }
     },
     // 收款完成
     async handleSubmit () {
-      // 使用 reduce 进行累加
-      const actualPaymentAmount = this.tableData.reduce((sum, element) => {
-        // 确保元素存在且实际支付金额是数字，防止报错
-        const amount = Number(element.actualPaymentAmount) || 0;
-        return sum + amount;
-      }, 0); // 第二个参数 0 是累加的初始值
-      if (actualPaymentAmount !== Number(this.formData.remainingPayableAmount)) {
-        this.$message.error(`结账记录总金额：${actualPaymentAmount}，不等于应付总金额：${this.formData.remainingPayableAmount}，请添加收款记录后，再操作，谢谢`);
-        return;
-      }
       this.submitLoading = true;
       const params = {
         id: this.formData.id,
         isTemp: false,
         payList: this.tableData
       };
-      await collectPayment(params);
-      this.$message.success('收款成功');
-      this.$emit('update:visible', false);
-      this.$emit('success');
-      this.submitLoading = false;
+      try {
+        await collectPayment(params);
+        this.$message.success('收款成功');
+        this.$emit('update:visible', false);
+        this.$emit('success');
+      } finally {
+        // 无论成功还是失败，都会执行这里
+        this.submitLoading = false;
+      }
     }
   }
 };

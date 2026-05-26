@@ -14,6 +14,7 @@
           :default-time="['00:00:00', '23:59:59']"
           v-model="form.createTime"
           type="daterange"
+          unlink-panels
           :picker-options="pickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
@@ -138,7 +139,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
-import { LPVxeTable } from '@leapmotor/design';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/sp/vehRetention/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, sparePartList, listVehicleModel } from '@/api/common';
@@ -221,7 +222,18 @@ export default {
             }]
           },
           { props: 'vehYearTypeName', label: '年款', visible: true, width: 200 },
-          { props: 'vehModelName', label: '车型', visible: true, width: 200 },
+          {
+            props: 'vehModelName',
+            label: '车型',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/sales/datacenter/materials/vehicleModel/detail?id=${row.vehModelId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'cccName', label: '故障名称', visible: true, width: 200 },
           { props: 'partsCode', label: '涉及零件代码', visible: true, width: 200 },
           { props: 'partsName', label: '涉及零件名称', visible: true, width: 200 },

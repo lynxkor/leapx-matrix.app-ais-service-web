@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="common-section-table pb-0">
     <vxe-table
       ref="editTable"
       :data="tableData"
@@ -13,9 +13,10 @@
       max-height="400px"
     >
       <vxe-column title="是否主因" width="80" align="center">
-        <template #default="{ row, rowIndex }">
+        <template #default="{ row }">
           <el-switch
-            v-if="editRowIndex === rowIndex"
+            v-if="canAddOrUpdate"
+            @change="saveRowEdit(row)"
             v-model="row.isMainPart"
             :active-value="1"
             :inactive-value="0"
@@ -26,7 +27,7 @@
       <vxe-column field="oldPartUniqueCode" title="旧件唯一码" width="180"></vxe-column>
       <vxe-column field="partCode" title="零件编码" width="150"></vxe-column>
       <vxe-column field="partName" title="零件名称" width="150"></vxe-column>
-      <vxe-column field="returnType" title="旧件返回类型" width="120"></vxe-column>
+      <vxe-column field="returnPartTypeLabel" title="旧件返还类型" width="120"></vxe-column>
       <vxe-column title="是否已返" width="120">
         <template #default="{row}">
           {{ row.isReturned ? '是' : '否' }}
@@ -48,7 +49,8 @@
             filterable
           >
             <template #option="{ item }">
-              <span>{{ item.partCode }}/{{ item.partName }}————{{ item.supplierName }}({{ item.supplierCode }})</span>
+              <span v-if="item.disabled">{{ item.placeholder }}</span>
+              <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
             </template>
           </fetch-select>
           <span v-else>{{ row.oldPartCode }}</span>
@@ -72,20 +74,18 @@
           <span v-else>{{ row.remark }}</span>
         </template>
       </vxe-column>
-      <vxe-column title="操作" :width="120" align="center" fixed="right" :resizable="false">
+      <vxe-column title="操作" :width="120" align="center" fixed="right" :resizable="false" v-if="canAddOrUpdate">
         <template #default="{ row, rowIndex }">
           <template v-if="editRowIndex === rowIndex">
             <span
               class="action-button btn-edit"
               @click="saveRowEdit(row, rowIndex)"
-              v-if="canAddOrUpdate"
             >
               保存
             </span>
             <span
               class="action-button btn-edit"
               @click="cancelEdit(row, rowIndex)"
-              v-if="canAddOrUpdate"
             >
               取消
             </span>
@@ -94,14 +94,12 @@
             <span
               class="action-button btn-edit"
               @click="editRow(row, rowIndex)"
-              v-if="canAddOrUpdate"
             >
               编辑
             </span>
             <el-popconfirm
               title="确定要删除这条记录吗？"
               @confirm="handleRemoveRow(row, rowIndex)"
-              v-if="canAddOrUpdate"
             >
               <el-button
                 class="action-button btn-delete"
@@ -138,8 +136,9 @@
 <script>
 import { cloneDeep } from 'lodash';
 import { warrantyApplyPartPage, warrantyApplyPartDelete, warrantyApplyPartUpdate } from '@/api/claimreturn/claim/warrantyapply/warrantyApplyPart';
-import { getList } from '@/api/sparepart/basic/sparePartSupplier/index';
+import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
 import FetchSelect from '@/libs/components/FetchSelect';
+import { getList } from '@/api/sparepart/basic/sparePartSupplier/index';
 
 export default {
   props: {
@@ -249,10 +248,12 @@ export default {
         remark: row.remark,
         oldPartId: row.oldPartId,
         oldPartSupplierId: row.oldPartSupplierId,
+        oldPartSupplierName: row.oldPartSupplierName,
       }).then(id => {
         this.$message.success('更新成功');
         this.getDetailPageApi();
         this.editRowIndex = -1;
+        this.$emit('update');
       }).catch(e => {});
     },
     pageSizeChange (pageSize) {
@@ -274,32 +275,58 @@ export default {
     },
     // 搜索旧件
     partRemote (query) {
-      return getList({
-        pageNum: 1,
-        pageSize: 20,
-        partCodeOrNameLike: query,
-      }).then(res => {
-        const records = res.records?.map(item => {
-          return {
-            ...item,
-            partAndSupplierId: item.sparePartId + item.supplierInfoId,
-          };
+      return new Promise((resolve, reject) => {
+        getList({
+          pageNum: 1,
+          pageSize: 20,
+          oemPart: 1,
+          partCodeOrNameLike: query,
+          status: 1,
+        }).then(res => {
+          if (!res?.records?.length) {
+            resolve({
+              ...res,
+              records: [
+                {
+                  placeholder: `备件编码：${query}不存在备件供应商关系信息`,
+                  disabled: true,
+                }
+              ],
+            });
+          } else {
+            const records = res?.records?.map(item => {
+              return {
+                ...item,
+                partAndSupplierId: item.sparePartId + item.supplierInfoId,
+              };
+            });
+            resolve({
+              ...res,
+              records,
+            });
+          }
         });
-        return {
-          ...res,
-          records,
-        };
       });
     },
     // 旧件选择变更
     onOldPartChange (val, option, row) {
-      row.oldPartCode = option?.partCode;
-      row.oldPartName = option?.partName;
-      row.oldPartId = option?.sparePartId;
+      if (!option) {
+        row.oldPartCode = '';
+        row.oldPartName = '';
+        row.oldPartId = '';
+        row.oldPartSupplierCode = '';
+        row.oldPartSupplierName = '';
+        row.oldPartSupplierId = '';
+        row.partAndSupplierId = '';
+        return;
+      }
+      row.oldPartCode = option.partCode;
+      row.oldPartName = option.partName;
+      row.oldPartId = option.sparePartId;
 
-      row.oldPartSupplierCode = option?.supplierCode;
-      row.oldPartSupplierName = option?.supplierName;
-      row.oldPartSupplierId = option?.supplierInfoId;
+      row.oldPartSupplierCode = option.supplierCode;
+      row.oldPartSupplierName = option.supplierName;
+      row.oldPartSupplierId = option.supplierInfoId;
       row.partAndSupplierId = row.oldPartId + row.oldPartSupplierId;
     }
   },

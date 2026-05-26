@@ -3,6 +3,23 @@ import api from '@/axios';
 const prefix = 'claimreturn/claim/web/warrantyaudit/warrantyAuditDetail/';
 
 /**
+ * 查询加密数据
+ * @param {String} id
+ * @param {String} field
+ */
+export function getDecryptField (id, field) {
+  let param = {
+    id,
+    decryptFields: [field]
+  };
+  return new Promise(resolve => {
+    api.jsonPost(prefix + 'getDetailDecrypt', param).then(res => {
+      resolve(res?.[field]);
+    });
+  });
+}
+
+/**
  * 查询列表
  * @param {Object} data
  */
@@ -47,7 +64,7 @@ export function getDetailWithRelated (data) {
  * @param {Object} data
  */
 export function supplyMaterial (data) {
-  return api.jsonPost(prefix + 'supplyMaterial', data);
+  return api.jsonPost(prefix + 'supplementMaterial', data);
 }
 
 /**
@@ -55,7 +72,7 @@ export function supplyMaterial (data) {
  * @param {Object} data
  */
 export function auditPass (data) {
-  return api.jsonPost(prefix + 'auditPass', data);
+  return api.jsonPost(prefix + 'pass', data);
 }
 
 /**
@@ -63,7 +80,7 @@ export function auditPass (data) {
  * @param {Object} data
  */
 export function auditReject (data) {
-  return api.jsonPost(prefix + 'auditReject', data);
+  return api.jsonPost(prefix + 'reject', data);
 }
 
 /**
@@ -112,4 +129,12 @@ export function getErrorConfigList (data) {
  */
 export function calculateDeduction (data) {
   return api.jsonPost(prefix + 'calculateDeduction', data);
+}
+
+/**
+ * 补充材料明细表分页查询
+ * @param {Object} data
+ */
+export function getSupplyMaterial (data) {
+  return api.jsonPost('claimreturn/claim/web/warrantyapply/warrantyApply/get', data);
 }

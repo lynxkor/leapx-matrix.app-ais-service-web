@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" :title="detailTitle">
+  <edit-page-layout ref="editLayout" :title="detailTitle" class="purchase-apply">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :form.sync="form"
@@ -8,6 +8,12 @@
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
           <span class="status primary">{{ form.orderStatusLabel }}</span>
+        </template>
+        <template #extraButtons>
+          <el-button v-if="showSubmit" plain size="small" :loading="actionLoading" @click="handleSubmit(form)">提交</el-button>
+          <el-button v-if="showAgree" plain size="small" @click="handleAgree(form)">同意</el-button>
+          <el-button v-if="showReject" plain size="small" :loading="actionLoading" @click="handleReject(form)">驳回</el-button>
+          <el-button v-if="showCopy" type="primary" size="small" :loading="actionLoading" @click="handleCopy(form)">复制</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -22,10 +28,10 @@
                 <el-form-item label="门店编码：" prop="dealerCode">
                   <fetch-select :remote-method="getDealerList" remote v-model="form.dealerCode" placeholder="请输入门店编码或名称"
                     labelKey="orgCode" valueKey="orgCode" subLabelKey="orgName" clearable filterable
-                    :disabled="isEditing" @change="handleDealerChange" />
+                    :disabled="isEditing || accountFlag" @change="handleDealerChange" />
                 </el-form-item>
                 <el-form-item label="采购申请单：" prop="code">
-                  {{ form.code }}
+                  <el-input placeholder="请输入" v-model="form.code" disabled />
                 </el-form-item>
                 <el-form-item label="订单类型：" prop="purchaseOrderType">
                   <el-select v-model="form.purchaseOrderType" placeholder="请选择" clearable filterable
@@ -39,10 +45,10 @@
                     placeholder="请选择" disabled clearable filterable />
                 </el-form-item>
                 <el-form-item label="公司名称：" prop="companyCode">
-                  {{ form.companyName }}
+                  <el-input placeholder="请输入" v-model="form.companyName" disabled />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  {{ form.dealerName }}
+                  <el-input placeholder="请输入" v-model="form.dealerName" disabled />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.remark"
@@ -53,7 +59,7 @@
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
                 v-show="isEditing || !_id">
                 <el-form-item label="仓库名称：">
-                  {{ form.warehouseName }}
+                  <el-input placeholder="请输入" v-model="form.warehouseName" disabled />
                 </el-form-item>
                 <el-form-item label="是否第三方收货：" prop="thirdPartyDeliveryIs">
                   <el-radio-group v-model="form.thirdPartyDeliveryIs" :disabled="!isThirdPartyDelivery">
@@ -79,48 +85,48 @@
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
                 v-show="isEditing || !_id">
                 <el-form-item label="提交人：" prop="submitter">
-                  {{ form.submitterName }}
+                  <el-input placeholder="请输入" v-model="form.submitterName" disabled />
                 </el-form-item>
                 <el-form-item label="提交时间：" prop="submitTime">
-                  {{ form.submitTime }}
+                  <el-input placeholder="请输入" v-model="form.submitTime" disabled />
                 </el-form-item>
                 <el-form-item label="审批人：" prop="approver">
-                  {{ form.approverName }}
+                  <el-input placeholder="请输入" v-model="form.approverName" disabled />
                 </el-form-item>
                 <el-form-item label="审批时间：" prop="approvalTime">
-                  {{ form.approvalTime }}
+                  <el-input placeholder="请输入" v-model="form.approvalTime" disabled />
                 </el-form-item>
                 <el-form-item label="审批说明：" prop="approvalDescription">
-                  {{ form.approvalDescription }}
+                  <el-input type="textarea" maxlength="500" show-word-limit placeholder="请输入" v-model="form.approvalDescription" clearable disabled />
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="isEditing || !_id">资金信息</div>
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
                 v-show="isEditing || !_id">
                 <el-form-item label="采购金额：" prop="purchaseAmount">
-                  {{ form.purchaseAmount }}
+                  <el-input placeholder="请输入" v-model="form.purchaseAmount" disabled />
                 </el-form-item>
                 <el-form-item label="使用现金：" prop="cashAmount">
-                  {{ form.cashAmount }}
+                  <el-input placeholder="请输入" v-model="form.cashAmount" disabled />
                 </el-form-item>
                 <el-form-item label="使用返利：" prop="rebateAmount">
-                  {{ form.rebateAmount }}
+                  <el-input placeholder="请输入" v-model="form.rebateAmount" disabled />
                 </el-form-item>
                 <el-form-item label="现金可用资金：" prop="cashAvailableAmount">
-                  {{ form.cashAvailableAmount }}
+                  <el-input placeholder="请输入" v-model="form.cashAvailableAmount" disabled />
                 </el-form-item>
                 <el-form-item label="返利可用资金：" prop="rebateAvailableAmount">
-                  {{ form.rebateAvailableAmount }}
+                  <el-input placeholder="请输入" v-model="form.rebateAvailableAmount" disabled />
                 </el-form-item>
               </el-form>
               <div class="common-title" v-show="isEditing || !_id">其他信息</div>
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit"
                 v-show="isEditing || !_id">
                 <el-form-item label="缺货单号：" prop="backOrderId">
-                  {{ form.backOrderCode }}
+                  <el-input placeholder="请输入" v-model="form.backOrderCode" disabled />
                 </el-form-item>
                 <el-form-item label="原价券：" prop="originalPriceCouponId">
-                  {{ form.originalPriceCouponId }}
+                  <el-input placeholder="请输入" v-model="form.originalPriceCouponId" disabled />
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
                   <el-input placeholder="请输入" v-model="form.vin" clearable :disabled="orderTypeDisabled" />
@@ -245,10 +251,10 @@
               <h2>备件信息</h2>
             </div>
             <div class="common-section-body">
-              <div class="ais-select-group">
+              <div style="margin-bottom: 10px;">
                 <el-button size="small" @click="handleAdd" :disabled="!['0', '3'].includes(form.orderStatus)"><i
                     class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
-                <el-button class="ais-button" size="small">
+                <el-button class="ais-button" size="small" :disabled="!['0', '3'].includes(form.orderStatus)" @click="handleRestock">
                   补货预测
                 </el-button>
                 <el-button size="small" @click="handleImport" :disabled="!routeQueryType">备件导入</el-button>
@@ -298,6 +304,32 @@
               </div>
             </div>
           </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>附件信息</h2>
+            </div>
+            <div class="common-section-body">
+              <h2 class="common-title">附件申请</h2>
+              <div class="common-section-table">
+                <!-- 附件上传组件 -->
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_partsclaimorder"
+                  attachType="索赔申请附件"
+                  readonly
+                />
+              </div>
+              <h2 class="common-title">审批附件</h2>
+              <div class="common-section-table">
+                <AisAttachment
+                  :businessId="_id"
+                  configCode="mcs_partsclaimorder"
+                  attachType="索赔审批附件"
+                  readonly
+                />
+              </div>
+            </div>
+          </section>
         </el-main>
       </edit-base-container>
     </template>
@@ -305,16 +337,45 @@
       <div class="page-common-edit">
         <!-- 右侧栏组件，自行开发 -->
         <SparePartsDetail :purchase-apply-id="_id" :purchaseApplyDeleteId="purchaseApplyDeleteId"
-          @submit="getDetailData" />
+          @submit="handleRefresh" />
       </div>
     </template>
     <Upload :visible="uploadDialogVisible" :businessParams="_id" id="sparePartPurchaseApplyDetailImport"
-      @close="handleUploadDialogClose" @submit="getDetailData" />
+      @close="handleUploadDialogClose" @submit="handleRefresh" />
+    <!-- 补货预测 弹窗 -->
+    <RestockDialog :visible.sync="restockDialog" :id="_id" @update:visible="val => restockDialog = val"
+    @submit="handleRefresh" />
+    <!-- 提交弹窗 -->
+    <SubmitDialog
+      ref="submitDialogRef"
+      :visible.sync="submitDialogVisible"
+      :id="purchaseId"
+      :purchaseList="purchaseList"
+      @close="handleSubmitDialogClose"
+    />
+    <!-- 同意弹窗 -->
+     <AgreeDialog
+      ref="agreeDialogRef"
+      :visible.sync="agreeDialogVisible"
+      :id="purchaseId"
+      :purchaseList="purchaseList"
+      @close="handleAgreeDialogClose"
+    />
+    <!-- 审批同意弹窗 -->
+     <ApprovalDialog
+      ref="approvalDialogRef"
+      :visible.sync="approvalDialogVisible"
+      :id="purchaseId"
+      :couponObj="couponObj"
+      @failure="handleApprovalFailure"
+      @success="handleApprovalSuccess"
+      @close="handleApprovalDialogClose"
+    />
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getPurchaseApplyPage, purchaseApplyDelete } from '@/api/sparepart/purchase/purchaseApply/index';
+import { getDetail, addOrUpdate, getPurchaseApplyPage, purchaseApplyDelete, purchaseApplyReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, purchaseApplyGetCoupon } from '@/api/sparepart/purchase/purchaseApply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -324,8 +385,14 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { getAreaTree } from '@/utils';
 import SparePartsDetail from './SparePartsDetail.vue';
 import Upload from '@/libs/components/UploadDialog';
+import RestockDialog from './RestockDialog.vue';
+import SubmitDialog from './SubmitDialog.vue';
+import AgreeDialog from './AgreeDialog.vue';
+import ApprovalDialog from './ApprovalDialog.vue';
+import AisAttachment from '@/libs/components/AisAttachment';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -390,7 +457,12 @@ export default {
     EditBaseContainer,
     FetchSelect,
     SparePartsDetail,
-    Upload
+    Upload,
+    RestockDialog,
+    SubmitDialog,
+    AgreeDialog,
+    ApprovalDialog,
+    AisAttachment
   },
   computed: {
     _id () {
@@ -401,6 +473,42 @@ export default {
     },
     isThirdPartyDelivery () {
       return this.isAllowedThirdDelivered === 1;
+    },
+    showSubmit () { // 必须满足订单状态条件
+      if (!this._id || (this.form.orderStatus !== '0' && this.form.orderStatus !== '3')) {
+        return false;
+      }
+      if (this.accountFlag) { // 门店账号需要额外检查订单类型
+        return ((this.form.purchaseOrderType === '0' || this.form.purchaseOrderType === '1') && !this.form.backOrderCode) && this.permissions.has('AISPART-purchaseApply-submit');
+      }
+      return true; // 主机厂账号直接显示
+    },
+    showAgree () { // 必须满足订单状态条件
+      if (!this._id || this.form.orderStatus !== '1') {
+        return false;
+      }
+      if (this.accountFlag) { // 门店账号需要额外检查订单类型
+        return ((this.form.purchaseOrderType === '0' || this.form.purchaseOrderType === '1') && !this.form.backOrderCode) && this.permissions.has('AISPART-purchaseApply-agree');
+      }
+      return true; // 主机厂账号直接显示
+    },
+    showReject () { // 必须满足订单状态条件
+      if (!this._id || this.form.orderStatus !== '1') {
+        return false;
+      }
+      if (this.accountFlag) { // 门店账号需要额外检查订单类型
+        return ((this.form.purchaseOrderType === '0' || this.form.purchaseOrderType === '1') && !this.form.backOrderCode) && this.permissions.has('AISPART-purchaseApply-reject');
+      }
+      return true; // 主机厂账号直接显示
+    },
+    showCopy () {
+      if (!this._id) {
+        return false;
+      }
+      if (this.accountFlag) { // 门店账号需要额外检查订单类型
+        return (this.form.purchaseOrderType === '0' || this.form.purchaseOrderType === '1') && this.permissions.has('AISPART-purchaseApply-copy');
+      }
+      return true; // 主机厂账号直接显示
     }
   },
   watch: {
@@ -442,7 +550,7 @@ export default {
       },
       immediate: true
     },
-    accountPermissions: {
+    accountFlag: {
       handler (val) {
         if (val) { // 门店账号，只可以选择普通订单和紧急订单；同时非这两类订单类型以及【缺货单号】非空的单据，门店账号只能查看，所有编辑提交等动作都不允许，主机厂账号不受限，按正常逻辑
           if ((this.form.purchaseOrderType !== '0' || this.form.purchaseOrderType !== '1') && this.form.backOrderCode) {
@@ -475,8 +583,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      oem: false,
-      areaOptions: JSON.parse(localStorage.areaTree),
+      areaOptions: getAreaTree(),
       orgProps: {
         checkStrictly: true,
         emitPath: false,
@@ -491,6 +598,7 @@ export default {
       moduleKey: 'AISPART-purchaseApply',
       loading: false,
       submitLoading: false,
+      actionLoading: false,
       routeQueryType: false, // 路由参数ID 是否可编辑
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
@@ -498,13 +606,23 @@ export default {
       detailTitle: '添加备件',
       uploadDialogVisible: false,
       purchaseOrderTypeOptions: [], // 采购申请单 订单类型
-      accountPermissions: false, // 账号权限控制 判断为主机厂还是门店账号
       orderTypeDisabled: true,
+      restockDialog: false, // 补货预测 弹窗控制
+      submitDialogVisible: false, // 提交按钮弹窗
+      agreeDialogVisible: false, // 同意按钮弹窗.
+      approvalDialogVisible: false, // 审批按钮弹窗.
+      couponObj: {}, // 优惠券对象
+      purchaseId: '', // 采购单ID
+      purchaseList: [], // 不可采购清单
       pageSize: 10,
       current: 1,
       total: 0,
       purchaseApplyDeleteId: '', // 采购申请单ID
       tableData: [],
+      accountFlag: true, // 查询是否店端 true为门店  false为厂端
+      currentDealerCode: '', // 当前门店code
+      currentDealerName: '', // 当前门店名称
+      isPartOrder: null, // 是否有备附件订购能力,
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       rules: {
         purchaseOrderType: [
@@ -540,7 +658,6 @@ export default {
     };
   },
   mounted () {
-    this.oem = this.$store.state.pageSource?.aisPageSource.includes('AISPART-sparePart-oem');
     this.getLoginUser();
     this.getDetailData();
   },
@@ -609,7 +726,17 @@ export default {
     async getLoginUser () {
       try {
         const res = await getLoginUser();
-        this.accountPermissions = res.accountFlag;
+        this.accountFlag = res.accountFlag;
+        this.currentDealerCode = res.currentDealerCode;
+        this.currentDealerName = res.currentDealerName;
+
+        if (this.accountFlag === true) {
+          const resDealer = await getPartDealer({ code: this.currentDealerCode });
+          this.isPartOrder = resDealer.isPartOrder;
+        } else {
+          this.isPartOrder = true;
+        }
+
         if (res.accountFlag) {
           this.form.dealerCode = res.currentDealerCode;
           this.form.dealerName = res.currentDealerName;
@@ -699,7 +826,7 @@ export default {
     async getOrderType () {
       let list = [];
       list = await this.fetchOptions('PurchaseOrderTypeEnum');
-      if (this.accountPermissions) {
+      if (this.accountFlag) {
         // 保留 code 为0 或 1的数据
         list = list.filter(item => ['0', '1'].includes(item.code));
       }
@@ -728,6 +855,11 @@ export default {
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
+    // 刷新详情页所有接口
+    async handleRefresh () {
+      await this.$refs.containerRef.loadDetail();
+      this.getDetailData();
+    },
     // 请求备件列表表格接口
     async getDetailData () {
       const params = {
@@ -752,41 +884,196 @@ export default {
     async handleDel (val) {
       await purchaseApplyDelete([val.id]);
       this.getDetailData();
-    }
+    },
+    // 补货预测
+    handleRestock () {
+      this.restockDialog = true;
+    },
+    // 提交
+    async handleSubmit (val) {
+      this.actionLoading = true;
+      try {
+        const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
+        if (res.records.length > 0) {
+          this.purchaseId = val.id;
+          this.purchaseList = res.records || [];
+          this.submitDialogVisible = true;
+        } else {
+          const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确认提交吗？</div>';
+
+          this.$confirm(message, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true,
+            customClass: 'ais-leave-tips',
+            showClose: false
+          }).then(async () => {
+            await purchaseApplySubmit({ id: val.id });
+            // 提示成功
+            this.$message.success('提交成功!');
+            // 执行额外回调（比如刷新列表）
+            this.handleRefresh();
+          }).catch(() => {
+          }).finally(() => {
+            this.actionLoading = false;
+          });
+        }
+      } finally {
+        if (!this.submitDialogVisible) {
+          this.actionLoading = false;
+        }
+      }
+    },
+    handleSubmitDialogClose () {
+      this.submitDialogVisible = false;
+      this.handleRefresh();
+      this.actionLoading = false;
+    },
+    // 同意
+    async handleAgree (val) {
+      if (!val || !val.id) {
+        this.$message.warning('操作失败：缺少采购单ID');
+        return;
+      }
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确认同意吗？</div>';
+
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
+        if (res.records.length > 0) {
+        // 确保只设置有效的id值
+          if (val.id) {
+            this.purchaseId = val.id;
+            this.purchaseList = res.records || [];
+            this.agreeDialogVisible = true;
+          } else {
+            this.$message.warning('操作失败：缺少采购单ID');
+          }
+        } else if (res.records.length === 0) {
+          const res = await purchaseApplyGetCoupon({ id: val.id });
+          // 确保只设置有效的id值
+          if (val.id) {
+            this.couponObj = res;
+            this.purchaseId = val.id;
+            this.approvalDialogVisible = true;
+          } else {
+            this.$message.warning('操作失败：缺少采购单ID');
+          }
+        }
+      }).catch(() => {
+      });
+    },
+    handleAgreeDialogClose () {
+      this.agreeDialogVisible = false;
+      this.handleRefresh();
+    },
+    // 统一成功调按钮 接口
+    handleApprovalSuccess () {
+      this.approvalDialogVisible = false;
+      this.handleRefresh();
+    },
+    handleApprovalDialogClose () {
+      this.approvalDialogVisible = false;
+      this.handleRefresh();
+    },
+    // 审批同意失败时
+    handleApprovalFailure (val) {
+      this.approvalDialogVisible = false;
+      if (val) {
+        this.purchaseId = val;
+        this.agreeDialogVisible = true;
+      } else {
+        this.$message.error('操作失败：缺少采购单ID');
+      }
+    },
+    // 驳回
+    async handleReject (val) {
+      this.actionLoading = true;
+      this.$prompt('请输入审批说明', '驳回', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /.+/, // 校验非空
+        inputErrorMessage: '请输入备注',
+      }).then(async ({ value }) => {
+        // 2. 二次校验：防止通过特殊手段绕过前端限制或处理粘贴超长文本的情况
+        if (!value || value.length > 100) {
+          this.$message.warning('请输入不超过100个字符的审批说明');
+          return Promise.reject(new Error('中断链条')); //  中断链条
+        }
+        // 调用 API，并传入用户输入的备注
+        await purchaseApplyReject({ id: val.id, approvalDescription: value });
+        this.$message.success('驳回成功!');
+        this.handleRefresh();
+      }).catch(() => {
+        // 用户取消或校验失败，静默处理
+      }).finally(() => {
+        this.actionLoading = false;
+      });
+    },
+    // 复制
+    async handleCopy (row) {
+      this.actionLoading = true;
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确认复制吗？</div>';
+
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(async () => {
+        const res = await purchaseApplyCopy({ id: row.id });
+        this.$router.push({
+          path: '/sparepart/purchase/purchaseApply/edit',
+          query: {
+            id: res
+          }
+        });
+        // 如果是当前页面跳转，强制刷新
+        if (this.$route.query.id === res) {
+          this.handleRefresh();
+        }
+      }).catch(() => {
+      }).finally(() => {
+        this.actionLoading = false;
+      });
+    },
   }
 };
 </script>
 <style lang="scss" scoped>
-.common-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: #0A0E0A;
-}
+.purchase-apply {
+  .ais-select-group {
+    margin-bottom: 12px;
+  }
 
-.ais-select-group {
-  margin-bottom: 12px;
-}
+  .ais-button {
+    margin-left: 12px;
+    border-radius: 4px;
+  }
 
-.ais-button {
-  margin-left: 12px;
-  border-radius: 4px;
-}
+  .common-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0A0E0A;
+    margin-bottom: 16px;
+    padding-top: 4px;
+  }
 
-.common-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #0A0E0A;
-  margin-bottom: 10px;
-}
+  .table-pagination {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+  }
 
-.table-pagination {
-  margin-top: 15px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.clickable {
-  cursor: pointer;
-  color: #009100;
+  .clickable {
+    cursor: pointer;
+    color: #009100;
+  }
 }
 </style>

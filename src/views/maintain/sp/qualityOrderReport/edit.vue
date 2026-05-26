@@ -17,7 +17,7 @@
           <!-- 支持primary,warning,success,danger等状态 -->
         </template>
         <template #extraButtons>
-          <el-button size="small" v-if="canSubmitApproval" @click="handleSubmitApproval()">提交审批</el-button>
+          <el-button size="small" v-if="canSubmitApproval" :loading="submitApprovalLoading" @click="handleSubmitApproval()">提交审批</el-button>
           <el-button size="small" v-if="canApproval" @click="clickApproval()">审批</el-button>
         </template>
         <template v-if="_id">
@@ -37,540 +37,528 @@
                 <div class="common-section-header">
                   <h3>报告主题</h3>
                 </div>
-                <div class="common-section-body">
-                  <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                    <el-form-item label="报告类型：" prop="reportType">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="QualityReportTypeEnum"
-                        v-model="form.reportType"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="故障主题：" prop="title">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.title"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="问题重要度：" prop="problemImportance">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="QualityReportImportanceEnum"
-                        v-model="form.problemImportance"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="车辆是否修复：" prop="carIsVehicle">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="BooleanEnum"
-                        v-model="form.carIsVehicle"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="问题是否解决：" prop="isQuestionOk">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="BooleanEnum"
-                        v-model="form.isQuestionOk"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                  </el-form>
-                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                    <el-form-item label="质量反馈单号：" prop="code">
-                      {{ form.code }}
-                    </el-form-item>
-                    <el-form-item label="报告类型：" prop="reportType">
-                      {{ form.reportTypeLabel }}
-                    </el-form-item>
-                    <el-form-item label="问题重要度：" prop="problemImportance">
-                      {{ form.problemImportanceLabel }}
-                    </el-form-item>
-                    <el-form-item label="故障主题：" prop="title">
-                      {{ form.title }}
-                    </el-form-item>
-                    <el-form-item label="车辆是否修复：" prop="carIsVehicle">
-                      {{ form.carIsVehicleLabel }}
-                    </el-form-item>
-                    <el-form-item label="问题是否解决：" prop="isQuestionOk">
-                      {{ form.isQuestionOkLabel }}
-                    </el-form-item>
-                    <el-form-item label="创建时间：" prop="createTime">
-                      {{ form.createTime }}
-                    </el-form-item>
-                  </el-form>
-                </div>
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                  <el-form-item label="报告类型：" prop="reportType">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="QualityReportTypeEnum"
+                      v-model="form.reportType"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="故障主题：" prop="title">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.title"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="问题重要度：" prop="problemImportance">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="QualityReportImportanceEnum"
+                      v-model="form.problemImportance"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="车辆是否修复：" prop="carIsVehicle">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="BooleanEnum"
+                      v-model="form.carIsVehicle"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="问题是否解决：" prop="isQuestionOk">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="BooleanEnum"
+                      v-model="form.isQuestionOk"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                </el-form>
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                  <el-form-item label="质量反馈单号：" prop="code">
+                    {{ form.code }}
+                  </el-form-item>
+                  <el-form-item label="报告类型：" prop="reportType">
+                    {{ form.reportTypeLabel }}
+                  </el-form-item>
+                  <el-form-item label="问题重要度：" prop="problemImportance">
+                    {{ form.problemImportanceLabel }}
+                  </el-form-item>
+                  <el-form-item label="故障主题：" prop="title">
+                    {{ form.title }}
+                  </el-form-item>
+                  <el-form-item label="车辆是否修复：" prop="carIsVehicle">
+                    {{ form.carIsVehicleLabel }}
+                  </el-form-item>
+                  <el-form-item label="问题是否解决：" prop="isQuestionOk">
+                    {{ form.isQuestionOkLabel }}
+                  </el-form-item>
+                  <el-form-item label="创建时间：" prop="createTime">
+                    {{ form.createTime }}
+                  </el-form-item>
+                </el-form>
                 <div class="common-section-header">
                   <h3>质量反馈</h3>
                 </div>
-                <div class="common-section-body">
-                  <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                    <el-form-item label="接车施工单：" prop="serviceProxyCode">
-                      <fetch-select
-                        filterable
-                        clearable
-                        remote
-                        reserve-keyword
-                        v-model="form.serviceProxyCode"
-                        :remote-method="serviceProxySearch"
-                        :params="form.serviceProxyCode"
-                        @change="handleServiceProxyChange"
-                        value-key="id"
-                        label-key="code"
-                        placeholder="请输入施工单号"
-                      />
-                    </el-form-item>
-                    <el-form-item label="VIN码：" prop="vehProfileVin">
-                      <fetch-select
-                        filterable
-                        clearable
-                        remote
-                        reserve-keyword
-                        v-model="form.vehProfileVin"
-                        :remote-method="searchVehicle"
-                        @change="handleVinChange"
-                        :disabled="vinDisabled"
-                        value-key="vin"
-                        label-key="vin"
-                      />
-                    </el-form-item>
-                    <el-form-item label="基本车型：" prop="vehModelName">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.vehModelName"
-                        clearable
-                        disabled
-                      />
-                    </el-form-item>
-                    <el-form-item label="里程数（KM)：" prop="mileage">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.mileage"
-                        clearable
-                        disabled
-                      />
-                    </el-form-item>
-                    <el-form-item label="电池序列号：" prop="powerBatteryNumber">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.powerBatteryNumber"
-                        clearable
-                        disabled
-                      />
-                    </el-form-item>
-                    <el-form-item label="电机序列号：" prop="motorSerialNumber">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.motorSerialNumber"
-                        clearable
-                        disabled
-                      />
-                    </el-form-item>
-                    <el-form-item label="VRT名称：" prop="vrtName">
-                      <fetch-select
-                        filterable
-                        clearable
-                        remote
-                        reserve-keyword
-                        v-model="form.vrtName"
-                        :remote-method="listVrt"
-                        @change="handleVrtChange"
-                        value-key="id"
-                        label-key="name"
-                      />
-                    </el-form-item>
-                    <el-form-item label="VFG名称：" prop="vfgName">
-                      <fetch-select
-                        filterable
-                        clearable
-                        remote
-                        reserve-keyword
-                        v-model="form.vfgName"
-                        :remote-method="listVfg"
-                        @change="handleVfgChange"
-                        value-key="id"
-                        label-key="name"
-                        :disabled="vfgDisabled"
-                      />
-                    </el-form-item>
-                    <el-form-item label="CCC名称：" prop="cccName">
-                      <fetch-select
-                        filterable
-                        clearable
-                        remote
-                        reserve-keyword
-                        v-model="form.cccName"
-                        :remote-method="listCcc"
-                        @change="handleCccChange"
-                        value-key="id"
-                        label-key="cccName"
-                        :disabled="cccDisabled"
-                      />
-                    </el-form-item>
-                    <el-form-item label="主因零部件：" prop="causePartId">
-                      <fetch-select
-                        placeholder="搜索维修零件代码、名称"
-                        remote
-                        reserve-keyword
-                        v-model="form.causePartName"
-                        :remote-method="listSparePart"
-                        @change="handleSparePartChange"
-                        value-key="partCode"
-                        label-key="partName"
-                      />
-                    </el-form-item>
-                    <el-form-item label="供应商：" prop="supplierName">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.supplierName"
-                        clearable
-                        disabled
-                      />
-                    </el-form-item>
-                    <el-form-item label="销售日期：" prop="salesDate">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.salesDate"
-                        clearable
-                        disabled
-                      />
-                    </el-form-item>
-                    <el-form-item label="维修时间：" prop="repairDate">
-                      <el-date-picker
-                        v-model="form.repairDate"
-                        range-separator="至"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                        align="right"
-                      />
-                    </el-form-item>
-                  </el-form>
-                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                    <el-form-item label="接车施工单：" prop="serviceProxyCode">
-                      {{ form.serviceProxyCode }}
-                    </el-form-item>
-                    <el-form-item label="VIN码：" prop="vehProfileVin">
-                      {{ form.vehProfileVin }}
-                    </el-form-item>
-                    <el-form-item label="基本车型：" prop="vehModelName">
-                      {{ form.vehModelName }}
-                    </el-form-item>
-                    <el-form-item label="里程数（KM)：" prop="mileage">
-                      {{ form.mileage }}
-                    </el-form-item>
-                    <el-form-item label="电池序列号：" prop="powerBatteryNumber">
-                      {{ form.powerBatteryNumber }}
-                    </el-form-item>
-                    <el-form-item label="电机序列号：" prop="motorSerialNumber">
-                      {{ form.motorSerialNumber }}
-                    </el-form-item>
-                    <el-form-item label="VRT名称：" prop="vrtName">
-                      {{ form.vrtName }}
-                    </el-form-item>
-                    <el-form-item label="VFG名称：" prop="vfgName">
-                      {{ form.vfgName }}
-                    </el-form-item>
-                    <el-form-item label="CCC名称：" prop="cccName">
-                      {{ form.cccName }}
-                    </el-form-item>
-                    <el-form-item label="主因零部件：" prop="causePartName">
-                      {{ form.causePartName }}
-                    </el-form-item>
-                    <el-form-item label="供应商：" prop="supplierName">
-                      {{ form.supplierName }}
-                    </el-form-item>
-                    <el-form-item label="销售日期：" prop="salesDate">
-                      {{ form.salesDate }}
-                    </el-form-item>
-                    <el-form-item label="维修时间：" prop="repairDate">
-                      {{ form.repairDate }}
-                    </el-form-item>
-                  </el-form>
-                </div>
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                  <el-form-item label="接车施工单：" prop="serviceProxyCode">
+                    <fetch-select
+                      filterable
+                      clearable
+                      remote
+                      reserve-keyword
+                      v-model="form.serviceProxyCode"
+                      :remote-method="serviceProxySearch"
+                      :params="form.serviceProxyCode"
+                      @change="handleServiceProxyChange"
+                      value-key="id"
+                      label-key="code"
+                      placeholder="请输入施工单号"
+                    />
+                  </el-form-item>
+                  <el-form-item label="VIN码：" prop="vehProfileVin">
+                    <fetch-select
+                      filterable
+                      clearable
+                      remote
+                      reserve-keyword
+                      v-model="form.vehProfileVin"
+                      :remote-method="searchVehicle"
+                      @change="handleVinChange"
+                      :disabled="vinDisabled"
+                      value-key="vin"
+                      label-key="vin"
+                    />
+                  </el-form-item>
+                  <el-form-item label="基本车型：" prop="vehModelName">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.vehModelName"
+                      clearable
+                      disabled
+                    />
+                  </el-form-item>
+                  <el-form-item label="里程数（KM)：" prop="mileage">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.mileage"
+                      clearable
+                      disabled
+                    />
+                  </el-form-item>
+                  <el-form-item label="电池序列号：" prop="powerBatteryNumber">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.powerBatteryNumber"
+                      clearable
+                      disabled
+                    />
+                  </el-form-item>
+                  <el-form-item label="电机序列号：" prop="motorSerialNumber">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.motorSerialNumber"
+                      clearable
+                      disabled
+                    />
+                  </el-form-item>
+                  <el-form-item label="VRT名称：" prop="vrtName">
+                    <fetch-select
+                      filterable
+                      clearable
+                      remote
+                      reserve-keyword
+                      v-model="form.vrtName"
+                      :remote-method="listVrt"
+                      @change="handleVrtChange"
+                      value-key="id"
+                      label-key="name"
+                    />
+                  </el-form-item>
+                  <el-form-item label="VFG名称：" prop="vfgName">
+                    <fetch-select
+                      filterable
+                      clearable
+                      remote
+                      reserve-keyword
+                      v-model="form.vfgName"
+                      :remote-method="listVfg"
+                      @change="handleVfgChange"
+                      value-key="id"
+                      label-key="name"
+                      :disabled="vfgDisabled"
+                    />
+                  </el-form-item>
+                  <el-form-item label="CCC名称：" prop="cccName">
+                    <fetch-select
+                      filterable
+                      clearable
+                      remote
+                      reserve-keyword
+                      v-model="form.cccName"
+                      :remote-method="listCcc"
+                      @change="handleCccChange"
+                      value-key="id"
+                      label-key="cccName"
+                      :disabled="cccDisabled"
+                    />
+                  </el-form-item>
+                  <el-form-item label="主因零部件：" prop="causePartId">
+                    <fetch-select
+                      placeholder="搜索维修零件代码、名称"
+                      remote
+                      reserve-keyword
+                      v-model="form.causePartName"
+                      :remote-method="listSparePart"
+                      @change="handleSparePartChange"
+                      value-key="partCode"
+                      label-key="partName"
+                    />
+                  </el-form-item>
+                  <el-form-item label="供应商：" prop="supplierName">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.supplierName"
+                      clearable
+                      disabled
+                    />
+                  </el-form-item>
+                  <el-form-item label="销售日期：" prop="salesDate">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.salesDate"
+                      clearable
+                      disabled
+                    />
+                  </el-form-item>
+                  <el-form-item label="维修时间：" prop="repairDate">
+                    <el-date-picker
+                      type="datetime"
+                      v-model="form.repairDate"
+                      value-format="yyyy-MM-dd HH:mm:ss"
+                      align="right"
+                    />
+                  </el-form-item>
+                </el-form>
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                  <el-form-item label="接车施工单：" prop="serviceProxyCode">
+                    {{ form.serviceProxyCode }}
+                  </el-form-item>
+                  <el-form-item label="VIN码：" prop="vehProfileVin">
+                    {{ form.vehProfileVin }}
+                  </el-form-item>
+                  <el-form-item label="基本车型：" prop="vehModelName">
+                    {{ form.vehModelName }}
+                  </el-form-item>
+                  <el-form-item label="里程数（KM)：" prop="mileage">
+                    {{ form.mileage }}
+                  </el-form-item>
+                  <el-form-item label="电池序列号：" prop="powerBatteryNumber">
+                    {{ form.powerBatteryNumber }}
+                  </el-form-item>
+                  <el-form-item label="电机序列号：" prop="motorSerialNumber">
+                    {{ form.motorSerialNumber }}
+                  </el-form-item>
+                  <el-form-item label="VRT名称：" prop="vrtName">
+                    {{ form.vrtName }}
+                  </el-form-item>
+                  <el-form-item label="VFG名称：" prop="vfgName">
+                    {{ form.vfgName }}
+                  </el-form-item>
+                  <el-form-item label="CCC名称：" prop="cccName">
+                    {{ form.cccName }}
+                  </el-form-item>
+                  <el-form-item label="主因零部件：" prop="causePartName">
+                    {{ form.causePartName }}
+                  </el-form-item>
+                  <el-form-item label="供应商：" prop="supplierName">
+                    {{ form.supplierName }}
+                  </el-form-item>
+                  <el-form-item label="销售日期：" prop="salesDate">
+                    {{ form.salesDate }}
+                  </el-form-item>
+                  <el-form-item label="维修时间：" prop="repairDate">
+                    {{ form.repairDate }}
+                  </el-form-item>
+                </el-form>
                 <div class="common-section-header">
                   <h3>主因零部件</h3>
                 </div>
-                <div class="common-section-body">
-                  <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                    <el-form-item label="零件编码：" prop="causePartCode">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.causePartCode"
-                        clearable
-                        disabled
-                      />
-                    </el-form-item>
-                    <el-form-item label="零件名称：" prop="causePartName">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.causePartName"
-                        clearable
-                        disabled
-                      />
-                    </el-form-item>
-                  </el-form>
-                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                    <el-form-item label="零件编码：" prop="causePartCode">
-                      {{ form.causePartCode }}
-                    </el-form-item>
-                    <el-form-item label="零件名称：" prop="causePartName">
-                      {{ form.causePartName }}
-                    </el-form-item>
-                  </el-form>
-                </div>
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                  <el-form-item label="零件编码：" prop="causePartCode">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.causePartCode"
+                      clearable
+                      disabled
+                    />
+                  </el-form-item>
+                  <el-form-item label="零件名称：" prop="causePartName">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.causePartName"
+                      clearable
+                      disabled
+                    />
+                  </el-form-item>
+                </el-form>
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                  <el-form-item label="零件编码：" prop="causePartCode">
+                    {{ form.causePartCode }}
+                  </el-form-item>
+                  <el-form-item label="零件名称：" prop="causePartName">
+                    {{ form.causePartName }}
+                  </el-form-item>
+                </el-form>
                 <div class="common-section-header">
                   <h3>服务中心</h3>
                 </div>
-                <div class="common-section-body">
-                  <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                    <el-form-item label="服务中心代码：" prop="serviceCenterCode">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.serviceCenterCode"
-                        clearable
-                        disabled
-                      />
-                    </el-form-item>
-                    <el-form-item label="服务中心名称：" prop="serviceCenterName">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.serviceCenterName"
-                        clearable
-                        disabled
-                      />
-                    </el-form-item>
-                    <el-form-item label="报告人：" prop="applicantName">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.applicantName"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="报告人职位：" prop="applicantPosition">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.applicantPosition"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="报告人电话：" prop="applicantTel">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.applicantTel"
-                        clearable
-                        maxlength="11"
-                      />
-                    </el-form-item>
-                  </el-form>
-                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                    <el-form-item label="服务中心名称：" prop="serviceCenterName">
-                      {{ form.serviceCenterName }}
-                    </el-form-item>
-                    <el-form-item label="服务中心代码：" prop="serviceCenterCode">
-                      {{ form.serviceCenterCode }}
-                    </el-form-item>
-                    <el-form-item label="报告人：" prop="applicantName">
-                      {{ form.applicantName }}
-                    </el-form-item>
-                    <el-form-item label="报告人职位：" prop="applicantPosition">
-                      {{ form.applicantPosition }}
-                    </el-form-item>
-                    <el-form-item label="报告人电话：" prop="applicantTel">
-                      {{ form.applicantTel }}
-                    </el-form-item>
-                  </el-form>
-                </div>
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                  <el-form-item label="服务中心代码：" prop="serviceCenterCode">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.serviceCenterCode"
+                      clearable
+                      disabled
+                    />
+                  </el-form-item>
+                  <el-form-item label="服务中心名称：" prop="serviceCenterName">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.serviceCenterName"
+                      clearable
+                      disabled
+                    />
+                  </el-form-item>
+                  <el-form-item label="报告人：" prop="applicantName">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.applicantName"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="报告人职位：" prop="applicantPosition">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.applicantPosition"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="报告人电话：" prop="applicantTel">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.applicantTel"
+                      clearable
+                      maxlength="11"
+                    />
+                  </el-form-item>
+                </el-form>
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                  <el-form-item label="服务中心名称：" prop="serviceCenterName">
+                    {{ form.serviceCenterName }}
+                  </el-form-item>
+                  <el-form-item label="服务中心代码：" prop="serviceCenterCode">
+                    {{ form.serviceCenterCode }}
+                  </el-form-item>
+                  <el-form-item label="报告人：" prop="applicantName">
+                    {{ form.applicantName }}
+                  </el-form-item>
+                  <el-form-item label="报告人职位：" prop="applicantPosition">
+                    {{ form.applicantPosition }}
+                  </el-form-item>
+                  <el-form-item label="报告人电话：" prop="applicantTel">
+                    {{ form.applicantTel }}
+                  </el-form-item>
+                </el-form>
                 <div class="common-section-header">
                   <h3>参数选择</h3>
                 </div>
-                <div class="common-section-body">
-                  <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                    <el-form-item label="温度（℃）：" prop="malfunctions">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="QualityReportTemperatureEnum"
-                        v-model="form.malfunctions"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="车速（km/h)：" prop="vehicleSpeeds">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="QualityReportSpeedEnum"
-                        v-model="form.vehicleSpeeds"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="频次：" prop="malfunctionFrequency">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="QualityReportMalfunctionFrequencyEnum"
-                        v-model="form.malfunctionFrequency"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="能否行驶：" prop="ifDrive">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="BooleanEnum"
-                        v-model="form.ifDrive"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="是否再现：" prop="isPresent">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="BooleanEnum"
-                        v-model="form.isPresent"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="运行模式：" prop="operatingModes">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="QualityReportOperatingModesEnum"
-                        v-model="form.operatingModes"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="车辆工况：" prop="vehicleConditions">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="QualityReportVehicleConditionEnum"
-                        v-model="form.vehicleConditions"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="环境：" prop="malfunctionLocations">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="QualityReportMalfunctionLocationsEnum"
-                        v-model="form.malfunctionLocations"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="是否改装：" prop="isModifiedParts">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="BooleanEnum"
-                        v-model="form.isModifiedParts"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="说明：" prop="replacedParts">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.replacedParts"
-                        clearable
-                      />
-                    </el-form-item>
-                    <el-form-item label="是否有DTC：" prop="ifHaveDtc">
-                      <fetch-select
-                        :request="fetchOptions"
-                        enumCode="BooleanEnum"
-                        v-model="form.ifHaveDtc"
-                        placeholder="请选择"
-                        clearable
-                        filterable
-                      />
-                    </el-form-item>
-                    <el-form-item label="加装描述：" prop="modifiedPartsContent">
-                      <el-input
-                        placeholder="请输入"
-                        v-model="form.modifiedPartsContent"
-                        clearable
-                      />
-                    </el-form-item>
-                  </el-form>
-                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                    <el-form-item label="温度（℃）：" prop="malfunctions">
-                      {{ form.malfunctionsLabel }}
-                    </el-form-item>
-                    <el-form-item label="车速（km/h)：" prop="vehicleSpeeds">
-                      {{ form.vehicleSpeedsLabel }}
-                    </el-form-item>
-                    <el-form-item label="频次：" prop="malfunctionFrequency">
-                      {{ form.malfunctionFrequencyLabel }}
-                    </el-form-item>
-                    <el-form-item label="能否行驶：" prop="ifDrive">
-                      {{ form.ifDriveLabel }}
-                    </el-form-item>
-                    <el-form-item label="是否再现：" prop="isPresent">
-                      {{ form.isPresentLabel }}
-                    </el-form-item>
-                    <el-form-item label="运行模式：" prop="operatingModes">
-                      {{ form.operatingModesLabel }}
-                    </el-form-item>
-                    <el-form-item label="车辆工况：" prop="vehicleConditions">
-                      {{ form.vehicleConditionsLabel }}
-                    </el-form-item>
-                    <el-form-item label="环境：" prop="malfunctionLocations">
-                      {{ form.malfunctionLocationsLabel }}
-                    </el-form-item>
-                    <el-form-item label="是否改装：" prop="isModifiedParts">
-                      {{ form.isModifiedPartsLabel }}
-                    </el-form-item>
-                    <el-form-item label="说明：" prop="replacedParts">
-                      {{ form.replacedParts }}
-                    </el-form-item>
-                    <el-form-item label="加装描述：" prop="modifiedPartsContent">
-                      {{ form.modifiedPartsContent }}
-                    </el-form-item>
-                    <el-form-item label="是否有DTC：" prop="ifHaveDtc">
-                      {{ form.ifHaveDtcLabel }}
-                    </el-form-item>
-                  </el-form>
-                </div>
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                  <el-form-item label="温度（℃）：" prop="malfunctions">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="QualityReportTemperatureEnum"
+                      v-model="form.malfunctions"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="车速（km/h)：" prop="vehicleSpeeds">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="QualityReportSpeedEnum"
+                      v-model="form.vehicleSpeeds"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="频次：" prop="malfunctionFrequency">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="QualityReportMalfunctionFrequencyEnum"
+                      v-model="form.malfunctionFrequency"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="能否行驶：" prop="ifDrive">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="BooleanEnum"
+                      v-model="form.ifDrive"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="是否再现：" prop="isPresent">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="BooleanEnum"
+                      v-model="form.isPresent"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="运行模式：" prop="operatingModes">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="QualityReportOperatingModesEnum"
+                      v-model="form.operatingModes"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="车辆工况：" prop="vehicleConditions">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="QualityReportVehicleConditionEnum"
+                      v-model="form.vehicleConditions"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="环境：" prop="malfunctionLocations">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="QualityReportMalfunctionLocationsEnum"
+                      v-model="form.malfunctionLocations"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="是否改装：" prop="isModifiedParts">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="BooleanEnum"
+                      v-model="form.isModifiedParts"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="说明：" prop="replacedParts">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.replacedParts"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="是否有DTC：" prop="ifHaveDtc">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="BooleanEnum"
+                      v-model="form.ifHaveDtc"
+                      placeholder="请选择"
+                      clearable
+                      filterable
+                    />
+                  </el-form-item>
+                  <el-form-item label="加装描述：" prop="modifiedPartsContent">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.modifiedPartsContent"
+                      clearable
+                    />
+                  </el-form-item>
+                </el-form>
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                  <el-form-item label="温度（℃）：" prop="malfunctions">
+                    {{ form.malfunctionsLabel }}
+                  </el-form-item>
+                  <el-form-item label="车速（km/h)：" prop="vehicleSpeeds">
+                    {{ form.vehicleSpeedsLabel }}
+                  </el-form-item>
+                  <el-form-item label="频次：" prop="malfunctionFrequency">
+                    {{ form.malfunctionFrequencyLabel }}
+                  </el-form-item>
+                  <el-form-item label="能否行驶：" prop="ifDrive">
+                    {{ form.ifDriveLabel }}
+                  </el-form-item>
+                  <el-form-item label="是否再现：" prop="isPresent">
+                    {{ form.isPresentLabel }}
+                  </el-form-item>
+                  <el-form-item label="运行模式：" prop="operatingModes">
+                    {{ form.operatingModesLabel }}
+                  </el-form-item>
+                  <el-form-item label="车辆工况：" prop="vehicleConditions">
+                    {{ form.vehicleConditionsLabel }}
+                  </el-form-item>
+                  <el-form-item label="环境：" prop="malfunctionLocations">
+                    {{ form.malfunctionLocationsLabel }}
+                  </el-form-item>
+                  <el-form-item label="是否改装：" prop="isModifiedParts">
+                    {{ form.isModifiedPartsLabel }}
+                  </el-form-item>
+                  <el-form-item label="说明：" prop="replacedParts">
+                    {{ form.replacedParts }}
+                  </el-form-item>
+                  <el-form-item label="加装描述：" prop="modifiedPartsContent">
+                    {{ form.modifiedPartsContent }}
+                  </el-form-item>
+                  <el-form-item label="是否有DTC：" prop="ifHaveDtc">
+                    {{ form.ifHaveDtcLabel }}
+                  </el-form-item>
+                </el-form>
                 <div class="common-section-header" v-show="!(isEditing || !_id)">
                   <h3>审核信息</h3>
                 </div>
-                <div class="common-section-body">
-                  <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                    <el-form-item label="提交审核时间：" prop="applicationTime">
-                      {{ form.applicationTime }}
-                    </el-form-item>
-                    <el-form-item label="首次提交审核时间：" prop="firstApplicationTime">
-                      {{ form.firstApplicationTime }}
-                    </el-form-item>
-                    <el-form-item label="首次审核人员名称：" prop="firstApproveName">
-                      {{ form.firstApproveName }}
-                    </el-form-item>
-                    <el-form-item label="首次审核结果：" prop="firstAuditResults">
-                      {{ form.firstAuditResultsLabel }}
-                    </el-form-item>
-                    <el-form-item label="首次审核说明：" prop="firstAudit">
-                      {{ form.firstAudit }}
-                    </el-form-item>
-                  </el-form>
-                </div>
+                <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                  <el-form-item label="提交审核时间：" prop="applicationTime">
+                    {{ form.applicationTime }}
+                  </el-form-item>
+                  <el-form-item label="首次提交审核时间：" prop="firstApplicationTime">
+                    {{ form.firstApplicationTime }}
+                  </el-form-item>
+                  <el-form-item label="首次审核人员名称：" prop="firstApproveName">
+                    {{ form.firstApproveName }}
+                  </el-form-item>
+                  <el-form-item label="首次审核结果：" prop="firstAuditResults">
+                    {{ form.firstAuditResultsLabel }}
+                  </el-form-item>
+                  <el-form-item label="首次审核说明：" prop="firstAudit">
+                    {{ form.firstAudit }}
+                  </el-form-item>
+                </el-form>
               </section>
             </div>
           </section>
@@ -580,24 +568,10 @@
             </div>
             <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="故障现象：" prop="faultPhenomena">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.faultPhenomena"
-                    clearable
-                  />
-                </el-form-item>
                 <el-form-item label="故障现象描述：" prop="customerContent">
                   <el-input
                     placeholder="请输入"
                     v-model="form.customerContent"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="故障检查过程：" prop="diagnosisContent">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.diagnosisContent"
                     clearable
                   />
                 </el-form-item>
@@ -610,14 +584,8 @@
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="故障现象：" prop="faultPhenomena">
-                  {{ form.faultPhenomena }}
-                </el-form-item>
                 <el-form-item label="故障现象描述：" prop="customerContent">
                   {{ form.customerContent }}
-                </el-form-item>
-                <el-form-item label="故障检查过程：" prop="diagnosisContent">
-                  {{ form.diagnosisContent }}
                 </el-form-item>
                 <el-form-item label="故障排查流程：" prop="troubleshootingProcess">
                   {{ form.troubleshootingProcess }}
@@ -746,8 +714,8 @@
       </el-form>
 
       <div slot="footer" class="dialog-footer">
-        <el-button @click="approvalDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleApproval">保 存</el-button>
+        <el-button @click="approvalDialogVisible = false" size="small">取消</el-button>
+        <el-button type="primary" :loading="approvalLoading" @click="handleApproval" size="small">保存</el-button>
       </div>
     </el-dialog>
   </edit-page-layout>
@@ -887,10 +855,10 @@ export default {
       return !this.form.vfgId;
     },
     canEdit () {
-      return this.accountFlag && (this.form.orderStatus === 10 || this.form.orderStatus === 40);
+      return this.form.orderStatus === 10 || this.form.orderStatus === 40;
     },
     canSubmitApproval () {
-      return this.accountFlag && (this.form.orderStatus === 10 || this.form.orderStatus === 40);
+      return this.form.orderStatus === 10 || this.form.orderStatus === 40;
     },
     canApproval () {
       return !this.accountFlag && this.form.orderStatus === 20;
@@ -915,6 +883,8 @@ export default {
       moduleKey: 'AISMC-qualityOrderReport',
       loading: false,
       submitLoading: false,
+      submitApprovalLoading: false,
+      approvalLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -1360,6 +1330,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.submitApprovalLoading = true;
         submitApproval(this._id).then(() => {
           this.$message({
             type: 'success',
@@ -1371,6 +1342,8 @@ export default {
             type: 'error',
             message: '提交失败!'
           });
+        }).finally(() => {
+          this.submitApprovalLoading = false;
         });
       }).catch(() => {});
     },
@@ -1399,6 +1372,7 @@ export default {
             replyFromEngineer: this.approvalForm.replyFromEngineer
           };
 
+          this.approvalLoading = true;
           approval(params).then(res => {
             this.$message.success('审批成功！');
             this.approvalDialogVisible = false;
@@ -1406,6 +1380,8 @@ export default {
             this.$refs.containerRef?.loadDetail();
           }).catch(() => {
             this.$message.error('审批失败！');
+          }).finally(() => {
+            this.approvalLoading = false;
           });
         }
       });

@@ -11,7 +11,7 @@
         :model="form"
         :rules="rules"
         ref="ruleForm"
-        label-width="150px"
+        label-width="180px"
         class="form-edit"
       >
         <el-form-item label="流程编号（OA）：" prop="processCode">
@@ -128,6 +128,7 @@ export default {
         this.submitLoading = true;
         vehicleReturn(this.form).then(res => {
           this.dialogVisible = false;
+          this.$message.success('退车成功');
           this.$emit('update');
         }).finally(() => {
           this.submitLoading = false;

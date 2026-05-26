@@ -5,7 +5,7 @@
         <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :isEditing.sync="isEditing" :form.sync="form"
           :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="false">
           <template #extraButtons>
-            <el-button v-if="_id && form.warehousingStatus === '20' && permissions.has('AISPART-returnOrder-inboundExceptional')" type="primary" size="small" @click="handleSubmit">入库</el-button>
+            <el-button v-if="_id && form.warehousingStatus === '20' && permissions.has('AISPART-returnOrder-inboundExceptional')" type="primary" size="small" :loading="actionLoading" @click="handleSubmit">入库</el-button>
           </template>
           <el-main>
             <section class="common-section" v-show="!(isEditing || !_id)">
@@ -24,7 +24,9 @@
                     {{ form.returnReasonLabel }}
                   </el-form-item>
                   <el-form-item label="门店编码：" prop="dealerCode">
-                    {{ form.dealerCode }}
+                    <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                      {{ form.dealerCode }}
+                    </el-link>
                   </el-form-item>
                   <el-form-item label="门店名称：" prop="dealerName">
                     {{ form.dealerName }}
@@ -323,6 +325,7 @@ export default {
       moduleKey: 'AISPART-returnOrder',
       loading: false,
       submitLoading: false,
+      actionLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -572,6 +575,7 @@ export default {
     },
     // 提交
     async handleSubmit () {
+      this.actionLoading = true;
       const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确认入库吗？</div>';
       this.$confirm(message, '', {
         confirmButtonText: '确定',
@@ -587,7 +591,11 @@ export default {
           message: '入库成功!'
         });
         this.$refs.containerRef.loadDetail();
+        this.actionLoading = false;
+        this.getDetailData();
+        this.getList();
       }).catch(() => {
+        this.actionLoading = false;
       });
     },
   }

@@ -3,14 +3,14 @@
     <div class="common-section-header">
       <h2>
         变更车辆信息
-        <div v-if="_id && !disabled" class="btns">
-          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加车辆</el-button>
-          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="batchTransfer">批量转移</el-button>
-          <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="handleImport">导入车辆</el-button>
-        </div>
       </h2>
     </div>
     <div v-if="_id" class="common-section-body">
+      <div v-if="_id && !disabled" class="btns">
+        <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加车辆</el-button>
+        <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="batchTransfer">批量转移</el-button>
+        <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="handleImport">导入车辆</el-button>
+      </div>
       <div class="common-section-table">
         <vxe-table
           ref="editTable"
@@ -83,13 +83,13 @@
       :businessParams="_id"
       id="serviceDealerChangeVehicle"
       @close="handleUploadDialogClose"
-      @getData="getTableData"
+      @getData="onImportComplete"
     />
     <BatchTransferDialog
       :visible.sync="batchTransferDialogVisible"
       :applyId="_id"
       :selectedRows="selectedRows"
-      @success="getTableData"
+      @success="onTransferComplete"
     />
   </section>
 </template>
@@ -127,7 +127,6 @@ export default {
       tableData: [],
       visible: false,
       selectedRows: [],
-      //
       uploadDialogVisible: false,
       batchTransferDialogVisible: false,
     };
@@ -147,8 +146,6 @@ export default {
   },
   mounted () {
     this.getTableData();
-  },
-  beforeDestroy () {
   },
   methods: {
     getTableData () {
@@ -213,19 +210,26 @@ export default {
     batchTransfer () {
       this.batchTransferDialogVisible = true;
     },
+    onTransferComplete () {
+      this.getTableData();
+    },
     handleImport () {
       this.uploadDialogVisible = true;
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
     },
-
+    onImportComplete () {
+      this.getTableData();
+    },
   },
 };
-
 </script>
 <style lang="scss" scoped>
 .btn-delete{
   color: #B91919;
+}
+.btns {
+  margin-bottom: 10px;
 }
 </style>
