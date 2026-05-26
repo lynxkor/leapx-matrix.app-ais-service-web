@@ -11,7 +11,12 @@
         {{form.warrantyApplyCode}}
       </el-form-item>
       <el-form-item label="vin：">
-        {{form.vin}}
+        <LPEncrypted
+          :value.sync="form.vin"
+          :decryptMethod="() => getDetailDecryptField()"
+        >
+          {{form.vin}}
+        </LPEncrypted>
       </el-form-item>
       <el-form-item label="审批通过时间：">
         {{form.approvalTime}}
@@ -46,10 +51,12 @@
 </template>
 
 <script>
-import { getSupplyMaterial, supplyMaterial } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
+import { getSupplyMaterial, supplyMaterial, getDecryptField } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
 import AisAttachment from './AisAttachment.vue';
 import AttachmentList from '@/libs/components/AttachmentList/index.vue';
 import { REPAIR_ITEM_TYPES } from '@/libs/utils/repairTypes';
+import LPEncrypted from '@/libs/components/LPEncrypted';
+
 const defaultForm = {
   detailId: '',
   materialDesc: '',
@@ -62,7 +69,8 @@ export default {
   name: 'SupplyMaterialDialog',
   components: {
     AisAttachment,
-    AttachmentList
+    AttachmentList,
+    LPEncrypted
   },
   props: {
     visible: {
@@ -111,6 +119,9 @@ export default {
     }
   },
   methods: {
+    getDetailDecryptField () {
+      return getDecryptField(this.selectionItem.id, 'vin');
+    },
     async getData () {
       this.loading = true;
       const res = await getSupplyMaterial(this.selectionItem.warrantyApplyId); // 申请单请求
