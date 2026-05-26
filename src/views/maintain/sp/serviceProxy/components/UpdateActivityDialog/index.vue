@@ -160,7 +160,7 @@ export default {
 
 .m-update-activity-dialog {
   ::v-deep .el-dialog {
-    height: 700px;
+    height: 600px;
     overflow: hidden;
   }
   ::v-deep .el-dialog__body {
@@ -209,8 +209,7 @@ export default {
   .content-wrapper {
     flex: 1;
     display: flex;
-    overflow: hidden;
-    height: 595px;
+    height: 495px;
   }
 
   .placeholder-content {
