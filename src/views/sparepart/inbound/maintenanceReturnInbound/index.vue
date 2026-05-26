@@ -157,7 +157,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/inbound/maintenanceReturnInbound/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse, getDesensitize } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -275,8 +275,22 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vehProfileVin', label: 'vin', visible: true, width: 200 },
-          { props: 'carPlate', label: '车牌号', visible: true, width: 140 },
+          {
+            props: 'vehProfileVin',
+            label: 'vin',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'maintenanceOutboundOrder', 'vehProfileVin')
+          },
+          {
+            props: 'carPlate',
+            label: '车牌号',
+            visible: true,
+            width: 140,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'maintenanceOutboundOrder', 'carPlate')
+          },
           { props: 'returnMaterialStatusLabel', label: '入库状态', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
