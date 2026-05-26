@@ -1025,13 +1025,13 @@ export default {
       this.form.cccId = data.id;
       this.form.cccCode = data.code;
 
-      const vrtNode = node?.parent;
-      this.form.vrtId = vrtNode?.data.id;
-      this.form.vrtName = vrtNode?.data.name;
-
-      const vfgNode = vrtNode?.parent;
+      const vfgNode = node?.parent;
       this.form.vfgId = vfgNode?.data.id;
       this.form.vfgName = vfgNode?.data.name;
+
+      const vrtNode = vfgNode?.parent;
+      this.form.vrtId = vrtNode?.data.id;
+      this.form.vrtName = vrtNode?.data.name;
     },
     getReportList (query) {
       const fifteenDaysAgo = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000);
