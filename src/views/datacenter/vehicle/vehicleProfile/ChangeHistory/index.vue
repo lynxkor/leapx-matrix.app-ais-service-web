@@ -39,7 +39,7 @@
             <div class="line-item" v-if="types.includes(item.businessType)">
               <span class="grey" v-if="item.businessType === 'RETURN_VEHICLE'">OA流程：</span>
               <span class="grey" v-else>业务单据：</span>
-              <span>{{item.businessCode}}</span>
+              <el-link type="success" @click.prevent="goToBusiness(item.businessType, item.businessId)">{{item.businessCode}}</el-link>
             </div>
             <div class="line-item">
               <span class="grey">操作人：</span>
@@ -190,6 +190,25 @@ export default {
       }
       return [];
     },
+    goToBusiness (businessType, businessId) {
+      console.log(businessType, businessId);
+      if (businessType === 'ORIGINAL_OWNER_CHANGE' || businessType === 'USED_CAR_CHANGE') {
+        this.$router.push({
+          path: '/datacenter/vehicle/vehicleOwnerChangeApply/edit',
+          query: {
+            id: businessId,
+          }
+        });
+      }
+      if (businessType === 'SERVICE_DEALER_CHANGE') {
+        this.$router.push({
+          path: '/datacenter/vehicle/serviceDealerChangeApply/edit',
+          query: {
+            id: businessId,
+          }
+        });
+      }
+    }
   }
 };
 </script>

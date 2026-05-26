@@ -114,12 +114,10 @@
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
-    <div class="ais-tabs">
-      <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
-        <el-tab-pane label="缺货明细看板" name="outOfStock"></el-tab-pane>
-      </el-tabs>
-    </div>
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
+      <el-tab-pane label="缺货明细看板" name="outOfStock"></el-tab-pane>
+    </el-tabs>
     <div
       class="ais-table-c"
       v-if="activeName === 'homePage'"

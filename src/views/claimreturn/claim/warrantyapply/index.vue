@@ -718,7 +718,7 @@ export default {
   methods: {
     isRowPendingCurrentUserReview (row) {
       if (!row.isInApproval) return false;
-      const list = row.currentApproverIdList;
+      const list = row.currentApproverIdList?.map(id => Number(id));
       if (!list || list.length === 0) return true;
       const userId = this.$store.state.user.userInfo.userId;
       return list.includes(userId);

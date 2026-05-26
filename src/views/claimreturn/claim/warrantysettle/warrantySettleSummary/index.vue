@@ -5,7 +5,7 @@
       :model="form"
       size="small"
       label-position="right"
-      label-width="150px"
+      label-width="120px"
       class="ais-search-form"
     >
       <el-form-item label="月度">

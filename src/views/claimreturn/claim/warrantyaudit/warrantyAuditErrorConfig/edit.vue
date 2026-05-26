@@ -135,6 +135,16 @@ export default {
       return '错误代码：' + (this.form.errorCode || '新增');
     }
   },
+  watch: {
+    id: {
+      handler (val) {
+        if (val && this.$refs.containerRef) {
+          this.$refs.containerRef.loadDetail();
+        }
+      },
+      immediate: true
+    }
+  },
   data () {
     return {
       pageTitle: '审计错误项配置',
