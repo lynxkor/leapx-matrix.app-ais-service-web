@@ -245,8 +245,8 @@
                   </el-form-item>
                   <el-form-item label="维修时间：" prop="repairDate">
                     <el-date-picker
+                      type="datetime"
                       v-model="form.repairDate"
-                      range-separator="至"
                       value-format="yyyy-MM-dd HH:mm:ss"
                       align="right"
                     />
