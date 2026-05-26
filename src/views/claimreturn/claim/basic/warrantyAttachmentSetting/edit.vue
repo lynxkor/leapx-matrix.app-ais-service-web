@@ -37,7 +37,7 @@
                     label-key="name"
                     second-line-key="code"
                     @change="handleWarrantyTypeChange"
-                    :params="{'checkoutTypeNames':['合同','保修'],'excludeMaintenancePackage':true}" />
+                    :params="{'checkoutTypeNames':['合同','保修'],'excludeMaintenancePackage':false}" />
                 </el-form-item>
                 <el-form-item label="是否自动审批：" prop="autoApproval">
                   <el-switch v-model="form.autoApproval" active-value="1" inactive-value="0" />
