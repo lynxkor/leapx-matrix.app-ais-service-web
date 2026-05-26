@@ -52,7 +52,7 @@
                     label-key="name"
                     second-line-key="code"
                     @change="handleWarrantyTypeChange"
-                    :params="{'checkoutTypeNames':['合同','保修'],'excludeMaintenancePackage':true}" />
+                    :params="{'checkoutTypeNames':['合同','保修'],'excludeMaintenancePackage':false}" />
               </el-form-item>
                 <el-form-item label="审批级别：" prop="approvalGrade">
                   <fetch-select

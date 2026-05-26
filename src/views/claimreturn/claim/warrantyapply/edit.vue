@@ -1084,27 +1084,21 @@ export default {
           partCodeOrNameLike: query,
           status: 1,
         }).then(res => {
-          if (!res?.records?.length) {
-            resolve({
-              ...res,
-              records: [
-                {
-                  placeholder: `备件编码：${query}不存在备件供应商关系信息`,
-                  disabled: true,
-                }
-              ],
-            });
+          if (!res?.length) {
+            resolve([
+              {
+                placeholder: `备件编码：${query}不存在备件供应商关系信息`,
+                disabled: true,
+              }
+            ]);
           } else {
-            const records = res?.records?.map(item => {
+            const records = res.map(item => {
               return {
                 ...item,
                 partAndSupplierId: item.sparePartId + item.supplierInfoId,
               };
             });
-            resolve({
-              ...res,
-              records,
-            });
+            resolve(records);
           }
         });
       });
