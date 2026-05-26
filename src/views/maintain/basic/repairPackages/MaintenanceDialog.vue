@@ -5,7 +5,7 @@
     </div>
     <!-- 数据表格 -->
     <div class="table-section">
-      <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium">
+      <vxe-table ref="workTable" :data="tableData" stripe show-overflow resizable border="inner" size="medium" min-height="0" max-height="400px">
         <vxe-column field="partCode" title="序号" width="100">
           <template #default="{ rowIndex }">
             {{ rowIndex + 1 }}
@@ -41,7 +41,7 @@
     <template v-slot:footer>
       <div class="dialog-footer">
         <el-button size="small" @click="close">取消</el-button>
-        <el-button type="primary" size="small" :loading="loading" @click="handleSave">保 存</el-button>
+        <el-button type="primary" size="small" :loading="loading" @click="handleSave">保存</el-button>
       </div>
     </template>
   </el-dialog>
