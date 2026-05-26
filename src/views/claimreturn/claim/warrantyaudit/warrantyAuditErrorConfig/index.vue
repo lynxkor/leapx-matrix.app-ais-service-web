@@ -59,17 +59,22 @@
       is-checkbox
       is-page
       checkboxFixed
+      centralized
+      :save-or-update="saveOrUpdate"
+      @listSelect="handleListSelect"
       :option-obj="optionObj"
       :get-config="getConfig"
       @paginationChange="paginationChange"
       @handleSelect="handleSelectionChange"
-    />
+    >
+    <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+  </LPVxeTable>
   </div>
 </template>
 
 <script>
 import { getList, enableItem } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditErrorConfig/index';
-import { getTableConfig, getEnum } from '@/api/common';
+import { getTableConfig, getEnum, tableAddOrUpdate } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
@@ -77,6 +82,7 @@ import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import EditPage from './edit.vue';
 
 const defaultForm = {
   errorCode: '',
@@ -94,7 +100,8 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    FetchSelect
+    FetchSelect,
+    EditPage
   },
   data () {
     return {
@@ -105,6 +112,7 @@ export default {
       selectionList: [],
       show: false,
       loading: false,
+      clickItemId: '',
       optionObj: {
         id: 'warrantyAuditErrorConfigTable',
         dataList: [],
@@ -257,6 +265,12 @@ export default {
           this.getData();
         });
       }).catch(() => {});
+    },
+    handleListSelect (row) {
+      this.clickItemId = row.id;
+    },
+    saveOrUpdate (data) {
+      return tableAddOrUpdate(data);
     },
     handleBatchEnable (status) {
       handleBatchStatusChange.call(this, {
