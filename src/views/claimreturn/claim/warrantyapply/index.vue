@@ -91,6 +91,19 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
+      <el-form-item label="审批时间：">
+        <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+          v-model="form.approvalTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
       <el-form-item label="车牌号：">
         <el-input v-model="form.vehiclePlateNo" placeholder="请输入车牌号" clearable />
       </el-form-item>
@@ -320,6 +333,7 @@ const defaultForm = {
   dealerName: '',
   dealerRegionName: '',
   currentSubmitTime: '',
+  approvalTime: '',
   vehiclePlateNo: '',
   ownerName: '',
   vehicleModelName: '',
@@ -512,6 +526,7 @@ export default {
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'dealerRegionName', label: '门店所属区域', visible: true, width: 200 },
           { props: 'currentSubmitTime', label: '当前提交时间', visible: true, width: 200 },
+          { props: 'approvalTime', label: '审批时间', visible: true, width: 200 },
           { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 200, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vehiclePlateNo') },
           { props: 'ownerName', label: '车主姓名', visible: true, width: 200, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'ownerName') },
           { props: 'vehicleModelName', label: '车型', visible: true, width: 200 },
@@ -918,6 +933,13 @@ export default {
         if (this.form.currentSubmitTime.length > 1) {
           data.currentSubmitTimeStart = this.form.currentSubmitTime[0];
           data.currentSubmitTimeEnd = this.form.currentSubmitTime[1];
+        }
+      }
+      if (this.form.approvalTime) {
+        delete data.approvalTime;
+        if (this.form.approvalTime.length > 1) {
+          data.approvalTimeStart = this.form.approvalTime[0];
+          data.approvalTimeEnd = this.form.approvalTime[1];
         }
       }
       if (this.form.warrantyStartdate) {
