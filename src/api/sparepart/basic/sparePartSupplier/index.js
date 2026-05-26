@@ -43,3 +43,11 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 查询列表
+ * @param {Object} data
+ */
+export function getLists (data) {
+  return api.jsonPost(prefix + 'list', data);
+}

@@ -678,7 +678,7 @@ import ApproveDialog from './ApproveDialog/index.vue';
 import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 // 旧件供应商
-import { getList } from '@/api/sparepart/basic/sparePartSupplier/index';
+import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
 import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
 
 const defaultForm = {
@@ -1077,7 +1077,7 @@ export default {
     // 搜索主因零件
     partRemote (query) {
       return new Promise((resolve, reject) => {
-        getList({
+        getLists({
           pageNum: 1,
           pageSize: 20,
           oemPart: 1,
