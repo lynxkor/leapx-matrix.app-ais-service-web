@@ -168,8 +168,7 @@
                 :remote-method="partRemote"
                 @change="handlePartChange"
                 value-key="id"
-                label-key="partName"
-                subLabelKey="partCode"
+                label-key="displayText"
                 placeholder="请输入备件编码/名称"
               />
             </div>
@@ -206,6 +205,7 @@ import EnhancedTabs from '@/libs/components/EnhancedTabs/index.vue';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum, sparePartList } from '@/api/common';
+import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
 import PartTable from './PartTable.vue';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { debounce } from 'lodash';
@@ -469,9 +469,37 @@ export default {
     },
     // ------------
     // 零件
+    // partRemote (query) {
+    //   // 是否OEM, 是否启用
+    //   return sparePartList({ partCodeOrNameLike: query, oemPart: 1, status: 1 });
+    // },
     partRemote (query) {
-      // 是否OEM, 是否启用
-      return sparePartList({ partCodeOrNameLike: query, oemPart: 1, status: 1 });
+      return new Promise((resolve, reject) => {
+        getLists({
+          pageNum: 1,
+          pageSize: 20,
+          oemPart: 1,
+          partCodeOrNameLike: query,
+          status: 1,
+        }).then(res => {
+          if (!res?.length) {
+            resolve([
+              {
+                displayText: `备件编码：${query}不存在备件供应商关系信息`,
+                disabled: true,
+              }
+            ]);
+          } else {
+            const records = res.map(item => {
+              return {
+                ...item,
+                displayText: `${item.partCode}/${item.partName}${item.supplierCode ? `-${item.supplierName}-${item.supplierCode}` : ''}`,
+              };
+            });
+            resolve(records);
+          }
+        });
+      });
     },
     handlePartChange (val, record) {
       this.curPart = record;
@@ -489,19 +517,19 @@ export default {
         return;
       }
 
-      const partId = this.part;
       const cur = this.curPart;
       this.part = '';
 
       const newItem = {
-        partId: partId,
+        partId: cur.sparePartId,
         partCode: cur.partCode,
         partName: cur.partName,
-        oldPartId: partId,
+        oldPartId: cur.sparePartId,
         oldPartCode: cur.partCode,
         oldPartName: cur.partName,
-        returnType: cur.oldReturnType,
-        returnTypeLabel: cur.oldReturnTypeLabel,
+        oldSupplierId: cur.supplierInfoId, // 旧件供应商
+        // returnType: cur.oldReturnType,
+        // returnTypeLabel: cur.oldReturnTypeLabel,
         discountAmount: 0,
         quantity: 1,
         unitPrice: cur.purchasePrice, // 【单价】：默认备件主数据采购价格
@@ -521,7 +549,6 @@ export default {
         this.$message.success('添加成功');
         this.$refs.partTable.getDetailPageApi();
       }).catch(() => {
-        this.$message.error('添加失败');
       });
     }, 200),
     getServiceActivityItemId () {
