@@ -66,7 +66,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="StatusEnum"
-            v-model="form.statusList"
+            v-model="form.statusIncludeList"
             placeholder="请选择"
             clearable
             multiple
@@ -170,7 +170,7 @@ const defaultForm = {
   sparePartIdList: [],
   filterTypeList: [],
   typeList: [],
-  statusList: [],
+  statusIncludeList: [],
   createTime: '',
   updateTime: '',
 };

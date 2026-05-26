@@ -415,3 +415,11 @@ export function pageDepartureDetail (data) {
 export function pageRepairWorkTimeliness (data) {
   return api.jsonPost(prefix + 'pageRepairWorkTimeliness', data);
 }
+
+/**
+ * 车间作业时效表分页查询
+ * @param {Object} data
+ */
+export function getLastStoreMileage (data) {
+  return api.jsonPost(prefix + 'getLastStoreMileage', data);
+}

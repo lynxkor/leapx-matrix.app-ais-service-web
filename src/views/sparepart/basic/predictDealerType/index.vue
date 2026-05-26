@@ -23,7 +23,7 @@
         <fetch-select
           :request="fetchOptions"
           enumCode="StatusEnum"
-          v-model="form.statusList"
+          v-model="form.statusIncludeList"
           placeholder="请选择"
           clearable
           multiple
@@ -124,7 +124,7 @@ const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
   dealerTypeLike: '',
-  statusList: [],
+  statusIncludeList: [],
   createTime: '',
   updateTime: '',
 };
