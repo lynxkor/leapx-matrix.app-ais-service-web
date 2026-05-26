@@ -868,7 +868,7 @@ export default {
       });
     },
     queryModelYear (name) {
-      listVehicleYearType({ yearTypeNameLike: name, status: 1 }).then(res => {
+      listVehicleYearType({ yearTypeNameLike: name, status: 1, pageSize: 1000 }).then(res => {
         const list = res?.map(item => {
           return {
             ...item,
@@ -882,7 +882,7 @@ export default {
       });
     },
     querySearchAsync (queryString, cb) {
-      listVehicleYearTypeFull({ modelNameLike: queryString, status: 1 }).then(res => {
+      listVehicleYearTypeFull({ modelNameLike: queryString, status: 1, pageSize: 1000 }).then(res => {
         const list = res?.map(item => {
           return {
             ...item,

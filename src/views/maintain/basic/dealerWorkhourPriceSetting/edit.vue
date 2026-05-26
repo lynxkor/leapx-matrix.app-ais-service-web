@@ -264,7 +264,7 @@ export default {
       return [];
     },
     querySearchAsync (queryString, cb) {
-      listVehicleYearTypeFull({ modelNameLike: queryString, status: 1 }).then(res => {
+      listVehicleYearTypeFull({ modelNameLike: queryString, status: 1, pageSize: 1000 }).then(res => {
         const list = res?.map(item => {
           return {
             ...item,
