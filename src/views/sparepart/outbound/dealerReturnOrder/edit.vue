@@ -36,7 +36,7 @@
                   <el-input v-model="form.dealerInboundOrderCode" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="供应商名称：" prop="supplierInfoId">
-                  <el-input v-model="form.supplierInfoName" placeholder="请输入" disabled />
+                  <el-input v-model="form.supplierName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   <el-input v-model="form.dealerName" placeholder="请输入" disabled />
