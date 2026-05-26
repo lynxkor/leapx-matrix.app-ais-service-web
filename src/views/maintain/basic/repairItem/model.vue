@@ -202,7 +202,7 @@ export default {
   },
   methods: {
     async getVehicleList () {
-      const res = await listVehicleSeries({ status: 1 });
+      const res = await listVehicleSeries({ status: 1, pageSize: 1000 });
       this.seriesList = res || [];
       // 初始化时默认选择第一个车系
       if (this.seriesList.length > 0) {
@@ -211,7 +211,7 @@ export default {
     },
     // 年款接口
     async getYearList () {
-      const res = await listVehicleYearType({ status: 1 });
+      const res = await listVehicleYearType({ status: 1, pageSize: 1000 });
       // 在数组开头添加"无年款"选项
       this.yearList = [
         { id: 0, name: '无年款' },
@@ -220,7 +220,7 @@ export default {
     },
     // 选择车系 车系id查询 车型
     async getModelList (seriesId) {
-      const res = await listVehicleYearTypeFull({ seriesId: seriesId, status: 1 });
+      const res = await listVehicleYearTypeFull({ seriesId: seriesId, status: 1, pageSize: 1000 });
       this.applicableModelList = res || [];
     },
     // 选择车型

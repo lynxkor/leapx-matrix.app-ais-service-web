@@ -110,12 +110,9 @@
                 ref="vfgSelect"
                 filterable
                 clearable
-                remote
-                reserve-keyword
                 :disabled="!form.vrtId"
                 v-model="form.vfgId"
-                :remote-method="vfgRemote"
-                :params="form.vfgName"
+                :options="vfgOptions"
                 @change="vfgChange"
                 value-key="id"
                 label-key="vfgName"
@@ -278,6 +275,7 @@ export default {
         ]
       },
       supplierOptions: [],
+      vfgOptions: [],
       menus: [
         {
           label: '复制',
@@ -389,13 +387,9 @@ export default {
           this.$refs.vrtSelect.initialLoaded = true;
         }
 
-        // 设置 VFG 下拉组件的选项数据，确保正确显示名称
-        if (data.vfgId && data.vfgName && this.$refs.vfgSelect) {
-          this.$refs.vfgSelect.remoteOptions = [{
-            id: data.vfgId,
-            vfgName: data.vfgName
-          }];
-          this.$refs.vfgSelect.initialLoaded = true;
+        // 加载 VFG 下拉选项
+        if (data.vrtId) {
+          this.loadVfgOptions();
         }
 
         this.$emit('change', data.id);
@@ -450,7 +444,7 @@ export default {
 
         // 使用 nextTick 确保 options 和 params 先更新，再赋值 id
         this.$nextTick(() => {
-          // 设置 VRT/VFG 下拉组件的选项数据
+          // 设置 VRT 下拉组件的选项数据
           if (record.vrtId && this.$refs.vrtSelect) {
             this.$refs.vrtSelect.remoteOptions = [{
               id: record.vrtId,
@@ -459,13 +453,13 @@ export default {
             this.$refs.vrtSelect.initialLoaded = true;
             this.form.vrtId = record.vrtId;
           }
-          if (record.vfgId && this.$refs.vfgSelect) {
-            this.$refs.vfgSelect.remoteOptions = [{
-              id: record.vfgId,
-              vfgName: record.vfgName
-            }];
-            this.$refs.vfgSelect.initialLoaded = true;
-            this.form.vfgId = record.vfgId;
+          // 加载 VFG 下拉选项并赋值
+          if (record.vrtId) {
+            this.loadVfgOptions().then(() => {
+              if (record.vfgId) {
+                this.form.vfgId = record.vfgId;
+              }
+            });
           }
 
           // 选中第一个供应商
@@ -498,19 +492,26 @@ export default {
         this.form.vrtName = '';
         this.form.vrtId = '';
         this.form.vrtCode = '';
-        this.form.vfgId = '';
-        this.form.vfgName = '';
-        this.form.vfgCode = '';
+      }
+      // 切换VRT时清除VFG
+      this.form.vfgId = '';
+      this.form.vfgName = '';
+      this.form.vfgCode = '';
+      this.vfgOptions = [];
+      // 加载新VRT下的VFG选项
+      if (val) {
+        this.loadVfgOptions();
       }
       this.updatePlan(this.form);
     },
     // vfg
-    vfgRemote (query) {
-      return getVfgList({
-        vfgNameLike: query,
+    loadVfgOptions () {
+      getVfgList({
         vrtNameLike: this.form.vrtName,
-        pageSize: 20,
+        pageSize: 100,
         pageNum: 1,
+      }).then(res => {
+        this.vfgOptions = res?.records || res || [];
       });
     },
     vfgChange (val, record) {

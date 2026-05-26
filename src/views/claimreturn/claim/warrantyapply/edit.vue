@@ -861,7 +861,7 @@ export default {
     },
     isPendingCurrentUserReview () {
       if (!this.form.isInApproval) return false;
-      const list = this.form.currentApproverIdList;
+      const list = this.form.currentApproverIdList?.map(id => Number(id)) || [];
       if (!list || list.length === 0) return true;
       const userId = this.$store.state.user.userInfo.userId;
       return list.includes(userId);
