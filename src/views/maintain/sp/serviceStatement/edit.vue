@@ -66,7 +66,7 @@
                 <el-form-item label="负责人：" prop="serviceOwnerName">
                   <el-input placeholder="请输入" v-model="form.serviceOwnerName" disabled clearable />
                 </el-form-item>
-                <el-form-item label="支付方式：" prop="payTypeLabel">
+                <el-form-item label="支付方式：" prop="payType">
                   <el-input placeholder="请输入" v-model="form.payTypeLabel" disabled clearable />
                   <!-- <fetch-select :request="fetchOptions" enumCode="xxx" v-model="form.payTypeLabel" placeholder="请选择" disabled
                     clearable filterable /> -->

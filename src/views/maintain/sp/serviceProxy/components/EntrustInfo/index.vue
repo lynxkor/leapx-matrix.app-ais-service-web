@@ -692,7 +692,7 @@ export default {
       });
     },
     clearValidate () {
-      this.$refs.ruleForm.clearValidate();
+      this.$refs.ruleForm?.clearValidate();
     },
     handleCurrentFaultChange (val) {
       if (val === 0) {

@@ -20,6 +20,7 @@
               :business-id="traceOrderId"
               attachType="申诉凭证"
               :uploadConfig="uploadConfig"
+              hint="default"
               @upload-loading-change="handleUploadLoadingChange"
             />
           </el-form-item>
@@ -64,7 +65,7 @@ export default {
         appealDesc: [{ required: true, message: '请输入申诉说明', trigger: 'blur' }],
       },
       uploadConfig: {
-        acceptSuffix: '.rar,.zip,.doc,.docx,.pdf,.jpg,.jpeg,.xlsx,.xls,.mp4,.png',
+        acceptSuffix: '.rar,.zip,.doc,.docx,.pdf,.png,.jpg,.jpeg,.xlsx,.xls,.mp4',
         maxSize: 50,
         maxNum: 9,
       },

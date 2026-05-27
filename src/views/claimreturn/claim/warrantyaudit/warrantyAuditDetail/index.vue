@@ -373,6 +373,7 @@ export default {
               type: 'primary'
             }]
           },
+          { props: 'auditStatusLabel', label: '审计状态', visible: true, width: 120 },
           {
             props: 'vin',
             label: 'VIN码',

@@ -203,7 +203,6 @@
           </div>
           <div v-if="faultForm.faultFlag" class="search-section">
             <base-search
-              style="width: 280px;"
               filterable
               clearable
               remote

@@ -526,7 +526,7 @@
 </template>
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getVehicleProfile, getCarInfo, checkVinTag, getEnum, getActivityInfo, getRecentlyServiceProxy } from '@/api/maintain/sp/serviceProxy/index';
+import { getVehicleProfile, getCarInfo, checkVinTag, getEnum, getActivityInfo, getRecentlyServiceProxy, getLastStoreMileage } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../constant';
 
 export const CustomTypeEnum = {
@@ -702,7 +702,7 @@ export default {
       this.popoverVisible = false;
     },
     clearValidate () {
-      this.$refs.basicForm.clearValidate();
+      this.$refs.basicForm?.clearValidate();
     },
     searchVehicle (query) {
       if (!query) {
@@ -763,6 +763,7 @@ export default {
           this.getNetworkCarInfo();
           this.checkActivity();
           this.getRecentlyServiceProxy();
+          this.getLastStoreMileage();
         });
       }
     },
@@ -801,6 +802,13 @@ export default {
         });
         // if (!this.form.netMileage) this.form.netMileage = res.mileage;
         // if (!this.form.inPower) this.form.inPower = res.electricity;
+      });
+    },
+    getLastStoreMileage () {
+      getLastStoreMileage(this.form.vehProfileVin).then(res => {
+        Object.assign(this.form, {
+          lastMileage: res, // 上次施工单进店里程
+        });
       });
     },
     // 校验是否有活动
