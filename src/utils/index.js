@@ -226,6 +226,12 @@ export function downloadExcel (rowOrUrl, defaultName = '模板') {
     fileName = rowOrUrl.fileName || defaultName;
   }
 
+  // 判断url是否有http/https，没有则拼接文件服务地址
+  if (url && !/^https?:\/\//i.test(url)) {
+    const fileServiceUrl = window.APP_AIS_WEB_CONFIG?.VUE_APP_FILE_SERVICE_URL || '';
+    url = fileServiceUrl + (url.startsWith('/') ? url : '/' + url);
+  }
+
   // 确保文件有扩展名
   if (!fileName.includes('.')) {
     fileName += '.xlsx';
