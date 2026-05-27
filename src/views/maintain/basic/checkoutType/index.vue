@@ -155,9 +155,9 @@ export default {
           },
           { props: 'name', label: '结算类型名称', visible: true, width: 200 },
           { props: 'categoryLabel', label: '结算类别', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
           { props: 'isAppShowLabel', label: 'app是否展示描述', visible: true, width: 200 },
-          { props: 'sort', label: '排序', visible: true, width: 200 },
+          { props: 'sort', label: '排序', visible: true, width: 100 },
           { props: 'remark', label: '备注信息', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {

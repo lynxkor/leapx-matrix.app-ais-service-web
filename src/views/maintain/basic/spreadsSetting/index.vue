@@ -197,10 +197,10 @@ export default {
             }]
           },
           { props: 'vehicleModelName', label: '车型名称', visible: true, width: 200 },
-          { props: 'buyCityLevelLabel', label: '购买城市等级', visible: true, width: 200 },
-          { props: 'verificationCityLevelLabel', label: '核销城市等级', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
-          { props: 'spreadPrice', label: '单次需补差价', visible: true, width: 200, align: 'right', headerAlign: 'right' },
+          { props: 'buyCityLevelLabel', label: '购买城市等级', visible: true, width: 120 },
+          { props: 'verificationCityLevelLabel', label: '核销城市等级', visible: true, width: 120 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
+          { props: 'spreadPrice', label: '单次需补差价', visible: true, width: 120, align: 'right', headerAlign: 'right' },
           { props: 'effectiveon', label: '生效开始日期', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {

@@ -417,19 +417,19 @@ export default {
             props: 'dataSourceLabel',
             label: '数据来源',
             visible: true,
-            width: 200,
+            width: 120,
           },
           {
             props: 'statementTypeLabel',
             label: '结算单类型',
             visible: true,
-            width: 200,
+            width: 120,
           },
           {
             props: 'statementStatusLabel',
             label: '结算单状态',
             visible: true,
-            width: 200,
+            width: 120,
           },
           {
             props: 'serviceProxyCode',
@@ -499,68 +499,104 @@ export default {
             label: '维修项目金额',
             visible: true,
             width: 200,
+            align: 'right',
+            headerAlign: 'right'
           },
           {
             props: 'repairItemDiscount',
             label: '维修项优惠金额',
             visible: true,
             width: 200,
+            align: 'right',
+            headerAlign: 'right'
           },
           {
             props: 'repairItemPayableAmount',
             label: '维修项应付金额',
             visible: true,
             width: 200,
+            align: 'right',
+            headerAlign: 'right'
           },
-          { props: 'partAmount', label: '零件金额', visible: true, width: 200 },
+          {
+            props: 'partAmount',
+            label: '零件金额',
+            visible: true,
+            width: 200,
+            align: 'right',
+            headerAlign: 'right'
+          },
           {
             props: 'partDiscount',
             label: '零件优惠金额',
             visible: true,
             width: 200,
+            align: 'right',
+            headerAlign: 'right'
           },
           {
             props: 'partPayableAmount',
             label: '零件应付金额',
             visible: true,
             width: 200,
+            align: 'right',
+            headerAlign: 'right'
           },
           {
             props: 'rightsAmount',
             label: '权益金额',
             visible: true,
             width: 200,
+            align: 'right',
+            headerAlign: 'right'
           },
           {
             props: 'discountAmount',
             label: '优惠总金额',
             visible: true,
             width: 200,
+            align: 'right',
+            headerAlign: 'right'
           },
           {
             props: 'noFractionAmount',
             label: '去零金额',
             visible: true,
             width: 200,
+            align: 'right',
+            headerAlign: 'right'
           },
-          { props: 'totalAmount', label: '总金额', visible: true, width: 200 },
+          {
+            props: 'totalAmount',
+            label: '总金额',
+            visible: true,
+            width: 200,
+            align: 'right',
+            headerAlign: 'right'
+          },
           {
             props: 'payableAmount',
             label: '实际应付总金额',
             visible: true,
             width: 200,
+            align: 'right',
+            headerAlign: 'right'
           },
           {
             props: 'remainAmount',
             label: '剩余应付款金额',
             visible: true,
             width: 200,
+            align: 'right',
+            headerAlign: 'right'
           },
           {
             props: 'nextMaintenanceMileage',
             label: '下次保养里程',
             visible: true,
             width: 200,
+            align: 'right',
+            headerAlign: 'right'
           },
           {
             props: 'nextMaintenanceTime',

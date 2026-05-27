@@ -144,7 +144,7 @@ export default {
             props: 'code',
             label: '车辆标识代码',
             visible: true,
-            width: 200,
+            width: 250,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -159,8 +159,8 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'name', label: '车辆标识名称', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'name', label: '车辆标识名称', visible: true, width: 300 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',

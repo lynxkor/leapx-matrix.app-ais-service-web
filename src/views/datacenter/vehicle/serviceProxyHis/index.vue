@@ -207,8 +207,8 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'mileage', label: '进店里程数（KM）', visible: true, width: 200 },
-          { props: 'netMileageExtend', label: '车联网里程数（增）', visible: true, width: 200 },
+          { props: 'mileage', label: '进店里程数（KM）', visible: true, width: 200, align: 'right', headerAlign: 'right' },
+          { props: 'netMileageExtend', label: '车联网里程数（增）', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'customerFaultDescription', label: '客户故障描述', visible: true, width: 200 },
           { props: 'managerSuggestion', label: '客户经理建议', visible: true, width: 200 },
           { props: 'customerRequest', label: '客户诉求', visible: true, width: 200 },

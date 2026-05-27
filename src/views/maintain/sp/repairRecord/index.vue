@@ -114,7 +114,7 @@ export default {
             props: 'serviceProxyCode',
             label: '施工单号',
             visible: true,
-            width: 200,
+            width: 250,
             buttons: [
               {
                 click: (rowIndex, row) => {
@@ -157,31 +157,31 @@ export default {
             props: 'statusLabel',
             label: '作业状态',
             visible: true,
-            width: 200,
+            width: 120,
           },
           {
             props: 'isDispatchLabel',
             label: '是否已派工',
             visible: true,
-            width: 200,
+            width: 120,
           },
           {
             props: 'dealerStationName',
             label: '工位',
             visible: true,
-            width: 200,
+            width: 120,
           },
           {
             props: 'dealerWorkTeamName',
             label: '班组信息',
             visible: true,
-            width: 200,
+            width: 120,
           },
           {
             props: 'repairTechnicianName',
             label: '维修技师',
             visible: true,
-            width: 200,
+            width: 120,
           },
           {
             props: 'dispatchTime',
@@ -212,13 +212,13 @@ export default {
             props: 'reworkTypeLabel',
             label: '返修类型',
             visible: true,
-            width: 200,
+            width: 120,
           },
           {
             props: 'qualityCheckerName',
             label: '质检人',
             visible: true,
-            width: 200,
+            width: 120,
           },
           {
             props: 'qualityCheckAt',
@@ -230,7 +230,7 @@ export default {
             props: 'qualityCheckStatusLabel',
             label: '质检状态',
             visible: true,
-            width: 200,
+            width: 120,
           },
 
           { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true },

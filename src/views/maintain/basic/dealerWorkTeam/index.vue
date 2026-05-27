@@ -184,8 +184,8 @@ export default {
             }]
           },
           { props: 'name', label: '班组名称', visible: true, width: 200 },
-          { props: 'teamTypeLabel', label: '班组类型', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'teamTypeLabel', label: '班组类型', visible: true, width: 100 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
           {
             props: 'dealerName',
             label: '门店名称',

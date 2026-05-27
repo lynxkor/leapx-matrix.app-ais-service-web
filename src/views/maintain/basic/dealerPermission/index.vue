@@ -169,7 +169,7 @@ export default {
           },
           { props: 'permissionTypeLabel', label: '权限类型', visible: true, width: 200 },
           { props: 'dealerTypeLabel', label: '建店类型', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
           {
             props: 'checkoutTypeName',
             label: '结算类型名称',

@@ -178,12 +178,12 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'name', label: '维修项目名称', visible: true, width: 200 },
-          { props: 'pinyinCode', label: '拼音简码', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
-          { props: 'workhour', label: '工时', visible: true, width: 200, align: 'right', headerAlign: 'right' },
-          { props: 'workhourPrice', label: '工时单价', visible: true, width: 200, align: 'right', headerAlign: 'right' },
-          { props: 'maintenanceItemTypeLabel', label: '保养项目分类', visible: true, width: 200 },
+          { props: 'name', label: '维修项目名称', visible: true, width: 300 },
+          { props: 'pinyinCode', label: '拼音简码', visible: true, width: 120 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
+          { props: 'workhour', label: '工时', visible: true, width: 100, align: 'right', headerAlign: 'right' },
+          { props: 'workhourPrice', label: '工时单价', visible: true, width: 100, align: 'right', headerAlign: 'right' },
+          { props: 'maintenanceItemTypeLabel', label: '保养项目分类', visible: true, width: 120 },
           { props: 'maintenanceTime', label: '保养时间（月）', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'maintenanceMileage', label: '保养里程（KM）', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'isBatteryRepairLabel', label: '是否电池维修专用', visible: true, width: 200 },
