@@ -2101,6 +2101,15 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/sparepart/warehouse/stockTakingDifferencesProfit',
+      name: 'stockTakingDifferencesProfit',
+      component: () => import('@/views/sparepart/warehouse/stockTakingDifferencesProfit/index.vue'),
+
+      meta: {
+        name: '门店盘盈申请',
+        keepAlive: true
+      }
+    }, {
       path: '/sparepart/warehouse/stockTakingDifferences',
       name: 'stockTakingDifferences',
       component: () => import('@/views/sparepart/warehouse/stockTakingDifferences/index.vue'),
