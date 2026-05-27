@@ -74,6 +74,14 @@ import permissions from '@/libs/mixins/permissions';
 import { downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 
+function getDefaultDepartureDate () {
+  const end = new Date();
+  const start = new Date();
+  start.setMonth(start.getMonth() - 3);
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return [fmt(start) + ' 00:00:00', fmt(end) + ' 23:59:59'];
+}
+
 const defaultForm = {
   dealerCodes: [],
   departureDate: ''
@@ -139,6 +147,7 @@ export default {
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    this.form.departureDate = getDefaultDepartureDate();
     this.getData();
   },
   methods: {
