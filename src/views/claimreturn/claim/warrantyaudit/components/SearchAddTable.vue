@@ -170,8 +170,8 @@ export default {
         limitSize: 20,
         isClaimTrackIdNull: true,
         isWarrantyAuditDetailIdNull: true,
-        approvalTimeStart: this.formData.warrantyApprovalStartDate,
-        approvalTimeEnd: this.formData.warrantyApprovalEndDate,
+        approvalTimeStart: this.formData.warrantyApprovalStartDate ? this.formData.warrantyApprovalStartDate + ' 00:00:00' : null,
+        approvalTimeEnd: this.formData.warrantyApprovalEndDate ? this.formData.warrantyApprovalEndDate + ' 23:59:59' : null,
         applyStatusList: ['70', '80'],
         dealerCode: this.formData.dealerCode
       });
