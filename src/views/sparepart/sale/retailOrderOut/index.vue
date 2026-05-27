@@ -191,7 +191,10 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, confirmOrder, cancelOrder, signOrder, cancelSignOrder, settleOrder, cancelSettleOrder, reverseSettleOrder, refundOrder } from '@/api/sparepart/sale/retailOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
+import {
+  getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, getDesensitize,
+  listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser
+} from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -309,10 +312,31 @@ export default {
           { props: 'cooperationTypeLabel', label: '门店合作类型', visible: true, width: 120 },
           { props: 'warehouseName', label: '仓库名称', visible: true, width: 200 },
           { props: 'customerTypeLabel', label: '客户类型', visible: true, width: 120 },
-          { props: 'vin', label: 'VIN', visible: true, width: 200 },
+          {
+            props: 'vin',
+            label: 'VIN',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'retailOrder', 'vin')
+          },
           { props: 'customerCode', label: '客户编码', visible: true, width: 180 },
-          { props: 'customerName', label: '客户名称', visible: true, width: 200 },
-          { props: 'customerContactInfo', label: '客户联系方式', visible: true, width: 160 },
+          {
+            props: 'customerName',
+            label: '客户名称',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'retailOrder', 'customerName')
+          },
+          {
+            props: 'customerContactInfo',
+            label: '客户联系方式',
+            visible: true,
+            width: 160,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'retailOrder', 'customerContactInfo')
+          },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
           { props: 'totalAmount', label: '订单总金额', visible: true, width: 130, align: 'right' },
