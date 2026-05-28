@@ -180,7 +180,7 @@ export default {
             props: 'returnOrderNo',
             label: '门店回运单号',
             visible: true,
-            width: 240,
+            width: 220,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -229,9 +229,9 @@ export default {
           { props: 'returnDate', label: '回运日期', visible: true, width: 200 },
           { props: 'returnTypeLabel', label: '旧件返回类型', visible: true, width: 140 },
           { props: 'receiverAddress', label: '回运地址', visible: true, width: 200 },
-          { props: 'receiverContact', label: '收货联系人', visible: true, width: 200 },
+          { props: 'receiverContact', label: '收货联系人', visible: true, width: 120 },
           { props: 'logisticsTrackingNo', label: '物流单号', visible: true, width: 200 },
-          { props: 'logisticsCompany', label: '物流商', visible: true, width: 200 },
+          { props: 'logisticsCompany', label: '物流商', visible: true, width: 140 },
           { props: 'estimatedArrivalDate', label: '预计到达日期', visible: true, width: 200 },
           { props: 'returnUnit', label: '回运件数（纸箱/木架）', visible: true, width: 200 },
           { props: 'signReceiveDate', label: '签收日期', visible: true, width: 200 },
@@ -366,7 +366,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '新页面',
+        businessType: '门店旧件快返回运单',
         dataFetchPath: 'claimreturn/oldpart/web/returnorder/oldPartReturnOrder/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -374,7 +374,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '门店旧件快返回运单.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

@@ -48,7 +48,7 @@
       />
     </el-form>
     <div class="ais-actions">
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
     </div>
     <div class="ais-table-c">
       <LPVxeTable
@@ -306,7 +306,7 @@ export default {
       }
       exportTable({
         businessType: '保修结算验收明细报表',
-        dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantysettle/acceptedDetailReport',
+        dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantySettle/acceptedDetailReport',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

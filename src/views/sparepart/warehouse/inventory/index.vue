@@ -136,6 +136,7 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button size="small" @click="handleTransfer" v-permission="'AISPART-inventory-changeLocation'">转移库位</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchLaunch" :disabled="selectionList.length === 0" v-permission="'AISPART-inventory-sharedShelves'">上架共享</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchShelves" :disabled="selectionList.length === 0" v-permission="'AISPART-inventory-sharedRemove'">下架共享</el-button>
@@ -452,10 +453,15 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
       exportTable({
         businessType: '门店备件库存',
-        dataFetchPath: 'sparepart/web/warehouse/inventory/page',
-        reqParams: this.getFormData(),
+        dataFetchPath: 'sp/web/warehouse/inventory/page',
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {

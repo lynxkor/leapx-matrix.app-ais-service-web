@@ -264,7 +264,7 @@ export default {
       }
       exportTable({
         businessType: '保修附件设置',
-        dataFetchPath: 'claimreturn/web/claim/basic/warrantyAttachmentSetting/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/warrantyAttachmentSetting/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

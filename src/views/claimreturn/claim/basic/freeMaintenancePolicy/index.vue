@@ -210,12 +210,12 @@ export default {
             }]
           },
           { props: 'repairItemName', label: '维修项目名称', visible: true, width: 200 },
-          { props: 'policyTypeLabel', label: '政策类型', visible: true, width: 200 },
-          { props: 'freePeriod', label: '免保时间（月）', visible: true, width: 200 },
-          { props: 'mileage', label: '里程', visible: true, width: 200 },
-          { props: 'delayDays', label: '延后天数', visible: true, width: 200 },
-          { props: 'delayMileage', label: '延后里程', visible: true, width: 200 },
-          { props: 'workhour', label: '工时数', visible: true, width: 200 },
+          { props: 'policyTypeLabel', label: '政策类型', visible: true, width: 120 },
+          { props: 'freePeriod', label: '免保时间（月）', visible: true, width: 140, align: 'right' },
+          { props: 'mileage', label: '里程', visible: true, width: 160, align: 'right' },
+          { props: 'delayDays', label: '延后天数', visible: true, width: 120, align: 'right' },
+          { props: 'delayMileage', label: '延后里程', visible: true, width: 160, align: 'right' },
+          { props: 'workhour', label: '工时数', visible: true, width: 120, align: 'right' },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {

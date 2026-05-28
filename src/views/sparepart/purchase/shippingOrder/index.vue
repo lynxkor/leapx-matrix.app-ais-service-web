@@ -78,6 +78,7 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
@@ -344,7 +345,7 @@ export default {
       }
       exportTable({
         businessType: '备件发运单',
-        dataFetchPath: 'sparepart/web/purchase/shippingOrder/page',
+        dataFetchPath: 'sp/web/purchase/shippingOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

@@ -285,7 +285,7 @@ export default {
       }
       exportTable({
         businessType: '审批驳回配置',
-        dataFetchPath: 'claimreturn/web/claim/basic/approvalRejectSetting/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/approvalRejectSetting/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

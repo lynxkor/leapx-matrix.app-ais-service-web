@@ -238,15 +238,15 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
-        dataFetchPath: 'claimreturn/web/claim/basic/warrantyOrderWarningRule/page',
+        businessType: '保修单预警规则',
+        dataFetchPath: 'claimreturn/claim/web/basic/warrantyOrderWarningRule/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '保修单预警规则.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

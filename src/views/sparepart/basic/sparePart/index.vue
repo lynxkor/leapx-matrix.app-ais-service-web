@@ -127,6 +127,7 @@
         <el-button v-permission="moduleKey + '-purchaseImport'" size="small" @click="handleImport('sparePartPurchaseImport', '采购导入模板')">采购导入</el-button>
         <el-button v-permission="moduleKey + '-modelImport'" size="small" @click="handleImport('sparePartModelImport', '车型导入模板')">车型导入</el-button>
         <el-button v-permission="moduleKey + '-vfgImport'" size="small" @click="handleImport('sparePartVfgImport', 'VFG导入模板')">VFG导入</el-button>
+        <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
         <el-button v-permission="moduleKey + '-printImport'" size="small">打印报价单</el-button>
         <!-- <el-button v-permission="moduleKey + '-detail'" size="small">集中视图</el-button> -->
         <!-- <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
@@ -443,10 +444,15 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
       exportTable({
         businessType: '备件主数据',
-        dataFetchPath: 'sparepart/web/basic/sparePart/page',
-        reqParams: this.getFormData(),
+        dataFetchPath: '/sp/web/basic/sparePart/page',
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {

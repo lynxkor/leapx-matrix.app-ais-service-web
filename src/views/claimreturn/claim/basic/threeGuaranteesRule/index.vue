@@ -10,7 +10,7 @@
         <fetch-select :request="fetchOptions" enumCode="claim_determine_unit" v-model="form.determineUnits"
                       placeholder="请选择" clearable multiple filterable/>
       </el-form-item>
-      <el-form-item label="状态">
+      <el-form-item label="状态" v-show="this.visibleCount === 3 || show">
         <fetch-select
           :request="fetchOptions"
           enumCode="StatusEnum"
@@ -21,12 +21,12 @@
           filterable
         />
       </el-form-item>
-      <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
-        <el-date-picker v-model="form.createTime" type="daterange" :picker-options="pickerOptions" range-separator="至"
-        unlink-panels
-                        value-format="yyyy-MM-dd HH:mm:ss" start-placeholder="开始日期" end-placeholder="结束日期"/>
-      </el-form-item>
       <template v-if="show">
+        <el-form-item label="创建时间">
+          <el-date-picker v-model="form.createTime" type="daterange" :picker-options="pickerOptions" range-separator="至"
+          unlink-panels
+                          value-format="yyyy-MM-dd HH:mm:ss" start-placeholder="开始日期" end-placeholder="结束日期"/>
+        </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker v-model="form.updateTime" type="daterange" :picker-options="pickerOptions"
           unlink-panels
@@ -150,7 +150,7 @@ export default {
             props: 'ruleCode',
             label: '三包规则编码',
             visible: true,
-            width: 240,
+            width: 200,
             fixed: 'left',
             buttons: [
               {
@@ -262,7 +262,7 @@ export default {
             visible: true,
             width: 150,
           },
-          { props: 'statusLabel', label: '状态', visible: true, width: 120 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 78 },
           { props: 'createTime', label: '创建时间', visible: true, width: 180 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
           {

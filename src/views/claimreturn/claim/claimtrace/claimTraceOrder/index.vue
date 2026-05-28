@@ -594,7 +594,7 @@ export default {
       }
       exportTable({
         businessType: '索赔追溯单',
-        dataFetchPath: 'claimreturn/web/claim/claimtrace/claimTraceOrder/page',
+        dataFetchPath: 'claimreturn/claim/web/claimtrace/claimTraceOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

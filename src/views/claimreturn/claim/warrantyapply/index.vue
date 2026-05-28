@@ -213,6 +213,7 @@
       />
     </el-form>
     <div class="ais-actions">
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button size="small" @click="handleWithdraw">批量撤回</el-button>
       <el-button size="small" @click="handleReject">批量驳回</el-button>
       <el-button size="small" @click="handleApprove">批量同意</el-button>
@@ -302,13 +303,14 @@ import {
 } from './constants';
 import {
   getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel, getScopeTypeOrg,
-  sparePartList
+  sparePartList, exportTable
 } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { downloadExcel } from '@/libs/utils';
 import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select';
 import TagInput from '@/libs/components/TagInput';
@@ -1017,6 +1019,39 @@ export default {
     },
     partRemote (query) {
       return sparePartList({ partCodeOrNameLike: query, oemPart: 1 });
+    },
+    exportExcel () {
+      this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
+      exportTable({
+        businessType: '保修申请单',
+        dataFetchPath: 'claimreturn/claim/web/warrantyapply/warrantyApply/page',
+        reqParams,
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '保修申请单.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
     },
   }
 };
