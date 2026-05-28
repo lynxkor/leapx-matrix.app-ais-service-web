@@ -421,6 +421,8 @@ export default {
       reject: false,
       approve: false,
       submit: false,
+      edit: false,
+      detail: false,
       //
       rightsDialogVisible: false,
       vehicleProfileId: '',
@@ -562,7 +564,7 @@ export default {
               {
                 name: '编辑 ',
                 show: (row) => {
-                  return row.applyStatus === '10' || row.applyStatus === '30';
+                  return this.edit && (row.applyStatus === '10' || row.applyStatus === '30');
                 },
                 click: (rowIndex, row) => {
                   this.$router.push({
@@ -692,6 +694,9 @@ export default {
               },
               {
                 name: '查看权益',
+                show: () => {
+                  return this.detail;
+                },
                 click: (rowIndex, row) => {
                   this.rightsDialogVisible = true;
                   this.vehicleProfileId = row.vehicleProfileId;
@@ -716,6 +721,8 @@ export default {
     this.reject = this.permissions.has(`${this.moduleKey}-reject`);
     this.approve = this.permissions.has(`${this.moduleKey}-approve`);
     this.submit = this.permissions.has(`${this.moduleKey}-submit`);
+    this.edit = this.permissions.has(`${this.moduleKey}-addOrUpdate`);
+    this.detail = this.permissions.has(`${this.moduleKey}-detail`);
   },
   methods: {
     isRowPendingCurrentUserReview (row) {
