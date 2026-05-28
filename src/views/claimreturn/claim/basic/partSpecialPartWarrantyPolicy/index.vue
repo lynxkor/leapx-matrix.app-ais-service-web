@@ -239,7 +239,7 @@ export default {
             props: 'seriesName',
             label: '车系名称',
             visible: true,
-            width: 200,
+            width: 160,
             buttons: [{
               click: (rowIndex, row) => {
                 if (row.seriesId) {
@@ -263,9 +263,9 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'yearTypeName', label: '车辆年款', visible: true, width: 200 },
-          { props: 'mileage', label: '里程数（KM）', visible: true, width: 200 },
-          { props: 'warrantyPeriod', label: '保修期（月）', visible: true, width: 200 },
+          { props: 'yearTypeName', label: '车辆年款', visible: true, width: 140 },
+          { props: 'mileage', label: '里程数（KM）', visible: true, width: 160, align: 'right' },
+          { props: 'warrantyPeriod', label: '保修期（月）', visible: true, width: 140, align: 'right' },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
