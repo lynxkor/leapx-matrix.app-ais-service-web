@@ -358,10 +358,50 @@
                   min-height="0"
                   max-height="300px"
                 >
-                  <vxe-column field="traceDetailCode" title="追溯明细" />
-                  <vxe-column field="businessCode" title="保修审计明细" />
-                  <vxe-column field="warrantyCode" title="保修申请单" />
-                  <vxe-column field="settleCode" title="保修结算单" />
+                  <vxe-column field="traceDetailCode" title="追溯明细">
+                    <template #default="{ row }">
+                      <el-link
+                        v-if="row.traceDetailId"
+                        type="primary"
+                        :href="`/service/claimreturn/claim/claimtrace/claimTraceOrder/edit?id=${row.traceDetailId}`"
+                        target="_blank"
+                      >{{ row.traceDetailCode }}</el-link>
+                      <span v-else>{{ row.traceDetailCode }}</span>
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="businessCode" title="保修审计明细">
+                    <template #default="{ row }">
+                      <el-link
+                        v-if="row.businessId"
+                        type="primary"
+                        :href="`/service/claimreturn/claim/warrantyAudit/warrantyAuditDetail/edit?id=${row.businessId}`"
+                        target="_blank"
+                      >{{ row.businessCode }}</el-link>
+                      <span v-else>{{ row.businessCode }}</span>
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="warrantyCode" title="保修申请单">
+                    <template #default="{ row }">
+                      <el-link
+                        v-if="row.warrantyId"
+                        type="primary"
+                        :href="`/service/claimreturn/claim/warrantyApply/edit?id=${row.warrantyId}`"
+                        target="_blank"
+                      >{{ row.warrantyCode }}</el-link>
+                      <span v-else>{{ row.warrantyCode }}</span>
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="settleCode" title="保修结算单">
+                    <template #default="{ row }">
+                      <el-link
+                        v-if="row.settleAccountId"
+                        type="primary"
+                        :href="`/service/claimreturn/claim/warrantySettle/edit?id=${row.settleAccountId}`"
+                        target="_blank"
+                      >{{ row.settleCode }}</el-link>
+                      <span v-else>{{ row.settleCode }}</span>
+                    </template>
+                  </vxe-column>
                   <vxe-column field="currentTraceAmount" title="本次追溯金额" />
                   <vxe-column field="createTime" title="创建时间" />
                   <template #empty>
@@ -864,7 +904,7 @@ export default {
       getClaimTraceOrderDetail({
         auditId: this._id,
       }).then(res => {
-        this.traceTableData = res.data?.records || [];
+        this.traceTableData = res?.records || [];
         this.traceTotal = res.total;
       });
     },
