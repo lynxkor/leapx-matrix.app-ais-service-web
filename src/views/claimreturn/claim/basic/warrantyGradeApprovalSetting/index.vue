@@ -224,9 +224,9 @@ export default {
             }]
           },
           { props: 'gradeApprovalName', label: '名称', visible: true, width: 200 },
-          { props: 'warrantyTypeName', label: '保修类型', visible: true, width: 200 },
-          { props: 'approvalGradeLabel', label: '审批级别', visible: true, width: 200 },
-          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
+          { props: 'warrantyTypeName', label: '保修类型', visible: true, width: 140 },
+          { props: 'approvalGradeLabel', label: '审批级别', visible: true, width: 120 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 100 },
           {
             props: 'claimAmountRange',
             label: '索赔金额区间',
