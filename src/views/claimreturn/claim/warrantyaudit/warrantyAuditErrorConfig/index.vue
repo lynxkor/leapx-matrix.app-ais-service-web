@@ -50,6 +50,7 @@
     </el-form>
     <div class="ais-actions">
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd">新增</el-button>
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
@@ -74,11 +75,11 @@
 
 <script>
 import { getList, enableItem } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditErrorConfig/index';
-import { getTableConfig, getEnum, tableAddOrUpdate } from '@/api/common';
+import { getTableConfig, getEnum, tableAddOrUpdate, exportTable } from '@/api/common';
+import { handleBatchStatusChange, getEndOfDayString, downloadExcel } from '@/libs/utils';
 import FetchSelect from '@/libs/components/FetchSelect';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
-import { handleBatchStatusChange, getEndOfDayString } from '@/libs/utils';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -112,6 +113,7 @@ export default {
       selectionList: [],
       show: false,
       loading: false,
+      exportLoading: false,
       clickItemId: '',
       optionObj: {
         id: 'warrantyAuditErrorConfigTable',
@@ -202,6 +204,39 @@ export default {
       this.form = { ...defaultForm };
       this.optionObj.form.page = 1;
       this.getData();
+    },
+    exportExcel () {
+      this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
+      exportTable({
+        businessType: '审计错误项配置',
+        dataFetchPath: 'claimreturn/claim/web/warrantyaudit/warrantyAuditErrorConfig/page',
+        reqParams,
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '审计错误项配置.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
     },
     getData () {
       this.loading = true;

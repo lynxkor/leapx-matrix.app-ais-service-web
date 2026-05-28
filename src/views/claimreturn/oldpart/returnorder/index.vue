@@ -366,7 +366,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '新页面',
+        businessType: '门店旧件快返回运单',
         dataFetchPath: 'claimreturn/oldpart/web/returnorder/oldPartReturnOrder/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -374,7 +374,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '门店旧件快返回运单.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

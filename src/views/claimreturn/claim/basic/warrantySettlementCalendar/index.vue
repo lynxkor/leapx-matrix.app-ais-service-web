@@ -313,7 +313,7 @@ export default {
       }
       exportTable({
         businessType: '保修结算日历',
-        dataFetchPath: 'claimreturn/web/claim/basic/warrantySettlementCalendar/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/warrantySettlementCalendar/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
