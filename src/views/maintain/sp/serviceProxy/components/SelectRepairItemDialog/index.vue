@@ -158,7 +158,7 @@
               <vxe-column field="repairItemCode" title="维修项目代码" width="140px" />
               <vxe-column field="repairItemName" title="维修项目名称" width="180px" >
                <template #default="{ row }">
-                  <template v-if="row.id || row.repairItemId !== universalLaborHourItemId || row.packageId">{{ row?.repairItemName }}</template>
+                  <template v-if="row.id || row.repairItemCode !== universalLaborHourItemId || row.packageId">{{ row?.repairItemName }}</template>
                    <el-input
                     v-else
                     v-model="row.repairItemName"
@@ -202,7 +202,7 @@
                       :key="item.checkoutTypeId"
                       :label="item.checkoutTypeName"
                       :value="item.checkoutTypeName"
-                      :disabled="row.repairItemId === universalLaborHourItemId && checkoutTypeIncluded(item.checkoutTypeId)"
+                      :disabled="row.repairItemCode === universalLaborHourItemId && checkoutTypeIncluded(item.checkoutTypeId)"
                     />
                   </el-select>
                 </template>
@@ -718,7 +718,7 @@ export default {
 
       // 查找结算类型的默认值（取第一个，考虑权限过滤）
       let checkoutTypeObj = this.filteredRepairItemCheckoutTypes?.[0];
-      if (selectedItem.id === this.universalLaborHourItemId) {
+      if (selectedItem.code === this.universalLaborHourItemId) {
         checkoutTypeObj = this.filteredRepairItemCheckoutTypes?.filter(item => !this.checkoutTypeIncluded(item.checkoutTypeId))?.[0];
       }
 
@@ -1019,7 +1019,7 @@ export default {
         return;
       }
       // 校验是否重复添加
-      const target = this.itemData.filter(el => el.repairItemId !== this.universalLaborHourItemId && el.workRecordStatus !== 40).find(el => el.repairItemId === item.id);
+      const target = this.itemData.filter(el => el.repairItemCode !== this.universalLaborHourItemId && el.workRecordStatus !== 40).find(el => el.repairItemId === item.id);
       if (target) {
         this.$message.error('维修项目已存在，请勿重复添加');
         return;
@@ -1364,7 +1364,7 @@ export default {
       // if (!this.checkoutTypeIncluded(row.checkoutTypeId) && row.repairItemId !== this.universalLaborHourItemId) {
       //   return false;
       // }
-      if (row.repairItemId === this.universalLaborHourItemId && row.workRecordStatus !== 40) {
+      if (row.repairItemCode === this.universalLaborHourItemId && row.workRecordStatus !== 40) {
         return true;
       }
       return false;

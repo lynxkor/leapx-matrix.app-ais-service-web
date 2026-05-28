@@ -359,9 +359,9 @@
                   max-height="300px"
                 >
                   <vxe-column field="traceDetailCode" title="追溯明细" />
-                  <vxe-column field="auditDetailCode" title="保修审计明细" />
-                  <vxe-column field="warrantyApplyCode" title="保修申请单" />
-                  <vxe-column field="warrantySettleCode" title="保修结算单" />
+                  <vxe-column field="businessCode" title="保修审计明细" />
+                  <vxe-column field="warrantyCode" title="保修申请单" />
+                  <vxe-column field="settleCode" title="保修结算单" />
                   <vxe-column field="currentTraceAmount" title="本次追溯金额" />
                   <vxe-column field="createTime" title="创建时间" />
                   <template #empty>
