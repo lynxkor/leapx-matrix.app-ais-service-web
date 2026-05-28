@@ -370,7 +370,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'traceStatusLabel', label: '追溯状态', visible: true, width: 200 },
+          { props: 'traceStatusLabel', label: '追溯状态', visible: true, width: 120 },
           {
             props: 'warrantyCode',
             label: '保修申请单',
@@ -412,12 +412,12 @@ export default {
             }]
           },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'laborClaimTotal', label: '保修工时金额', visible: true, width: 200 },
-          { props: 'partsClaimTotal', label: '保修备件金额', visible: true, width: 200 },
-          { props: 'otherClaimTotal', label: '保修其他金额', visible: true, width: 200 },
-          { props: 'planTraceAmount', label: '计划追溯金额', visible: true, width: 200 },
-          { props: 'tracedAmount', label: '已追溯金额', visible: true, width: 200 },
-          { props: 'unTraceAmount', label: '未追溯金额', visible: true, width: 200 },
+          { props: 'laborClaimTotal', label: '保修工时金额', visible: true, width: 160, align: 'right' },
+          { props: 'partsClaimTotal', label: '保修备件金额', visible: true, width: 160, align: 'right' },
+          { props: 'otherClaimTotal', label: '保修其他金额', visible: true, width: 160, align: 'right' },
+          { props: 'planTraceAmount', label: '计划追溯金额', visible: true, width: 160, align: 'right' },
+          { props: 'tracedAmount', label: '已追溯金额', visible: true, width: 160, align: 'right' },
+          { props: 'unTraceAmount', label: '未追溯金额', visible: true, width: 160, align: 'right' },
           { props: 'firstIssueTime', label: '首次下发时间', visible: true, width: 200 },
           { props: 'latestIssueTime', label: '最新下发时间', visible: true, width: 200 },
           { props: 'sysAutoAgreeDate', label: '系统自动同意日期', visible: true, width: 200 },
