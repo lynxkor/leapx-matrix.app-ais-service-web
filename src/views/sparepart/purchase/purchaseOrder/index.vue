@@ -748,10 +748,15 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
       exportTable({
         businessType: '备件采购订单',
-        dataFetchPath: 'sparepart/web/purchase/purchaseOrder/page',
-        reqParams: this.getFormData(),
+        dataFetchPath: 'sp/web/purchase/purchaseOrder/page',
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {

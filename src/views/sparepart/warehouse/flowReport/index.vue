@@ -323,7 +323,7 @@ export default {
       }
       exportTable({
         businessType: '门店备件库存流水',
-        dataFetchPath: 'sparepart/web/warehouse/flowReport/page',
+        dataFetchPath: 'sp/web/warehouse/flowReport/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

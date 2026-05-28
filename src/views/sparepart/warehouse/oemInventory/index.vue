@@ -203,7 +203,7 @@ export default {
       }
       exportTable({
         businessType: '主机厂备件库存查询',
-        dataFetchPath: 'sparepart/web/warehouse/oemInventory/page',
+        dataFetchPath: 'sp/web/warehouse/oemInventory/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
