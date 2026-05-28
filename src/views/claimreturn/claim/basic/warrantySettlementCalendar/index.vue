@@ -224,12 +224,12 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'settlementDay', label: '每月第几日保修结算', visible: true, width: 200 },
-          { props: 'calendarModeLabel', label: '日历模式', visible: true, width: 200 },
-          { props: 'monthTypeLabel', label: '月度', visible: true, width: 200 },
+          { props: 'settlementDay', label: '每月第几日保修结算', visible: true, width: 180, align: 'right' },
+          { props: 'calendarModeLabel', label: '日历模式', visible: true, width: 120 },
+          { props: 'monthTypeLabel', label: '月度', visible: true, width: 120 },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 100 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           { props: 'statusDesc', label: '说明', visible: true, width: 200 },

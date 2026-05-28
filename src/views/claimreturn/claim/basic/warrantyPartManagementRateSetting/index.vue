@@ -231,10 +231,10 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'warrantyTypeName', label: '保修类型', visible: true, width: 200 },
-          { props: 'rateModeLabel', label: '费率模式', visible: true, width: 200 },
-          { props: 'managementRate', label: '管理费率（%）', visible: true, width: 200 },
-          { props: 'maxManagementFee', label: '最大管理费用', visible: true, width: 200 },
+          { props: 'warrantyTypeName', label: '保修类型', visible: true, width: 120 },
+          { props: 'rateModeLabel', label: '费率模式', visible: true, width: 140 },
+          { props: 'managementRate', label: '管理费率（%）', visible: true, width: 140, align: 'right' },
+          { props: 'maxManagementFee', label: '最大管理费用', visible: true, width: 140, align: 'right' },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'effectiveStartTime', label: '生效开始日期', visible: true, width: 200 },

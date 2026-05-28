@@ -168,7 +168,7 @@ export default {
             props: 'warrantyTypeName',
             label: '保修类型',
             visible: true,
-            width: 200,
+            width: 160,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -182,7 +182,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'autoApprovalLabel', label: '是否自动审批', visible: true, width: 200 },
+          { props: 'autoApprovalLabel', label: '是否自动审批', visible: true, width: 160 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
