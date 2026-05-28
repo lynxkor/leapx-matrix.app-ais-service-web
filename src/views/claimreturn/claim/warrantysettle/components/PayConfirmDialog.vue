@@ -67,6 +67,10 @@ export default {
     ids: {
       type: Array,
       required: true
+    },
+    paymentMethod: {
+      type: String,
+      default: ''
     }
   },
   data () {
@@ -82,7 +86,9 @@ export default {
   watch: {
     visible (val) {
       this.dialogVisible = val;
-      if (!val) {
+      if (val) {
+        this.form.paymentMethod = this.paymentMethod || '';
+      } else {
         this.onReset();
       }
     },
