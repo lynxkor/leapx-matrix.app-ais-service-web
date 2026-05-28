@@ -132,7 +132,7 @@ export default {
           { props: 'city', label: '市', visible: true, width: 100 },
           { props: 'region', label: '区域', visible: true, width: 100 },
           { props: 'parentOrgCode', label: '公司编码', visible: true, width: 120 },
-          { props: 'parentOrgName', label: '公司名称', visible: true, width: 220 },
+          { props: 'parentOrgName', label: '公司名称', visible: true, width: 200 },
           { props: 'paymentMethod', label: '收款方式', visible: true, width: 120 },
           {
             props: 'amount',

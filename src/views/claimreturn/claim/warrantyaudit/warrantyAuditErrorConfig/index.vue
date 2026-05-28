@@ -141,10 +141,10 @@ export default {
               }
             }]
           },
-          { props: 'errorCategory', label: '错误类别', visible: true, width: 200 },
-          { props: 'checkItem', label: '检查项目', visible: true, width: 200 },
+          { props: 'errorCategory', label: '错误类别', visible: true, width: 140 },
+          { props: 'checkItem', label: '检查项目', visible: true, width: 140 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 78 },
           { props: 'statusDesc', label: '说明', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },

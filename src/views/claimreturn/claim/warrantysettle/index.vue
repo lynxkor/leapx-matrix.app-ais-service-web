@@ -269,57 +269,65 @@ export default {
             props: 'workHourTotal',
             label: '工时总额',
             visible: true,
-            width: 150,
-            formatter: (row) => this.formatAmount(row.workHourTotal)
+            width: 120,
+            formatter: (row) => this.formatAmount(row.workHourTotal),
+            align: 'right'
           },
           {
             props: 'partTotal',
             label: '备件总额',
             visible: true,
-            width: 150,
-            formatter: (row) => this.formatAmount(row.partTotal)
+            width: 120,
+            formatter: (row) => this.formatAmount(row.partTotal),
+            align: 'right'
           },
           {
             props: 'otherTotal',
             label: '其他总额',
             visible: true,
-            width: 150,
-            formatter: (row) => this.formatAmount(row.otherTotal)
+            width: 120,
+            formatter: (row) => this.formatAmount(row.otherTotal),
+            align: 'right'
           },
           {
             props: 'totalAmount',
             label: '总金额',
             visible: true,
-            width: 150,
-            formatter: (row) => this.formatAmount(row.totalAmount)
+            width: 120,
+            formatter: (row) => this.formatAmount(row.totalAmount),
+            align: 'right'
           },
           {
             props: 'tracebackAmount',
             label: '追溯金额',
             visible: true,
-            width: 150,
-            formatter: (row) => this.formatAmount(row.tracebackAmount)
+            width: 120,
+            formatter: (row) => this.formatAmount(row.tracebackAmount),
+            align: 'right'
           },
           {
             props: 'determineAmount',
             label: '判定金额',
             visible: true,
-            width: 150,
-            formatter: (row) => this.formatAmount(row.determineAmount)
+            width: 120,
+            formatter: (row) => this.formatAmount(row.determineAmount),
+            align: 'right'
           },
           {
             props: 'invoiceAmount13',
             label: '开票金额一 （13%）',
             visible: true,
             width: 160,
-            formatter: (row) => this.formatAmount(row.invoiceAmount13)
+            formatter: (row) => this.formatAmount(row.invoiceAmount13),
+            align: 'right'
           },
           {
             props: 'invoiceAmount6',
             label: '开票金额二 （6%）',
             visible: true,
             width: 160,
-            formatter: (row) => this.formatAmount(row.invoiceAmount6)
+            formatter: (row) => this.formatAmount(row.invoiceAmount6),
+            align: 'right'
           },
           { props: 'createTime', label: '创建时间', visible: true, width: 180 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
