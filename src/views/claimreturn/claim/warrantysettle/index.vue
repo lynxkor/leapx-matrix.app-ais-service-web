@@ -85,6 +85,7 @@
       />
     </el-form>
     <div class="ais-actions">
+      <el-button v-if="canExport" :loading="exportLoadingTable" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="exportInvoice" :loading="exportLoading" size="small" @click="onExport">导出发票</el-button>
       <el-button v-if="canPayConfirm" size="small" @click="handleBatchPayConfirm">批量付款</el-button>
     </div>
@@ -135,13 +136,13 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, confirm, exportInvoiceZip } from '@/api/claimreturn/claim/warrantysettle/index';
-import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, getEnum, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import TagInput from '@/libs/components/TagInput';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { getEndOfDayString } from '@/libs/utils';
+import { getEndOfDayString, downloadExcel } from '@/libs/utils';
 import EditPage from './edit.vue';
 import CompleteDialog from './components/CompleteDialog';
 import InvoiceAcceptDialog from './components/InvoiceAcceptDialog';
@@ -209,6 +210,7 @@ export default {
       canPayConfirm: false,
       exportInvoice: false,
       exportLoading: false,
+      exportLoadingTable: false,
       //
       completeDialogVisible: false,
       completeRowId: '',
@@ -470,6 +472,39 @@ export default {
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
       this.getData();
+    },
+    exportExcel () {
+      this.exportLoadingTable = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
+      exportTable({
+        businessType: '保修结算通知书',
+        dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantySettle/page',
+        reqParams,
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '保修结算通知书.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoadingTable = false;
+      });
     },
     getData () {
       this.loading = true;

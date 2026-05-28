@@ -293,7 +293,7 @@ export default {
       }
       exportTable({
         businessType: '供应商代步车索赔价格',
-        dataFetchPath: 'claimreturn/web/claim/basic/supplierReplacementCarClaimPrice/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/supplierReplacementCarClaimPrice/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

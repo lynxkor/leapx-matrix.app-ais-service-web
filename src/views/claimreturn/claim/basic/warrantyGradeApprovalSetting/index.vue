@@ -320,7 +320,7 @@ export default {
       }
       exportTable({
         businessType: '保修分级审批设置',
-        dataFetchPath: 'claimreturn/web/claim/basic/warrantyGradeApprovalSetting/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/warrantyGradeApprovalSetting/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
