@@ -237,9 +237,9 @@ export default {
           { props: 'endTime', label: '活动结束时间', visible: true, width: 180 },
           { props: 'description', label: '活动描述', visible: true, width: 200 },
           { props: 'attachmentRequiredLabel', label: '施工单必需上传附件', visible: true, width: 180 },
-          { props: 'vehicleCount', label: '活动数量', visible: true, width: 120 },
-          { props: 'finishedVehicleCount', label: '完成数量', visible: true, width: 120 },
-          { props: 'finishedPercent', label: '完成情况(%)', visible: true, width: 130 },
+          { props: 'vehicleCount', label: '活动数量', visible: true, width: 120, align: 'right' },
+          { props: 'finishedVehicleCount', label: '完成数量', visible: true, width: 120, align: 'right' },
+          { props: 'finishedPercent', label: '完成情况(%)', visible: true, width: 130, align: 'right' },
           { props: 'createTime', label: '创建时间', visible: true, width: 180 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
           {
