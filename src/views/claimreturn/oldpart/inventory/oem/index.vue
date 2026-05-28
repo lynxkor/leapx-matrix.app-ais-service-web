@@ -260,7 +260,7 @@ export default {
             props: 'warrantyMonth',
             label: '保修月份',
             visible: true,
-            width: 120,
+            width: 100,
             fixed: 'left'
           },
           {
@@ -347,7 +347,7 @@ export default {
             props: 'dealerName',
             label: '门店名称',
             visible: true,
-            width: 240,
+            width: 200,
             buttons: [{
               click: (rowIndex, row) => {
                 this.navigateToRoute({
@@ -360,12 +360,12 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'isMainPartLabel', label: '是否主因零部件', visible: true, width: 150 },
+          { props: 'isMainPartLabel', label: '是否主因零部件', visible: true, width: 140 },
           {
             props: 'vin',
             label: 'VIN',
             visible: true,
-            width: 220,
+            width: 200,
             mask: true,
             getValue: (row) => getDetailDecryptField(row.id, 'vin')
           },

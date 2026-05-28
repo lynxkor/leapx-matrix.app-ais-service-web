@@ -180,11 +180,11 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 200 },
+          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
           { props: 'supplierName', label: '收货供应商', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'logisticsTrackingNo', label: '物流单号', visible: true, width: 200 },
-          { props: 'logisticsCompany', label: '物流商', visible: true, width: 200 },
+          { props: 'logisticsCompany', label: '物流商', visible: true, width: 120 },
           { props: 'estimatedArrivalDate', label: '预计到达日期', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {

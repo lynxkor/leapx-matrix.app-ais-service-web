@@ -184,7 +184,7 @@ export default {
             props: 'dealerName',
             label: '门店名称',
             visible: true,
-            width: 240,
+            width: 200,
             buttons: [{
               click: (rowIndex, row) => {
                 this.navigateToRoute({
@@ -197,11 +197,11 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'destroyStatusLabel', label: '销毁单状态', visible: true, width: 200 },
-          { props: 'destroyerName', label: '销毁人', visible: true, width: 200 },
+          { props: 'destroyStatusLabel', label: '销毁单状态', visible: true, width: 140 },
+          { props: 'destroyerName', label: '销毁人', visible: true, width: 120 },
           { props: 'destroyDate', label: '销毁日期', visible: true, width: 200 },
           { props: 'destroyRemark', label: '销毁说明', visible: true, width: 200 },
-          { props: 'approverName', label: '销毁审批人', visible: true, width: 200 },
+          { props: 'approverName', label: '销毁审批人', visible: true, width: 120 },
           { props: 'approveRemark', label: '销毁审批说明', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
