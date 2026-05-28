@@ -9,7 +9,7 @@
     :originalForm.sync="originalForm"
     :submitRequest="submitRequest"
     :detailRequest="detailRequest"
-    :showEditBtn="EDITABLE_STATUSES.includes(form.applyStatus)"
+    :showEditBtn="EDITABLE_STATUSES.includes(form.applyStatus) && canAddOrUpdate"
   >
     <template #extraButtons>
       <el-button :loading="printLoading" size="small" @click="handlePrint">打印标签</el-button>
@@ -962,7 +962,7 @@ export default {
     });
   },
   mounted () {
-    // 571005W202603271622250001
+    console.log('[DEBUG] warrantyAuditList mounted', this.permissions);
   },
   methods: {
     getDetailDecryptField (id, field) {
