@@ -75,6 +75,9 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import DealerSelect from '@/components/dealer-select';
 import { downloadExcel } from '@/libs/utils';
 import moment from 'moment';
+import responsiveSearchForm from '@/libs/mixins/responsive';
+import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   month: moment().subtract(1, 'month').format('YYYYMM'),
@@ -96,9 +99,11 @@ export default {
     DealerSelect,
     FetchSelect,
   },
+  mixins: [responsiveSearchForm, permissions, commonMixins],
   data () {
     return {
       pageTitle: '保修结算汇总报表',
+      pageType: 'list',
       moduleKey: 'AISCR-warrantySettleSummary',
       form: {
         ...defaultForm
@@ -112,9 +117,6 @@ export default {
     };
   },
   computed: {
-    canList () {
-      return true;
-    },
     optionObj () {
       return {
         id: 'warrantySettleSummaryTable',
