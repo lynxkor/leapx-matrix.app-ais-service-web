@@ -316,11 +316,11 @@ export default {
             }]
           },
           { props: 'auditTheme', label: '保修审计主题', visible: true, width: 200 },
-          { props: 'auditStatusLabel', label: '审计单状态', visible: true, width: 200 },
-          { props: 'auditTypeLabel', label: '审计类型', visible: true, width: 200 },
+          { props: 'auditStatusLabel', label: '审计单状态', visible: true, width: 160 },
+          { props: 'auditTypeLabel', label: '审计类型', visible: true, width: 120 },
           { props: 'auditStartDate', label: '审计开始日期', visible: true, width: 200 },
-          { props: 'planAuditCount', label: '计划审计数量', visible: true, width: 200 },
-          { props: 'actualAuditCount', label: '实际审计数量', visible: true, width: 200 },
+          { props: 'planAuditCount', label: '计划审计数量', visible: true, width: 140, align: 'right' },
+          { props: 'actualAuditCount', label: '实际审计数量', visible: true, width: 140, align: 'right' },
           {
             props: 'dealerCode',
             label: '门店编码',
@@ -346,9 +346,9 @@ export default {
             }]
           },
           { props: 'submitDeadline', label: '提交截止日期', visible: true, width: 200 },
-          { props: 'planDeductAmount', label: '计划扣款金额', visible: true, width: 200 },
-          { props: 'deductedAmount', label: '已扣款金额', visible: true, width: 200 },
-          { props: 'undeductAmount', label: '未扣款金额', visible: true, width: 200 },
+          { props: 'planDeductAmount', label: '计划扣款金额', visible: true, width: 140, align: 'right' },
+          { props: 'deductedAmount', label: '已扣款金额', visible: true, width: 140, align: 'right' },
+          { props: 'undeductAmount', label: '未扣款金额', visible: true, width: 140, align: 'right' },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           {
             props: 'createTime',
