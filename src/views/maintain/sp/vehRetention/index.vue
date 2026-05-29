@@ -472,7 +472,7 @@ export default {
       });
     },
     async getProvince (params) {
-      const res = api.get('/area/tree');
+      const res = await api.get('/area/tree');
       let list = res || [];
       if (params && params.trim()) {
         const searchText = params.trim().toLowerCase();
