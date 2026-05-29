@@ -381,7 +381,7 @@ export default {
               },
               {
                 name: '发布',
-                show: (row) => getListVisibleButtons(row.auditStatus).includes('发布'),
+                show: (row) => this.permissions.has(`${this.moduleKey}-publish`) && getListVisibleButtons(row.auditStatus).includes('发布'),
                 click: (rowIndex, row) => {
                   this.handlePublish(row);
                 },
@@ -389,7 +389,7 @@ export default {
               },
               {
                 name: '签署总结',
-                show: (row) => getListVisibleButtons(row.auditStatus).includes('签署总结'),
+                show: (row) => this.permissions.has(`${this.moduleKey}-signSummary`) && getListVisibleButtons(row.auditStatus).includes('签署总结'),
                 click: (rowIndex, row) => {
                   this.currentSignSummaryId = row.id;
                   this.signSummaryDialogVisible = true;
@@ -398,7 +398,7 @@ export default {
               },
               {
                 name: '同意总结',
-                show: (row) => getListVisibleButtons(row.auditStatus).includes('同意总结'),
+                show: (row) => this.permissions.has(`${this.moduleKey}-agreeSummary`) && getListVisibleButtons(row.auditStatus).includes('同意总结'),
                 click: (rowIndex, row) => {
                   this.handleAgreeSummary(row);
                 },
@@ -406,7 +406,7 @@ export default {
               },
               {
                 name: '驳回总结',
-                show: (row) => getListVisibleButtons(row.auditStatus).includes('驳回总结'),
+                show: (row) => this.permissions.has(`${this.moduleKey}-rejectSummary`) && getListVisibleButtons(row.auditStatus).includes('驳回总结'),
                 click: (rowIndex, row) => {
                   this.currentRejectSummaryId = row.id;
                   this.rejectSummaryDialogVisible = true;
@@ -415,7 +415,7 @@ export default {
               },
               {
                 name: '签署整改',
-                show: (row) => getListVisibleButtons(row.auditStatus).includes('签署整改'),
+                show: (row) => this.permissions.has(`${this.moduleKey}-signRectify`) && getListVisibleButtons(row.auditStatus).includes('签署整改'),
                 click: (rowIndex, row) => {
                   this.currentSignRectifyId = row.id;
                   this.signRectifyDialogVisible = true;
@@ -424,7 +424,7 @@ export default {
               },
               {
                 name: '同意整改',
-                show: (row) => getListVisibleButtons(row.auditStatus).includes('同意整改'),
+                show: (row) => this.permissions.has(`${this.moduleKey}-agreeRectify`) && getListVisibleButtons(row.auditStatus).includes('同意整改'),
                 click: (rowIndex, row) => {
                   this.handleAgreeRectify(row);
                 },
@@ -432,7 +432,7 @@ export default {
               },
               {
                 name: '驳回整改',
-                show: (row) => getListVisibleButtons(row.auditStatus).includes('驳回整改'),
+                show: (row) => this.permissions.has(`${this.moduleKey}-rejectRectify`) && getListVisibleButtons(row.auditStatus).includes('驳回整改'),
                 click: (rowIndex, row) => {
                   this.currentRejectRectifyId = row.id;
                   this.rejectRectifyDialogVisible = true;
