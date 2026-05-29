@@ -183,6 +183,10 @@ export default {
     detailData: {
       type: Object,
       default: () => ({})
+    },
+    paymentMethod: {
+      type: String,
+      default: ''
     }
   },
   data () {
@@ -202,10 +206,12 @@ export default {
   watch: {
     visible (val) {
       this.dialogVisible = val;
-      if (val && Object.keys(this.detailData).length > 0) {
-        this.setFormFromDetail();
-      }
-      if (!val) {
+      if (val) {
+        if (Object.keys(this.detailData).length > 0) {
+          this.setFormFromDetail();
+        }
+        this.form.paymentMethod = this.paymentMethod || this.detailData.paymentMethod || '';
+      } else {
         this.onReset();
       }
     },
