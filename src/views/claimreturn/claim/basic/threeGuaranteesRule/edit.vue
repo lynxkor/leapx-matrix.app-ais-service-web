@@ -274,7 +274,7 @@
               </div>
               <div class="common-section-body" v-if="_id">
                 <div>
-                  <el-button v-if="canAddOrUpdate && _id" size="small" @click="handleAddRow"
+                  <el-button v-if="canAddOrUpdate && _id" size="small" @click="handleAddRow" type="primary" plain
                   ><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
                 </div>
                 <div class="common-section-table">
