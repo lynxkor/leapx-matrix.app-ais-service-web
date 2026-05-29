@@ -419,7 +419,7 @@ export default {
             buttons: [{
               name: '补充材料',
               show: (row) => {
-                return row.auditStatus === '20';
+                return this.permissions.has(`${this.moduleKey}-supplementMaterial`) && row.auditStatus === '20';
               },
               click: (rowIndex, row) => {
                 this.handleSupplyMaterial(row);
@@ -428,7 +428,7 @@ export default {
             }, {
               name: '审计通过',
               show: (row) => {
-                return row.auditStatus === '30';
+                return this.permissions.has(`${this.moduleKey}-pass`) && row.auditStatus === '30';
               },
               click: (rowIndex, row) => {
                 this.handleAuditPass(row);
@@ -437,7 +437,7 @@ export default {
             }, {
               name: '审计驳回',
               show: (row) => {
-                return row.auditStatus === '30';
+                return this.permissions.has(`${this.moduleKey}-reject`) && row.auditStatus === '30';
               },
               click: (rowIndex, row) => {
                 this.handleAuditReject(row);
@@ -446,7 +446,7 @@ export default {
             }, {
               name: '申述',
               show: (row) => {
-                return row.auditStatus === '50';
+                return this.permissions.has(`${this.moduleKey}-appeal`) && row.auditStatus === '50';
               },
               click: (rowIndex, row) => {
                 this.handleAppeal(row);
@@ -455,7 +455,7 @@ export default {
             }, {
               name: '同意',
               show: (row) => {
-                return row.auditStatus === '50';
+                return this.permissions.has(`${this.moduleKey}-agree`) && row.auditStatus === '50';
               },
               popconfirmTitle: '是否同意申述?',
               click: (rowIndex, row) => {
@@ -472,7 +472,7 @@ export default {
             }, {
               name: '同意申诉',
               show: (row) => {
-                return row.auditStatus === '60';
+                return this.permissions.has(`${this.moduleKey}-agreeAppeal`) && row.auditStatus === '60';
               },
               click: (rowIndex, row) => {
                 this.handleAgreeAppeal(row);
@@ -481,7 +481,7 @@ export default {
             }, {
               name: '拒绝申诉',
               show: (row) => {
-                return row.auditStatus === '60';
+                return this.permissions.has(`${this.moduleKey}-rejectAppeal`) && row.auditStatus === '60';
               },
               click: (rowIndex, row) => {
                 this.handleRejectAppeal(row);
