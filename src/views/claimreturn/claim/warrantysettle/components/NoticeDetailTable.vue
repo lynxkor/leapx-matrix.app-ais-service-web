@@ -12,9 +12,17 @@
       min-height="0px"
       max-height="300px"
     >
-      <vxe-column field="warrantyApplyNo" title="保修申请单"></vxe-column>
+      <vxe-column field="warrantyApplyNo" title="保修申请单">
+        <template #default="{ row }">
+          <el-link type="success" :href="`/service/claimreturn/claim/warrantyApply/edit?id=${row.warrantyApplyId}`">{{ row.warrantyApplyNo }}</el-link>
+        </template>
+      </vxe-column>
       <vxe-column field="warrantyTypeName" title="保修类型"></vxe-column>
-      <vxe-column field="vin" title="VIN"></vxe-column>
+      <vxe-column field="vin" title="VIN">
+        <template #default="{ row }">
+          <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?vin=${row.vin}`">{{ row.vin }}</el-link>
+        </template>
+      </vxe-column>
       <vxe-column field="workHourTotal" title="工时总额">
         <template #default="{ row }">
           {{ row.workHourTotal }}
