@@ -250,7 +250,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'applyStatusLabel', label: '申请状态', visible: true, width: 200 },
+          { props: 'applyStatusLabel', label: '申请状态', visible: true, width: 120 },
           { props: 'businessTypeLabel', label: '业务类型', visible: true, width: 200 },
           {
             props: 'vin',

@@ -227,7 +227,7 @@ export default {
                 this.handleApprove(row, 'pass');
               },
               type: 'info',
-              show: (row) => row.approvalStatus === AUDIT_STATUS.IN_PROGRESS && !row.isGoodWarranty // 审批中
+              show: (row) => this.permissions.has('AISMC-preAuth-audit') && row.approvalStatus === AUDIT_STATUS.IN_PROGRESS && !row.isGoodWarranty // 审批中
             }, {
               name: '编辑',
               click: (rowIndex, row) => {
@@ -250,7 +250,7 @@ export default {
                 this.handleCancel(row);
               },
               type: 'info',
-              show: (row) => row.approvalStatus === AUDIT_STATUS.REJECTED // 审批驳回
+              show: (row) => this.permissions.has('AISMC-preAuth-cancel') && row.approvalStatus === AUDIT_STATUS.REJECTED // 审批驳回
             }, {
               name: '删除',
               popconfirmConfirmButtonType: 'danger',

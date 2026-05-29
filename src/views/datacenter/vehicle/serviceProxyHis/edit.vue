@@ -31,7 +31,7 @@
                 <el-form-item label="车型：">
                   <el-link
                     type="primary"
-                    :href="`/service/datacenter/materials/vehicleModel/detail?id=${form.vehModelId}`"
+                    :href="`/sales/datacenter/materials/vehicleModel/edit?id=${form.vehModelId}`"
                     target="_blank"
                   >{{ form.vehModelName }}</el-link>
                 </el-form-item>
