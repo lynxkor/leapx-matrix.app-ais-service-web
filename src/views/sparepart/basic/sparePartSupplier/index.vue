@@ -212,7 +212,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/supplierInfo/detail',
+                  path: '/sparepart/basic/supplierInfo/edit',
                   query: {
                     id: row.supplierInfoId
                   }
@@ -230,7 +230,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparepart/detail',
+                  path: '/sparepart/basic/sparePart/edit',
                   query: {
                     id: row.sparePartId
                   }

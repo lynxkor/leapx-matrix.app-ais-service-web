@@ -50,7 +50,7 @@
         >
           <vxe-column field="repairItemCode" title="维修项目代码" width="200px">
             <template #default="{ row }">
-              <el-link type="success" :href="`/service/maintain/basic/repairItem/detail?id=${row.repairItemId}`" target="_blank">{{ row.repairItemCode }}</el-link>
+              <el-link type="success" :href="`/service/maintain/basic/repairItem/edit?id=${row.repairItemId}`" target="_blank">{{ row.repairItemCode }}</el-link>
             </template>
           </vxe-column>
           <vxe-column field="repairItemName" title="维修项目名称" width="200px" />
@@ -102,7 +102,7 @@
         >
           <vxe-column field="partsCode" title="零件代码" width="200px" >
             <template #default="{ row }">
-              <el-link type="success" :href="`/service/sparepart/basic/sparePart/detail?id=${row.partsId}`" target="_blank">{{ row.partsCode }}</el-link>
+              <el-link type="success" :href="`/service/sparepart/basic/sparePart/edit?id=${row.partsId}`" target="_blank">{{ row.partsCode }}</el-link>
             </template>
           </vxe-column>
           <vxe-column field="partsName" title="零件名称" width="200px" />
@@ -276,7 +276,7 @@ export default {
       PackageTypeEnum,
       linkMap: {
         [PackageTypeEnum.REPAIR]: '/service/maintain/basic/repairPackages/edit',
-        [PackageTypeEnum.EQUITY]: '/service/maintain/sp/spEquity/detail',
+        [PackageTypeEnum.EQUITY]: '/service/maintain/sp/spEquity/edit',
         [PackageTypeEnum.STORE]: '/service/maintain/sp/ownersEquityOrder/edit',
         [PackageTypeEnum.FREE]: '/service/claimreturn/claim/basic/freeMaintenancePolicy/edit',
         [PackageTypeEnum.TECH_ACTIVITY]: '/service/claimreturn/claim/basic/techServiceActivity/edit',

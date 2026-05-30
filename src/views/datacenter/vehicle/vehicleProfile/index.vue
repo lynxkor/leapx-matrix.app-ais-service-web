@@ -663,7 +663,7 @@ export default {
               click: (rowIndex, row) => {
                 if (row.vehicleMaterialId) {
                   this.navigateToRoute({
-                    path: '/sales/datacenter/materials/vehicleMaterials/detail',
+                    path: '/sales/datacenter/materials/vehicleMaterials/edit',
                     query: {
                       id: row.vehicleMaterialId,
                     },

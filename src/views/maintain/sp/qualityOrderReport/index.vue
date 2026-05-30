@@ -264,7 +264,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/sales/datacenter/materials/vehicleModel/detail?id=${row.vehModelId}`, '_blank');
+                window.open(`/sales/datacenter/materials/vehicleModel/edit?id=${row.vehModelId}`, '_blank');
               },
               type: 'primary'
             }]
@@ -282,7 +282,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/service/sparepart/basic/sparePart/detail?id=${row.causePartId}`, '_blank');
+                window.open(`/service/sparepart/basic/sparePart/edit?id=${row.causePartId}`, '_blank');
               },
               type: 'primary'
             }]
@@ -294,7 +294,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/service/sparepart/basic/supplierInfo/detail?id=${row.supplierId}`, '_blank');
+                window.open(`/service/sparepart/basic/supplierInfo/edit?id=${row.supplierId}`, '_blank');
               },
               type: 'primary'
             }]

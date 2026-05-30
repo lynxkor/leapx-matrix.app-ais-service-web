@@ -295,7 +295,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/sp/restatement/edit'
+        path: '/maintain/sp/restatement/edit'
       });
     },
     onSubmit () {

@@ -178,7 +178,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/checkoutType/detail',
+                  path: '/maintain/basic/checkoutType/edit',
                   query: {
                     id: row.checkoutTypeId
                   }
@@ -195,7 +195,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/repairItemType/detail',
+                  path: '/maintain/basic/repairItemType/edit',
                   query: {
                     id: row.repairItemTypeId
                   }

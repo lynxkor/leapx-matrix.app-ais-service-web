@@ -279,7 +279,7 @@
                   <vxe-column field="originalPriceSource" title="原价来源">
                     <template v-slot="{ row }">
                       <el-link type="success" target="_blank"
-                        :href="`/service/sparepart/basic/sparePartPurchasePrice/detail?id=${row.originalPriceSource}`">{{
+                        :href="`/service/sparepart/basic/sparePartPurchasePrice/edit?id=${row.originalPriceSource}`">{{
                           row.originalPriceSource }}</el-link>
                     </template>
                   </vxe-column>

@@ -62,7 +62,7 @@ export default {
   methods: {
     handleEdit () {
       this.$router.push({
-        path: '/maintain/basic/repairitemtype/edit',
+        path: '/maintain/basic/repairItemType/edit',
         query: {
           id: this.$route.query.id
         }

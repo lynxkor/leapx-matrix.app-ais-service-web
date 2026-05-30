@@ -337,7 +337,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/repairitem',
+      path: '/maintain/basic/repairItem',
       name: 'repairItem',
       component: () => import('@/views/maintain/basic/repairItem/index.vue'),
 
@@ -346,7 +346,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/maintain/basic/repairitem/detail',
+      path: '/maintain/basic/repairItem/detail',
       name: 'repairItemDetail',
       component: () => import('@/views/maintain/basic/repairItem/detail.vue'),
 
@@ -355,7 +355,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/maintain/basic/repairitem/edit',
+      path: '/maintain/basic/repairItem/edit',
       name: 'repairItemEdit',
       component: () => import('@/views/maintain/basic/repairItem/edit.vue'),
 
@@ -1714,7 +1714,7 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
-      path: '/sparepart/purchase/backorder/outOfStock/edit',
+      path: '/sparepart/purchase/backOrder/outOfStock/edit',
       name: 'backOrderOutOfStockEdit',
       component: () => import('@/views/sparepart/purchase/backOrder/outOfStock/edit.vue'),
 
@@ -2891,7 +2891,7 @@ const routes = [
         keepAlive: true
       }
     }, {
-      path: '/sparepart/warehouse/flowreport/edit',
+      path: '/sparepart/warehouse/flowReport/edit',
       name: 'flowReportEdit',
       component: () => import('@/views/sparepart/warehouse/flowReport/edit.vue'),
 
