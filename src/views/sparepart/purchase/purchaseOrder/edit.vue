@@ -607,13 +607,15 @@ export default {
     };
   },
   mounted () {
-    this.getData();
   },
   methods: {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        return getDetail(id).then(res => {
+          this.getData();
+          return res;
+        });
       }
     },
     submitRequest () {

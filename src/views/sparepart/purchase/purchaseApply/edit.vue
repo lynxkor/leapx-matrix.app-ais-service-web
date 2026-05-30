@@ -252,7 +252,7 @@
             </div>
             <div class="common-section-body">
               <div style="margin-bottom: 10px;">
-                <el-button size="small" @click="handleAdd" :disabled="!['0', '3'].includes(form.orderStatus)"><i
+                <el-button size="small" @click="handleAdd" type="primary" plain :disabled="!['0', '3'].includes(form.orderStatus)"><i
                     class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
                 <el-button class="ais-button" size="small" :disabled="!['0', '3'].includes(form.orderStatus)" @click="handleRestock">
                   补货预测

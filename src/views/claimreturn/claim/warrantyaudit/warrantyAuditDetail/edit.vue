@@ -16,13 +16,13 @@
           <span class="status primary">{{ form.warrantyAuditDetail.auditStatusLabel }}</span>
         </template>
         <template #extraButtons>
-          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '20'" size="small" type="primary" @click="handleSupplyMaterial">补充材料</el-button>
-          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '30'" size="small" type="primary" @click="handleAuditPass">审计通过</el-button>
-          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '30'" size="small" type="primary" @click="handleAuditReject">审计驳回</el-button>
-          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '50'" size="small" type="primary" @click="handleAppeal">申诉</el-button>
-          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '50'" size="small" type="primary" @click="handleAgree">同意</el-button>
-          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '60'" size="small" type="primary" @click="handleAgreeAppeal">同意申诉</el-button>
-          <el-button v-if="_id && form.warrantyAuditDetail.auditStatus === '60'" size="small" type="primary" @click="handleRejectAppeal">拒绝申诉</el-button>
+          <el-button v-if="_id && permissions.has(`${moduleKey}-supplementMaterial`) && form.warrantyAuditDetail.auditStatus === '20'" size="small" type="primary" @click="handleSupplyMaterial">补充材料</el-button>
+          <el-button v-if="_id && permissions.has(`${moduleKey}-pass`) && form.warrantyAuditDetail.auditStatus === '30'" size="small" type="primary" @click="handleAuditPass">审计通过</el-button>
+          <el-button v-if="_id && permissions.has(`${moduleKey}-reject`) && form.warrantyAuditDetail.auditStatus === '30'" size="small" type="primary" @click="handleAuditReject">审计驳回</el-button>
+          <el-button v-if="_id && permissions.has(`${moduleKey}-appeal`) && form.warrantyAuditDetail.auditStatus === '50'" size="small" type="primary" @click="handleAppeal">申诉</el-button>
+          <el-button v-if="_id && permissions.has(`${moduleKey}-agree`) && form.warrantyAuditDetail.auditStatus === '50'" size="small" type="primary" @click="handleAgree">同意</el-button>
+          <el-button v-if="_id && permissions.has(`${moduleKey}-agreeAppeal`) && form.warrantyAuditDetail.auditStatus === '60'" size="small" type="primary" @click="handleAgreeAppeal">同意申诉</el-button>
+          <el-button v-if="_id && permissions.has(`${moduleKey}-rejectAppeal`) && form.warrantyAuditDetail.auditStatus === '60'" size="small" type="primary" @click="handleRejectAppeal">拒绝申诉</el-button>
         </template>
         <el-main>
           <section class="common-section">

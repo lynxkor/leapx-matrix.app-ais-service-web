@@ -8,19 +8,19 @@
           <span v-if="form.traceStatusLabel" class="status primary">{{ form.traceStatusLabel }}</span>
         </template>
         <template #extraButtons>
-          <el-button v-if="detailButtons.includes('作废')" size="small" @click="handleCancelOrder">作废</el-button>
-          <el-button v-if="detailButtons.includes('调整追溯金额')" size="small" @click="handleAdjustAmount">调整追溯金额</el-button>
-          <el-button v-if="detailButtons.includes('驳回修改')" size="small" @click="handleRejectModify">驳回修改</el-button>
-          <el-button v-if="detailButtons.includes('申诉')" size="small" @click="handleAppeal">申诉</el-button>
-          <el-button v-if="detailButtons.includes('驳回申诉')" size="small" @click="handleRejectAppeal">驳回申诉</el-button>
-          <el-button v-if="detailButtons.includes('拒绝申诉')" size="small" @click="handleRefuseAppeal">拒绝申诉</el-button>
-          <el-button v-if="detailButtons.includes('提交审核')" size="small" type="primary"
+          <el-button v-if="permissions.has(`${moduleKey}-cancel`) && detailButtons.includes('作废')" size="small" @click="handleCancelOrder">作废</el-button>
+          <el-button v-if="permissions.has(`${moduleKey}-adjustAmount`) && detailButtons.includes('调整追溯金额')" size="small" @click="handleAdjustAmount">调整追溯金额</el-button>
+          <el-button v-if="permissions.has(`${moduleKey}-rejectModify`) && detailButtons.includes('驳回修改')" size="small" @click="handleRejectModify">驳回修改</el-button>
+          <el-button v-if="permissions.has(`${moduleKey}-appeal`) && detailButtons.includes('申诉')" size="small" @click="handleAppeal">申诉</el-button>
+          <el-button v-if="permissions.has(`${moduleKey}-rejectAppeal`) && detailButtons.includes('驳回申诉')" size="small" @click="handleRejectAppeal">驳回申诉</el-button>
+          <el-button v-if="permissions.has(`${moduleKey}-rejectForAppeal`) && detailButtons.includes('拒绝申诉')" size="small" @click="handleRefuseAppeal">拒绝申诉</el-button>
+          <el-button v-if="permissions.has(`${moduleKey}-submitForAudit`) && detailButtons.includes('提交审核')" size="small" type="primary"
             @click="handleSubmitAudit">提交审核</el-button>
-          <el-button v-if="detailButtons.includes('同意下发')" size="small" type="primary"
+          <el-button v-if="permissions.has(`${moduleKey}-agreeIssue`) && detailButtons.includes('同意下发')" size="small" type="primary"
             @click="handleAgreeIssue">同意下发</el-button>
-          <el-button v-if="detailButtons.includes('同意追溯')" size="small" type="primary"
+          <el-button v-if="permissions.has(`${moduleKey}-agreeTrace`) && detailButtons.includes('同意追溯')" size="small" type="primary"
             @click="handleAgreeTrace">同意追溯</el-button>
-          <el-button v-if="detailButtons.includes('同意申诉')" size="small" type="primary"
+          <el-button v-if="permissions.has(`${moduleKey}-agreeAppeal`) && detailButtons.includes('同意申诉')" size="small" type="primary"
             @click="handleAgreeAppeal">同意申诉</el-button>
         </template>
         <el-main>

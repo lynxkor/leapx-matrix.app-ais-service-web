@@ -201,7 +201,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 if (row.vehModelId) {
-                  window.open(`/service/datacenter/materials/vehicleModel/detail?id=${row.vehModelId}`, '_blank');
+                  window.open(`/sales/datacenter/materials/vehicleModel/edit?id=${row.vehModelId}`, '_blank');
                 }
               },
               type: 'primary'

@@ -792,7 +792,11 @@ export default {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        return getDetail(id).then(res => {
+          this.getDetailData();
+          this.getList();
+          return res;
+        });
       }
     },
     submitRequest () {

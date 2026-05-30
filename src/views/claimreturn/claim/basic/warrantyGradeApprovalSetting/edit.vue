@@ -73,7 +73,7 @@
                     :max="999999999"
                     :min="0"
                     size="small"
-                    style="width: calc(50% - 15px);"
+                    style="width: calc(50% - 16px);"
                   />
                   <span style="margin: 0 8px;">至</span>
                   <el-input-number
@@ -84,7 +84,7 @@
                     :max="999999999"
                     :min="0"
                     size="small"
-                    style="width: calc(50% - 15px);"
+                    style="width: calc(50% - 16px);"
                   />
                 </el-form-item>
                 <el-form-item label="是否启用：" prop="status">

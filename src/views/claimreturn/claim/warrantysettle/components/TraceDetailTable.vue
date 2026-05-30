@@ -12,11 +12,24 @@
       min-height="0px"
       max-height="300px"
     >
-      <vxe-column field="traceDetailCode" title="追溯明细"></vxe-column>
+      <vxe-column field="traceDetailCode" title="追溯明细" />
       <vxe-column field="traceTypeLabel" title="追溯类型"></vxe-column>
-      <vxe-column field="businessCode" title="业务单据"></vxe-column>
-      <vxe-column field="warrantyCode" title="保修申请单"></vxe-column>
-      <vxe-column field="vin" title="VIN"></vxe-column>
+      <vxe-column field="businessCode" title="业务单据">
+        <template #default="{ row }">
+          <el-link v-if="row.traceType==='10'" type="success" :href="`/service/claimreturn/claim/claimtrace/claimTraceOrder/edit?id=${row.businessId}`">{{ row.businessCode }}</el-link>
+          <el-link v-if="row.traceType==='20'" type="success" :href="`/service/claimreturn/claim/warrantyAudit/warrantyAuditDetail/edit?id=${row.businessId}`">{{ row.businessCode }}</el-link>
+        </template>
+      </vxe-column>
+      <vxe-column field="warrantyCode" title="保修申请单">
+        <template #default="{ row }">
+          <el-link type="success" :href="`/service/claimreturn/claim/warrantyApply/edit?id=${row.warrantyId}`">{{ row.warrantyCode }}</el-link>
+        </template>
+      </vxe-column>
+      <vxe-column field="vin" title="VIN">
+        <template #default="{ row }">
+          <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?vin=${row.vin}`">{{ row.vin }}</el-link>
+        </template>
+      </vxe-column>
       <vxe-column field="currentTraceAmount" title="本次追溯金额">
         <template #default="{ row }">
           {{ row.currentTraceAmount }}
