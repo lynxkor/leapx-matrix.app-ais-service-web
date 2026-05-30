@@ -20,7 +20,7 @@
           <!-- 门店可操作 -->
           <el-button v-if="isDealer && (form.destroyStatus === '40' || form.destroyStatus === '70')" @click="onDestory" size="small">销毁</el-button>
           <!-- 主机厂可操作 -->
-          <el-button v-if="!isDealer && form.destroyStatus === '50'" @click="dialogFormVisible2 = true" size="small">审批</el-button>
+          <el-button v-if="canApprove && !isDealer && form.destroyStatus === '50'" @click="dialogFormVisible2 = true" size="small">审批</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -506,7 +506,11 @@ export default {
       // 审批说明
       dialogFormVisible2: false,
       isPass: true,
+      canApprove: true,
     };
+  },
+  created () {
+    this.canApprove = this.permissions.has(`${this.moduleKey}-approve`);
   },
   mounted () {
     this.getTableData();
