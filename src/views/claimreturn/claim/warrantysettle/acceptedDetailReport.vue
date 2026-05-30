@@ -48,7 +48,7 @@
       />
     </el-form>
     <div class="ais-actions">
-      <el-button :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
     </div>
     <div class="ais-table-c">
       <LPVxeTable
