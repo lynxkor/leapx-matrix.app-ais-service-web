@@ -124,7 +124,7 @@
                   <el-link
                     v-if="form.repairItemId"
                     type="primary"
-                    :href="`/service/maintain/basic/repairItem/detail?id=${form.repairItemId}`"
+                    :href="`/service/maintain/basic/repairItem/edit?id=${form.repairItemId}`"
                     target="_blank"
                   >{{ form.repairItemCode }}</el-link>
                   <span v-else>{{ form.repairItemCode }}</span>

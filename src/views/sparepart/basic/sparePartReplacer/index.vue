@@ -210,7 +210,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePart/detail',
+                  path: '/sparepart/basic/sparePart/edit',
                   query: {
                     id: row.beforeSparePartId,
                     isEditing: false
@@ -229,7 +229,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePart/detail',
+                  path: '/sparepart/basic/sparePart/edit',
                   query: {
                     id: row.afterSparePartId,
                     isEditing: false

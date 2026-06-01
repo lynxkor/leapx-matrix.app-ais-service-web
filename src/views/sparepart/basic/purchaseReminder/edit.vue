@@ -89,7 +89,7 @@
                 >
                   <vxe-column field="sparePartCode" title="零件编码">
                     <template #default="{ row }">
-                      <el-link type="success" :href="'/service/sparepart/basic/sparePart/detail?id=' + row.sparePartId" target="_blank">{{ row.sparePartCode }}</el-link>
+                      <el-link type="success" :href="'/service/sparepart/basic/sparePart/edit?id=' + row.sparePartId" target="_blank">{{ row.sparePartCode }}</el-link>
                     </template>
                   </vxe-column>
                   <vxe-column field="sparePartName" title="零件名称"></vxe-column>

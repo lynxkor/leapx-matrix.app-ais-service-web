@@ -328,7 +328,7 @@ export default {
           width: '150',
           click: (row) => {
             // 点击事件
-            this.$router.push('/sparepart/basic/supplierInfo/detail?id=' + row.oldPartSupplierId);
+            this.$router.push('/sparepart/basic/supplierInfo/edit?id=' + row.oldPartSupplierId);
           }
         },
         {
@@ -342,7 +342,7 @@ export default {
           width: '140',
           click: (row) => {
             // 点击事件
-            this.$router.push('/sparepart/basic/sparePart/detail?id=' + row.oldPartId);
+            this.$router.push('/sparepart/basic/sparePart/edit?id=' + row.oldPartId);
           }
         },
         {
@@ -357,7 +357,7 @@ export default {
           click: (row) => {
             // 点击事件
             this.navigateToRoute({
-              path: '/sparepart/basic/sparePart/detail',
+              path: '/sparepart/basic/sparePart/edit',
               query: {
                 id: row.partId,
               },

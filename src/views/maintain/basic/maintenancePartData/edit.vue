@@ -138,7 +138,7 @@
                   <vxe-column field="partsName" title="零件名称" min-width="30%" />
                   <vxe-column field="partsCode" title="零件代码" min-width="30%">
                     <template #default="{ row }">
-                      <el-link type="primary" :href="`/service/sparepart/basic/sparePart/detail?id=${row.partsId}`" target="_blank">{{ row.partsCode }}</el-link>
+                      <el-link type="primary" :href="`/service/sparepart/basic/sparePart/edit?id=${row.partsId}`" target="_blank">{{ row.partsCode }}</el-link>
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="30%" />

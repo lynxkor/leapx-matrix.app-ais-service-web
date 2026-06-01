@@ -93,7 +93,7 @@
                     <template #default="{ row }">
                       <el-link
                         type="primary"
-                        :href="`/service/maintain/basic/repairItem/detail?id=${row.repairItemId}`"
+                        :href="`/service/maintain/basic/repairItem/edit?id=${row.repairItemId}`"
                         target="_blank"
                       >{{ row.repairItemCode }}</el-link>
                     </template>
@@ -139,7 +139,7 @@
                     <template #default="{ row }">
                       <el-link
                         type="primary"
-                        :href="`/service/sparepart/basic/sparePart/detail?id=${row.partsId}`"
+                        :href="`/service/sparepart/basic/sparePart/edit?id=${row.partsId}`"
                         target="_blank"
                       >{{ row.partsCode }}</el-link>
                     </template>

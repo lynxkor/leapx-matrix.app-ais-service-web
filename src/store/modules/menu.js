@@ -18,8 +18,8 @@ const data = {
     },
     // 设置页面面包屑
     SET_ACTIVE_BREADCRUMB (state, info) {
-      // console.log(info, '22222');
       state.activeBreadcrumb = info;
+      document.title = `${info ? info.join('') + '-' : ''}零小跑`;
       localStorage.setItem('activeBreadcrumb', JSON.stringify(info));
     },
     // 清除默认菜单

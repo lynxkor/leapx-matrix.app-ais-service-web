@@ -229,7 +229,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/sales/datacenter/materials/vehicleModel/detail?id=${row.vehModelId}`, '_blank');
+                window.open(`/sales/datacenter/materials/vehicleModel/edit?id=${row.vehModelId}`, '_blank');
               },
               type: 'primary'
             }]

@@ -139,7 +139,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/datacenter/vehicleProxyHis/edit',
+                  path: '/datacenter/vehicle/serviceProxyHis/edit',
                   query: {
                     id: row.id
                   }

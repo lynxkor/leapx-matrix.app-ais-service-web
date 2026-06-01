@@ -366,7 +366,7 @@ export default {
   data () {
     const defaultData = this.getDefautlForm();
     return {
-      pageTitle: '接车施工单管理',
+      pageTitle: '接车施工单',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-serviceProxy',
