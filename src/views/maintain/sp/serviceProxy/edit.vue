@@ -444,7 +444,7 @@ export default {
     const form = this.getDefautlForm();
     return {
       collapsedSections: { attachment: true, batteryInfo: true },
-      pageTitle: '接车施工单管理',
+      pageTitle: '接车施工单',
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-serviceProxy',
@@ -512,7 +512,7 @@ export default {
     getDetailData () {
       const id = this._id;
       if (!this.id) {
-        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['接车施工单管理', `${id ? '详情' : '新建'}`]);
+        this.$store.commit('SET_ACTIVE_BREADCRUMB', ['接车施工单', `${id ? '详情' : '新建'}`]);
       }
       if (id) {
         getDetail(id).then(res => {
