@@ -274,7 +274,6 @@ export default {
           { props: 'salePrice', label: '销售价格', visible: true, align: 'right', width: 120 },
           { props: 'purchasePrice', label: '采购价格', visible: true, align: 'right', width: 120 },
           { props: 'oemPartLabel', label: '是否OEM件', visible: true, width: 130 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'saleableIsLabel', label: '是否可销售', visible: true, width: 130 },
           { props: 'standingInventoryIsLabel', label: '是否常备库存件', visible: true, width: 150 },
           { props: 'partsEngineer', label: '备件工程师', visible: true, width: 200 },
