@@ -11,7 +11,7 @@
           labelKey="checkItem" valueKey="id" subLabelKey="errorCode" clearable multiple collapseTags filterable
           @change="handleErrorConfigChange" />
       </el-form-item>
-      <el-form-item label="提交截止日期：">
+      <el-form-item label="提交截止日期：" prop="feedbackDeadline">
         <el-date-picker v-model="form.feedbackDeadline" type="date" format="yyyy-MM-dd" value-format="yyyy-MM-dd"
           placeholder="选择日期" :picker-options="deadlinePickerOptions" />
       </el-form-item>
@@ -103,6 +103,9 @@ export default {
         ],
         errorConfigIds: [
           { required: true, message: '请选择错误代码' }
+        ],
+        feedbackDeadline: [
+          { required: true, message: '请选择提交截止日期' }
         ],
         amountAdjustReason: [
           { required: true, message: '请输入金额调整原因' }
