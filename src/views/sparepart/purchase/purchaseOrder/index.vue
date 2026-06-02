@@ -158,8 +158,8 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button> -->
+      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="activeName === 'allSpareParts'" size="small" @click="handleBatchClaim" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseOrder-claim'">提交索赔</el-button>
       <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(false)" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseOrder-sign'">批量签收</el-button>
       <el-button v-if="activeName === 'proxySign'" size="small" @click="handleBatchSignFor(true)" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseOrder-signIn'">签收并入库</el-button>
@@ -591,7 +591,8 @@ export default {
                 this.$router.push({
                   path: '/sparepart/purchase/purchaseOrder/edit',
                   query: {
-                    id: row.purchaseOrderId
+                    id: row.purchaseOrderId,
+                    type: 'sign'
                   }
                 });
               },
@@ -642,7 +643,6 @@ export default {
             }]
           },
           { props: 'detailRemark', label: '备注', visible: true, width: 200 },
-          { props: 'sparePartCode', label: '备件编码', visible: true, width: 200 },
           {
             props: 'sparePartCode',
             label: '备件编码',
@@ -749,15 +749,27 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
+      let fetchPath = 'sp/web/purchase/purchaseOrder/page';
+      let tableRef = this.$refs.tableRef;
+      if (this.activeName === 'homePage') {
+        fetchPath = 'sp/web/purchase/purchaseOrder/page';
+        tableRef = this.$refs.tableRef;
+      } else if (this.activeName === 'allSpareParts') {
+        fetchPath = 'sp/web/purchase/purchaseOrderDetail/pageAll';
+        tableRef = this.$refs.tableRefAll;
+      } else {
+        fetchPath = 'sp/web/purchase/purchaseOrderDetail/pageWaitSign';
+        tableRef = this.$refs.tableRefSign;
+      }
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
       exportTable({
         businessType: '备件采购订单',
-        dataFetchPath: 'sp/web/purchase/purchaseOrder/page',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: tableRef && tableRef.getVisibleCols ? Object.fromEntries(tableRef.getVisibleCols()) : {},
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {

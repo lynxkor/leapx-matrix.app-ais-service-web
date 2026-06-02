@@ -520,7 +520,7 @@ export default {
       }
       exportTable({
         businessType: '库存盘点',
-        dataFetchPath: 'sp/web/warehouse/stockTaking/page',
+        dataFetchPath: 'sp/web/dealer/stockTaking/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

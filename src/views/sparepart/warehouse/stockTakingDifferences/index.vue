@@ -606,7 +606,7 @@ export default {
       }
       exportTable({
         businessType: '盘点差异单',
-        dataFetchPath: 'sp/web/warehouse/stockTakingDifferences/page',
+        dataFetchPath: 'sp/web/dealer/stockTakingDifferences/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

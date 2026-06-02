@@ -266,7 +266,6 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ShipmentDialog from './ShipmentDialog.vue';
-import { log } from 'handlebars';
 
 const defaultForm = {
   code: '',

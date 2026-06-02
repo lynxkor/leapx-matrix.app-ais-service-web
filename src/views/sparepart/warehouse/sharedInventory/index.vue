@@ -326,7 +326,7 @@ export default {
       }
       exportTable({
         businessType: '共享呆滞件库存',
-        dataFetchPath: 'sp/web/warehouse/sharedInventory/sharePage',
+        dataFetchPath: 'sp/web/warehouse/inventory/sharePage',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

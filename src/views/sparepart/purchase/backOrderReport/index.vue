@@ -244,15 +244,24 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
+      let fetchPath = 'sp/web/purchase/backOrder/categoryPage';
+      let tableRef = this.$refs.tableRef;
+      if (this.activeName === 'homePage') {
+        fetchPath = 'sp/web/purchase/backOrder/categoryPage';
+        tableRef = this.$refs.tableRef;
+      } else {
+        fetchPath = 'sp/web/purchase/backOrder/sparePartPage';
+        tableRef = this.$refs.tableRefSpareParts;
+      }
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
       exportTable({
         businessType: '备件缺货看板',
-        dataFetchPath: 'sp/web/purchase/backOrderReport/page',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: tableRef && tableRef.getVisibleCols ? Object.fromEntries(tableRef.getVisibleCols()) : {},
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
