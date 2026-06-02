@@ -70,7 +70,7 @@
           <vxe-column field="packageTypeLabel" title="套餐类型" width="200px" />
           <vxe-column field="packageCode" title="套餐代码" width="200px"  >
             <template #default="{ row }">
-              <el-link v-if="row.packageType == PackageTypeEnum.EQUITY" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageCode}&serviceProxyId=${_id}`" target="_blank">{{ row.packageCode }}</el-link>
+              <el-link v-if="row.packageType == PackageTypeEnum.EQUITY" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageCode}&serviceProxyId=${_id}&serviceProxyCode=${formData.code}`" target="_blank">{{ row.packageCode }}</el-link>
               <el-link v-else-if="linkMap[row.packageType]" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageId}`" target="_blank">{{ row.packageCode }}</el-link>
               <span v-else>{{ row.packageCode }}</span>
             </template>
@@ -142,7 +142,7 @@
           <vxe-column field="packageTypeLabel" title="套餐类型" width="200px" />
           <vxe-column field="packageCode" title="套餐代码" width="200px"  >
             <template #default="{ row }">
-              <el-link v-if="row.packageType == PackageTypeEnum.EQUITY" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageCode}&serviceProxyId=${_id}`" target="_blank">{{ row.packageCode }}</el-link>
+              <el-link v-if="row.packageType == PackageTypeEnum.EQUITY" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageCode}&serviceProxyId=${_id}&serviceProxyCode=${formData.code}`" target="_blank">{{ row.packageCode }}</el-link>
               <el-link v-else-if="linkMap[row.packageType]" type="success" :href="`${linkMap[row.packageType]}?id=${row.packageId}`" target="_blank">{{ row.packageCode }}</el-link>
               <span v-else>{{ row.packageCode }}</span>
             </template>
