@@ -439,7 +439,7 @@ export default {
       };
       exportTable({
         businessType: 'OEM出库单',
-        dataFetchPath: 'sp/web/warehouse/oemOutboundOrder/page',
+        dataFetchPath: 'sp/web/purchase/oemOutboundOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
