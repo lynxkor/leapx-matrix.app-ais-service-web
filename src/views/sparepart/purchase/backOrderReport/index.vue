@@ -195,7 +195,19 @@ export default {
           size: pageSize
         },
         dataProp: [
-          { props: 'categoryName', label: '分类名称', visible: true, width: 180 },
+          {
+            props: 'categoryName',
+            label: '分类名称',
+            visible: true,
+            width: 180,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.switchToSpareParts(row);
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'orderCount', label: '订单行数', visible: true, width: 120 },
           { props: 'backPartQtyTotal', label: '缺货总数', visible: true, align: 'right', width: 120 },
           { props: 'backPartGroupTotal', label: '备件种类', visible: true, width: 120 },
@@ -454,6 +466,17 @@ export default {
     handleClick (item) {
       this.activeName = item.name;
       this.getData();
+    },
+    // 从首页点击分类名称跳转到备件分组tab并默认查询该分类
+    async switchToSpareParts (row) {
+      this.activeName = 'spareParts';
+      this.show = true;
+      this.form = { ...defaultForm };
+      const res = await this.getCategory(row.categoryName);
+      if (res.records && res.records.length > 0) {
+        this.form.categoryIdList = [res.records[0].id];
+      }
+      this.onSubmit();
     },
   }
 };
