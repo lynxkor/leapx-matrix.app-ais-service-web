@@ -200,7 +200,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/repairItem/detail',
+                  path: '/maintain/basic/repairItem/edit',
                   query: {
                     id: row.repairItemId
                   }

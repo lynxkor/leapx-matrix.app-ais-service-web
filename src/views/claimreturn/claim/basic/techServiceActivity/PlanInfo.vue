@@ -71,7 +71,7 @@
                 :remote-method="partRemote"
                 :params="form.mainPartName"
                 @change="partChange"
-                value-key="id"
+                value-key="sparePartId"
                 subLabelKey="partCode"
                 label-key="partName"
               />

@@ -568,7 +568,7 @@ export default {
                 },
                 click: (rowIndex, row) => {
                   this.$router.push({
-                    path: '/claimreturn/claim/warrantyapply/edit',
+                    path: '/claimreturn/claim/warrantyApply/edit',
                     query: {
                       id: row.id,
                       isEditing: true

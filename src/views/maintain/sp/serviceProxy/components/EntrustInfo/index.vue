@@ -754,9 +754,9 @@ export default {
           item => item.cccId === record.id
         );
         if (!isExist && record) {
-          this.form.faultAlertRecordRespList.push(record);
+          this.form.faultAlertRecordRespList.push({ ...record, cccId: record.id });
           this.$set(this.form, 'faultAlertRecordRespList', [...this.form.faultAlertRecordRespList]);
-          updateSpFaultAlertRecord({ serviceProxyId: this._id, ...record }).then(res => {
+          updateSpFaultAlertRecord({ serviceProxyId: this._id, ...record, cccId: record.id }).then(res => {
             this.$message({
               message: '保存成功',
               type: 'success'

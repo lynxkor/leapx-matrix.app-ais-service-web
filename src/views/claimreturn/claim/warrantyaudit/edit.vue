@@ -11,17 +11,17 @@
         :showEditBtn="detailButtons.includes('编辑')"
       >
         <template #extraButtons>
-          <el-button v-if="detailButtons.includes('发布')" size="small" type="primary" @click="handlePublish">发布</el-button>
-          <el-button v-if="detailButtons.includes('签署总结')" size="small" @click="handleSignSummary">签署总结</el-button>
-          <el-button v-if="detailButtons.includes('同意总结')" size="small" @click="handleAgreeSummary">同意总结</el-button>
-          <el-button v-if="detailButtons.includes('驳回总结')" size="small" @click="handleRejectSummary">驳回总结</el-button>
-          <el-button v-if="detailButtons.includes('签署整改')" size="small" @click="handleSignRectify">签署整改</el-button>
-          <el-button v-if="detailButtons.includes('同意整改')" size="small" @click="handleAgreeRectify">同意整改</el-button>
-          <el-button v-if="detailButtons.includes('驳回整改')" size="small" @click="handleRejectRectify">驳回整改</el-button>
-          <el-button v-if="detailButtons.includes('重新生成待签署总结报告')" size="small" @click="handleRegenerateUnsignedSummary">重新生成待签署总结报告</el-button>
-          <el-button v-if="detailButtons.includes('上传待签署总结报告')" size="small" @click="handleUploadUnsignedSummary">上传待签署总结报告</el-button>
-          <el-button v-if="detailButtons.includes('重新生成待签署整改报告')" size="small" @click="handleRegenerateUnsignedRectify">重新生成待签署整改报告</el-button>
-          <el-button v-if="detailButtons.includes('上传待签署整改报告')" size="small" @click="handleUploadUnsignedRectify">上传待签署整改报告</el-button>
+          <el-button v-if="permissions.has(`${ moduleKey }-publish`) && detailButtons.includes('发布')" size="small" type="primary" @click="handlePublish">发布</el-button>
+          <el-button v-if="permissions.has(`${ moduleKey }-signSummary`) && detailButtons.includes('签署总结')" size="small" @click="handleSignSummary">签署总结</el-button>
+          <el-button v-if="permissions.has(`${ moduleKey }-agreeSummary`) && detailButtons.includes('同意总结')" size="small" @click="handleAgreeSummary">同意总结</el-button>
+          <el-button v-if="permissions.has(`${ moduleKey }-rejectSummary`) && detailButtons.includes('驳回总结')" size="small" @click="handleRejectSummary">驳回总结</el-button>
+          <el-button v-if="permissions.has(`${ moduleKey }-signRectify`) && detailButtons.includes('签署整改')" size="small" @click="handleSignRectify">签署整改</el-button>
+          <el-button v-if="permissions.has(`${ moduleKey }-agreeRectify`) && detailButtons.includes('同意整改')" size="small" @click="handleAgreeRectify">同意整改</el-button>
+          <el-button v-if="permissions.has(`${ moduleKey }-rejectRectify`) && detailButtons.includes('驳回整改')" size="small" @click="handleRejectRectify">驳回整改</el-button>
+          <el-button v-if="permissions.has(`${ moduleKey }-regenerateRectifyReport`) && detailButtons.includes('重新生成待签署总结报告')" size="small" @click="handleRegenerateUnsignedSummary">重新生成待签署总结报告</el-button>
+          <el-button v-if="permissions.has(`${ moduleKey }-uploadPendingSummaryReport`) && detailButtons.includes('上传待签署总结报告')" size="small" @click="handleUploadUnsignedSummary">上传待签署总结报告</el-button>
+          <el-button v-if="permissions.has(`${ moduleKey }-regenerateSummaryReport`) && detailButtons.includes('重新生成待签署整改报告')" size="small" @click="handleRegenerateUnsignedRectify">重新生成待签署整改报告</el-button>
+          <el-button v-if="permissions.has(`${ moduleKey }-uploadPendingRectifyReport`) && detailButtons.includes('上传待签署整改报告')" size="small" @click="handleUploadUnsignedRectify">上传待签署整改报告</el-button>
         </template>
         <el-main>
           <!-- 基础信息 -->

@@ -738,7 +738,6 @@ export default {
     };
   },
   mounted () {
-    this.getLoginUser();
   },
   methods: {
     // 索赔出库明细
@@ -750,7 +749,10 @@ export default {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        return getDetail(id).then(res => {
+          this.getLoginUser();
+          return res;
+        });
       }
     },
     submitRequest () {

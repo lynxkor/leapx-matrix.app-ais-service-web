@@ -239,7 +239,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/service/sparepart/basic/sparePart/detail?id=${row.sparePartId}`, '_blank');
+                window.open(`/service/sparepart/basic/sparePart/edit?id=${row.sparePartId}`, '_blank');
               },
               type: 'primary'
             }]

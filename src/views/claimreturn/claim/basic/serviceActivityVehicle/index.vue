@@ -307,15 +307,15 @@ export default {
             props: 'activityCode',
             label: '活动编码',
             visible: true,
-            width: 180,
+            width: 200,
             fixed: 'left',
             centralized: true,
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: this.getPath(),
+                  path: this.isServiceCareActivity ? '/claimreturn/claim/basic/serviceCareActivity/edit' : '/claimreturn/claim/basic/techServiceActivity/edit',
                   query: {
-                    id: row.id
+                    id: row.activityId
                   }
                 });
               },
@@ -332,22 +332,22 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/datacenter/vehicle/vehicleProfile/edit',
+                  path: this.getPath(),
                   query: {
-                    id: row.vehicleProfileId
+                    id: row.id
                   }
                 });
               },
               type: 'primary'
             }]
           },
-          { props: 'activityName', label: '活动名称', visible: true, width: 180, centralized: true },
-          { props: 'activityTypeLabel', label: '活动类型', visible: true, width: 120, centralized: true },
-          { props: 'activityStatusLabel', label: '活动状态', visible: true, width: 160 },
+          { props: 'activityName', label: '活动名称', visible: true, width: 200, centralized: true },
+          { props: 'activityTypeLabel', label: '活动类型', visible: true, width: 200, centralized: true },
+          { props: 'activityStatusLabel', label: '活动状态', visible: true, width: 200 },
           { props: 'startTime', label: '活动开始时间', visible: true, width: 200 },
           { props: 'endTime', label: '活动结束时间', visible: true, width: 200 },
           { props: 'plannedDealerName', label: '计划实施门店名称', visible: true, width: 200 },
-          { props: 'finishedLabel', label: '是否完成', visible: true, width: 100 },
+          { props: 'finishedLabel', label: '是否完成', visible: true, width: 200 },
           { props: 'actualDealerName', label: '实际施工门店名称', visible: true, width: 200 },
           { props: 'finishTime', label: '完成时间', visible: true, width: 200 },
           { props: 'workOrderNo', label: '接车施工单号', visible: true, width: 200 },
@@ -355,7 +355,7 @@ export default {
             props: 'ownerPhone',
             label: '车主手机号码',
             visible: true,
-            width: 160,
+            width: 200,
             mask: true,
             getValue: (row) => getDetailDecryptField(row.id, 'ownerPhone')
           },

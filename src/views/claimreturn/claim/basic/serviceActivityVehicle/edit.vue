@@ -109,8 +109,8 @@
                   <el-form-item label="VIN：" prop="vin">
                     {{ form.vin }}
                   </el-form-item>
-                  <el-form-item label="计划实施门店名称：" prop="plannedDealerCode">
-                    {{ form.plannedDealerCode }}
+                  <el-form-item label="计划实施门店名称：" prop="plannedDealerName">
+                    {{ form.plannedDealerName }}
                   </el-form-item>
                   <el-form-item label="车主姓名：" prop="ownerName">
                     {{ form.ownerName }}

@@ -174,7 +174,7 @@
                     type="text">{{form.dealerName}}</el-button>
                 </el-form-item>
                 <el-form-item label="收货供应商：" prop="supplierName">
-                  <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/detail?id=' + form.supplierId)" type="text">{{ form.supplierName }}</el-button>
+                  <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/edit?id=' + form.supplierId)" type="text">{{ form.supplierName }}</el-button>
                 </el-form-item>
                 <el-form-item label="物流商：" prop="logisticsCompany">
                   {{ form.logisticsCompany }}

@@ -266,6 +266,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ShipmentDialog from './ShipmentDialog.vue';
+import { log } from 'handlebars';
 
 const defaultForm = {
   code: '',
@@ -401,10 +402,11 @@ export default {
       if (!this.form.logisticsOrderNo) {
         return;
       }
+      const logType = this.form.logisticsProvider || 'JD';
       this.loadingLogistics = true;
       const params = {
         waybillCode: this.form.logisticsOrderNo,
-        logisticsType: this.form.logisticsProvider,
+        logisticsType: logType,
       };
       try {
         const res = await getLogistics(params);

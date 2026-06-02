@@ -377,7 +377,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/supplierInfo/detail',
+                  path: '/sparepart/basic/supplierInfo/edit',
                   query: {
                     id: row.oldPartSupplierId
                   }
@@ -394,7 +394,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/supplierInfo/detail',
+                  path: '/sparepart/basic/supplierInfo/edit',
                   query: {
                     id: row.mainPartSupplierId
                   }
@@ -411,7 +411,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/supplierInfo/detail',
+                  path: '/sparepart/basic/supplierInfo/edit',
                   query: {
                     id: row.dutySupplierId
                   }
@@ -428,7 +428,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePart/detail',
+                  path: '/sparepart/basic/sparePart/edit',
                   query: {
                     id: row.oldPartId
                   }
@@ -446,7 +446,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePart/detail',
+                  path: '/sparepart/basic/sparePart/edit',
                   query: {
                     id: row.partId
                   }
@@ -583,7 +583,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/oldpart/oemInventory/edit'
+        path: '/claimreturn/oldpart/inventory/oem/edit'
       });
     },
     handlePrint () {

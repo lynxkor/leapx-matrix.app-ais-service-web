@@ -243,10 +243,12 @@ export default {
     }
   },
   watch: {
-    id: {
+    _id: {
       handler (val) {
         if (val) {
           this.getDetailData();
+          this.getCollar();
+          this.getOut();
         }
       },
       immediate: true
@@ -449,9 +451,6 @@ export default {
     };
   },
   mounted () {
-    this.getDetailData();
-    this.getCollar();
-    this.getOut();
   },
   methods: {
     // 打开侧边栏
@@ -561,7 +560,7 @@ export default {
       const params = {
         pageNum: this.collarParams.current,
         pageSize: this.collarParams.pageSize,
-        maintenanceOutboundOrderId: this.$route.query.id
+        maintenanceOutboundOrderId: this._id
       };
       const res = await collarPage(params);
       this.tableData = res.records || [];
@@ -581,7 +580,7 @@ export default {
       const params = {
         pageNum: this.goParams.current,
         pageSize: this.goParams.pageSize,
-        maintenanceOutboundOrderId: this.$route.query.id
+        maintenanceOutboundOrderId: this._id
       };
       const res = await goPage(params);
       this.goTableData = res.records || [];

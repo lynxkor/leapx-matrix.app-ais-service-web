@@ -568,7 +568,7 @@ export default {
     goToVehicleProfile (vehProfileId) {
       if (vehProfileId) {
         this.$router.push({
-          path: '/vehicle/profile/detail',
+          path: '/datacenter/vehicle/vehicleProfile/edit',
           query: {
             id: vehProfileId
           }
