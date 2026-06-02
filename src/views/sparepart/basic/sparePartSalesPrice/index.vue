@@ -184,9 +184,9 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePart/edit',
+                  path: '/sparepart/basic/sparePartSalesPrice/edit',
                   query: {
-                    id: row.sparePartId,
+                    id: row.id,
                     isEditing: false
                   }
                 });
