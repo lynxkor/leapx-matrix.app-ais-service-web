@@ -232,7 +232,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/inbound/maintenanceReturnInbound/edit',
+                  path: '/sparepart/outbound/maintenanceOutboundOrder/edit',
                   query: {
                     id: row.id
                   }
