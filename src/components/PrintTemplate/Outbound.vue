@@ -125,8 +125,10 @@ export default {
   },
   watch: {
     id: {
-      handler () {
-        this.init();
+      handler (val) {
+        if (val) {
+          this.init();
+        }
       },
       immediate: true,
     }

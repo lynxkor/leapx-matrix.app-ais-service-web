@@ -446,7 +446,7 @@
                       替换件<i class="el-icon-arrow-down el-icon--right"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown" placement="bottom-start" style="max-height: 200px;overflow-y: auto;overflow-x: hidden;">
-                      <el-dropdown-item v-for="el in row.replaceSparePartRespList" :command="el" :key="el.id">{{el.partsCode}}/{{el.partsName}}-库存({{el.stockCount || 0}})-￥{{el.price || 0}}</el-dropdown-item>
+                      <el-dropdown-item v-for="el in row.replaceSparePartRespList" :command="el" :key="el.partsId">{{el.partsCode}}/{{el.partsName}}-库存({{el.stockCount || 0}})-￥{{el.price || 0}}</el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
                 </template>
@@ -1463,7 +1463,17 @@ export default {
         // 原零件信息，如果不存在，证明是第一次替换，需要带上
         originPartsId: row.originPartsId || row.partsId,
         originPartsCode: row.originPartsCode || row.partsCode,
-        replaceSparePartRespList: [old]
+        stockCount: current.stockCount || 0,
+        replaceSparePartRespList: (() => {
+          const list = [...(row.replaceSparePartRespList || [])];
+          const idx = list.findIndex(item => item.partsId === current.partsId);
+          if (idx > -1) {
+            list.splice(idx, 1, old);
+          } else {
+            list.push(old);
+          }
+          return list;
+        })()
       });
     },
     handlePartReplaceClick (e, row) {

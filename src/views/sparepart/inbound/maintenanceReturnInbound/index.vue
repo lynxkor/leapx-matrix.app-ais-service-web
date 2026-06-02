@@ -59,7 +59,7 @@
               clearable
             />
           </el-form-item>
-          <el-form-item label="出库状态">
+          <el-form-item label="入库状态">
             <fetch-select
               :request="fetchOptions"
               enumCode="MaintenanceReturnMaterialStatusEnum"

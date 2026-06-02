@@ -35,6 +35,7 @@
                   filterable
                   remote
                   :remote-method="(query) => querySearchAsync(query, rowIndex)"
+                  @visible-change="handleSelectVisible"
                   @change="handleWorkstationChange(row, rowIndex, $event)"
                 >
                   <el-option
@@ -189,18 +190,27 @@ export default {
     // 远程搜索方法，接收行索引参数
     querySearchAsync (queryString, rowIndex) {
       getUserByNameOrNo({ name: queryString }).then(res => {
-        const list = res?.map(item => {
-          return {
-            value: item.userId,
-            label: item.username
-          };
-        }) || [];
-
-        this.userList = list;
+        this.userList = (res || []).map(item => ({
+          value: item.userId,
+          label: item.username
+        }));
       }).catch(error => {
         console.log('搜索用户失败:', error);
         this.userList = [];
       });
+    },
+    // 下拉框展开时，如果无数据则默认加载20条
+    handleSelectVisible (visible) {
+      if (visible && !this.userList.length) {
+        getUserByNameOrNo({ pageSize: 20 }).then(res => {
+          this.userList = (res || []).map(item => ({
+            value: item.userId,
+            label: item.username
+          }));
+        }).catch(error => {
+          console.log('获取用户列表失败:', error);
+        });
+      }
     },
 
     // 处理领料人选择变化

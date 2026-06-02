@@ -206,6 +206,7 @@ const defaultForm = {
   remark: '',
   createTime: '',
   updateTime: '',
+  statusIncludeList: ['1']
 };
 
 const pageSize = 20;
