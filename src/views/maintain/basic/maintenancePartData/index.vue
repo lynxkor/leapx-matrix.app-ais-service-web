@@ -182,13 +182,13 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'name', label: '保养零件名称', visible: true, width: 200 },
-          { props: 'mileageTypeLabel', label: '里程类型', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
-          { props: 'firstServiceMileage', label: '首次保养里程(KM)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
-          { props: 'firstServiceMonth', label: '首次保养时间(月)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
-          { props: 'mileageInterval', label: '定期保养里程间隔(KM)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
-          { props: 'monthInterval', label: '定期保养时间间隔(月)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
+          { props: 'name', label: '保养零件名称', visible: true, width: 250 },
+          { props: 'mileageTypeLabel', label: '里程类型', visible: true, width: 120 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
+          { props: 'firstServiceMileage', label: '首次保养里程(KM)', visible: true, width: 180, align: 'right', headerAlign: 'right' },
+          { props: 'firstServiceMonth', label: '首次保养时间(月)', visible: true, width: 180, align: 'right', headerAlign: 'right' },
+          { props: 'mileageInterval', label: '定期保养里程间隔(KM)', visible: true, width: 180, align: 'right', headerAlign: 'right' },
+          { props: 'monthInterval', label: '定期保养时间间隔(月)', visible: true, width: 180, align: 'right', headerAlign: 'right' },
           {
             props: 'operate',
             label: '操作',

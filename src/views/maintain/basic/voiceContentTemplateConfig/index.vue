@@ -175,9 +175,9 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'content', label: '内容', visible: true, width: 200 },
+          { props: 'content', label: '内容', visible: true, width: 300 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
           { props: 'eventLabel', label: '事件类型', visible: true, width: 200 },
           { props: 'vehicleBrandLabel', label: '车辆品牌', visible: true, width: 200 },
           { props: 'conditionsLabel', label: '满足条件', visible: true, width: 200 },

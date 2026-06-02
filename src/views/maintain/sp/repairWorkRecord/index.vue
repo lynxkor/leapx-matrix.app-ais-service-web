@@ -98,7 +98,7 @@ export default {
             props: 'serviceProxyCode',
             label: '施工单号',
             visible: true,
-            width: 200,
+            width: 250,
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -125,20 +125,20 @@ export default {
           },
           { props: 'repairItemName', label: '维修项目名称', visible: true, width: 200 },
           { props: 'repairItemCode', label: '维修项目代码', visible: true, width: 200 },
-          { props: 'statusLabel', label: '作业状态', visible: true, width: 200 },
-          { props: 'isDispatchLabel', label: '是否已派工', visible: true, width: 200 },
-          { props: 'dealerStationName', label: '工位', visible: true, width: 200 },
-          { props: 'dealerWorkTeamName', label: '班组信息', visible: true, width: 200 },
-          { props: 'repairTechnicianName', label: '维修技师', visible: true, width: 200 },
+          { props: 'statusLabel', label: '作业状态', visible: true, width: 120 },
+          { props: 'isDispatchLabel', label: '是否已派工', visible: true, width: 120 },
+          { props: 'dealerStationName', label: '工位', visible: true, width: 120 },
+          { props: 'dealerWorkTeamName', label: '班组信息', visible: true, width: 120 },
+          { props: 'repairTechnicianName', label: '维修技师', visible: true, width: 120 },
           { props: 'dispatchTime', label: '派工时间', visible: true, width: 200 },
           { props: 'startAt', label: '计划作业时间', visible: true, width: 200 },
           { props: 'timeSpend', label: '实际作业时间', visible: true, width: 200 },
           { props: 'finishAt', label: '作业结束时间', visible: true, width: 200 },
 
-          { props: 'reworkTypeLabel', label: '返修类型', visible: true, width: 200 },
-          { props: 'qualityCheckerName', label: '质检人', visible: true, width: 200 },
+          { props: 'reworkTypeLabel', label: '返修类型', visible: true, width: 120 },
+          { props: 'qualityCheckerName', label: '质检人', visible: true, width: 120 },
           { props: 'qualityCheckAt', label: '质检时间', visible: true, width: 200 },
-          { props: 'qualityCheckStatusLabel', label: '质检状态', visible: true, width: 200 },
+          { props: 'qualityCheckStatusLabel', label: '质检状态', visible: true, width: 120 },
 
           { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true },
         ],

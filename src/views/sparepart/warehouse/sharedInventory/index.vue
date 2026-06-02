@@ -52,6 +52,7 @@
       />
     </el-form>
     <div class="ais-actions">
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -153,7 +154,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePart/detail',
+                  path: '/sparepart/basic/sparePart/edit',
                   query: {
                     id: row.id
                   }
@@ -325,7 +326,7 @@ export default {
       }
       exportTable({
         businessType: '共享呆滞件库存',
-        dataFetchPath: 'sparepart/web/warehouse/sharedInventory/sharePage',
+        dataFetchPath: 'sp/web/warehouse/inventory/sharePage',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

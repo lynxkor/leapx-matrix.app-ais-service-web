@@ -273,7 +273,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vehYearTypeName', label: '年款', visible: true, width: 200 },
+          { props: 'vehYearTypeName', label: '年款', visible: true, width: 100 },
           { props: 'vehModelName', label: '车型', visible: true, width: 200 },
           {
             props: 'dealerName',
@@ -287,7 +287,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'retentionStatusLabel', label: '留车单状态', visible: true, width: 200 },
+          { props: 'retentionStatusLabel', label: '留车单状态', visible: true, width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',

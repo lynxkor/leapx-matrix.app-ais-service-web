@@ -370,7 +370,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'traceStatusLabel', label: '追溯状态', visible: true, width: 200 },
+          { props: 'traceStatusLabel', label: '追溯状态', visible: true, width: 120 },
           {
             props: 'warrantyCode',
             label: '保修申请单',
@@ -412,12 +412,12 @@ export default {
             }]
           },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'laborClaimTotal', label: '保修工时金额', visible: true, width: 200 },
-          { props: 'partsClaimTotal', label: '保修备件金额', visible: true, width: 200 },
-          { props: 'otherClaimTotal', label: '保修其他金额', visible: true, width: 200 },
-          { props: 'planTraceAmount', label: '计划追溯金额', visible: true, width: 200 },
-          { props: 'tracedAmount', label: '已追溯金额', visible: true, width: 200 },
-          { props: 'unTraceAmount', label: '未追溯金额', visible: true, width: 200 },
+          { props: 'laborClaimTotal', label: '保修工时金额', visible: true, width: 160, align: 'right' },
+          { props: 'partsClaimTotal', label: '保修备件金额', visible: true, width: 160, align: 'right' },
+          { props: 'otherClaimTotal', label: '保修其他金额', visible: true, width: 160, align: 'right' },
+          { props: 'planTraceAmount', label: '计划追溯金额', visible: true, width: 160, align: 'right' },
+          { props: 'tracedAmount', label: '已追溯金额', visible: true, width: 160, align: 'right' },
+          { props: 'unTraceAmount', label: '未追溯金额', visible: true, width: 160, align: 'right' },
           { props: 'firstIssueTime', label: '首次下发时间', visible: true, width: 200 },
           { props: 'latestIssueTime', label: '最新下发时间', visible: true, width: 200 },
           { props: 'sysAutoAgreeDate', label: '系统自动同意日期', visible: true, width: 200 },
@@ -447,7 +447,7 @@ export default {
               },
               {
                 name: '提交审核',
-                show: (row) => [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(row.traceStatus),
+                show: (row) => this.permissions.has(`${this.moduleKey}-submitForAudit`) && [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(row.traceStatus),
                 click: (rowIndex, row) => {
                   this.currentRow = row;
                   this.submitAuditDialogVisible = true;
@@ -456,7 +456,7 @@ export default {
               },
               {
                 name: '作废',
-                show: (row) => [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(row.traceStatus),
+                show: (row) => this.permissions.has(`${this.moduleKey}-cancel`) && [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(row.traceStatus),
                 click: (rowIndex, row) => {
                   this.currentRow = row;
                   this.cancelOrderDialogVisible = true;
@@ -465,7 +465,7 @@ export default {
               },
               {
                 name: '调整索赔金额',
-                show: (row) => [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED, TRACE_STATUS.APPEALING].includes(row.traceStatus),
+                show: (row) => this.permissions.has(`${this.moduleKey}-adjustTraceAmount`) && [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED, TRACE_STATUS.APPEALING].includes(row.traceStatus),
                 click: (rowIndex, row) => {
                   this.currentRow = row;
                   this.adjustAmountDialogVisible = true;
@@ -474,7 +474,7 @@ export default {
               },
               {
                 name: '同意下发',
-                show: (row) => row.traceStatus === TRACE_STATUS.AUDITING,
+                show: (row) => this.permissions.has(`${this.moduleKey}-agreeIssue`) && row.traceStatus === TRACE_STATUS.AUDITING,
                 click: (rowIndex, row) => {
                   this.handleAgreeIssue(row);
                 },
@@ -482,7 +482,7 @@ export default {
               },
               {
                 name: '驳回修改',
-                show: (row) => row.traceStatus === TRACE_STATUS.AUDITING,
+                show: (row) => this.permissions.has(`${this.moduleKey}-rejectForModify`) && row.traceStatus === TRACE_STATUS.AUDITING,
                 click: (rowIndex, row) => {
                   this.currentRow = row;
                   this.rejectModifyDialogVisible = true;
@@ -491,7 +491,7 @@ export default {
               },
               {
                 name: '同意追溯',
-                show: (row) => row.traceStatus === TRACE_STATUS.PENDING_CONFIRM || row.traceStatus === TRACE_STATUS.APPEAL_REJECTED,
+                show: (row) => this.permissions.has(`${this.moduleKey}-agreeTrace`) && (row.traceStatus === TRACE_STATUS.PENDING_CONFIRM || row.traceStatus === TRACE_STATUS.APPEAL_REJECTED),
                 click: (rowIndex, row) => {
                   this.handleAgreeTrace(row);
                 },
@@ -499,7 +499,7 @@ export default {
               },
               {
                 name: '申诉',
-                show: (row) => row.traceStatus === TRACE_STATUS.PENDING_CONFIRM || row.traceStatus === TRACE_STATUS.APPEAL_REJECTED,
+                show: (row) => this.permissions.has(`${this.moduleKey}-appeal`) && (row.traceStatus === TRACE_STATUS.PENDING_CONFIRM || row.traceStatus === TRACE_STATUS.APPEAL_REJECTED),
                 click: (rowIndex, row) => {
                   this.currentRow = row;
                   this.appealDialogVisible = true;
@@ -508,7 +508,7 @@ export default {
               },
               {
                 name: '同意申诉',
-                show: (row) => row.traceStatus === TRACE_STATUS.APPEALING,
+                show: (row) => this.permissions.has(`${this.moduleKey}-agreeAppeal`) && row.traceStatus === TRACE_STATUS.APPEALING,
                 click: (rowIndex, row) => {
                   this.currentRow = row;
                   this.agreeAppealDialogVisible = true;
@@ -517,7 +517,7 @@ export default {
               },
               {
                 name: '驳回申诉',
-                show: (row) => row.traceStatus === TRACE_STATUS.APPEALING,
+                show: (row) => this.permissions.has(`${this.moduleKey}-rejectAppeal`) && row.traceStatus === TRACE_STATUS.APPEALING,
                 click: (rowIndex, row) => {
                   this.currentRow = row;
                   this.rejectAppealDialogVisible = true;
@@ -526,7 +526,7 @@ export default {
               },
               {
                 name: '拒绝申诉',
-                show: (row) => row.traceStatus === TRACE_STATUS.APPEALING,
+                show: (row) => this.permissions.has(`${this.moduleKey}-rejectForAppeal`) && row.traceStatus === TRACE_STATUS.APPEALING,
                 click: (rowIndex, row) => {
                   this.currentRow = row;
                   this.refuseAppealDialogVisible = true;
@@ -594,7 +594,7 @@ export default {
       }
       exportTable({
         businessType: '索赔追溯单',
-        dataFetchPath: 'claimreturn/web/claim/claimtrace/claimTraceOrder/page',
+        dataFetchPath: 'claimreturn/claim/web/claimtrace/claimTraceOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

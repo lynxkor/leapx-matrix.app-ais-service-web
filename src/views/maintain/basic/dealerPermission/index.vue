@@ -169,7 +169,7 @@ export default {
           },
           { props: 'permissionTypeLabel', label: '权限类型', visible: true, width: 200 },
           { props: 'dealerTypeLabel', label: '建店类型', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
           {
             props: 'checkoutTypeName',
             label: '结算类型名称',
@@ -178,7 +178,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/checkoutType/detail',
+                  path: '/maintain/basic/checkoutType/edit',
                   query: {
                     id: row.checkoutTypeId
                   }
@@ -195,7 +195,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/repairItemType/detail',
+                  path: '/maintain/basic/repairItemType/edit',
                   query: {
                     id: row.repairItemTypeId
                   }

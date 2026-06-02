@@ -260,7 +260,7 @@ export default {
             props: 'warrantyMonth',
             label: '保修月份',
             visible: true,
-            width: 120,
+            width: 100,
             fixed: 'left'
           },
           {
@@ -347,7 +347,7 @@ export default {
             props: 'dealerName',
             label: '门店名称',
             visible: true,
-            width: 240,
+            width: 200,
             buttons: [{
               click: (rowIndex, row) => {
                 this.navigateToRoute({
@@ -360,12 +360,12 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'isMainPartLabel', label: '是否主因零部件', visible: true, width: 150 },
+          { props: 'isMainPartLabel', label: '是否主因零部件', visible: true, width: 140 },
           {
             props: 'vin',
             label: 'VIN',
             visible: true,
-            width: 220,
+            width: 200,
             mask: true,
             getValue: (row) => getDetailDecryptField(row.id, 'vin')
           },
@@ -377,7 +377,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/supplierInfo/detail',
+                  path: '/sparepart/basic/supplierInfo/edit',
                   query: {
                     id: row.oldPartSupplierId
                   }
@@ -394,7 +394,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/supplierInfo/detail',
+                  path: '/sparepart/basic/supplierInfo/edit',
                   query: {
                     id: row.mainPartSupplierId
                   }
@@ -411,7 +411,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/supplierInfo/detail',
+                  path: '/sparepart/basic/supplierInfo/edit',
                   query: {
                     id: row.dutySupplierId
                   }
@@ -428,7 +428,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePart/detail',
+                  path: '/sparepart/basic/sparePart/edit',
                   query: {
                     id: row.oldPartId
                   }
@@ -446,7 +446,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/basic/sparePart/detail',
+                  path: '/sparepart/basic/sparePart/edit',
                   query: {
                     id: row.partId
                   }
@@ -583,7 +583,7 @@ export default {
     },
     handleAdd () {
       this.$router.push({
-        path: '/claimreturn/oldpart/oemInventory/edit'
+        path: '/claimreturn/oldpart/inventory/oem/edit'
       });
     },
     handlePrint () {

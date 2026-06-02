@@ -44,6 +44,7 @@
                     v-model="form.workhourPrice"
                     type="number"
                     min="0"
+                    size="small"
                     clearable
                   />
                 </el-form-item>
@@ -64,9 +65,11 @@
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
               <h2>特殊价格</h2>
-              <el-button v-if="canAddOrUpdate && isEditing" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
             </div>
             <div class="common-section-body">
+              <div class="common-section-header">
+                <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              </div>
               <div class="common-section-table">
                 <edit-table
                   ref="editTable"
@@ -77,6 +80,9 @@
                   :options="options"
                   :delTitle="delTitle"
                   :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  enableSingleRowSave
+                  @save-row-edit="handleSaveRowEdit"
+                  @remove-row="handleRemoveRow"
                 />
               </div>
             </div>
@@ -149,7 +155,7 @@ export default {
         {
           field: 'vehicleModelName',
           title: '基本车型',
-          width: '27%',
+          width: '29%',
           editable: true,
           editRender: {
             name: 'ElSelect',
@@ -170,7 +176,7 @@ export default {
           field: 'workhourPrice',
           title: '工时单价',
           editable: true,
-          width: '27%',
+          width: '29%',
           editRender: { name: 'ElInput', props: { type: 'number', min: 0 } },
           rules: [
             { required: true, message: '工时单价不能为空', trigger: 'blur' },
@@ -179,7 +185,7 @@ export default {
         {
           field: 'createTime',
           title: '创建时间',
-          width: '27%',
+          width: '29%',
           editRender: { name: 'ElInput' }
         },
       ],
@@ -247,6 +253,38 @@ export default {
     },
     handleAddRow () {
       this.$refs.editTable.addRow();
+    },
+    async handleSaveRowEdit (row, defer) {
+      try {
+        const formData = { ...this.form };
+        if (this._id) {
+          delete formData.modelWorkhourPriceRespList;
+        }
+        const tableData = this.$refs.editTable.getData();
+        await addOrUpdate({ ...formData, modelWorkhourPriceList: tableData });
+        this.$message.success('保存成功');
+        this.$refs.containerRef.handleRefresh();
+        defer.resolve(row.id);
+      } catch (e) {
+        this.$message.error('保存失败');
+        defer.reject();
+      }
+    },
+    async handleRemoveRow (row, index, defer) {
+      try {
+        const formData = { ...this.form };
+        if (this._id) {
+          delete formData.modelWorkhourPriceRespList;
+        }
+        const tableData = this.$refs.editTable.getData();
+        await addOrUpdate({ ...formData, modelWorkhourPriceList: tableData });
+        this.$message.success('删除成功');
+        this.$refs.containerRef.handleRefresh();
+        defer.resolve();
+      } catch (e) {
+        this.$message.error('删除失败');
+        defer.reject();
+      }
     },
     getDefautlForm () {
       const userInfo = this.$store.state.user.userInfo;

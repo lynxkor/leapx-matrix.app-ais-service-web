@@ -88,8 +88,8 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/excelManagement/commonDataProcessExcelModelMap/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
-import FetchSelect from '@/libs/components/FetchSelect';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getTemplateCode } from '@/api/common';
+// import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import { downloadExcel } from '@/utils/index.js';
@@ -413,8 +413,9 @@ export default {
         });
       });
     },
-    handleDownload (row) {
-      downloadExcel(row.excelModelUrl, row.fileName || '模板');
+    async handleDownload (row) {
+      const res = await getTemplateCode(row.code);
+      downloadExcel(res?.excelModelUrl, res?.fileName || res?.businessType || '模板.xlsx');
     }
   }
 };

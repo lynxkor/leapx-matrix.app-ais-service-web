@@ -216,9 +216,9 @@ export default {
           },
           { props: 'repairItemCode', label: '维修项目代码', visible: true, width: 200 },
           { props: 'repairItemName', label: '维修项目名称', visible: true, width: 200 },
-          { props: 'dealerClaimPrice', label: '门店索赔价格', visible: true, width: 200 },
+          { props: 'dealerClaimPrice', label: '门店索赔价格', visible: true, width: 140, align: 'right' },
           { props: 'effectiveStartTime', label: '生效开始日期', visible: true, width: 200 },
-          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 100 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -302,7 +302,7 @@ export default {
       }
       exportTable({
         businessType: '门店代步车索赔价格',
-        dataFetchPath: 'claimreturn/web/claim/basic/dealerReplacementCarClaimPrice/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/dealerReplacementCarClaimPrice/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

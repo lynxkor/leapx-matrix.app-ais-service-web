@@ -255,7 +255,7 @@ export default {
             props: 'code',
             label: '套餐代码',
             visible: true,
-            width: 120,
+            width: 150,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -269,14 +269,14 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'packageName', label: '套餐名称', visible: true, width: 120 },
-          { props: 'typeNames', label: '套餐类型', visible: true, width: 160 },
+          { props: 'packageName', label: '套餐名称', visible: true, width: 200 },
+          { props: 'typeNames', label: '套餐类型', visible: true, width: 200 },
           { props: 'spellCode', label: '拼音简码', visible: true, width: 160 },
           { props: 'vehicleSeriesNames', label: '车系', visible: true, width: 120 },
           { props: 'carModelNames', label: '车型年型', visible: true, width: 160 },
           { props: 'dataFromLabel', label: '数据来源', visible: true, width: 120 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 220 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 60 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
           { props: 'totalAmount', label: '总金额', visible: true, width: 100, align: 'right', headerAlign: 'right' },
           { props: 'modifierName', label: '修改者名称', visible: true, width: 150 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 160 },

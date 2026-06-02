@@ -16,9 +16,9 @@
           <!-- <span class="status primary" v-if="form.statusDesc">{{ form.statusDesc }}</span> -->
         </template>
         <template #extraButtons>
-          <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.IN_PROGRESS && !form.isGoodWarranty">审批</el-button>
-          <el-button size="small" type="primary" plain @click="handleCancel" v-if="_id && form.approvalStatus === AUDIT_STATUS.REJECTED">作废</el-button>
-          <el-button size="small" type="primary" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO">提交</el-button>
+          <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && permissions.has('AISMC-preAuth-audit') && form.approvalStatus === AUDIT_STATUS.IN_PROGRESS && !form.isGoodWarranty">审批</el-button>
+          <el-button size="small" type="primary" plain @click="handleCancel" v-if="_id && permissions.has('AISMC-preAuth-cancel') && form.approvalStatus === AUDIT_STATUS.REJECTED">作废</el-button>
+          <el-button size="small" type="primary" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO || form.approvalStatus === AUDIT_STATUS.REJECTED">提交</el-button>
           <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.REFUSED">激活</el-button>
         </template>
         <template #footer>
@@ -257,7 +257,7 @@
                 >
                   <vxe-column field="repairItemCode" title="维修项目代码" width="200px">
                     <template #default="{ row }">
-                      <el-link type="success" :href="`/service/maintain/basic/repairItem/detail?id=${row.repairItemId}`" target="_blank">{{ row.repairItemCode }}</el-link>
+                      <el-link type="success" :href="`/service/maintain/basic/repairItem/edit?id=${row.repairItemId}`" target="_blank">{{ row.repairItemCode }}</el-link>
                     </template>
                   </vxe-column>
                   <vxe-column field="repairItemName" title="维修项目名称" min-width="150" />
@@ -296,7 +296,7 @@
                 >
                   <vxe-column field="partsCode" title="零件代码" width="200px" >
                     <template #default="{ row }">
-                      <el-link type="success" :href="`/service/sparepart/basic/sparePart/detail?id=${row.partsId}`" target="_blank">{{ row.partsCode }}</el-link>
+                      <el-link type="success" :href="`/service/sparepart/basic/sparePart/edit?id=${row.partsId}`" target="_blank">{{ row.partsCode }}</el-link>
                     </template>
                   </vxe-column>
                   <vxe-column field="partsName" title="零件名称" min-width="150" />

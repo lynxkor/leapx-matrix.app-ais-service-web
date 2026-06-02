@@ -226,9 +226,9 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'reportTypeLabel', label: '报告类型', visible: true, width: 200 },
+          { props: 'reportTypeLabel', label: '报告类型', visible: true, width: 150 },
           { props: 'title', label: '故障主题', visible: true, width: 200 },
-          { props: 'orderStatusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'orderStatusLabel', label: '状态', visible: true, width: 100 },
           {
             props: 'serviceCenterName',
             label: '服务中心名称',
@@ -242,9 +242,9 @@ export default {
             }]
           },
           { props: 'serviceCenterCode', label: '服务中心代码', visible: true, width: 200 },
-          { props: 'applicantName', label: '报告人', visible: true, width: 200 },
-          { props: 'applicantPosition', label: '报告人职位', visible: true, width: 200 },
-          { props: 'applicantTel', label: '报告人电话', visible: true, width: 200 },
+          { props: 'applicantName', label: '报告人', visible: true, width: 120 },
+          { props: 'applicantPosition', label: '报告人职位', visible: true, width: 120 },
+          { props: 'applicantTel', label: '报告人电话', visible: true, width: 120 },
           {
             props: 'vehProfileVin',
             label: 'VIN码',
@@ -264,14 +264,14 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/sales/datacenter/materials/vehicleModel/detail?id=${row.vehModelId}`, '_blank');
+                window.open(`/sales/datacenter/materials/vehicleModel/edit?id=${row.vehModelId}`, '_blank');
               },
               type: 'primary'
             }]
           },
           { props: 'powerBatteryNumber', label: '电池序列号', visible: true, width: 200 },
           { props: 'motorSerialNumber', label: '电机序列号', visible: true, width: 200 },
-          { props: 'mileage', label: '里程数（KM)', visible: true, width: 200 },
+          { props: 'mileage', label: '里程数（KM)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'salesDate', label: '销售日期', visible: true, width: 200 },
           { props: 'repairDate', label: '维修时间', visible: true, width: 200 },
           // { props: 'causePartCode', label: '主因零部件', visible: true, width: 200 },
@@ -282,7 +282,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/service/sparepart/basic/sparePart/detail?id=${row.causePartId}`, '_blank');
+                window.open(`/service/sparepart/basic/sparePart/edit?id=${row.causePartId}`, '_blank');
               },
               type: 'primary'
             }]
@@ -294,7 +294,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/service/sparepart/basic/supplierInfo/detail?id=${row.supplierId}`, '_blank');
+                window.open(`/service/sparepart/basic/supplierInfo/edit?id=${row.supplierId}`, '_blank');
               },
               type: 'primary'
             }]
@@ -336,7 +336,7 @@ export default {
             }]
           },
           { props: 'firstApplicationTime', label: '首次提交审核时间', visible: true, width: 200 },
-          { props: 'firstAuditResultsLabel', label: '首次审核结果', visible: true, width: 200 },
+          { props: 'firstAuditResultsLabel', label: '首次审核结果', visible: true, width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'applicationTime', label: '提交审核时间', visible: true, width: 200 },
           { props: 'vdcInboundOn', label: 'VDC入库日期', visible: true, width: 200 },

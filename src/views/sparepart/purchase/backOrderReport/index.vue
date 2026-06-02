@@ -10,38 +10,57 @@
       class="ais-search-form"
     >
       <el-form-item label="营销分类" v-if="activeName === 'homePage'">
-        <el-input
-          placeholder="请输入"
-          v-model="form.categoryIdList"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="备件工程师" v-if="activeName === 'spareParts'">
-        <el-input
-          placeholder="请输入"
-          v-model="form.partsEngineerLike"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="供应商名称" v-if="activeName === 'spareParts'">
-        <el-input
-          placeholder="请输入"
-          v-model="form.supplierNameLike"
-          clearable
-        />
+        <fetch-select
+            :remote-method="getCategory"
+            remote
+            v-model="form.categoryIdList"
+            placeholder="请输入营销分类名称"
+            labelKey="categoryName"
+            valueKey="id"
+            subLabelKey="categoryCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+              />
       </el-form-item>
       <el-form-item label="备件编码" v-if="activeName === 'spareParts'" v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.categoryName"
-          clearable
-        />
+        <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="备件名称" v-if="activeName === 'spareParts'">
+      <el-form-item label="备件名称" v-if="activeName === 'spareParts'">
           <el-input
             placeholder="请输入"
-            v-model="form.categoryName"
+            v-model="form.sparePartNameLike"
+            clearable
+          />
+        </el-form-item>
+      <template v-if="show">
+        <el-form-item label="营销分类" v-if="activeName === 'spareParts'">
+          <fetch-select
+              :remote-method="getCategory"
+              remote
+              v-model="form.categoryIdList"
+              placeholder="请输入营销分类名称"
+              labelKey="categoryName"
+              valueKey="id"
+              subLabelKey="categoryCode"
+              clearable
+              multiple
+              collapseTags
+              filterable
+                />
+        </el-form-item>
+        <el-form-item label="备件工程师" v-if="activeName === 'spareParts'">
+          <el-input
+            placeholder="请输入"
+            v-model="form.partsEngineerLike"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="供应商名称" v-if="activeName === 'spareParts'">
+          <el-input
+            placeholder="请输入"
+            v-model="form.supplierNameLike"
             clearable
           />
         </el-form-item>
@@ -57,9 +76,9 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
@@ -122,13 +141,15 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { categoryPage, sparePartPage, deleteItem, enableItem } from '@/api/sparepart/purchase/backOrderReport/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getCategory } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
+import TagInput from '@/libs/components/TagInput';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -145,7 +166,9 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    Upload
+    Upload,
+    TagInput,
+    FetchSelect
   },
   data () {
     return {
@@ -172,7 +195,19 @@ export default {
           size: pageSize
         },
         dataProp: [
-          { props: 'categoryName', label: '分类名称', visible: true, width: 180 },
+          {
+            props: 'categoryName',
+            label: '分类名称',
+            visible: true,
+            width: 180,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.switchToSpareParts(row);
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'orderCount', label: '订单行数', visible: true, width: 120 },
           { props: 'backPartQtyTotal', label: '缺货总数', visible: true, align: 'right', width: 120 },
           { props: 'backPartGroupTotal', label: '备件种类', visible: true, width: 120 },
@@ -219,6 +254,19 @@ export default {
       this.uploadDialogVisible = false;
     },
 
+    async getCategory (query) {
+      try {
+        const res = await getCategory({ categoryNameLike: query });
+        // res.records = res.records?.map(item => ({
+        //   ...item,
+        //   displayName: item.companyName + `(${item.companyCode})`
+        // }));
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+
     onSubmit () {
       let optionObj = this.optionObj;
       if (this.activeName === 'homePage') {
@@ -244,15 +292,24 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
+      let fetchPath = 'sp/web/purchase/backOrder/categoryPage';
+      let tableRef = this.$refs.tableRef;
+      if (this.activeName === 'homePage') {
+        fetchPath = 'sp/web/purchase/backOrder/categoryPage';
+        tableRef = this.$refs.tableRef;
+      } else {
+        fetchPath = 'sp/web/purchase/backOrder/sparePartPage';
+        tableRef = this.$refs.tableRefSpareParts;
+      }
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
       exportTable({
         businessType: '备件缺货看板',
-        dataFetchPath: 'sparepart/web/purchase/backOrderReport/page',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: tableRef && tableRef.getVisibleCols ? Object.fromEntries(tableRef.getVisibleCols()) : {},
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -408,7 +465,19 @@ export default {
     // 点击tabs栏切换
     handleClick (item) {
       this.activeName = item.name;
+      this.form = { ...defaultForm };
       this.getData();
+    },
+    // 从首页点击分类名称跳转到备件分组tab并默认查询该分类
+    async switchToSpareParts (row) {
+      this.activeName = 'spareParts';
+      this.show = true;
+      this.form = { ...defaultForm };
+      const res = await this.getCategory(row.categoryName);
+      if (res.records && res.records.length > 0) {
+        this.form.categoryIdList = [res.records[0].id];
+      }
+      this.onSubmit();
     },
   }
 };

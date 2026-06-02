@@ -443,7 +443,7 @@
           {{ form.bindingUserId }}
         </el-form-item>
         <el-form-item label="基本车型：" prop="vehModelName">
-          <el-link type="success" :href="`/sales/datacenter/materials/vehicleModel/detail?id=${form.vehModelId}`" target="_blank">{{ form.vehModelName }}</el-link>
+          <el-link type="success" :href="`/sales/datacenter/materials/vehicleModel/edit?id=${form.vehModelId}`" target="_blank">{{ form.vehModelName }}</el-link>
         </el-form-item>
         <el-form-item label="车主手机：" prop="customerPhone">
           {{ form.customerPhone }}
@@ -455,7 +455,7 @@
           {{ form.netMileage }}
         </el-form-item>
         <el-form-item label="公告车型：" prop="vehRegisteredModelName">
-          <el-link type="success" :href="`/sales/datacenter/materials/vehicleRegisteredModel/detail?id=${form.vehRegisteredModelId}`" target="_blank">{{ form.vehRegisteredModelName }}</el-link>
+          <el-link type="success" :href="`/sales/datacenter/materials/vehicleRegisteredModel/edit?id=${form.vehRegisteredModelId}`" target="_blank">{{ form.vehRegisteredModelName }}</el-link>
         </el-form-item>
         <el-form-item label="送修人：" prop="shuttleName">
           {{ form.shuttleName }}
@@ -467,7 +467,7 @@
           {{ form.departureNetMileage }}
         </el-form-item>
         <el-form-item label="车辆年型（L）：" prop="vehYearTypeName">
-          <el-link type="success" :href="`/sales/datacenter/materials/vehicleYearType/detail?id=${form.vehYearTypeId}`" target="_blank">{{ form.vehYearTypeName }}</el-link>
+          <el-link type="success" :href="`/sales/datacenter/materials/vehicleYearType/edit?id=${form.vehYearTypeId}`" target="_blank">{{ form.vehYearTypeName }}</el-link>
         </el-form-item>
         <el-form-item label="送修人手机：" prop="shuttlePhone">
           {{ form.shuttlePhone }}

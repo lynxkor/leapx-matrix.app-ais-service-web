@@ -90,7 +90,7 @@ export default {
   methods: {
     handleEdit () {
       this.$router.push({
-        path: '/maintain/basic/dealerdiscount/edit',
+        path: '/maintain/basic/dealerDiscount/edit',
         query: {
           id: this.$route.query.id
         }

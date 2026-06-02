@@ -214,14 +214,14 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'pricingModeLabel', label: '定价模式', visible: true, width: 200 },
-          { props: 'hourlyPrice', label: '工时单价', visible: true, width: 200 },
+          { props: 'pricingModeLabel', label: '定价模式', visible: true, width: 180 },
+          { props: 'hourlyPrice', label: '工时单价', visible: true, width: 140, align: 'right' },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'effectiveStartTime', label: '生效开始日期', visible: true, width: 200 },
           { props: 'effectiveEndTime', label: '生效结束日期', visible: true, width: 200 },
-          { props: 'effectivePeriodLimit', label: '有效期内限额', visible: true, width: 200 },
-          { props: 'usedInEffectivePeriod', label: '有效期内已使用', visible: true, width: 200 },
+          { props: 'effectivePeriodLimit', label: '有效期内限额', visible: true, width: 140, align: 'right' },
+          { props: 'usedInEffectivePeriod', label: '有效期内已使用', visible: true, width: 140, align: 'right' },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },

@@ -44,8 +44,8 @@
       </el-tab-pane>
     </el-tabs>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" :loading="submitLoading" @click="handleSubmit">确定</el-button>
+      <el-button size="small" @click="handleClose">取消</el-button>
+      <el-button size="small" type="primary" :loading="submitLoading" @click="handleSubmit">确定</el-button>
     </div>
   </el-dialog>
 </template>

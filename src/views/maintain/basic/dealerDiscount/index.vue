@@ -157,7 +157,7 @@ export default {
             props: 'code',
             label: '优惠代码',
             visible: true,
-            width: 200,
+            width: 250,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -172,7 +172,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'name', label: '优惠名称', visible: true, width: 200 },
+          { props: 'name', label: '优惠名称', visible: true, width: 250 },
           {
             props: 'dealerName',
             label: '门店名称',
@@ -190,9 +190,9 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'discountWorkhourRate', label: '工时折扣率', visible: true, width: 200, align: 'right', headerAlign: 'right' },
-          { props: 'discountPartRate', label: '备件折扣率', visible: true, width: 200, align: 'right', headerAlign: 'right' },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'discountWorkhourRate', label: '工时折扣率', visible: true, width: 120, align: 'right', headerAlign: 'right' },
+          { props: 'discountPartRate', label: '备件折扣率', visible: true, width: 120, align: 'right', headerAlign: 'right' },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',

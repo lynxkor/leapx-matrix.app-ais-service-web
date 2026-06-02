@@ -142,7 +142,7 @@ export default {
             props: 'code',
             label: '单位代码',
             visible: true,
-            width: 200,
+            width: 250,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -157,9 +157,9 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'name', label: '单位名称', visible: true, width: 200 },
+          { props: 'name', label: '单位名称', visible: true, width: 250 },
           { props: 'buinessLicense', label: '统一社会信用代码', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
           { props: 'ownerUserName', label: '负责人姓名', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {

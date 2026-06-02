@@ -388,11 +388,13 @@
     :visible.sync="completeDialogVisible"
     :id="currentRowId"
     :detailData="form"
+    :payment-method="form.paymentMethod"
     @success="handleDialogSuccess"
   />
   <InvoiceAcceptDialog
     :visible.sync="invoiceAcceptDialogVisible"
     :id="currentRowId"
+    :payment-method="form.paymentMethod"
     @success="handleDialogSuccess"
   />
   <InvoiceReturnDialog
@@ -403,6 +405,7 @@
   <PayConfirmDialog
     :visible.sync="payConfirmDialogVisible"
     :ids="[currentRowId]"
+    :payment-method="form.paymentMethod"
     @success="handleDialogSuccess"
   />
 </div>
@@ -434,6 +437,7 @@ const defaultForm = {
   companyCode: '',
   companyName: '',
   month: '',
+  paymentMethod: '',
   paymentMethodLabel: '',
   remark: '',
   workHourTotal: '',

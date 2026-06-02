@@ -61,7 +61,7 @@
               <vxe-column field="repairItemTypeId" title="维修类型" width="150">
                 <template #default="{ row }">
                   <fetch-select v-model="row.repairItemTypeId" :options="repairItemOptions" size="small"
-                    placeholder="请选择维修类型名称" labelKey="label" valueKey="value" filterable />
+                    placeholder="请选择维修类型名称" labelKey="label" valueKey="value" @change="(value, option) => handlePartRepairItemChange(row, value, option)" filterable  />
                 </template>
               </vxe-column>
               <vxe-column field="checkoutTypeName" title="结算类型" width="150" />
@@ -260,11 +260,10 @@ export default {
       this.tableData = res || [];
     },
     // 处理维修类型选择变更事件
-    handleRepairItemChange (val) {
-      const selectedVal = this.repairItemOptions.find(option => option.value === val);
-      if (selectedVal) {
-        this.repairDetail.repairItemTypeName = selectedVal.label;
-        this.repairDetail.repairItemTypeId = selectedVal.value;
+    handleRepairItemChange (val, option) {
+      if (option) {
+        this.repairDetail.repairItemTypeName = option.label;
+        this.repairDetail.repairItemTypeId = option.value;
       }
     },
     // 处理结算类型选择变更事件
@@ -287,6 +286,13 @@ export default {
         ...this.repairDetail,
         actualAmount: result
       };
+    },
+    // 处理零件维修类型选择变更事件
+    handlePartRepairItemChange (row, val, option) {
+      if (option) {
+        row.repairItemTypeName = option.label;
+        row.repairItemTypeId = option.value;
+      }
     },
     // 计算配件应收金额
     calculatePartsAmount (row) {

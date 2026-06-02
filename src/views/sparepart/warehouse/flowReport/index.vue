@@ -87,12 +87,12 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button> -->
+      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
+      <!-- <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <div
       class="ais-table-c"
@@ -212,9 +212,10 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/warehouse/flowReport/edit',
+                  path: '/sparepart/basic/sparePart/edit',
                   query: {
-                    id: row.id
+                    id: row.sparePartId,
+                    isEditing: false
                   }
                 });
               },
@@ -225,29 +226,29 @@ export default {
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '仓库名称', visible: true, width: 200 },
-          { props: 'locationName', label: '库位', visible: true, width: 200 },
-          { props: 'purchasePrice', label: '最新采购价格', visible: true, width: 200 },
-          { props: 'salePrice', label: '最新销售价格', visible: true, width: 200 },
-          { props: 'availableQty', label: '最新可用数量', visible: true, width: 200 },
-          { props: 'totalQty', label: '最新库存总数', visible: true, width: 200 },
-          { props: 'operateTypeLabel', label: '操作类型', visible: true, width: 200 },
-          { props: 'businessTypeLabel', label: '业务类型', visible: true, width: 200 },
+          { props: 'locationName', label: '库位', visible: true, width: 160 },
+          { props: 'purchasePrice', label: '最新采购价格', visible: true, width: 140, align: 'right' },
+          { props: 'salePrice', label: '最新销售价格', visible: true, width: 140, align: 'right' },
+          { props: 'availableQty', label: '最新可用数量', visible: true, width: 140, align: 'right' },
+          { props: 'totalQty', label: '最新库存总数', visible: true, width: 140, align: 'right' },
+          { props: 'operateTypeLabel', label: '操作类型', visible: true, width: 100 },
+          { props: 'businessTypeLabel', label: '业务类型', visible: true, width: 120 },
           { props: 'businessNo', label: '流水业务单号', visible: true, width: 200 },
-          { props: 'qty', label: '数量', visible: true, width: 200 },
-          { props: 'costUnitPrice', label: '成本单价', visible: true, width: 200 },
-          { props: 'costAmount', label: '成本金额', visible: true, width: 200 },
-          { props: 'transactionUnitPrice', label: '交易单价', visible: true, width: 200 },
-          { props: 'transactionAmount', label: '交易金额', visible: true, width: 200 },
-          { props: 'operator', label: '操作人', visible: true, width: 200 },
+          { props: 'qty', label: '数量', visible: true, width: 100, align: 'right' },
+          { props: 'costUnitPrice', label: '成本单价', visible: true, width: 140, align: 'right' },
+          { props: 'costAmount', label: '成本金额', visible: true, width: 140, align: 'right' },
+          { props: 'transactionUnitPrice', label: '交易单价', visible: true, width: 140, align: 'right' },
+          { props: 'transactionAmount', label: '交易金额', visible: true, width: 140, align: 'right' },
+          { props: 'operator', label: '操作人', visible: true, width: 140 },
           { props: 'createTime', label: '出入库时间', visible: true, width: 200 },
           { props: 'realBusinessNo', label: '实际业务单号', visible: true, width: 200 },
-          { props: 'isCreateStatementInfo', label: '是否已生成结算单', visible: true, width: 200 },
+          { props: 'isCreateStatementInfo', label: '是否已生成结算单', visible: true, width: 150 },
           { props: 'createStatementInfoDate', label: '生成结算单时间', visible: true, width: 200 },
-          { props: 'statementType', label: '结算类型', visible: true, width: 200 },
+          { props: 'statementType', label: '结算类型', visible: true, width: 120 },
           { props: 'statementRemark', label: '备注', visible: true, width: 200 },
-          { props: 'carPlate', label: '车牌', visible: true, width: 200 },
+          { props: 'carPlate', label: '车牌', visible: true, width: 160 },
           { props: 'vehProfileVin', label: 'VIN', visible: true, width: 200 },
-          { props: 'customerName', label: '车主名称', visible: true, width: 200 }
+          { props: 'customerName', label: '车主名称', visible: true, width: 160 }
         ],
         total: 0
       },
@@ -323,7 +324,7 @@ export default {
       }
       exportTable({
         businessType: '门店备件库存流水',
-        dataFetchPath: 'sparepart/web/warehouse/flowReport/page',
+        dataFetchPath: 'sp/web/warehouse/inventory/flowReport',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

@@ -80,6 +80,14 @@ module.exports = {
     config.plugins.delete('preload');
     config.plugins.delete('prefetch');
 
+    // 字体文件内联为 base64，解决 qiankun 子应用字体路径问题
+    config.module.rule('fonts')
+      .use('url-loader')
+      .tap(options => ({
+        ...options,
+        limit: 1024 * 1024
+      }));
+
     config.plugin('html').tap(args => {
       // 生产环境或本地需要cdn时，才注入cdn
       if (isProduction || devNeedCdn) args[0].cdn = cdn;

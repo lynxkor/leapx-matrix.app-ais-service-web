@@ -108,7 +108,7 @@
                     disabled
                   />
                 </el-form-item>
-                <el-form-item label="内容：" prop="content">
+                <el-form-item label="内容：" prop="content" class="form-item-full">
                   <el-input
                     placeholder="请输入"
                     v-model="form.content"
@@ -118,7 +118,7 @@
                     show-word-limit
                   />
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
+                <el-form-item label="备注：" prop="remark" class="form-item-full">
                   <el-input
                     placeholder="请输入"
                     v-model="form.remark"
@@ -157,10 +157,10 @@
                 <el-form-item label="负责人：" prop="creatorName">
                   {{ form.creatorName }}
                 </el-form-item>
-                <el-form-item label="内容：" prop="content">
+                <el-form-item label="内容：" prop="content" class="form-item-full">
                   {{ form.content }}
                 </el-form-item>
-                <el-form-item label="备注：" prop="remark">
+                <el-form-item label="备注：" prop="remark" class="form-item-full">
                   {{ form.remark }}
                 </el-form-item>
               </el-form>

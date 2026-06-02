@@ -70,5 +70,3 @@ export function submitAudit (data) {
 export function financialReview (data) {
   return api.jsonPost(prefix + 'financialReview', data);
 }
-
-

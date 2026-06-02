@@ -366,7 +366,7 @@ export default {
   data () {
     const defaultData = this.getDefautlForm();
     return {
-      pageTitle: '接车施工单管理',
+      pageTitle: '接车施工单',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISMC-serviceProxy',
@@ -407,7 +407,7 @@ export default {
             }]
           },
           { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 200 },
-          { props: 'orderStatusLabel', label: '工单状态', visible: true, width: 200 },
+          { props: 'orderStatusLabel', label: '工单状态', visible: true, width: 120 },
           {
             props: 'vehProfileVin',
             label: 'VIN',
@@ -449,8 +449,8 @@ export default {
             }]
           },
           { props: 'appointmentNo', label: '预约单号', visible: true, width: 200 },
-          { props: 'mileage', label: '进店里程数(KM)', visible: true, width: 200 },
-          { props: 'lastMileage', label: '上次进店里程数(KM)', visible: true, width: 200 },
+          { props: 'mileage', label: '进店里程数(KM)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
+          { props: 'lastMileage', label: '上次进店里程数(KM)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'startWarrantyDate', label: '保修开始日期', visible: true, width: 200 },
           {
             props: 'exclusiveServiceDealerName',

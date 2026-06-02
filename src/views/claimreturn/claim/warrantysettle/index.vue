@@ -85,6 +85,7 @@
       />
     </el-form>
     <div class="ais-actions">
+      <el-button v-if="canExport" :loading="exportLoadingTable" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="exportInvoice" :loading="exportLoading" size="small" @click="onExport">导出发票</el-button>
       <el-button v-if="canPayConfirm" size="small" @click="handleBatchPayConfirm">批量付款</el-button>
     </div>
@@ -135,13 +136,13 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, confirm, exportInvoiceZip } from '@/api/claimreturn/claim/warrantysettle/index';
-import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, getEnum, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import TagInput from '@/libs/components/TagInput';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { getEndOfDayString } from '@/libs/utils';
+import { getEndOfDayString, downloadExcel } from '@/libs/utils';
 import EditPage from './edit.vue';
 import CompleteDialog from './components/CompleteDialog';
 import InvoiceAcceptDialog from './components/InvoiceAcceptDialog';
@@ -209,6 +210,7 @@ export default {
       canPayConfirm: false,
       exportInvoice: false,
       exportLoading: false,
+      exportLoadingTable: false,
       //
       completeDialogVisible: false,
       completeRowId: '',
@@ -267,57 +269,65 @@ export default {
             props: 'workHourTotal',
             label: '工时总额',
             visible: true,
-            width: 150,
-            formatter: (row) => this.formatAmount(row.workHourTotal)
+            width: 120,
+            formatter: (row) => this.formatAmount(row.workHourTotal),
+            align: 'right'
           },
           {
             props: 'partTotal',
             label: '备件总额',
             visible: true,
-            width: 150,
-            formatter: (row) => this.formatAmount(row.partTotal)
+            width: 120,
+            formatter: (row) => this.formatAmount(row.partTotal),
+            align: 'right'
           },
           {
             props: 'otherTotal',
             label: '其他总额',
             visible: true,
-            width: 150,
-            formatter: (row) => this.formatAmount(row.otherTotal)
+            width: 120,
+            formatter: (row) => this.formatAmount(row.otherTotal),
+            align: 'right'
           },
           {
             props: 'totalAmount',
             label: '总金额',
             visible: true,
-            width: 150,
-            formatter: (row) => this.formatAmount(row.totalAmount)
+            width: 120,
+            formatter: (row) => this.formatAmount(row.totalAmount),
+            align: 'right'
           },
           {
             props: 'tracebackAmount',
             label: '追溯金额',
             visible: true,
-            width: 150,
-            formatter: (row) => this.formatAmount(row.tracebackAmount)
+            width: 120,
+            formatter: (row) => this.formatAmount(row.tracebackAmount),
+            align: 'right'
           },
           {
             props: 'determineAmount',
             label: '判定金额',
             visible: true,
-            width: 150,
-            formatter: (row) => this.formatAmount(row.determineAmount)
+            width: 120,
+            formatter: (row) => this.formatAmount(row.determineAmount),
+            align: 'right'
           },
           {
             props: 'invoiceAmount13',
             label: '开票金额一 （13%）',
             visible: true,
             width: 160,
-            formatter: (row) => this.formatAmount(row.invoiceAmount13)
+            formatter: (row) => this.formatAmount(row.invoiceAmount13),
+            align: 'right'
           },
           {
             props: 'invoiceAmount6',
             label: '开票金额二 （6%）',
             visible: true,
             width: 160,
-            formatter: (row) => this.formatAmount(row.invoiceAmount6)
+            formatter: (row) => this.formatAmount(row.invoiceAmount6),
+            align: 'right'
           },
           { props: 'createTime', label: '创建时间', visible: true, width: 180 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
@@ -470,6 +480,39 @@ export default {
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
       this.getData();
+    },
+    exportExcel () {
+      this.exportLoadingTable = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
+      exportTable({
+        businessType: '保修结算通知书',
+        dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantySettle/page',
+        reqParams,
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '保修结算通知书.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoadingTable = false;
+      });
     },
     getData () {
       this.loading = true;

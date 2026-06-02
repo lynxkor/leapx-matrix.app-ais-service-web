@@ -36,7 +36,7 @@
             </vxe-column>
             <vxe-column field="partCode" title="备件编码" min-width="25%">
               <template #default="{ row }">
-                <el-link type="success" :href="`/service/sparepart/basic/sparePart/detail?id=${row.sparePartId}`" target="_blank">{{ row.partCode }}</el-link>
+                <el-link type="success" :href="`/service/sparepart/basic/sparePart/edit?id=${row.sparePartId}`" target="_blank">{{ row.partCode }}</el-link>
               </template>
             </vxe-column>
             <vxe-column field="partName" title="备件名称" min-width="25%" />

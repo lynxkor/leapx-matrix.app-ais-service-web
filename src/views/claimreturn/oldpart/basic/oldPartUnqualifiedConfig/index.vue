@@ -125,7 +125,7 @@ export default {
             props: 'unqualifiedCode',
             label: '代码',
             visible: true,
-            width: 200,
+            width: 180,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -140,7 +140,7 @@ export default {
             }]
           },
           { props: 'unqualifiedDesc', label: '描述', visible: true, width: 200 },
-          { props: 'creatorName', label: '创建者名称', visible: true, width: 200 },
+          { props: 'creatorName', label: '创建者名称', visible: true, width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',

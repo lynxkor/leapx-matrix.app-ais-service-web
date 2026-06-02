@@ -171,7 +171,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/maintain/basic/checkoutType/detail',
+                  path: '/maintain/basic/checkoutType/edit',
                   query: {
                     id: row.checkoutTypeId
                   }
@@ -180,7 +180,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'statusLabel', label: '状态', visible: true, width: 120 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
           { props: 'remark', label: '备注', visible: true, width: 400 },
           { props: 'createTime', label: '创建时间', visible: true, width: 160 },
           {

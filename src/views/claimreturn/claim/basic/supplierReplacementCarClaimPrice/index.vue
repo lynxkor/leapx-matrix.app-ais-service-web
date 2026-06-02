@@ -205,11 +205,11 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vehicleSeriesName', label: '车系名称', visible: true, width: 200 },
-          { props: 'supplierClaimPrice', label: '供应商索赔价格', visible: true, width: 200 },
-          { props: 'claimDaysAdjustment', label: '索赔天数调整', visible: true, width: 200 },
+          { props: 'vehicleSeriesName', label: '车系名称', visible: true, width: 140 },
+          { props: 'supplierClaimPrice', label: '供应商索赔价格', visible: true, width: 140, align: 'right' },
+          { props: 'claimDaysAdjustment', label: '索赔天数调整', visible: true, width: 120, align: 'right' },
           { props: 'effectiveStartTime', label: '生效开始日期', visible: true, width: 200 },
-          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 100 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -293,7 +293,7 @@ export default {
       }
       exportTable({
         businessType: '供应商代步车索赔价格',
-        dataFetchPath: 'claimreturn/web/claim/basic/supplierReplacementCarClaimPrice/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/supplierReplacementCarClaimPrice/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

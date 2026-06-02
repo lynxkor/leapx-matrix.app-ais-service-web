@@ -86,9 +86,11 @@
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
               <h2>可使用对象</h2>
-              <el-button v-if="canAddOrUpdate && isEditing" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
             </div>
             <div class="common-section-body">
+              <div class="common-section-header">
+                <el-button v-if="canAddOrUpdate" size="small" @click="handleAddRow"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
+              </div>
               <div class="common-section-table">
                 <edit-table
                   ref="editTable"
@@ -99,6 +101,9 @@
                   :options="options"
                   :delTitle="delTitle"
                   :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  enableSingleRowSave
+                  @save-row-edit="handleSaveRowEdit"
+                  @remove-row="handleRemoveRow"
                 />
               </div>
             </div>
@@ -173,7 +178,7 @@ export default {
         {
           field: 'userName',
           title: '账号',
-          width: '40%',
+          width: '45%',
           editable: true,
           editRender: {
             name: 'ElSelect',
@@ -193,7 +198,7 @@ export default {
         {
           field: 'createTime',
           title: '创建时间',
-          width: '40%',
+          width: '45%',
           editRender: { name: 'ElInput' }
         }
       ],
@@ -293,6 +298,38 @@ export default {
     },
     handleAddRow () {
       this.$refs.editTable.addRow();
+    },
+    async handleSaveRowEdit (row, defer) {
+      try {
+        const formData = { ...this.form };
+        if (this._id) {
+          delete formData.dealerUserDiscountRespList;
+        }
+        const tableData = this.$refs.editTable.getData();
+        await addOrUpdate({ ...formData, dealerUserDiscountAddOrUpdateReqs: tableData });
+        this.$message.success('保存成功');
+        this.$refs.containerRef.handleRefresh();
+        defer.resolve(row.id);
+      } catch (e) {
+        this.$message.error('保存失败');
+        defer.reject();
+      }
+    },
+    async handleRemoveRow (row, index, defer) {
+      try {
+        const formData = { ...this.form };
+        if (this._id) {
+          delete formData.dealerUserDiscountRespList;
+        }
+        const tableData = this.$refs.editTable.getData();
+        await addOrUpdate({ ...formData, dealerUserDiscountAddOrUpdateReqs: tableData });
+        this.$message.success('删除成功');
+        this.$refs.containerRef.handleRefresh();
+        defer.resolve();
+      } catch (e) {
+        this.$message.error('删除失败');
+        defer.reject();
+      }
     },
     getDefautlForm () {
       const userInfo = this.$store.state.user.userInfo;

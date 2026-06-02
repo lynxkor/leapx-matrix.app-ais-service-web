@@ -127,16 +127,17 @@
         <el-button v-permission="moduleKey + '-purchaseImport'" size="small" @click="handleImport('sparePartPurchaseImport', '采购导入模板')">采购导入</el-button>
         <el-button v-permission="moduleKey + '-modelImport'" size="small" @click="handleImport('sparePartModelImport', '车型导入模板')">车型导入</el-button>
         <el-button v-permission="moduleKey + '-vfgImport'" size="small" @click="handleImport('sparePartVfgImport', 'VFG导入模板')">VFG导入</el-button>
+        <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
         <el-button v-permission="moduleKey + '-printImport'" size="small">打印报价单</el-button>
         <!-- <el-button v-permission="moduleKey + '-detail'" size="small">集中视图</el-button> -->
         <!-- <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
         <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
         <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
         <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
-        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchAllowTransfer" :disabled="selectionList.length === 0">允许BO调拨</el-button>
-        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchForbidTransfer" :disabled="selectionList.length === 0">禁止BO调拨</el-button>
-        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchAllowSales" :disabled="selectionList.length === 0">允许备附件销售</el-button>
-        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchForbidSales" :disabled="selectionList.length === 0">禁止备附件销售</el-button>
+        <el-button v-permission="moduleKey + '-canBoTransfer'" size="small" @click="handleBatchAllowTransfer" :disabled="selectionList.length === 0">允许BO调拨</el-button>
+        <el-button v-permission="moduleKey + '-canBoTransfer'" size="small" @click="handleBatchForbidTransfer" :disabled="selectionList.length === 0">禁止BO调拨</el-button>
+        <el-button v-permission="moduleKey + '-canCetail'" size="small" @click="handleBatchAllowSales" :disabled="selectionList.length === 0">允许备附件销售</el-button>
+        <el-button v-permission="moduleKey + '-canCetail'" size="small" @click="handleBatchForbidSales" :disabled="selectionList.length === 0">禁止备附件销售</el-button>
       </ButtonGroup>
     </div>
     <div
@@ -205,6 +206,7 @@ const defaultForm = {
   remark: '',
   createTime: '',
   updateTime: '',
+  statusIncludeList: ['1']
 };
 
 const pageSize = 20;
@@ -273,7 +275,6 @@ export default {
           { props: 'salePrice', label: '销售价格', visible: true, align: 'right', width: 120 },
           { props: 'purchasePrice', label: '采购价格', visible: true, align: 'right', width: 120 },
           { props: 'oemPartLabel', label: '是否OEM件', visible: true, width: 130 },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'saleableIsLabel', label: '是否可销售', visible: true, width: 130 },
           { props: 'standingInventoryIsLabel', label: '是否常备库存件', visible: true, width: 150 },
           { props: 'partsEngineer', label: '备件工程师', visible: true, width: 200 },
@@ -443,10 +444,15 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
       exportTable({
         businessType: '备件主数据',
-        dataFetchPath: 'sparepart/web/basic/sparePart/page',
-        reqParams: this.getFormData(),
+        dataFetchPath: '/sp/web/basic/sparePart/page',
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {

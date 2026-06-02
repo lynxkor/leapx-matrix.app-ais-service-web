@@ -172,10 +172,10 @@ export default {
             }]
           },
           { props: 'ruleName', label: '名称', visible: true, width: 200 },
-          { props: 'judgeTimes', label: '判定次数', visible: true, width: 200 },
-          { props: 'judgeDays', label: '判定天数', visible: true, width: 200 },
+          { props: 'judgeTimes', label: '判定次数', visible: true, width: 120, align: 'right' },
+          { props: 'judgeDays', label: '判定天数', visible: true, width: 120, align: 'right' },
           { props: 'remindContent', label: '提醒内容', visible: true, width: 200 },
-          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 100 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           { props: 'statusDesc', label: '说明', visible: true, width: 200 },
@@ -238,15 +238,15 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
-        dataFetchPath: 'claimreturn/web/claim/basic/warrantyOrderWarningRule/page',
+        businessType: '保修单预警规则',
+        dataFetchPath: 'claimreturn/claim/web/basic/warrantyOrderWarningRule/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '保修单预警规则.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

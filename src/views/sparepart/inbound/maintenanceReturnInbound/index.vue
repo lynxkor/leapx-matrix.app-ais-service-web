@@ -59,7 +59,7 @@
               clearable
             />
           </el-form-item>
-          <el-form-item label="出库状态">
+          <el-form-item label="入库状态">
             <fetch-select
               :request="fetchOptions"
               enumCode="MaintenanceReturnMaterialStatusEnum"
@@ -110,11 +110,8 @@
         <!--  TIPS:根据产品增删功能按钮  -->
         <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handlePringConfig"><i class="iconfont icon-lxppc-plus"></i>打印设置</el-button> -->
         <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-        <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+        <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
         <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-        <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-        <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
       </div>
       <div
         class="ais-table-c"
@@ -235,7 +232,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/inbound/maintenanceReturnInbound/edit',
+                  path: '/sparepart/outbound/maintenanceOutboundOrder/edit',
                   query: {
                     id: row.id
                   }
@@ -348,16 +345,21 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
       exportTable({
-        businessType: '新页面',
-        dataFetchPath: 'sparepart/web/outbound/maintenanceOutboundOrder/page',
-        reqParams: this.getFormData(),
+        businessType: '维修退料入库',
+        dataFetchPath: 'sp/web/outbound/maintenanceOutboundOrder/page',
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '维修退料入库.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

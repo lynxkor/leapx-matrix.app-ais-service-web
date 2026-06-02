@@ -74,6 +74,14 @@ import permissions from '@/libs/mixins/permissions';
 import { downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 
+function getDefaultDepartureDate () {
+  const end = new Date();
+  const start = new Date();
+  start.setMonth(start.getMonth() - 3);
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return [fmt(start) + ' 00:00:00', fmt(end) + ' 23:59:59'];
+}
+
 const defaultForm = {
   dealerCodes: [],
   departureDate: ''
@@ -114,7 +122,6 @@ export default {
           { props: 'region', label: '区域', visible: true, width: 120 },
           { props: 'province', label: '省', visible: true, width: 120 },
           { props: 'city', label: '市', visible: true, width: 120 },
-          { props: 'district', label: '区', visible: true, width: 120 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编号', visible: true, width: 150 },
           { props: 'parentCompanyName', label: '合作伙伴', visible: true, width: 150 },
@@ -139,6 +146,7 @@ export default {
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    this.form.departureDate = getDefaultDepartureDate();
     this.getData();
   },
   methods: {

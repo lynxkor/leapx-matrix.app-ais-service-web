@@ -97,7 +97,7 @@
                   {{ form.oldPartUniqueCode }}
                 </el-form-item>
                 <el-form-item label="旧件编码：" prop="oldPartCode">
-                  <el-button class="link" @click="$router.push('/sparepart/basic/sparePart/detail?id=' + form.oldPartId)" type="text">{{form.oldPartCode}}</el-button>
+                  <el-button class="link" @click="$router.push('/sparepart/basic/sparePart/edit?id=' + form.oldPartId)" type="text">{{form.oldPartCode}}</el-button>
                 </el-form-item>
                 <el-form-item label="旧件名称：" prop="oldPartName">
                   {{form.oldPartName}}
@@ -106,7 +106,7 @@
                   {{form.returnTypeLabel}}
                 </el-form-item>
                 <el-form-item label="换上零件编码：" prop="partCode">
-                  <el-button class="link" @click="$router.push('/sparepart/basic/sparePart/detail?id=' + form.partId)" type="text">{{form.partCode}}</el-button>
+                  <el-button class="link" @click="$router.push('/sparepart/basic/sparePart/edit?id=' + form.partId)" type="text">{{form.partCode}}</el-button>
                 </el-form-item>
                 <el-form-item label="换上零件名称：" prop="partName">
                   {{form.partName}}
@@ -121,13 +121,13 @@
                   {{form.oldPartQuantity}}
                 </el-form-item>
                 <el-form-item label="旧件供应商：" prop="oldPartSupplierName">
-                  <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/detail?id=' + form.oldPartSupplierId)" type="text">{{form.oldPartSupplierName}}</el-button>
+                  <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/edit?id=' + form.oldPartSupplierId)" type="text">{{form.oldPartSupplierName}}</el-button>
                 </el-form-item>
                 <el-form-item label="是否主因零部件：" prop="isMainPartLabel">
                   {{form.isMainPartLabel}}
                 </el-form-item>
                 <el-form-item label="主因件供应商：" prop="mainPartSupplierName">
-                  <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/detail?id=' + form.mainPartSupplierId)" type="text">{{form.mainPartSupplierName}}</el-button>
+                  <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/edit?id=' + form.mainPartSupplierId)" type="text">{{form.mainPartSupplierName}}</el-button>
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
                   {{form.vin}}

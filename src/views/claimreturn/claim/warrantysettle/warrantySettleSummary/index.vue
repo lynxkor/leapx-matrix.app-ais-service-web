@@ -47,7 +47,9 @@
         @reset="onReset"
       />
     </el-form>
-    <div class="ais-actions"/>
+    <div class="ais-actions">
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="onExport">导出</el-button>
+    </div>
     <div class="ais-table-c">
       <LPVxeTable
         ref="tableRef"
@@ -68,10 +70,14 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList } from '@/api/claimreturn/claim/warrantysettle/warrantySettleSummary';
-import { getTableConfig, tableAddOrUpdate, getSparePartCompany } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, getSparePartCompany, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import DealerSelect from '@/components/dealer-select';
+import { downloadExcel } from '@/libs/utils';
 import moment from 'moment';
+import responsiveSearchForm from '@/libs/mixins/responsive';
+import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   month: moment().subtract(1, 'month').format('YYYYMM'),
@@ -93,24 +99,24 @@ export default {
     DealerSelect,
     FetchSelect,
   },
+  mixins: [responsiveSearchForm, permissions, commonMixins],
   data () {
     return {
       pageTitle: '保修结算汇总报表',
+      pageType: 'list',
       moduleKey: 'AISCR-warrantySettleSummary',
       form: {
         ...defaultForm
       },
       show: false,
       loading: false,
+      exportLoading: false,
       tableDataList: [],
       tableTotal: 0,
       tableForm: { page: 1, size: pageSize },
     };
   },
   computed: {
-    canList () {
-      return true;
-    },
     optionObj () {
       return {
         id: 'warrantySettleSummaryTable',
@@ -128,7 +134,7 @@ export default {
           { props: 'city', label: '市', visible: true, width: 100 },
           { props: 'region', label: '区域', visible: true, width: 100 },
           { props: 'parentOrgCode', label: '公司编码', visible: true, width: 120 },
-          { props: 'parentOrgName', label: '公司名称', visible: true, width: 220 },
+          { props: 'parentOrgName', label: '公司名称', visible: true, width: 200 },
           { props: 'paymentMethod', label: '收款方式', visible: true, width: 120 },
           {
             props: 'amount',
@@ -229,7 +235,33 @@ export default {
       return data;
     },
     onExport () {
-      this.$message.info('导出功能开发中');
+      this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      exportTable({
+        businessType: '保修结算汇总报表',
+        dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantySettleSummary/page',
+        reqParams,
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '保修结算汇总报表.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
     },
   }
 };

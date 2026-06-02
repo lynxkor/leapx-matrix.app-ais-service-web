@@ -221,7 +221,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vehYearTypeName', label: '年款', visible: true, width: 200 },
+          { props: 'vehYearTypeName', label: '年款', visible: true, width: 100 },
           {
             props: 'vehModelName',
             label: '车型',
@@ -229,7 +229,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/sales/datacenter/materials/vehicleModel/detail?id=${row.vehModelId}`, '_blank');
+                window.open(`/sales/datacenter/materials/vehicleModel/edit?id=${row.vehModelId}`, '_blank');
               },
               type: 'primary'
             }]
@@ -238,7 +238,7 @@ export default {
           { props: 'partsCode', label: '涉及零件代码', visible: true, width: 200 },
           { props: 'partsName', label: '涉及零件名称', visible: true, width: 200 },
           { props: 'retainedScope', label: '留车范围', visible: true, width: 200 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 200 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
           { props: 'manufactureStartOn', label: '制造开始日期', visible: true, width: 200 },
           { props: 'manufactureEndOn', label: '制造结束日期', visible: true, width: 200 },
           { props: 'effectiveOn', label: '配置有效开始日期', visible: true, width: 200 },
@@ -472,7 +472,7 @@ export default {
       });
     },
     async getProvince (params) {
-      const res = api.get('/area/tree');
+      const res = await api.get('/area/tree');
       let list = res || [];
       if (params && params.trim()) {
         const searchText = params.trim().toLowerCase();

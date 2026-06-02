@@ -81,9 +81,9 @@
     </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
@@ -221,7 +221,7 @@ export default {
             width: 180,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/service/sparepart/basic/sparePart/detail?id=${row.sparePartId}`, '_blank');
+                window.open(`/service/sparepart/basic/sparePart/edit?id=${row.sparePartId}`, '_blank');
               },
               type: 'primary'
             }]
@@ -401,7 +401,7 @@ export default {
       }
       exportTable({
         businessType: 'BO转共享调拨',
-        dataFetchPath: 'sparepart/web/purchase/boToShareTransfer/page',
+        dataFetchPath: 'sp/web/purchase/backOrder/boToShareTransferPage',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

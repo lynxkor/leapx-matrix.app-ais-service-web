@@ -213,6 +213,7 @@
       />
     </el-form>
     <div class="ais-actions">
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button size="small" @click="handleWithdraw">批量撤回</el-button>
       <el-button size="small" @click="handleReject">批量驳回</el-button>
       <el-button size="small" @click="handleApprove">批量同意</el-button>
@@ -302,13 +303,14 @@ import {
 } from './constants';
 import {
   getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel, getScopeTypeOrg,
-  sparePartList
+  sparePartList, exportTable
 } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import { downloadExcel } from '@/libs/utils';
 import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select';
 import TagInput from '@/libs/components/TagInput';
@@ -419,6 +421,8 @@ export default {
       reject: false,
       approve: false,
       submit: false,
+      edit: false,
+      detail: false,
       //
       rightsDialogVisible: false,
       vehicleProfileId: '',
@@ -509,8 +513,8 @@ export default {
               }
             }]
           },
-          { props: 'applyStatusLabel', label: '保修单状态', visible: true, width: 200 },
-          { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 200 },
+          { props: 'applyStatusLabel', label: '保修单状态', visible: true, width: 120 },
+          { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 120 },
           {
             props: 'dealerCode',
             label: '门店编码',
@@ -523,29 +527,29 @@ export default {
               }
             }]
           },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'dealerRegionName', label: '门店所属区域', visible: true, width: 200 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 140 },
+          { props: 'dealerRegionName', label: '门店所属区域', visible: true, width: 140 },
           { props: 'currentSubmitTime', label: '当前提交时间', visible: true, width: 200 },
           { props: 'approvalTime', label: '审批时间', visible: true, width: 200 },
-          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 200, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vehiclePlateNo') },
-          { props: 'ownerName', label: '车主姓名', visible: true, width: 200, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'ownerName') },
-          { props: 'vehicleModelName', label: '车型', visible: true, width: 200 },
+          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 160, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vehiclePlateNo') },
+          { props: 'ownerName', label: '车主姓名', visible: true, width: 120, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'ownerName') },
+          { props: 'vehicleModelName', label: '车型', visible: true, width: 180 },
           { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 200 },
           { props: 'repairStartTime', label: '维修开始日期', visible: true, width: 200 },
           { props: 'mainPartCode', label: '主因件编码', visible: true, width: 200 },
           { props: 'mainPartName', label: '主因件名称', visible: true, width: 200 },
-          { props: 'mileage', label: '进店里程 KM', visible: true, width: 200 },
-          { props: 'serviceMonth', label: '服务月份', visible: true, width: 200 },
-          { props: 'laborClaimTotal', label: '工时索赔小计', visible: true, width: 200 },
-          { props: 'partsClaimTotal', label: '备件索赔小计', visible: true, width: 200 },
-          { props: 'otherClaimTotal', label: '其他索赔小计', visible: true, width: 200 },
-          { props: 'totalClaimAmount', label: '索赔总金额', visible: true, width: 200 },
-          { props: 'workCostCount', label: '工时费用小计', visible: true, width: 200 },
-          { props: 'partsCostTotal', label: '备件费用小计', visible: true, width: 200 },
-          { props: 'otherCostTotal', label: '其他费用小计', visible: true, width: 200 },
-          { props: 'laborShareRatio', label: '工时分担比例', visible: true, width: 200 },
-          { props: 'partsShareRatio', label: '备件分担比例', visible: true, width: 200 },
-          { props: 'otherShareRatio', label: '其他分担比例', visible: true, width: 200 },
+          { props: 'mileage', label: '进店里程 KM', visible: true, width: 160, align: 'right' },
+          { props: 'serviceMonth', label: '服务月份', visible: true, width: 120, align: 'right' },
+          { props: 'laborClaimTotal', label: '工时索赔小计', visible: true, width: 160, align: 'right' },
+          { props: 'partsClaimTotal', label: '备件索赔小计', visible: true, width: 160, align: 'right' },
+          { props: 'otherClaimTotal', label: '其他索赔小计', visible: true, width: 160, align: 'right' },
+          { props: 'totalClaimAmount', label: '索赔总金额', visible: true, width: 160, align: 'right' },
+          { props: 'workCostCount', label: '工时费用小计', visible: true, width: 160, align: 'right' },
+          { props: 'partsCostTotal', label: '备件费用小计', visible: true, width: 160, align: 'right' },
+          { props: 'otherCostTotal', label: '其他费用小计', visible: true, width: 160, align: 'right' },
+          { props: 'laborShareRatio', label: '工时分担比例', visible: true, width: 160, align: 'right' },
+          { props: 'partsShareRatio', label: '备件分担比例', visible: true, width: 160, align: 'right' },
+          { props: 'otherShareRatio', label: '其他分担比例', visible: true, width: 160, align: 'right' },
           { props: 'faultPhenomenon', label: '故障信息描述', visible: true, width: 200 },
           { props: 'troubleshootingFlow', label: '故障流程排查', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -560,11 +564,11 @@ export default {
               {
                 name: '编辑 ',
                 show: (row) => {
-                  return row.applyStatus === '10' || row.applyStatus === '30';
+                  return this.edit && (row.applyStatus === '10' || row.applyStatus === '30');
                 },
                 click: (rowIndex, row) => {
                   this.$router.push({
-                    path: '/claimreturn/claim/warrantyapply/edit',
+                    path: '/claimreturn/claim/warrantyApply/edit',
                     query: {
                       id: row.id,
                       isEditing: true
@@ -690,6 +694,9 @@ export default {
               },
               {
                 name: '查看权益',
+                show: () => {
+                  return this.detail;
+                },
                 click: (rowIndex, row) => {
                   this.rightsDialogVisible = true;
                   this.vehicleProfileId = row.vehicleProfileId;
@@ -714,6 +721,8 @@ export default {
     this.reject = this.permissions.has(`${this.moduleKey}-reject`);
     this.approve = this.permissions.has(`${this.moduleKey}-approve`);
     this.submit = this.permissions.has(`${this.moduleKey}-submit`);
+    this.edit = this.permissions.has(`${this.moduleKey}-addOrUpdate`);
+    this.detail = this.permissions.has(`${this.moduleKey}-detail`);
   },
   methods: {
     isRowPendingCurrentUserReview (row) {
@@ -1017,6 +1026,39 @@ export default {
     },
     partRemote (query) {
       return sparePartList({ partCodeOrNameLike: query, oemPart: 1 });
+    },
+    exportExcel () {
+      this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
+      exportTable({
+        businessType: '保修申请单',
+        dataFetchPath: 'claimreturn/claim/web/warrantyapply/warrantyApply/page',
+        reqParams,
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '保修申请单.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
     },
   }
 };

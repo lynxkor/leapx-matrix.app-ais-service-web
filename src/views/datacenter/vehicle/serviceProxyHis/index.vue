@@ -139,7 +139,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/datacenter/vehicleProxyHis/edit',
+                  path: '/datacenter/vehicle/serviceProxyHis/edit',
                   query: {
                     id: row.id
                   }
@@ -201,14 +201,14 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 if (row.vehModelId) {
-                  window.open(`/service/datacenter/materials/vehicleModel/detail?id=${row.vehModelId}`, '_blank');
+                  window.open(`/sales/datacenter/materials/vehicleModel/edit?id=${row.vehModelId}`, '_blank');
                 }
               },
               type: 'primary'
             }]
           },
-          { props: 'mileage', label: '进店里程数（KM）', visible: true, width: 200 },
-          { props: 'netMileageExtend', label: '车联网里程数（增）', visible: true, width: 200 },
+          { props: 'mileage', label: '进店里程数（KM）', visible: true, width: 200, align: 'right', headerAlign: 'right' },
+          { props: 'netMileageExtend', label: '车联网里程数（增）', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'customerFaultDescription', label: '客户故障描述', visible: true, width: 200 },
           { props: 'managerSuggestion', label: '客户经理建议', visible: true, width: 200 },
           { props: 'customerRequest', label: '客户诉求', visible: true, width: 200 },

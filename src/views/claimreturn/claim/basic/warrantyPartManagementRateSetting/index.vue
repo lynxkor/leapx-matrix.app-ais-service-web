@@ -231,10 +231,10 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'warrantyTypeName', label: '保修类型', visible: true, width: 200 },
-          { props: 'rateModeLabel', label: '费率模式', visible: true, width: 200 },
-          { props: 'managementRate', label: '管理费率（%）', visible: true, width: 200 },
-          { props: 'maxManagementFee', label: '最大管理费用', visible: true, width: 200 },
+          { props: 'warrantyTypeName', label: '保修类型', visible: true, width: 120 },
+          { props: 'rateModeLabel', label: '费率模式', visible: true, width: 140 },
+          { props: 'managementRate', label: '管理费率（%）', visible: true, width: 140, align: 'right' },
+          { props: 'maxManagementFee', label: '最大管理费用', visible: true, width: 140, align: 'right' },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 200 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'effectiveStartTime', label: '生效开始日期', visible: true, width: 200 },
@@ -320,7 +320,7 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
+        businessType: '保修备件管理费率设置',
         dataFetchPath: 'claimreturn/claim/web/basic/warrantyPartManagementRateSetting/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -328,7 +328,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '保修备件管理费率设置.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

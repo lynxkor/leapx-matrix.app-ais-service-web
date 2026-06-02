@@ -77,6 +77,7 @@ import DealerSelect from '@/components/dealer-select';
 import { downloadExcel } from '@/libs/utils';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
+import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   month: '',
@@ -90,7 +91,7 @@ const mockConfig = {
 };
 
 export default {
-  mixins: [responsiveSearchForm, permissions],
+  mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
     PageSearchAction,
     LPVxeTable,
@@ -306,7 +307,7 @@ export default {
       }
       exportTable({
         businessType: '保修结算验收明细报表',
-        dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantysettle/acceptedDetailReport',
+        dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantySettle/acceptedDetailReport',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

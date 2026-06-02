@@ -19,7 +19,7 @@
             <div class="common-section-body">
               <el-form ref="ruleForm" :inline="true" class="form-detail">
                 <el-form-item label="接车施工单号：">
-                  <el-link type="success" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`" target="_blank">{{ form.serviceProxyCode }}</el-link>
+                  <el-link type="success" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`" target="_blank">{{ form.serviceProxyCode || _serviceProxyCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="权益代码：">
                   {{ form.equityCode }}
@@ -111,6 +111,9 @@ export default {
     },
     _serviceProxyId () {
       return this.$route.query.serviceProxyId;
+    },
+    _serviceProxyCode () {
+      return this.$route.query.serviceProxyCode;
     },
     title () {
       return '权益代码：' + (this.form.equityCode || '');

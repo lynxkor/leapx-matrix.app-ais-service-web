@@ -20,7 +20,7 @@
           <!-- 门店可操作 -->
           <el-button v-if="isDealer && (form.destroyStatus === '40' || form.destroyStatus === '70')" @click="onDestory" size="small">销毁</el-button>
           <!-- 主机厂可操作 -->
-          <el-button v-if="!isDealer && form.destroyStatus === '50'" @click="dialogFormVisible2 = true" size="small">审批</el-button>
+          <el-button v-if="canApprove && !isDealer && form.destroyStatus === '50'" @click="dialogFormVisible2 = true" size="small">审批</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -328,7 +328,7 @@ export default {
           width: '150',
           click: (row) => {
             // 点击事件
-            this.$router.push('/sparepart/basic/supplierInfo/detail?id=' + row.oldPartSupplierId);
+            this.$router.push('/sparepart/basic/supplierInfo/edit?id=' + row.oldPartSupplierId);
           }
         },
         {
@@ -342,7 +342,7 @@ export default {
           width: '140',
           click: (row) => {
             // 点击事件
-            this.$router.push('/sparepart/basic/sparePart/detail?id=' + row.oldPartId);
+            this.$router.push('/sparepart/basic/sparePart/edit?id=' + row.oldPartId);
           }
         },
         {
@@ -357,7 +357,7 @@ export default {
           click: (row) => {
             // 点击事件
             this.navigateToRoute({
-              path: '/sparepart/basic/sparePart/detail',
+              path: '/sparepart/basic/sparePart/edit',
               query: {
                 id: row.partId,
               },
@@ -506,7 +506,11 @@ export default {
       // 审批说明
       dialogFormVisible2: false,
       isPass: true,
+      canApprove: true,
     };
+  },
+  created () {
+    this.canApprove = this.permissions.has(`${this.moduleKey}-approve`);
   },
   mounted () {
     this.getTableData();

@@ -313,9 +313,9 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: this.getPath(),
+                  path: this.isServiceCareActivity ? '/claimreturn/claim/basic/serviceCareActivity/edit' : '/claimreturn/claim/basic/techServiceActivity/edit',
                   query: {
-                    id: row.id
+                    id: row.activityId
                   }
                 });
               },
@@ -332,9 +332,9 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/datacenter/vehicle/vehicleProfile/edit',
+                  path: this.getPath(),
                   query: {
-                    id: row.vehicleProfileId
+                    id: row.id
                   }
                 });
               },

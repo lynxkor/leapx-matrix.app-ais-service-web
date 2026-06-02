@@ -224,9 +224,9 @@ export default {
             }]
           },
           { props: 'gradeApprovalName', label: '名称', visible: true, width: 200 },
-          { props: 'warrantyTypeName', label: '保修类型', visible: true, width: 200 },
-          { props: 'approvalGradeLabel', label: '审批级别', visible: true, width: 200 },
-          { props: 'statusLabel', label: '是否启用', visible: true, width: 200 },
+          { props: 'warrantyTypeName', label: '保修类型', visible: true, width: 140 },
+          { props: 'approvalGradeLabel', label: '审批级别', visible: true, width: 120 },
+          { props: 'statusLabel', label: '是否启用', visible: true, width: 100 },
           {
             props: 'claimAmountRange',
             label: '索赔金额区间',
@@ -320,7 +320,7 @@ export default {
       }
       exportTable({
         businessType: '保修分级审批设置',
-        dataFetchPath: 'claimreturn/web/claim/basic/warrantyGradeApprovalSetting/page',
+        dataFetchPath: 'claimreturn/claim/web/basic/warrantyGradeApprovalSetting/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

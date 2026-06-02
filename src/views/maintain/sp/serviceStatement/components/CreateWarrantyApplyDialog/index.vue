@@ -13,7 +13,7 @@
           :label="item.warrantyTypeName"
           :name="item.warrantyTypeId"
           :key="item.warrantyTypeId">
-          <el-checkbox-group
+          <!-- <el-checkbox-group
             @change="onChange"
             v-model="item.dataScopes"
             class="warranty-checkbox">
@@ -24,7 +24,7 @@
               :key="option.value">
               {{option.label}}
             </el-checkbox>
-          </el-checkbox-group>
+          </el-checkbox-group> -->
           <div class="table-section">
             <div class="table-title">工时列表</div>
             <vxe-table
@@ -194,7 +194,7 @@ export default {
         this.wattantyData = (res || []).map(item => {
           return {
             ...item,
-            dataScopes: ['UNGENERATED'],
+            // dataScopes: ['UNGENERATED'],
           };
         });
         if (this.wattantyData.length) {
@@ -219,7 +219,7 @@ export default {
       const warrantyTypeScopes = this.wattantyData.map(item => {
         return {
           warrantyTypeId: item.warrantyTypeId,
-          dataScopes: item.dataScopes,
+          // dataScopes: item.dataScopes,
         };
       });
       listUnprocessedDetails({
@@ -246,7 +246,7 @@ export default {
         } else {
           this.wattantyData = this.wattantyData.map(item => {
             return {
-              dataScopes: item.dataScopes,
+              // dataScopes: item.dataScopes,
               warrantyTypeId: item.warrantyTypeId,
               warrantyTypeName: item.warrantyTypeName,
             };

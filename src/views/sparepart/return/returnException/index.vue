@@ -119,6 +119,7 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -164,7 +165,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import TagInput from '@/libs/components/TagInput';
-
+import EditPage from './edit.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
@@ -191,7 +192,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     Upload,
-    TagInput
+    TagInput,
+    EditPage
   },
   data () {
     return {
@@ -345,7 +347,7 @@ export default {
       };
       exportTable({
         businessType: '备件退货单',
-        dataFetchPath: 'sparepart/web/return/returnOrder/page',
+        dataFetchPath: 'sp/web/return/returnOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

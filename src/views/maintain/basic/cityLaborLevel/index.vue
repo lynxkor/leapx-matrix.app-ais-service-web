@@ -146,7 +146,7 @@ export default {
             props: 'areaCode',
             label: '行政区代码',
             visible: true,
-            width: 200,
+            width: 150,
             fixed: 'left',
             buttons: [{
               click: this.navigateToEdit,
@@ -158,7 +158,7 @@ export default {
           { props: 'parentId', label: '父级id', visible: true, width: 120 },
           { props: 'parentName', label: '父级行政区名称', visible: true, width: 200 },
           { props: 'laborLevelLabel', label: '城市工时等级', visible: true, width: 120 },
-          { props: 'statusLabel', label: '状态', visible: true, width: 80 },
+          { props: 'statusLabel', label: '状态', visible: true, width: 100 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
 
         ],
