@@ -10,38 +10,57 @@
       class="ais-search-form"
     >
       <el-form-item label="营销分类" v-if="activeName === 'homePage'">
-        <el-input
-          placeholder="请输入"
-          v-model="form.categoryIdList"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="备件工程师" v-if="activeName === 'spareParts'">
-        <el-input
-          placeholder="请输入"
-          v-model="form.partsEngineerLike"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="供应商名称" v-if="activeName === 'spareParts'">
-        <el-input
-          placeholder="请输入"
-          v-model="form.supplierNameLike"
-          clearable
-        />
+        <fetch-select
+            :remote-method="getCategory"
+            remote
+            v-model="form.categoryIdList"
+            placeholder="请输入营销分类名称"
+            labelKey="categoryName"
+            valueKey="id"
+            subLabelKey="categoryCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+              />
       </el-form-item>
       <el-form-item label="备件编码" v-if="activeName === 'spareParts'" v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.categoryName"
-          clearable
-        />
+        <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
       </el-form-item>
-      <template v-if="show">
-        <el-form-item label="备件名称" v-if="activeName === 'spareParts'">
+      <el-form-item label="备件名称" v-if="activeName === 'spareParts'">
           <el-input
             placeholder="请输入"
-            v-model="form.categoryName"
+            v-model="form.sparePartNameLike"
+            clearable
+          />
+        </el-form-item>
+      <template v-if="show">
+        <el-form-item label="营销分类" v-if="activeName === 'spareParts'">
+          <fetch-select
+              :remote-method="getCategory"
+              remote
+              v-model="form.categoryIdList"
+              placeholder="请输入营销分类名称"
+              labelKey="categoryName"
+              valueKey="id"
+              subLabelKey="categoryCode"
+              clearable
+              multiple
+              collapseTags
+              filterable
+                />
+        </el-form-item>
+        <el-form-item label="备件工程师" v-if="activeName === 'spareParts'">
+          <el-input
+            placeholder="请输入"
+            v-model="form.partsEngineerLike"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="供应商名称" v-if="activeName === 'spareParts'">
+          <el-input
+            placeholder="请输入"
+            v-model="form.supplierNameLike"
             clearable
           />
         </el-form-item>
@@ -122,13 +141,15 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { categoryPage, sparePartPage, deleteItem, enableItem } from '@/api/sparepart/purchase/backOrderReport/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getCategory } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
+import TagInput from '@/libs/components/TagInput';
+import FetchSelect from '@/libs/components/FetchSelect';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -145,7 +166,9 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    Upload
+    Upload,
+    TagInput,
+    FetchSelect
   },
   data () {
     return {
@@ -217,6 +240,19 @@ export default {
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
+    },
+
+    async getCategory (query) {
+      try {
+        const res = await getCategory({ categoryNameLike: query });
+        // res.records = res.records?.map(item => ({
+        //   ...item,
+        //   displayName: item.companyName + `(${item.companyCode})`
+        // }));
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
 
     onSubmit () {
