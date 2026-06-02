@@ -465,6 +465,7 @@ export default {
     // 点击tabs栏切换
     handleClick (item) {
       this.activeName = item.name;
+      this.form = { ...defaultForm };
       this.getData();
     },
     // 从首页点击分类名称跳转到备件分组tab并默认查询该分类
