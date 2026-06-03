@@ -164,10 +164,10 @@
                 <el-popconfirm
                   title="确定质检吗？"
                   @confirm="handleQualityCheck(row)"
-                  :disabled="row.qualityCheckStatus === 30 && !!row.isDispatch"
+                  :disabled="row.isDispatch === 0"
                 >
                   <span
-                    :class="['action-button', 'btn-back', { disabled: row.qualityCheckStatus === 30 && row.isDispatch }]"
+                    :class="['action-button', 'btn-back', { disabled: row.isDispatch === 0 }]"
                     slot="reference"
                     type="text">
                     质检
@@ -176,9 +176,10 @@
                 <el-popconfirm
                   title="确定返修吗？"
                   @confirm="handleRepair(row)"
+                  :disabled="row.isDispatch === 0"
                 >
                   <span
-                    :class="['action-button', 'btn-back']"
+                    :class="['action-button', 'btn-back', { disabled: row.isDispatch === 0 }]"
                     slot="reference"
                     type="text">
                     返修
