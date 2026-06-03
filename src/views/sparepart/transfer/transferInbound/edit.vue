@@ -16,7 +16,7 @@
         </template>
         <template #extraButtons>
           <el-button v-if="_id && form.signStatus === '0'" :loading="actionLoading" size="small" plain @click="handleSign">签收</el-button>
-          <el-button v-if="_id" size="small" type="primary" @click="handlePrint">打印</el-button>
+          <el-button v-if="_id && permissions.has('AISPART-transferInbound-print')" size="small" type="primary" @click="handlePrint">打印</el-button>
         </template>
         <el-main>
           <section class="common-section">

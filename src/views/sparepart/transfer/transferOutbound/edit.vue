@@ -29,6 +29,7 @@
           <el-button
             type="primary"
             size="small"
+            v-if="permissions.has('AISPART-transferOutbound-print')"
             @click="handlePrint"
           >
             打印
@@ -427,6 +428,7 @@ import Upload from '@/libs/components/UploadDialog';
 import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
 import ShipmentDialog from './ShipmentDialog';
 import BaseSearch from '@/libs/components/BaseSearch';
+import { promises } from 'fs-extra';
 
 const defaultForm = {
   code: '',
