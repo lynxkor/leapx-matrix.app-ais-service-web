@@ -102,7 +102,9 @@
                     {{ form.warehouseName }}
                   </el-form-item>
                   <el-form-item label="接车施工单：" prop="serviceProxyCode">
-                    {{ form.serviceProxyCode }}
+                    <el-link type="primary" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`" target="_blank">
+                      {{ form.serviceProxyCode }}
+                    </el-link>
                   </el-form-item>
                   <el-form-item label="备注：" prop="remark">
                     {{ form.remark }}

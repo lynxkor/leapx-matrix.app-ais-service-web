@@ -37,7 +37,7 @@
                 <div class="common-section-header">
                   <h3>报告主题</h3>
                 </div>
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm1" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="报告类型：" prop="reportType">
                     <fetch-select
                       :request="fetchOptions"
@@ -112,7 +112,7 @@
                 <div class="common-section-header">
                   <h3>质量反馈</h3>
                 </div>
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="接车施工单：" prop="serviceProxyCode">
                     <fetch-select
                       filterable
@@ -296,7 +296,7 @@
                 <div class="common-section-header">
                   <h3>主因零部件</h3>
                 </div>
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm3" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="零件编码：" prop="causePartCode">
                     <el-input
                       placeholder="请输入"
@@ -325,7 +325,7 @@
                 <div class="common-section-header">
                   <h3>服务中心</h3>
                 </div>
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm4" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="服务中心代码：" prop="serviceCenterCode">
                     <el-input
                       placeholder="请输入"
@@ -385,7 +385,7 @@
                 <div class="common-section-header">
                   <h3>参数选择</h3>
                 </div>
-                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+                <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                   <el-form-item label="温度（℃）：" prop="malfunctions">
                     <fetch-select
                       :request="fetchOptions"
@@ -567,7 +567,7 @@
               <h2>问题详细描述</h2>
             </div>
             <div class="common-section-body">
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm6" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="故障现象描述：" prop="customerContent">
                   <el-input
                     placeholder="请输入"
@@ -618,6 +618,7 @@
                   :auth="{edit: canAddOrUpdate && canEdit, delete: canDelete && canEdit}"
                   :enableSingleRowSave="true"
                   @save-row-edit="saveRowEdit"
+                  @remove-row="saveRowEdit"
                 />
               </div>
             </div>
@@ -1146,7 +1147,8 @@ export default {
     async saveRowEdit (row, defer) {
       const tableDataFault = await this.handleSaveTableFault();
       addOrUpdate({ ...this.form, qualityOrderReportFaultList: tableDataFault }).then(res => {
-        defer.resolve(res);
+        this.$refs.containerRef?.loadDetail();
+        // defer.resolve(res);
         this.$message.success('更新成功');
       }).catch(e => {
         defer.reject();
@@ -1325,6 +1327,10 @@ export default {
       this.$refs.attachmentRef?.loadAttachmentList();
     },
     handleSubmitApproval () {
+      if ((this.tableDataFault || []).length === 0 && (this.tableDataFault || []).length === 0) {
+        this.$message.error('请先添加故障代码');
+        return;
+      }
       this.$confirm('确定提交审批?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
