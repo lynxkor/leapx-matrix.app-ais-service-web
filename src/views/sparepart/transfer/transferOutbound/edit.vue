@@ -428,7 +428,6 @@ import Upload from '@/libs/components/UploadDialog';
 import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
 import ShipmentDialog from './ShipmentDialog';
 import BaseSearch from '@/libs/components/BaseSearch';
-import { promises } from 'fs-extra';
 
 const defaultForm = {
   code: '',
