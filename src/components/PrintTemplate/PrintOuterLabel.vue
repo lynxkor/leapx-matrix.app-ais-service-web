@@ -81,9 +81,6 @@ export default {
       immediate: true,
     }
   },
-  mounted () {
-    this.init();
-  },
   methods: {
     init () {
       this.form = {};

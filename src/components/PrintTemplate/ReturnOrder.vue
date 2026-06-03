@@ -90,7 +90,7 @@
 <script>
 import { getDetail } from '@/api/claimreturn/oldpart/returnorder';
 import {
-  getList, // 旧件库存详情分页查询
+  getPrintDetail, // 旧件库存详情分页查询
 } from '@/api/claimreturn/oldpart/inventory/oem/index';
 export default {
   components: {
@@ -120,15 +120,12 @@ export default {
       immediate: true,
     }
   },
-  mounted () {
-    this.init();
-  },
   methods: {
     init () {
       getDetail(this.data).then((res) => {
         this.form = res;
       });
-      getList({
+      getPrintDetail({
         returnOrderId: this.data,
         pageNum: 1,
         pageSize: 5000
