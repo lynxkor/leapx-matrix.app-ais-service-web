@@ -92,8 +92,16 @@
                   @current-page-change="currentPageChange"
                 >
                   <template v-slot:default="{ row, column, col }">
-                    <el-button v-if="col.click" class="link" @click="() => col.click(row)" type="text">{{ row[column.field] }}</el-button>
-                    <span v-else>{{ row[column.field] }}</span>
+                    <div class="cell-content">
+                      <template v-if="col.click">
+                        <el-button class="link btn-text" @click="() => col.click(row)" type="text">{{ row[column.field] }}</el-button>
+                      </template>
+                      <span v-else class="cell-text">{{ row[column.field] }}</span>
+                      <template v-if="col.mask">
+                        <span v-if="!row[column.field + 'Mask']" @click="mask(row, column)" class="eye-icon iconfont icon-lxppc-eye"></span>
+                        <span v-else @click="mask(row, column)" class="eye-icon iconfont icon-lxppc-eye-off"></span>
+                      </template>
+                    </div>
                   </template>
                 </edit-table>
               </div>
@@ -667,3 +675,28 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+.btn-text{
+  white-space: nowrap!important;
+}
+.cell-content {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+
+  .cell-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .eye-icon{
+    color: var(--leap-color-primary);
+  }
+  .link {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+}
+</style>
