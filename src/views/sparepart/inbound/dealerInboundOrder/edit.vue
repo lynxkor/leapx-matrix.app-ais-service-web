@@ -185,7 +185,8 @@
                     :remote-method="queryListData"
                     @change="handleAddTableData"
                     value-key="partCode"
-                    label-key="partName"
+                    label-key="partCode"
+                    sub-label-key="partName"
                     :disabled="!orderStatusType"
                   />
                   <el-button class="search-btn" size="small" @click="handleImport" :disabled="!orderStatusType">导入备件清单</el-button>
