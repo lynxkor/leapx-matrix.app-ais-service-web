@@ -346,37 +346,22 @@
                 <el-tab-pane label="缺货明细" name="getBackDetailList" />
               </el-tabs>
               <div class="common-section-table">
-                <ComponentTable
-                  v-if="activeName === 'getOutboundDetailList'"
-                  :tableData="outboundTableData"
-                  :columns="outboundColumns"
-                  :_id="_id"
-                  :pagination="true"
-                  :api-method="getOutboundDetailList"
-                  name="出库明细"
-                />
-                <ComponentTable
-                  v-if="activeName === 'getBackDetailList'"
-                  :tableData="backTableData"
-                  :columns="backColumns"
-                  :_id="_id"
-                  :pagination="true"
-                  :api-method="getBackDetailList"
-                  name="缺货明细"
-                />
-                <!-- <edit-table
-                  ref="editTable"
-                  :columns="claimColumns"
-                  :data="claimTableData"
-                  :show-toolbar="false"
-                  :auth="{edit: false, delete: false}"
-                  :showPagination="true"
-                  :current="current"
-                  :pageSize="pageSize"
-                  :total="total"
-                  @page-size-change="pageSizeChange"
-                  @current-page-change="currentPageChange"
-                /> -->
+                <div v-if="activeName === 'getOutboundDetailList'">
+                  <vxe-table :data="outboundTableData" stripe resizable border="inner" size="medium" height="auto" min-height="0" max-height="400px">
+                    <vxe-column v-for="col in outboundColumns" :key="col.field || col.title" v-bind="col" />
+                  </vxe-table>
+                  <div v-if="outboundTotal > 0" class="pagination-wrapper">
+                    <el-pagination :current-page="outboundPageNum" :page-size="outboundPageSize" :total="outboundTotal" :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" @size-change="outboundSizeChange" @current-change="outboundCurrentChange" />
+                  </div>
+                </div>
+                <div v-if="activeName === 'getBackDetailList'">
+                  <vxe-table :data="backTableData" stripe resizable border="inner" size="medium" height="auto" min-height="0" max-height="400px">
+                    <vxe-column v-for="col in backColumns" :key="col.field || col.title" v-bind="col" />
+                  </vxe-table>
+                  <div v-if="backTotal > 0" class="pagination-wrapper">
+                    <el-pagination :current-page="backPageNum" :page-size="backPageSize" :total="backTotal" :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" @size-change="backSizeChange" @current-change="backCurrentChange" />
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -386,14 +371,12 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
-                <ComponentTable
-                  :tableData="historyTableData"
-                  :columns="historyColumns"
-                  :_id="_id"
-                  :pagination="true"
-                  :api-method="historyPage"
-                  name="索赔历史"
-                />
+                <vxe-table :data="historyTableData" stripe resizable border="inner" size="medium" height="auto" min-height="0" max-height="400px">
+                  <vxe-column v-for="col in historyColumns" :key="col.field || col.title" v-bind="col" />
+                </vxe-table>
+                <div v-if="historyTotal > 0" class="pagination-wrapper">
+                  <el-pagination :current-page="historyPageNum" :page-size="historyPageSize" :total="historyTotal" :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" @size-change="historySizeChange" @current-change="historyCurrentChange" />
+                </div>
               </div>
             </div>
           </section>
@@ -476,7 +459,6 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getAreaTree } from '@/utils';
 import AisAttachment from '@/libs/components/AisAttachment';
-import ComponentTable from './ComponentTable.vue';
 import { handleCommonAction } from '@/libs/utils/index';
 
 const defaultForm = {
@@ -529,7 +511,6 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
-    ComponentTable,
     AisAttachment,
     EditPageLayout,
     EditBaseContainer,
@@ -592,8 +573,17 @@ export default {
       loadingLogistics: false,
       tableData: [],
       outboundTableData: [],
+      outboundPageNum: 1,
+      outboundPageSize: 10,
+      outboundTotal: 0,
       backTableData: [],
+      backPageNum: 1,
+      backPageSize: 10,
+      backTotal: 0,
       historyTableData: [],
+      historyPageNum: 1,
+      historyPageSize: 10,
+      historyTotal: 0,
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       // detailColumns: [
       //   { field: 'sparePartCode', title: '备件编码', width: '15%' },
@@ -696,12 +686,6 @@ export default {
   mounted () {
   },
   methods: {
-    // 索赔出库明细
-    getOutboundDetailList,
-    // 索赔库缺货明细
-    getBackDetailList,
-    // 索赔历史
-    historyPage,
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -786,32 +770,41 @@ export default {
       this.getDetailList();
     },
     // 索赔出库明细
-    async fetchOutboundList () {
+    async fetchOutboundList (pageNum = 1, pageSize = 10) {
       const res = await getOutboundDetailList({
-        pageNum: 1,
-        pageSize: 10,
-        claimOrderId: this._id,
+        pageNum, pageSize, claimOrderId: this._id,
       });
       this.outboundTableData = res.records || [];
+      this.outboundTotal = res.total || 0;
+      this.outboundPageNum = pageNum;
+      this.outboundPageSize = pageSize;
     },
+    outboundSizeChange (val) { this.fetchOutboundList(1, val); },
+    outboundCurrentChange (val) { this.fetchOutboundList(val, this.outboundPageSize); },
     // 索赔缺货明细
-    async fetchBackList () {
+    async fetchBackList (pageNum = 1, pageSize = 10) {
       const res = await getBackDetailList({
-        pageNum: 1,
-        pageSize: 10,
-        claimOrderId: this._id,
+        pageNum, pageSize, claimOrderId: this._id,
       });
       this.backTableData = res.records || [];
+      this.backTotal = res.total || 0;
+      this.backPageNum = pageNum;
+      this.backPageSize = pageSize;
     },
+    backSizeChange (val) { this.fetchBackList(1, val); },
+    backCurrentChange (val) { this.fetchBackList(val, this.backPageSize); },
     // 索赔历史
-    async fetchHistoryList () {
+    async fetchHistoryList (pageNum = 1, pageSize = 10) {
       const res = await historyPage({
-        pageNum: 1,
-        pageSize: 10,
-        claimOrderId: this._id,
+        pageNum, pageSize, claimOrderId: this._id,
       });
       this.historyTableData = res.records || [];
+      this.historyTotal = res.total || 0;
+      this.historyPageNum = pageNum;
+      this.historyPageSize = pageSize;
     },
+    historySizeChange (val) { this.fetchHistoryList(1, val); },
+    historyCurrentChange (val) { this.fetchHistoryList(val, this.historyPageSize); },
     async getLoginUser () {
       try {
         const res = await getLoginUser();
@@ -882,6 +875,10 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.pagination-wrapper {
+  margin-top: 10px;
+}
+
 .common-title {
   font-size: 14px;
   font-weight: 500;
