@@ -87,7 +87,7 @@
                   multiple
                 />
               </el-form-item>
-              <el-form-item label="任务需要转发的请求头" prop="headerMap">
+              <el-form-item label="需要转发的请求头" prop="headerMap">
                 <el-input
                   placeholder="请输入"
                   v-model="form.headerMap"
@@ -186,7 +186,7 @@ export default {
           { required: true, message: '请选择删除状态', trigger: 'change' }
         ],
         headerMap: [
-          { required: true, message: '请输入任务需要转发的请求头', trigger: 'blur' }
+          { required: true, message: '请输入需要转发的请求头', trigger: 'blur' }
         ],
         businessTitle: [
           { required: true, message: '请输入业务标题', trigger: 'blur' }

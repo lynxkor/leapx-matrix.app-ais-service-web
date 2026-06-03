@@ -47,6 +47,10 @@ export default {
       type: Array,
       default: () => []
     },
+    _id: {
+      type: String,
+      default: ''
+    },
     // 分页相关属性
     pagination: {
       type: Boolean,
@@ -68,31 +72,33 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      internalTableData: [], // 内部存储接口返回的数据
-      useInternalData: true // 标识是否使用内部数据
+      internalTableData: [],
+      paginated: false
     };
   },
   computed: {
-  // 计算属性决定显示哪个数据源
     displayTableData () {
-      return this.useInternalData ? this.internalTableData : this.tableData;
+      return (!this.paginated && this.tableData.length > 0) ? this.tableData : this.internalTableData;
     }
   },
   watch: {
-    // 监听外部数据源变化
+    tableData: {
+      handler (val) {
+        if (val && val.length > 0) {
+          this.total = val.length;
+          this.paginated = false;
+        }
+      },
+      immediate: true
+    },
     apiMethod: {
       handler (newValue) {
-        this.loadData();
+        if (this.tableData.length === 0) {
+          this.loadData();
+        }
       },
-      deep: true,
       immediate: true
     }
-  },
-  mounted () {
-    // 如果有API方法且启用分页，则初始化加载数据
-    // if (this.apiMethod && this.pagination) {
-    // this.loadData();
-    // }
   },
   methods: {
     // 获取选中的行数据
@@ -119,11 +125,11 @@ export default {
         const queryParams = {
           pageNum: this.currentPage,
           pageSize: this.pageSize,
-          claimOrderId: this.$route.query.id
+          claimOrderId: this._id
         };
         const response = await this.apiMethod(queryParams);
         // 更新内部数据和分页信息
-        this.total = response.totals || 0;
+        this.total = response.total || response.totals || 0;
         this.internalTableData = response.records || [];
       } catch (error) {
         console.error('加载数据失败:', error);
@@ -131,8 +137,9 @@ export default {
     },
     // 分页大小改变
     handleSizeChange (newSize) {
+      this.paginated = true;
       this.pageSize = newSize;
-      this.currentPage = 1; // 重置到第一页
+      this.currentPage = 1;
       this.loadData();
       this.$emit('pagination-change', {
         page: this.currentPage,
@@ -141,6 +148,7 @@ export default {
     },
     // 当前页改变
     handleCurrentChange (newPage) {
+      this.paginated = true;
       this.currentPage = newPage;
       this.loadData();
       this.$emit('pagination-change', {

@@ -94,10 +94,12 @@
                       {{ form.warehouseName }}
                     </el-form-item>
                     <el-form-item label="接车施工单：" prop="serviceProxyId">
-                      {{ form.serviceProxyId }}
+                      <el-link type="primary" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`" target="_blank">
+                        {{ form.serviceProxyCode }}
+                      </el-link>
                     </el-form-item>
                     <el-form-item label="客户经理：" prop="remark">
-                      {{ form.username }}
+                      {{ form.serviceAdvisorName }}
                     </el-form-item>
                     <el-form-item label="备注：" prop="remark" style="width: 100%;">
                       {{ form.remark }}
@@ -231,7 +233,7 @@ export default {
     }
   },
   watch: {
-    id: {
+    _id: {
       handler (val) {
         if (val) {
           this.getDetailData();

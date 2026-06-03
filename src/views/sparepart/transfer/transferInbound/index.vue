@@ -309,6 +309,9 @@ export default {
               type: 'info'
             }, {
               name: '打印',
+              show: (row) => {
+                return this.permissions.has('AISPART-transferInbound-print');
+              },
               click: (rowIndex, row) => {
                 this.handlePrint(row);
               },
