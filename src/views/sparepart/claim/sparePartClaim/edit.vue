@@ -162,7 +162,6 @@
                   <el-input v-model="form.deliveryAddress" placeholder="请输入" disabled />
                 </el-form-item>
               </el-form>
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id"></el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="备件索赔单号：" prop="code">
                   {{ form.code }}
@@ -347,33 +346,22 @@
                 <el-tab-pane label="缺货明细" name="getBackDetailList" />
               </el-tabs>
               <div class="common-section-table">
-                <ComponentTable
-                  v-if="activeName === 'getOutboundDetailList'"
-                  :columns="outboundColumns"
-                  :pagination="true"
-                  :api-method="getOutboundDetailList"
-                  name="出库明细"
-                />
-                <ComponentTable
-                  v-if="activeName === 'getBackDetailList'"
-                  :columns="backColumns"
-                  :pagination="true"
-                  :api-method="getBackDetailList"
-                  name="缺货明细"
-                />
-                <!-- <edit-table
-                  ref="editTable"
-                  :columns="claimColumns"
-                  :data="claimTableData"
-                  :show-toolbar="false"
-                  :auth="{edit: false, delete: false}"
-                  :showPagination="true"
-                  :current="current"
-                  :pageSize="pageSize"
-                  :total="total"
-                  @page-size-change="pageSizeChange"
-                  @current-page-change="currentPageChange"
-                /> -->
+                <div v-if="activeName === 'getOutboundDetailList'">
+                  <vxe-table :data="outboundTableData" stripe resizable border="inner" size="medium" height="auto" min-height="0" max-height="400px">
+                    <vxe-column v-for="col in outboundColumns" :key="col.field || col.title" v-bind="col" />
+                  </vxe-table>
+                  <div v-if="outboundTotal > 0" class="pagination-wrapper">
+                    <el-pagination :current-page="outboundPageNum" :page-size="outboundPageSize" :total="outboundTotal" :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" @size-change="outboundSizeChange" @current-change="outboundCurrentChange" />
+                  </div>
+                </div>
+                <div v-if="activeName === 'getBackDetailList'">
+                  <vxe-table :data="backTableData" stripe resizable border="inner" size="medium" height="auto" min-height="0" max-height="400px">
+                    <vxe-column v-for="col in backColumns" :key="col.field || col.title" v-bind="col" />
+                  </vxe-table>
+                  <div v-if="backTotal > 0" class="pagination-wrapper">
+                    <el-pagination :current-page="backPageNum" :page-size="backPageSize" :total="backTotal" :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" @size-change="backSizeChange" @current-change="backCurrentChange" />
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -383,12 +371,12 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
-                <ComponentTable
-                  :columns="historyColumns"
-                  :pagination="true"
-                  :api-method="historyPage"
-                  name="索赔历史"
-                />
+                <vxe-table :data="historyTableData" stripe resizable border="inner" size="medium" height="auto" min-height="0" max-height="400px">
+                  <vxe-column v-for="col in historyColumns" :key="col.field || col.title" v-bind="col" />
+                </vxe-table>
+                <div v-if="historyTotal > 0" class="pagination-wrapper">
+                  <el-pagination :current-page="historyPageNum" :page-size="historyPageSize" :total="historyTotal" :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" @size-change="historySizeChange" @current-change="historyCurrentChange" />
+                </div>
               </div>
             </div>
           </section>
@@ -471,7 +459,6 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getAreaTree } from '@/utils';
 import AisAttachment from '@/libs/components/AisAttachment';
-import ComponentTable from './ComponentTable.vue';
 import { handleCommonAction } from '@/libs/utils/index';
 
 const defaultForm = {
@@ -524,7 +511,6 @@ export default {
   },
   mixins: [routeGuard, permissions, commonMixins],
   components: {
-    ComponentTable,
     AisAttachment,
     EditPageLayout,
     EditBaseContainer,
@@ -555,19 +541,6 @@ export default {
       },
       immediate: true
     },
-    'form.code': {
-      handler (val) {
-        if (val) {
-          // 根据当前 tab 获取对应物流数据
-          const fetchApi = this.tabsName === 'claimLogistics'
-            ? claimOrderLogisticsClaim
-            : claimOrderLogisticsPurchase;
-          this.getLogistics(fetchApi);
-          // 索赔明细
-          this.getDetailList();
-        }
-      }
-    }
   },
   data () {
     const form = this.getDefautlForm();
@@ -598,17 +571,28 @@ export default {
       activeName: 'getOutboundDetailList',
       logisticsData: [], // 物流信息
       loadingLogistics: false,
-      tableData: [
-      ],
+      tableData: [],
+      outboundTableData: [],
+      outboundPageNum: 1,
+      outboundPageSize: 10,
+      outboundTotal: 0,
+      backTableData: [],
+      backPageNum: 1,
+      backPageSize: 10,
+      backTotal: 0,
+      historyTableData: [],
+      historyPageNum: 1,
+      historyPageSize: 10,
+      historyTotal: 0,
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      detailColumns: [
-        { field: 'sparePartCode', title: '备件编码', width: '15%' },
-        { field: 'sparePartName', title: '备件名称', width: '15%' }, // yapi没找到
-        { field: '', title: '已入库数', width: '15%' }, // yapi没找到
-        { field: 'claimQty', title: '索赔数量', width: '15%' },
-        { field: 'claimDescription', title: '索赔说明', width: '25%' },
-        { field: 'createTime', title: '创建时间', width: '15%' },
-      ],
+      // detailColumns: [
+      //   { field: 'sparePartCode', title: '备件编码', width: '15%' },
+      //   { field: 'sparePartName', title: '备件名称', width: '15%' }, // yapi没找到
+      //   { field: '', title: '已入库数', width: '15%' }, // yapi没找到
+      //   { field: 'claimQty', title: '索赔数量', width: '15%' },
+      //   { field: 'claimDescription', title: '索赔说明', width: '25%' },
+      //   { field: 'createTime', title: '创建时间', width: '15%' },
+      // ],
       outboundColumns: [
         { field: 'sparePartName', title: '备件名称', width: '15%' }, // yapi没找到
         { field: 'outboundQty', title: '出库数量', width: '15%' },
@@ -631,44 +615,6 @@ export default {
         { field: 'claimTypeLabel', title: '索赔类型', width: '15%' }, // yapi没找到
         { field: 'claimQty', title: '索赔数量', width: '25%' },
         { field: 'updateTime', title: '提交时间', width: '15%' }, // 确认下是否是修改时间
-      ],
-      claimTableData: [],
-      claimColumns: [
-        {
-          field: 'sparePartCode',
-          title: '备件编码',
-          width: '11%',
-        },
-        {
-          field: 'sparePartName',
-          title: '备件名称',
-          width: '16.6%',
-        },
-        {
-          field: 'outboundQty',
-          title: '出库数量',
-          width: '16.6%',
-        },
-        {
-          field: 'outboundOrderNo',
-          title: '出库单号',
-          width: '16.6%',
-        },
-        {
-          field: 'outboundDate',
-          title: '出库日期',
-          width: '16.6%',
-        },
-        {
-          field: 'createTime',
-          title: '发货仓库',
-          width: '16.6%',
-        },
-        {
-          field: 'createTime',
-          title: '创建时间',
-          width: '16.6%',
-        },
       ],
       rules: {
         code: [
@@ -740,17 +686,16 @@ export default {
   mounted () {
   },
   methods: {
-    // 索赔出库明细
-    getOutboundDetailList,
-    // 索赔库缺货明细
-    getBackDetailList,
-    // 索赔历史
-    historyPage,
     detailRequest () {
       const id = this._id;
       if (id) {
         return getDetail(id).then(res => {
           this.getLoginUser();
+          this.getDetailList();
+          this.fetchOutboundList();
+          this.fetchBackList();
+          this.fetchHistoryList();
+          this.getLogistics(claimOrderLogisticsClaim);
           return res;
         });
       }
@@ -813,6 +758,7 @@ export default {
       };
       const res = await getDetailList(data);
       this.tableData = res.records;
+      this.total = res.total;
     },
     handleSizeChange (pageSize) {
       this.pageSize = pageSize;
@@ -824,15 +770,41 @@ export default {
       this.getDetailList();
     },
     // 索赔出库明细
-    async getDetailListOutbound () {
-      const data = {
-        pageNum: 1,
-        pageSize: 10,
-        claimOrderId: this._id,
-      };
-      const res = await getOutboundDetailList(data);
-      this.claimTableData = res.records;
+    async fetchOutboundList (pageNum = 1, pageSize = 10) {
+      const res = await getOutboundDetailList({
+        pageNum, pageSize, claimOrderId: this._id,
+      });
+      this.outboundTableData = res.records || [];
+      this.outboundTotal = res.total || 0;
+      this.outboundPageNum = pageNum;
+      this.outboundPageSize = pageSize;
     },
+    outboundSizeChange (val) { this.fetchOutboundList(1, val); },
+    outboundCurrentChange (val) { this.fetchOutboundList(val, this.outboundPageSize); },
+    // 索赔缺货明细
+    async fetchBackList (pageNum = 1, pageSize = 10) {
+      const res = await getBackDetailList({
+        pageNum, pageSize, claimOrderId: this._id,
+      });
+      this.backTableData = res.records || [];
+      this.backTotal = res.total || 0;
+      this.backPageNum = pageNum;
+      this.backPageSize = pageSize;
+    },
+    backSizeChange (val) { this.fetchBackList(1, val); },
+    backCurrentChange (val) { this.fetchBackList(val, this.backPageSize); },
+    // 索赔历史
+    async fetchHistoryList (pageNum = 1, pageSize = 10) {
+      const res = await historyPage({
+        pageNum, pageSize, claimOrderId: this._id,
+      });
+      this.historyTableData = res.records || [];
+      this.historyTotal = res.total || 0;
+      this.historyPageNum = pageNum;
+      this.historyPageSize = pageSize;
+    },
+    historySizeChange (val) { this.fetchHistoryList(1, val); },
+    historyCurrentChange (val) { this.fetchHistoryList(val, this.historyPageSize); },
     async getLoginUser () {
       try {
         const res = await getLoginUser();
@@ -903,6 +875,10 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.pagination-wrapper {
+  margin-top: 10px;
+}
+
 .common-title {
   font-size: 14px;
   font-weight: 500;

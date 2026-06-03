@@ -970,6 +970,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.itemDetails[itemIndex].ownersEquityOrderPartsList.splice(partIndex, 1);
+        this.calculateTotals();
         this.$message.success('删除成功');
       }).catch(() => {
         this.$message.info('已取消删除');
@@ -986,7 +987,7 @@ export default {
         console.log('项目索赔金额' + item.claimPrice);
         const claimPrice = Number(item.claimPrice) || 0;
         claimItemsTotal += claimPrice;
-        item.ownersEquityOrderPartsList.forEach(part => {
+        (item.ownersEquityOrderPartsList || []).forEach(part => {
           // partsTotal += part.unitPrice * part.totalAmount;
           const partClaimPrice = Number(part.claimPrice) || 0;
           claimPartsTotal += partClaimPrice;

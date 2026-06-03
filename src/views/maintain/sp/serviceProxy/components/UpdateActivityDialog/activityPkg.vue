@@ -185,7 +185,7 @@
             :title="popconfirmText"
             @confirm="handleConfirm"
           >
-            <el-button :type="selectedPackage?.used && !hasNewPart ? 'plain' : 'primary'" size="small" slot="reference" :disabled="selectedPackage.activityUsed">{{ confirmBtnText }}</el-button>
+            <el-button :type="selectedPackage?.used && !hasNewPart ? 'plain' : 'primary'" size="small" slot="reference" :disabled="selectedPackage.activityUsed" :loading="submitLoading">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
@@ -220,6 +220,7 @@ export default {
       packageTypeList: [],
       selectedType: '',
       loading: false,
+      submitLoading: false,
       searchTimer: null,
       curPartTab: '',
       curItemList: {},
@@ -382,18 +383,24 @@ export default {
     },
     // 确认操作
     async handleConfirm () {
+      if (this.submitLoading) return;
       if (!this.selectedPackage?.id) {
         this.$message.warning('请选择套餐');
         return;
       }
-      let result = false;
-      if (this.selectedPackage?.used && !this.hasNewPart) {
-        result = await this.cancelPackage();
-      } else {
-        result = await this.usePackage();
-      }
-      if (result) {
-        this.$emit('refresh');
+      this.submitLoading = true;
+      try {
+        let result = false;
+        if (this.selectedPackage?.used && !this.hasNewPart) {
+          result = await this.cancelPackage();
+        } else {
+          result = await this.usePackage();
+        }
+        if (result) {
+          this.$emit('refresh');
+        }
+      } finally {
+        this.submitLoading = false;
       }
     },
     // 取消套餐

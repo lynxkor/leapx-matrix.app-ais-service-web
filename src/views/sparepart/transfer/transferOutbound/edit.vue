@@ -29,6 +29,7 @@
           <el-button
             type="primary"
             size="small"
+            v-if="permissions.has('AISPART-transferOutbound-print')"
             @click="handlePrint"
           >
             打印

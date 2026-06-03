@@ -753,7 +753,7 @@ export default {
             vehYearTypeName: record.vehicleYearName, // 车辆年型（L）
             engineNumber: record.enginenNumber, // 发动机号
             lastMileage: record.vehicleProfileServiceResp.lastMileage, // 上次进店里程
-            bindingUserId: record.vehicleProfileOwnerResp.bindingUserId, // 绑车人用户ID
+            bindingUserId: record.vehicleProfileOwnerResp.bindingUserid, // 绑车人用户ID
             bindingUser: record.vehicleProfileOwnerResp.bindingUser, // 绑车人姓名
             bindingPhone: record.vehicleProfileOwnerResp.bindingPhone, // 绑车人手机号
             shuttleName: record.vehicleProfileOwnerResp.ownerName,

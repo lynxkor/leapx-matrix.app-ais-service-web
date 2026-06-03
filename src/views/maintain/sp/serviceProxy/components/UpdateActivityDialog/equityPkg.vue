@@ -98,7 +98,7 @@
         </div>
         <!-- 底部操作栏 -->
         <div class="footer-bar">
-          <el-button type="primary" size="small" @click="handleConfirm">
+          <el-button type="primary" size="small" :loading="submitLoading" @click="handleConfirm">
             核销使用
           </el-button>
         </div>
@@ -129,6 +129,7 @@ export default {
       selectedItem: {},
       loading: false,
       detailLoading: false,
+      submitLoading: false,
       packageList: [],
       repairItemData: [],
       repairPartData: []
@@ -181,6 +182,7 @@ export default {
     },
     // 确认操作
     async handleConfirm () {
+      if (this.submitLoading) return;
       const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>本操作视为您进行核销本次权益套餐，请确认？</div>';
       this.$confirm(message, '', {
         confirmButtonText: '确定',
@@ -191,10 +193,12 @@ export default {
       }).then(() => {
         this.handleUseEquity();
       }).catch(() => {
+        this.submitLoading = false;
       });
     },
     // 核销使用
     async handleUseEquity () {
+      this.submitLoading = true;
       try {
         await useEquity({
           id: this.vehicleInfo.id,
@@ -235,6 +239,8 @@ export default {
         }
       } catch (error) {
         console.error('核销失败:', error);
+      } finally {
+        this.submitLoading = false;
       }
     }
   }

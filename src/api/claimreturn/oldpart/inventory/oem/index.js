@@ -74,3 +74,11 @@ export function queryByOldPartUniqueCode4Check (data) {
 export function print (data) {
   return api.jsonPost(prefix + 'print', data);
 }
+
+/**
+ * 旧件回运单打印
+ * @param {Object} data
+ */
+export function getPrintDetail (data) {
+  return api.jsonPost(prefix + 'printPage', data);
+}

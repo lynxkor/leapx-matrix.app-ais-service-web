@@ -111,7 +111,7 @@
             :title="!selectedPackage?.used ? '确定使用该免保项目？' : '确定取消使用该免保项目？'"
             @confirm="handleConfirm"
           >
-            <el-button :type="!selectedPackage?.used ? 'primary' : 'plain'" size="small" slot="reference">{{ confirmBtnText }}</el-button>
+            <el-button :type="!selectedPackage?.used ? 'primary' : 'plain'" size="small" slot="reference" :loading="submitLoading">{{ confirmBtnText }}</el-button>
           </el-popconfirm>
         </div>
       </div>
@@ -142,6 +142,7 @@ export default {
       packageList: [],
       project: null,
       loading: false,
+      submitLoading: false,
       searchTimer: null
     };
   },
@@ -217,18 +218,24 @@ export default {
     },
     // 确认操作
     async handleConfirm () {
+      if (this.submitLoading) return;
       if (!this.selectedPackage?.id) {
         this.$message.warning('请选择免保项目');
         return;
       }
-      let result = false;
-      if (this.selectedPackage.used) {
-        result = await this.cancelFreePackage();
-      } else {
-        result = await this.useFreePackage();
-      }
-      if (result) {
-        this.$emit('refresh');
+      this.submitLoading = true;
+      try {
+        let result = false;
+        if (this.selectedPackage.used) {
+          result = await this.cancelFreePackage();
+        } else {
+          result = await this.useFreePackage();
+        }
+        if (result) {
+          this.$emit('refresh');
+        }
+      } finally {
+        this.submitLoading = false;
       }
     },
     // 取消免保

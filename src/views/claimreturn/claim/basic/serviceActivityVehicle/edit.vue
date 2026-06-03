@@ -107,7 +107,12 @@
                     {{ form.activityName }}
                   </el-form-item>
                   <el-form-item label="VIN：" prop="vin">
-                    {{ form.vin }}
+                     <LPEncrypted
+                      :value.sync="form.vin"
+                      :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
+                    >
+                      <span>{{form.vin}}</span>
+                    </LPEncrypted>
                   </el-form-item>
                   <el-form-item label="计划实施门店名称：" prop="plannedDealerName">
                     {{ form.plannedDealerName }}

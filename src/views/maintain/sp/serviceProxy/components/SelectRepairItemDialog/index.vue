@@ -1184,6 +1184,7 @@ export default {
       if (repairItemTypeId === MaintenanceTypeEnum.WARRANTY) {
         const target = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeId === CheckoutTypeEnum.WARRANTY);
         row.checkoutTypeId = CheckoutTypeEnum.WARRANTY;
+        this.restoreItemDiscountAmount(row);
         row.checkoutTypeName = target.checkoutTypeName;
       } else {
         const target = this.itemOptions.checkoutTypeName?.[0];
