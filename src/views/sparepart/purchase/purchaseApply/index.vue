@@ -182,9 +182,9 @@
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
-      <el-button size="small" @click="handleBatchSubmit" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseApply-submit'">批量提交</el-button>
-      <el-button size="small" @click="handleBatchAgree" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseApply-agree'">批量同意</el-button>
-      <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseApply-reject'">批量驳回</el-button>
+      <el-button size="small" @click="handleBatchSubmit" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseApply-batchSubmit'">批量提交</el-button>
+      <el-button size="small" @click="handleBatchAgree" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseApply-batchAgree'">批量同意</el-button>
+      <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseApply-batchReject'">批量驳回</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport" v-permission="'AISPART-purchaseApply-importDistribution'">铺货导入</el-button>
     </div>
     <div
