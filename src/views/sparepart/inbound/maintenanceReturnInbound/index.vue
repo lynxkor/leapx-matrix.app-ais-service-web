@@ -59,7 +59,7 @@
               clearable
             />
           </el-form-item>
-          <el-form-item label="出库状态">
+          <el-form-item label="入库状态">
             <fetch-select
               :request="fetchOptions"
               enumCode="MaintenanceReturnMaterialStatusEnum"
@@ -232,7 +232,7 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/inbound/maintenanceReturnInbound/edit',
+                  path: '/sparepart/outbound/maintenanceOutboundOrder/edit',
                   query: {
                     id: row.id
                   }

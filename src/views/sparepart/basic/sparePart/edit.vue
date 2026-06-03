@@ -263,7 +263,11 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="备件编码：">
-                  {{ form.partCode }}
+                  <!-- {{ form.partCode }} -->
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>{{ form.partCode }}</span>
+                    <el-button size="mini" @click="handleDigitalModel">数模</el-button>
+                  </div>
                 </el-form-item>
                 <el-form-item label="备件名称：">
                   {{ form.partName }}
@@ -1013,6 +1017,10 @@ export default {
     },
     handleForbidPartsAttachmentSales () {
       this._handleAction(forbidPartsAttachmentSales, ACTION_CONFIG.forbidPartsAttachmentSales);
+    },
+    // 跳转数模
+    handleDigitalModel () {
+      window.open(`https://usercenter-uat.leapmotor.com/auth/oauth/authorize?response_type=code&client_id=ITP&redirect_uri=https://itpuat.leapmotor.com/#/detailsPart?detailsPartCode=${this.form.partCode}`, '_blank');
     }
   }
 };

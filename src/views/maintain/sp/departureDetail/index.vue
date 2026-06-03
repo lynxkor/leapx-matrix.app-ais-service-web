@@ -122,7 +122,6 @@ export default {
           { props: 'region', label: '区域', visible: true, width: 120 },
           { props: 'province', label: '省', visible: true, width: 120 },
           { props: 'city', label: '市', visible: true, width: 120 },
-          { props: 'district', label: '区', visible: true, width: 120 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'dealerCode', label: '门店编号', visible: true, width: 150 },
           { props: 'parentCompanyName', label: '合作伙伴', visible: true, width: 150 },

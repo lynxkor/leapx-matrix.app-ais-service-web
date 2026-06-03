@@ -345,7 +345,7 @@ export default {
       }
       exportTable({
         businessType: '备件发运单',
-        dataFetchPath: 'sp/web/purchase/shippingOrder/page',
+        dataFetchPath: 'sp/web/dealer/shippingOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

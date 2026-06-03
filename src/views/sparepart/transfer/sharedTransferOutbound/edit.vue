@@ -401,10 +401,11 @@ export default {
       if (!this.form.logisticsOrderNo) {
         return;
       }
+      const logType = this.form.logisticsProvider || 'JD';
       this.loadingLogistics = true;
       const params = {
         waybillCode: this.form.logisticsOrderNo,
-        logisticsType: this.form.logisticsProvider,
+        logisticsType: logType,
       };
       try {
         const res = await getLogistics(params);

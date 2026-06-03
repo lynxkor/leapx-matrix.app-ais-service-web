@@ -82,6 +82,7 @@ import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import commonMixins from '@/libs/mixins/commonMixins';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
+import { downloadExcel } from '@/utils/index.js';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -152,10 +153,21 @@ export default {
           },
           { props: 'taskTypeLabel', label: '任务类型', visible: true, width: 200 },
           { props: 'businessType', label: '业务标识', visible: true, width: 200 },
-          { props: 'importFailUrl', label: '导入失败数据下载地址', visible: true, width: 200 },
+          {
+            props: 'importFailUrl',
+            label: '导入失败数据下载地址',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.handleDownload(row);
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'taskStatusLabel', label: '任务状态', visible: true, width: 200 },
           { props: 'importRemark', label: '描述', visible: true, width: 200 },
-          { props: 'creator', label: '创建者', visible: true, width: 200 },
+          { props: 'creatorName', label: '创建者', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -395,6 +407,17 @@ export default {
           });
         });
       }).catch(() => {});
+    },
+    // 下载导入失败数据
+    handleDownload (row) {
+      if (!row.importFailUrl) {
+        this.$message({
+          type: 'warning',
+          message: '下载地址为空'
+        });
+        return;
+      }
+      downloadExcel(row.importFailUrl, row.importExcelFileName || '导入失败数据.xlsx');
     }
   }
 };

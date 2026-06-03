@@ -401,7 +401,7 @@ export default {
           width: '9%',
         },
         {
-          field: 'returnWarehousingOperator',
+          field: 'returnWarehousingOperatorName',
           title: '退料入库人',
           width: '9%',
         },

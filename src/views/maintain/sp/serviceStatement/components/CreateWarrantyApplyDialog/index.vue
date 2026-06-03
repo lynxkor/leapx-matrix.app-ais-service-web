@@ -111,22 +111,10 @@
           size="small"
           type="primary"
           :loading="submitLoading"
-          @click="submitAndClose"
+          @click="handleSubmit"
         >
-          生成并关闭
+          生成保修申请单
         </el-button>
-        <el-button
-          size="small"
-          type="primary"
-          :loading="submitLoading"
-          @click="submitAndNext"
-        >
-          生成并再次申请
-        </el-button>
-        <div class="radio-box">
-          <el-radio v-model="radio" label="1">当前保修类型</el-radio>
-          <el-radio v-model="radio" label="2">所有保修类型</el-radio>
-        </div>
       </div>
     </template>
   </el-dialog>
@@ -153,15 +141,6 @@ export default {
       dialogVisible: this.visible,
       submitLoading: false,
       activeTab: '',
-      radio: '2',
-      vehicleDataScopesOptions: [
-        { label: '未生成', value: 'UNGENERATED' },
-        { label: '未提交', value: 'UNSUBMITTED' },
-        { label: '已驳回', value: 'REJECTED' },
-        { label: '审核中', value: '1', disabled: true },
-        { label: '已拒赔', value: '2', disabled: true },
-        { label: '审核通过', value: '3', disabled: true },
-      ],
       //
       wattantyData: [],
     };
@@ -183,7 +162,6 @@ export default {
     },
     onReset () {
       this.activeTab = '';
-      this.radio = '2';
     },
     initData () {
       this.listWarrantyTypes();
@@ -205,28 +183,10 @@ export default {
         this.loading = false;
       });
     },
-    onChange (val) {
-      this.getData();
-    },
-    getNewIds (newList, oldIds = []) {
-      if (!newList || !newList.length) return [];
-      const newIds = newList.map(item => item.id);
-      if (!oldIds.length) return newIds;
-      return oldIds.filter(id => newIds.includes(id));
-    },
     getData () {
       this.loading = true;
-      const warrantyTypeScopes = this.wattantyData.map(item => {
-        return {
-          warrantyTypeId: item.warrantyTypeId,
-          // dataScopes: item.dataScopes,
-        };
-      });
       listUnprocessedDetails({
-        // 019CE115-B1DD-71D0-82E5-EEC97D939977
-        // 019D0A53-FF5A-749E-BF72-D8E8CC88A090
         statementId: this.id,
-        warrantyTypeScopes,
       }).then(res => {
         if (res.statementWarrantyDetailListResp?.length) {
           (res.statementWarrantyDetailListResp || []).forEach((item, index) => {
@@ -234,19 +194,18 @@ export default {
             const newItem = {
               ...oldItem,
               ...item,
-              workhourIds: this.getNewIds(item.workhourList, oldItem.workhourIds || []),
-              partIds: this.getNewIds(item.partList, oldItem.partIds || []),
-              otherIds: this.getNewIds(item.otherList, oldItem.otherIds || []),
+              workhourIds: item.workhourList ? item.workhourList.map(r => r.id) : [],
+              partIds: item.partList ? item.partList.map(r => r.id) : [],
+              otherIds: item.otherList ? item.otherList.map(r => r.id) : [],
             };
             this.$set(this.wattantyData, index, newItem);
             this.$nextTick(() => {
-              this.setTableCheckedStatus(index);
+              this.setDefaultAllChecked(index);
             });
           });
         } else {
           this.wattantyData = this.wattantyData.map(item => {
             return {
-              // dataScopes: item.dataScopes,
               warrantyTypeId: item.warrantyTypeId,
               warrantyTypeName: item.warrantyTypeName,
             };
@@ -255,6 +214,34 @@ export default {
       }).finally(() => {
         this.loading = false;
       });
+    },
+    setDefaultAllChecked (index) {
+      const item = this.wattantyData[index];
+      if (!item) return;
+
+      const workhourTable = this.$refs[`vehicleLaborTable${index}`];
+      if (workhourTable && workhourTable[0] && item.workhourList?.length) {
+        item.workhourList.forEach(row => {
+          workhourTable[0].setCheckboxRow(row, true);
+        });
+        item.workhourIds = item.workhourList.map(r => r.id);
+      }
+
+      const partTable = this.$refs[`vehiclePartTable${index}`];
+      if (partTable && partTable[0] && item.partList?.length) {
+        item.partList.forEach(row => {
+          partTable[0].setCheckboxRow(row, true);
+        });
+        item.partIds = item.partList.map(r => r.id);
+      }
+
+      const otherTable = this.$refs[`vehicleOtherTable${index}`];
+      if (otherTable && otherTable[0] && item.otherList?.length) {
+        item.otherList.forEach(row => {
+          otherTable[0].setCheckboxRow(row, true);
+        });
+        item.otherIds = item.otherList.map(r => r.id);
+      }
     },
     setTableCheckedStatus (index) {
       const item = this.wattantyData[index];
@@ -311,53 +298,77 @@ export default {
     otherCheckbox ({ records }, item) {
       item.otherIds = records.map(item => item.id);
     },
-    submitAndNext () {
-      this.submit(false);
-    },
-    submitAndClose () {
-      this.submit(true);
-    },
-    submit (isClose) {
-      let detailList = [];
-      if (this.radio === '1') {
-        const data = this.wattantyData.find(item => item.warrantyTypeId === this.activeTab);
-        detailList = [
-          {
-            warrantyTypeId: data.warrantyTypeId,
-            workhourIds: data.workhourIds || [],
-            partIds: data.partIds || [],
-            otherIds: data.otherIds || [],
-          }
-        ];
-      } else {
-        detailList = this.wattantyData.map(item => {
-          return {
-            warrantyTypeId: item.warrantyTypeId,
-            workhourIds: item.workhourIds || [],
-            partIds: item.partIds || [],
-            otherIds: item.otherIds || [],
-          };
-        });
+    handleSubmit () {
+      const detailList = this.wattantyData.map(item => {
+        return {
+          warrantyTypeId: item.warrantyTypeId,
+          workhourIds: item.workhourIds || [],
+          partIds: item.partIds || [],
+          otherIds: item.otherIds || [],
+        };
+      });
+      const hasSelected = detailList.some(
+        item => item.workhourIds.length || item.partIds.length || item.otherIds.length
+      );
+      if (!hasSelected) {
+        this.$message.warning('请选择需要生成保修单的记录');
+        return;
       }
       this.submitLoading = true;
       warrantyApplyCreate({
         statementId: this.id,
         detailList,
       }).then(res => {
-        if (isClose) {
+        this.$message.success('生成保修单成功');
+        // 前端过滤掉已提交的行，保留未勾选的数据
+        const remainingData = this.wattantyData.map(item => {
+          const newWorkhourList = (item.workhourList || []).filter(
+            row => !(item.workhourIds || []).includes(row.id)
+          );
+          const newPartList = (item.partList || []).filter(
+            row => !(item.partIds || []).includes(row.id)
+          );
+          const newOtherList = (item.otherList || []).filter(
+            row => !(item.otherIds || []).includes(row.id)
+          );
+          return {
+            ...item,
+            workhourList: newWorkhourList,
+            partList: newPartList,
+            otherList: newOtherList,
+            workhourIds: [],
+            partIds: [],
+            otherIds: [],
+          };
+        }).filter(item =>
+          (item.workhourList && item.workhourList.length) ||
+          (item.partList && item.partList.length) ||
+          (item.otherList && item.otherList.length)
+        );
+
+        if (remainingData.length) {
+          // 还有未勾选的数据，留在弹窗中显示
+          this.wattantyData = remainingData;
+          if (remainingData.length) {
+            this.activeTab = remainingData[0].warrantyTypeId;
+          }
+          this.$nextTick(() => {
+            remainingData.forEach((_, index) => {
+              this.setDefaultAllChecked(index);
+            });
+          });
+        } else {
+          this.close();
+          // 全部勾选提交，跳转到保修申请单详情页
           if (res.applyIds?.length) {
             const id = res.applyIds[res.applyIds.length - 1];
-            // 保修申请单详情页
-            this.$router.push({
-              path: '/claimreturn/claim/warrantyApply/edit',
-              query: {
-                id,
-              }
+            this.$nextTick(() => {
+              this.$router.push({
+                path: '/claimreturn/claim/warrantyApply/edit',
+                query: { id }
+              });
             });
           }
-        } else {
-          this.onReset();
-          this.initData();
         }
       }).finally(() => {
         this.submitLoading = false;
@@ -411,12 +422,6 @@ export default {
     justify-content: flex-end;
     align-items: center;
     gap: 10px;
-  }
-  .warranty-checkbox{
-    margin-bottom: 20px;
-  }
-  .radio-box{
-    margin-left: 12px;
   }
   .no-data{
     text-align: center;

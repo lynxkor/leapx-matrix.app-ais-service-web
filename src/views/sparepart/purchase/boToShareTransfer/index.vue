@@ -401,7 +401,7 @@ export default {
       }
       exportTable({
         businessType: 'BO转共享调拨',
-        dataFetchPath: 'sp/web/purchase/boToShareTransfer/page',
+        dataFetchPath: 'sp/web/purchase/backOrder/boToShareTransferPage',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

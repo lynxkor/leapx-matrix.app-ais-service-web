@@ -13,6 +13,10 @@
         :originalForm.sync="originalForm"
         :showEditBtn="false"
       >
+        <template #extraButtons>
+          <el-button plain size="small" v-if="type === 'sign' && form.orderStatus === '2'" @click="handleSign(false)">签收</el-button>
+          <el-button plain size="small" v-if="type === 'sign' && form.orderStatus === '2'" @click="handleSign(true)">签收并入库</el-button>
+        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">
@@ -20,7 +24,7 @@
             </div>
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+              <el-form :inline="true" :model="form" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="订单号：" prop="code">
                   <el-input
                     placeholder="请输入"
@@ -356,6 +360,15 @@
       :drawerData="logisticsData"
       @update:visible="val => logisticsDrawerVisible = val"
     />
+    <!-- 签收/入库弹窗 -->
+    <BatchEditSignForDialogAll
+      ref="batchSignForDialogRef"
+      :visible="signDialogVisible"
+      :purchaseOrderId="_id"
+      :inbound="signInbound"
+      @update:visible="val => signDialogVisible = val"
+      @submit="handleSignDialogSubmit"
+    />
   </edit-page-layout>
 </template>
 
@@ -372,6 +385,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getPurchaseApplyPage } from '@/api/sparepart/purchase/purchaseApply/index';
 import LogisticsDrawer from '@/libs/components/LogisticsDrawer';
+import BatchEditSignForDialogAll from './BatchEditSignForDialogAll.vue';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -420,11 +434,15 @@ export default {
     EditBaseContainer,
     EditTable,
     FetchSelect,
-    LogisticsDrawer
+    LogisticsDrawer,
+    BatchEditSignForDialogAll
   },
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
+    },
+    type () {
+      return this.$route.query.type;
     }
   },
   watch: {
@@ -461,6 +479,8 @@ export default {
       originalForm: { ...form },
       logisticsData: {}, // 物流信息
       logisticsDrawerVisible: false, // 物流信息抽屉
+      signDialogVisible: false, // 签收/入库弹窗
+      signInbound: false, // 是否签收并入库
       sales: {
         current: 1,
         pageSize: 10,
@@ -697,6 +717,16 @@ export default {
     },
     procurementCurrentPageChange (current) {
       this.procurement.current = current;
+      this.getList();
+    },
+    // 签收/入库
+    async handleSign (val) {
+      this.signInbound = val;
+      this.signDialogVisible = true;
+    },
+    handleSignDialogSubmit () {
+      this.$refs.containerRef.loadDetail();
+      this.getData();
       this.getList();
     },
     // 打开物流信息抽屉

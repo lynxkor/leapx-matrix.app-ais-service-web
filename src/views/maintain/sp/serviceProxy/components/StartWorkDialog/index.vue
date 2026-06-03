@@ -152,7 +152,7 @@ export default {
       try {
         this.tableLoading = true;
         // 获取维修作业记录数据
-        const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id });
+        const res = await getRepairWorkRecord({ serviceProxyId: this.vehicleInfo.id, pageSize: 1000 });
         this.tableData = (res || []).map(item => ({
           ...item,
           disabled: this.mode === 'end' ? item.status !== WorkRecordStatusEnum.IN_PROGRESS : (item.status !== WorkRecordStatusEnum.NOT_STARTED || item.isDispatch !== 1)

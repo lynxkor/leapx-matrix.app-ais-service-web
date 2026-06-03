@@ -446,7 +446,7 @@
                       替换件<i class="el-icon-arrow-down el-icon--right"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown" placement="bottom-start" style="max-height: 200px;overflow-y: auto;overflow-x: hidden;">
-                      <el-dropdown-item v-for="el in row.replaceSparePartRespList" :command="el" :key="el.id">{{el.partsCode}}/{{el.partsName}}-库存({{el.stockCount || 0}})-￥{{el.price || 0}}</el-dropdown-item>
+                      <el-dropdown-item v-for="el in row.replaceSparePartRespList" :command="el" :key="el.partsId">{{el.partsCode}}/{{el.partsName}}-库存({{el.stockCount || 0}})-￥{{el.price || 0}}</el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
                 </template>
@@ -1002,7 +1002,7 @@ export default {
     },
     searchRepairItem (queryString, cb) {
       if (!queryString) return;
-      filterRepairItem({ nameOrCodeOrPinyinLike: queryString, serviceProxyId: this.vehicleInfo.id }).then(res => {
+      filterRepairItem({ nameOrCodeOrPinyinLike: String(queryString).trim(), serviceProxyId: this.vehicleInfo.id }).then(res => {
         const data = res.map(item => ({
           ...item,
           value: `${item.name}-${item.code}`
@@ -1029,7 +1029,7 @@ export default {
     },
     searchRepairPart (queryString, cb) {
       if (!queryString) return;
-      filterSparePartItem({ nameOrCodeOrPinyinLike: queryString, serviceProxyId: this.vehicleInfo.id }).then(res => {
+      filterSparePartItem({ nameOrCodeOrPinyinLike: String(queryString).trim(), serviceProxyId: this.vehicleInfo.id }).then(res => {
         const data = res.map(item => ({
           ...item,
           isOemPart: item.oemPart,
@@ -1113,9 +1113,18 @@ export default {
     },
     // 处理维修项目表格删除行
     async handleRemoveItemRow (index, row) {
+      const packageTypeLabelMap = {
+        [PackageTypeEnum.REPAIR]: '维修套餐',
+        [PackageTypeEnum.EQUITY]: '权益套餐',
+        [PackageTypeEnum.STORE]: '商城订单',
+        [PackageTypeEnum.FREE]: '免保项目',
+        [PackageTypeEnum.TECH_ACTIVITY]: '技术服务活动',
+        [PackageTypeEnum.CARE_ACTIVITY]: '关爱服务活动'
+      };
+      const packageLabel = packageTypeLabelMap[row.packageType];
       if (row.packageId) {
         // 分支1: 删除权益套餐
-        const confirmed = await this.showMsg('本操作视为您取消核销本次权益套餐，请确认');
+        const confirmed = await this.showMsg(`本操作视为您取消核销本次${packageLabel}，请确认`);
         if (!confirmed) return;
 
         this.deleteRights(row);
@@ -1463,7 +1472,17 @@ export default {
         // 原零件信息，如果不存在，证明是第一次替换，需要带上
         originPartsId: row.originPartsId || row.partsId,
         originPartsCode: row.originPartsCode || row.partsCode,
-        replaceSparePartRespList: [old]
+        stockCount: current.stockCount || 0,
+        replaceSparePartRespList: (() => {
+          const list = [...(row.replaceSparePartRespList || [])];
+          const idx = list.findIndex(item => item.partsId === current.partsId);
+          if (idx > -1) {
+            list.splice(idx, 1, old);
+          } else {
+            list.push(old);
+          }
+          return list;
+        })()
       });
     },
     handlePartReplaceClick (e, row) {

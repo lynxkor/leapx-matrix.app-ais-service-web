@@ -168,12 +168,12 @@ export default {
   },
   watch: {
     id: {
-      handler () {
+      handler (val) {
         if (Array.isArray(this.data) && this.data.length > 0) {
           // 是否为保修申请单
           if (this.isWarrantyApply) {
             this.result = this.data;
-          } else {
+          } else if (val) {
             this.getData(this.data);
           }
         } else {

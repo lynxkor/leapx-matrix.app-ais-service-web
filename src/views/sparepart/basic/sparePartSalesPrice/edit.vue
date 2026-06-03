@@ -13,7 +13,7 @@
         :showEditBtn="true"
       >
         <template #status>
-          <span :class="['status', form.status ? 'primary' : 'danger']">{{ form.statusLabel }}</span>
+          <!-- <span :class="['status', form.status ? 'primary' : 'danger']">{{ form.statusLabel }}</span> -->
         </template>
         <el-main>
           <section class="common-section">
@@ -63,9 +63,7 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="备件编码：">
-                  <el-link type="primary" :href="`/sparepart/basic/sparePart/edit?id=${form.sparePartCode}`" target="_blank">
-                    {{ form.sparePartCode }}
-                  </el-link>
+                  {{ form.sparePartCode }}
                 </el-form-item>
                 <el-form-item label="备件名称：">
                   {{ form.sparePartName }}
@@ -82,44 +80,11 @@
                 <el-form-item label="修改时间：">
                   {{ form.updateTime }}
                 </el-form-item>
-                <el-form-item label="主键：">
-                  {{ form.id }}
-                </el-form-item>
-                <el-form-item label="创建者：">
-                  {{ form.creator }}
-                </el-form-item>
-                <el-form-item label="创建者名称：">
-                  {{ form.creatorName }}
-                </el-form-item>
-                <el-form-item label="修改者：">
-                  {{ form.modifier }}
-                </el-form-item>
-                <el-form-item label="修改者名称：">
-                  {{ form.modifierName }}
-                </el-form-item>
                 <el-form-item label="备注：">
                   {{ form.remark }}
                 </el-form-item>
-                <el-form-item label="状态：">
+                <el-form-item label="是否启用：">
                   {{ form.statusLabel }}
-                </el-form-item>
-                <el-form-item label="状态变更描述：">
-                  {{ form.statusDesc }}
-                </el-form-item>
-                <el-form-item label="数据来源：">
-                  {{ form.dataSource }}
-                </el-form-item>
-                <el-form-item label="备件ID：">
-                  {{ form.sparePartId }}
-                </el-form-item>
-                <el-form-item label="门店ID：">
-                  {{ form.dealerId }}
-                </el-form-item>
-                <el-form-item label="门店编码：">
-                  {{ form.dealerCode }}
-                </el-form-item>
-                <el-form-item label="门店名称：">
-                  {{ form.dealerName }}
                 </el-form-item>
               </el-form>
             </div>
@@ -170,7 +135,7 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '备件销售价格' + (this.form.id ? ' - ' + this.form.id : '');
+      return '备件销售价格' + (this.form.sparePartCode ? ' - ' + this.form.sparePartCode : '');
     }
   },
   watch: {

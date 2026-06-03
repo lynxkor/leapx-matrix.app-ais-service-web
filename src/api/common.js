@@ -202,6 +202,14 @@ export function sparePartList (data) {
 }
 
 /**
+ * 备件营销分类
+ * @param {*} data
+ */
+export function getCategory (data) {
+  return api.jsonPost('/sp/web/basic/spareSalesCategory/page', data);
+}
+
+/**
  * 备件主数据表列表查询
  * @param {*} data
  */
