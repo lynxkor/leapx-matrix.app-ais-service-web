@@ -214,10 +214,10 @@
     </el-form>
     <div class="ais-actions">
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button size="small" @click="handleWithdraw">批量撤回</el-button>
-      <el-button size="small" @click="handleReject">批量驳回</el-button>
-      <el-button size="small" @click="handleApprove">批量同意</el-button>
-      <el-button size="small" @click="handleCancel">批量作废</el-button>
+      <el-button v-if="withdraw" size="small" @click="handleWithdraw">批量撤回</el-button>
+      <el-button v-if="reject" size="small" @click="handleReject">批量驳回</el-button>
+      <el-button v-if="approve"  size="small" @click="handleApprove">批量同意</el-button>
+      <el-button v-if="cancel" size="small" @click="handleCancel">批量作废</el-button>
       <el-button size="small" @click="handlePrint">打印标签</el-button>
     </div>
     <el-tabs v-model="activeTab" @tab-click="handleTabChange">
