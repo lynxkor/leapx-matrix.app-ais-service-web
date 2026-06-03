@@ -11,21 +11,15 @@
             <h2>基础信息</h2>
           </div>
           <div class="common-section-body">
-            <el-form :inline="true" ref="ruleForm" label-width="200px">
-              <el-form-item label="模板id：" prop="id">
+            <el-form :inline="true" ref="ruleForm" label-width="220px">
+              <!-- <el-form-item label="模板id：" prop="id">
                 {{ info.id  }}
-              </el-form-item>
-              <el-form-item label="excel导入模板下载地址：" prop="excelModelUrl">
-                {{ info.excelModelUrl  }}
-              </el-form-item>
+              </el-form-item> -->
               <el-form-item label="模板编码：" prop="code">
                 {{ info.code  }}
               </el-form-item>
               <el-form-item label="业务标识：" prop="businessType">
                 {{ info.businessType  }}
-              </el-form-item>
-              <el-form-item label="导入数据的第三方接口信息：" prop="postInterface">
-                {{ info.postInterface  }}
               </el-form-item>
               <el-form-item label="导入参数DTO：" prop="postParamDto">
                 {{ info.postParamDto  }}
@@ -38,6 +32,13 @@
               </el-form-item>
               <el-form-item label="修改时间：" prop="updateTime">
                 {{ info.updateTime  }}
+              </el-form-item>
+            <el-form-item label="导入数据的第三方接口信息：" prop="postInterface" class="header-map-item" style="width: 100%;">
+                {{ info.postInterface }}
+              </el-form-item>
+                <el-form-item label="excel导入模板下载地址：" prop="excelModelUrl" class="header-map-item" style="width: 100%;">
+                  <span v-if="!info.excelModelUrl"></span>
+                  <span v-else>{{ info.excelModelUrl }}</span>
               </el-form-item>
             </el-form>
           </div>
@@ -84,3 +85,15 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+.header-map-item {
+  width: 100%;
+  ::v-deep .el-form-item__label {
+    width: 220px;
+  }
+  ::v-deep .el-form-item__content {
+    display: block;
+    overflow: hidden;
+  }
+}
+</style>
