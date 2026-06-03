@@ -162,7 +162,6 @@
                   <el-input v-model="form.deliveryAddress" placeholder="请输入" disabled />
                 </el-form-item>
               </el-form>
-              <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id"></el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="备件索赔单号：" prop="code">
                   {{ form.code }}
@@ -349,14 +348,18 @@
               <div class="common-section-table">
                 <ComponentTable
                   v-if="activeName === 'getOutboundDetailList'"
+                  :tableData="outboundTableData"
                   :columns="outboundColumns"
+                  :_id="_id"
                   :pagination="true"
                   :api-method="getOutboundDetailList"
                   name="出库明细"
                 />
                 <ComponentTable
                   v-if="activeName === 'getBackDetailList'"
+                  :tableData="backTableData"
                   :columns="backColumns"
+                  :_id="_id"
                   :pagination="true"
                   :api-method="getBackDetailList"
                   name="缺货明细"
@@ -384,7 +387,9 @@
             <div class="common-section-body">
               <div class="common-section-table">
                 <ComponentTable
+                  :tableData="historyTableData"
                   :columns="historyColumns"
+                  :_id="_id"
                   :pagination="true"
                   :api-method="historyPage"
                   name="索赔历史"
@@ -555,19 +560,6 @@ export default {
       },
       immediate: true
     },
-    'form.code': {
-      handler (val) {
-        if (val) {
-          // 根据当前 tab 获取对应物流数据
-          const fetchApi = this.tabsName === 'claimLogistics'
-            ? claimOrderLogisticsClaim
-            : claimOrderLogisticsPurchase;
-          this.getLogistics(fetchApi);
-          // 索赔明细
-          this.getDetailList();
-        }
-      }
-    }
   },
   data () {
     const form = this.getDefautlForm();
@@ -598,17 +590,19 @@ export default {
       activeName: 'getOutboundDetailList',
       logisticsData: [], // 物流信息
       loadingLogistics: false,
-      tableData: [
-      ],
+      tableData: [],
+      outboundTableData: [],
+      backTableData: [],
+      historyTableData: [],
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
-      detailColumns: [
-        { field: 'sparePartCode', title: '备件编码', width: '15%' },
-        { field: 'sparePartName', title: '备件名称', width: '15%' }, // yapi没找到
-        { field: '', title: '已入库数', width: '15%' }, // yapi没找到
-        { field: 'claimQty', title: '索赔数量', width: '15%' },
-        { field: 'claimDescription', title: '索赔说明', width: '25%' },
-        { field: 'createTime', title: '创建时间', width: '15%' },
-      ],
+      // detailColumns: [
+      //   { field: 'sparePartCode', title: '备件编码', width: '15%' },
+      //   { field: 'sparePartName', title: '备件名称', width: '15%' }, // yapi没找到
+      //   { field: '', title: '已入库数', width: '15%' }, // yapi没找到
+      //   { field: 'claimQty', title: '索赔数量', width: '15%' },
+      //   { field: 'claimDescription', title: '索赔说明', width: '25%' },
+      //   { field: 'createTime', title: '创建时间', width: '15%' },
+      // ],
       outboundColumns: [
         { field: 'sparePartName', title: '备件名称', width: '15%' }, // yapi没找到
         { field: 'outboundQty', title: '出库数量', width: '15%' },
@@ -631,44 +625,6 @@ export default {
         { field: 'claimTypeLabel', title: '索赔类型', width: '15%' }, // yapi没找到
         { field: 'claimQty', title: '索赔数量', width: '25%' },
         { field: 'updateTime', title: '提交时间', width: '15%' }, // 确认下是否是修改时间
-      ],
-      claimTableData: [],
-      claimColumns: [
-        {
-          field: 'sparePartCode',
-          title: '备件编码',
-          width: '11%',
-        },
-        {
-          field: 'sparePartName',
-          title: '备件名称',
-          width: '16.6%',
-        },
-        {
-          field: 'outboundQty',
-          title: '出库数量',
-          width: '16.6%',
-        },
-        {
-          field: 'outboundOrderNo',
-          title: '出库单号',
-          width: '16.6%',
-        },
-        {
-          field: 'outboundDate',
-          title: '出库日期',
-          width: '16.6%',
-        },
-        {
-          field: 'createTime',
-          title: '发货仓库',
-          width: '16.6%',
-        },
-        {
-          field: 'createTime',
-          title: '创建时间',
-          width: '16.6%',
-        },
       ],
       rules: {
         code: [
@@ -751,6 +707,11 @@ export default {
       if (id) {
         return getDetail(id).then(res => {
           this.getLoginUser();
+          this.getDetailList();
+          this.fetchOutboundList();
+          this.fetchBackList();
+          this.fetchHistoryList();
+          this.getLogistics(claimOrderLogisticsClaim);
           return res;
         });
       }
@@ -813,6 +774,7 @@ export default {
       };
       const res = await getDetailList(data);
       this.tableData = res.records;
+      this.total = res.total;
     },
     handleSizeChange (pageSize) {
       this.pageSize = pageSize;
@@ -824,14 +786,31 @@ export default {
       this.getDetailList();
     },
     // 索赔出库明细
-    async getDetailListOutbound () {
-      const data = {
+    async fetchOutboundList () {
+      const res = await getOutboundDetailList({
         pageNum: 1,
         pageSize: 10,
         claimOrderId: this._id,
-      };
-      const res = await getOutboundDetailList(data);
-      this.claimTableData = res.records;
+      });
+      this.outboundTableData = res.records || [];
+    },
+    // 索赔缺货明细
+    async fetchBackList () {
+      const res = await getBackDetailList({
+        pageNum: 1,
+        pageSize: 10,
+        claimOrderId: this._id,
+      });
+      this.backTableData = res.records || [];
+    },
+    // 索赔历史
+    async fetchHistoryList () {
+      const res = await historyPage({
+        pageNum: 1,
+        pageSize: 10,
+        claimOrderId: this._id,
+      });
+      this.historyTableData = res.records || [];
     },
     async getLoginUser () {
       try {
