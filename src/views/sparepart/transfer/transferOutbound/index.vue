@@ -420,6 +420,9 @@ export default {
               type: 'info'
             }, {
               name: '打印',
+              show: (row) => {
+                return this.permissions.has('AISPART-transferOutbound-print');
+              },
               click: (rowIndex, row) => {
                 this.handlePrint(row);
               },

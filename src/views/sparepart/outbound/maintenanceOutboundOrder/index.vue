@@ -272,12 +272,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/maintain/sp/serviceProxy/edit',
-                  query: {
-                    id: row.serviceProxyId
-                  }
-                });
+                window.open(`/service/maintain/sp/serviceProxy/edit?id=${row.serviceProxyId}`, '_blank');
               },
               type: 'primary'
             }]
