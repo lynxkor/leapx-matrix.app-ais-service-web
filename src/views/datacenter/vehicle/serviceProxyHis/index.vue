@@ -212,6 +212,7 @@ export default {
           { props: 'customerFaultDescription', label: '客户故障描述', visible: true, width: 200 },
           { props: 'managerSuggestion', label: '客户经理建议', visible: true, width: 200 },
           { props: 'customerRequest', label: '客户诉求', visible: true, width: 200 },
+          { props: 'repairItemTypeDetailCollect', label: '维修类型（汇总）', visible: true, width: 200 },
           { props: 'servicerecordUploadLabel', label: '是否已上传健康档案', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true, fixed: 'right' },
         ],

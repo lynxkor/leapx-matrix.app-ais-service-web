@@ -66,6 +66,9 @@
                 <el-form-item label="客户经理建议：" class="form-item-full">
                   {{ form.managerSuggestion }}
                 </el-form-item>
+                <el-form-item label="维修类型（汇总）：">
+                  {{ form.repairItemTypeDetailCollect }}
+                </el-form-item>
               </el-form>
             </div>
           </section>
