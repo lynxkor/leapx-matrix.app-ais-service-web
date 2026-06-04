@@ -11,7 +11,7 @@
                   <!-- <h5>活动编码：{{ form.activityCode }}</h5> -->
                 </div>
                 <div>
-                  <el-button v-if="form.returnMaterialStatus !== '1' && permissions.has('AISPART-maintenanceReturnInbound-inbound')" size="small" type="primary" @click="repairPopup">入库</el-button>
+                  <el-button v-if="detailReady && form.returnMaterialStatus !== '1' && permissions.has('AISPART-maintenanceReturnInbound-inbound')" size="small" type="primary" @click="repairPopup">入库</el-button>
                 </div>
               </section>
               <section class="common-section">
@@ -436,6 +436,7 @@ export default {
         ],
       },
       warehousingDialogVisible: false, // 维修退料入库弹窗
+      detailReady: false, // getDetail 加载完成后才展示入库按钮
     };
   },
   mounted () {
@@ -465,6 +466,7 @@ export default {
           this.loading = false;
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
+          this.detailReady = true;
         });
       }
     },
