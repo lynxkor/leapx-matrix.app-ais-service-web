@@ -542,8 +542,11 @@ export default {
       // 计算项目金额
       this.itemAmount = 0;
       this.tableData.forEach(item => {
-        const actualAmount = Number(item.actualAmount) || 0;
-        this.itemAmount = this.itemAmount + actualAmount;
+        const workHour = Number(item.workHour) || 0;
+        const price = Number(item.price) || 0;
+        const discountAmount = Number(item.discountAmount) || 0;
+        let receivable = workHour * price;
+        this.itemAmount = this.itemAmount + receivable - discountAmount;
       });
       // 同时刷新零件列表
       await this.getPartData();
