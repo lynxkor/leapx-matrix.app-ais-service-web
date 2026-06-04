@@ -596,6 +596,8 @@ export default {
     handleWarehousingDialogSuccess () {
       this.warehousingDialogVisible = false;
       this.getDetailData();
+      this.getCollar();
+      this.getOut();
     },
   }
 };
