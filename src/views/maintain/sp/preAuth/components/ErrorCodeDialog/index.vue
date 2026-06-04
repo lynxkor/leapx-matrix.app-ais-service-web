@@ -268,7 +268,7 @@ export default {
       try {
         this.loading = true;
         await enableErrorCode({
-          id: row.id,
+          idSet: [row.id],
           status: row.status
         });
         this.$message.success('状态更新成功');
