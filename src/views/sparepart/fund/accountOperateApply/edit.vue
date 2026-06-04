@@ -5,6 +5,11 @@
       <edit-base-container ref="containerRef" :id="_id" :title="title" :isEditing.sync="isEditing" :form.sync="form"
         :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest"
         :showEditBtn="routeType">
+        <template #extraButtons>
+          <el-button v-if="showSubmitBtn" size="small" plain :loading="submitBtnLoading" @click="handleSubmit">提交</el-button>
+          <el-button v-if="showAgreeBtn" size="small" plain :loading="agreeBtnLoading" @click="handleAgree">通过</el-button>
+          <el-button v-if="showRejectBtn" size="small" plain :loading="rejectBtnLoading" @click="handleReject">驳回</el-button>
+        </template>
         <el-main>
           <section class="common-section" v-show="isEditing || !_id">
             <div class="common-section-header">
@@ -162,7 +167,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/sparepart/fund/accountOperateApply/index';
+import { getDetail, addOrUpdate, getCommit, getAgree, getReject } from '@/api/sparepart/fund/accountOperateApply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -225,7 +230,16 @@ export default {
   computed: {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
-    }
+    },
+    showSubmitBtn () {
+      return (this.form.approvalStatus === '10' || this.form.approvalStatus === '40') && this.permissions.has('AISPART-accountOperateApply-commit');
+    },
+    showAgreeBtn () {
+      return this.form.approvalStatus === '20' && this.permissions.has('AISPART-accountOperateApply-agree');
+    },
+    showRejectBtn () {
+      return this.form.approvalStatus === '20' && this.permissions.has('AISPART-accountOperateApply-reject');
+    },
   },
   watch: {
     id: {
@@ -258,6 +272,9 @@ export default {
       routeType: false,
       loading: false,
       submitLoading: false,
+      submitBtnLoading: false,
+      agreeBtnLoading: false,
+      rejectBtnLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -344,7 +361,61 @@ export default {
         return getEnum(code);
       }
       return [];
-    }
+    },
+    // 提交
+    handleSubmit () {
+      this.submitBtnLoading = true;
+      this.$prompt('请输入充值说明', '提交', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputValue: ''
+      }).then((reason) => {
+        if (!reason.value) {
+          this.$message({ type: 'error', message: '请输入充值说明!' });
+          return;
+        }
+        getCommit({ id: this._id, description: reason.value }).then(() => {
+          this.$message({ type: 'success', message: '提交成功!' });
+          this.$refs.containerRef.loadDetail();
+        }).catch(() => {
+        });
+      }).catch(() => {}).finally(() => {
+        this.submitBtnLoading = false;
+      });
+    },
+    // 通过
+    handleAgree () {
+      this.$confirm('确定通过吗？', '提示', { type: 'warning' }).then(() => {
+        this.agreeBtnLoading = true;
+        return getAgree({ id: this._id });
+      }).then(() => {
+        this.$message({ type: 'success', message: '通过成功!' });
+        this.$refs.containerRef.loadDetail();
+      }).catch(err => {
+        if (err !== 'cancel') {
+        }
+      }).finally(() => {
+        this.agreeBtnLoading = false;
+      });
+    },
+    // 驳回
+    handleReject () {
+      this.rejectBtnLoading = true;
+      this.$prompt('请输入审批说明！', '提交', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputValue: ''
+      }).then((reason) => {
+        return getReject({ id: this._id, description: reason.value });
+      }).then(() => {
+        this.$message({ type: 'success', message: '提交成功!' });
+        this.$refs.containerRef.loadDetail();
+      }).catch(err => {
+        console.log(err);
+      }).finally(() => {
+        this.rejectBtnLoading = false;
+      });
+    },
   }
 };
 </script>
