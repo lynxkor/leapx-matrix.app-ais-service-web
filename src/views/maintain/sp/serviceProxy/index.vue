@@ -559,14 +559,22 @@ export default {
 
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
-          console.log(res);
+          if (!res || !res.records) {
+            this.$message.warning('数据获取失败，请稍后重试');
+            this.optionObj.dataList = [];
+            this.optionObj.total = 0;
+            return;
+          }
           this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res.total || 0;
+        }).catch(() => {
+          this.optionObj.dataList = [];
+          this.optionObj.total = 0;
         }).finally(() => {
           this.loading = false;
         });
@@ -727,12 +735,16 @@ export default {
         const target = res || {};
         this.tabList = [
           { orderStatusLabel: '全部', orderStatus: '', count: null },
-          target.preCheckCount,
-          target.makeOrderCount,
-          target.dispatchCount,
-          target.constructionCount,
-          target.finalCheckCount,
-          target.outboundCount,
+          target.preCheckCount || {},
+          target.makeOrderCount || {},
+          target.dispatchCount || {},
+          target.constructionCount || {},
+          target.finalCheckCount || {},
+          target.outboundCount || {},
+        ];
+      }).catch(() => {
+        this.tabList = [
+          { orderStatusLabel: '全部', orderStatus: '', count: null },
         ];
       });
     },
