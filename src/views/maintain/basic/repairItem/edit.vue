@@ -315,7 +315,7 @@
             </div>
           </section>
         </el-main>
-        <ModelDialog :visible="modelDialogVisible" :data="tableData" @update-table-data="handleUpdateTableData" @close="handleCloseModel" />
+        <VehicleModelDialog :visible.sync="modelDialogVisible" :initialData="tableData" @confirm="handleUpdateTableData" @close="handleCloseModel" />
       </edit-base-container>
     </template>
   </edit-page-layout>
@@ -326,7 +326,7 @@ import { getDetail, addOrUpdate } from '@/api/maintain/basic/repairItem/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import BaseSearch from '@/libs/components/BaseSearch';
 import EditTable from '@/libs/components/EditTable';
-import ModelDialog from './model.vue';
+import VehicleModelDialog from '@/libs/components/VehicleModelDialog';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum, listVehicleYearTypeFull, listVehicleYearType, repairItemType, listDealerPartWithOem, getMaintenanceItemEnum } from '@/api/common';
@@ -374,7 +374,7 @@ export default {
   components: {
     FetchSelect,
     EditTable,
-    ModelDialog,
+    VehicleModelDialog,
     EditPageLayout,
     EditBaseContainer,
     BaseSearch

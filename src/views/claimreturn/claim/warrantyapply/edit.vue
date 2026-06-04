@@ -969,7 +969,7 @@ export default {
       return getDetailDecryptField(id, field);
     },
     handleTableUpdate () {
-      this.$refs.containerRef.loadDetail();
+      this.refreshAll();
     },
     detailRequest () {
       const id = this._id;

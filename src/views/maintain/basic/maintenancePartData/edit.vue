@@ -192,7 +192,7 @@
             </div>
           </section>
         </el-main>
-        <ModelDialog :visible="modelDialogVisible" :info="form" @submit="handleVehicleModelSubmit" @close="handleCloseModel" />
+        <VehicleModelDialog :visible="modelDialogVisible" @confirm="handleVehicleModelSubmit" @close="handleCloseModel" />
       </edit-base-container>
     </template>
     <template #right>
@@ -213,7 +213,7 @@ import { getEnum, sparePartList } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
-import ModelDialog from './components/AddVehicleDialog/index.vue';
+import VehicleModelDialog from '@/libs/components/VehicleModelDialog';
 import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
@@ -253,7 +253,7 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     FetchSelect,
-    ModelDialog,
+    VehicleModelDialog,
     BaseSearch
   },
   computed: {
@@ -396,8 +396,7 @@ export default {
       this.modelDialogVisible = false;
     },
     handleVehicleModelSubmit (data) {
-      console.log(data);
-      const submitData = data.addOrUpdateReqList.map(item => {
+      const submitData = data.map(item => {
         return {
           maintenancePartId: this._id,
           vehModelId: item.vehicleModelId,
