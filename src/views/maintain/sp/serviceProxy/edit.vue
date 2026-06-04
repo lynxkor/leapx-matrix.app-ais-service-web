@@ -517,10 +517,16 @@ export default {
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;
+          if (!res) {
+            this.$message.warning('详情数据获取失败');
+            return;
+          }
           this.form = res;
           this.$nextTick(() => {
             this.originalForm = JSON.parse(JSON.stringify(this.form));
           });
+        }).catch(() => {
+          this.loading = false;
         });
       }
     },
@@ -750,7 +756,7 @@ export default {
         }
       } catch (error) {
         console.error('结算失败:', error);
-        // this.$message.error(error.msg || '结算失败');
+        this.$message.error(error.msg || '结算失败');
       } finally {
         this.settlementLoading = false;
       }
