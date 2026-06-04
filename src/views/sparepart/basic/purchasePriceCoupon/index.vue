@@ -278,6 +278,7 @@ export default {
             }]
           },
           { props: 'useTime', label: '使用时间', visible: true, width: 200 },
+          { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 }
         ],
