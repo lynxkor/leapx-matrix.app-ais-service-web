@@ -338,26 +338,6 @@
             </div>
             <div class="common-section-body">
               <el-form inline :model="form" :rules="rules" ref="ruleForm" label-width="160px" v-show="isEditing || !_id">
-                <el-form-item label="门店名称" prop="dealerName">
-                  <el-select
-                    v-model="form.dealerCode"
-                    filterable
-                    clearable
-                    disabled
-                    remote
-                    placeholder="请选择"
-                    :remote-method="getStoreByName"
-                    @change="handleStoreChange"
-                    collapse-tags
-                    >
-                      <el-option
-                        v-for="item in storeOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                      </el-option>
-                  </el-select>
-                </el-form-item>
                 <el-form-item label="是否启用" prop="status">
                   {{ form.statusLabel  }}
                 </el-form-item>
@@ -532,9 +512,6 @@
                 </el-form-item>
               </el-form>
               <el-form :inline="true" :model="form" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="门店名称：">
-                  {{ form.dealerName }}
-                </el-form-item>
                 <el-form-item label="是否启用：">
                   {{ form.statusLabel }}
                 </el-form-item>
@@ -662,7 +639,7 @@ import ListSelect from '@/libs/components/list-select/index.vue';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listOrgStoreInfoByParam, getLoginUser } from '@/api/common';
+import { getEnum, getLoginUser } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -930,19 +907,6 @@ export default {
       return {
         ...defaultForm
       };
-    },
-    getStoreByName (query) {
-      listOrgStoreInfoByParam({
-        orgCodeOrName: query
-      }).then(res => {
-        this.storeOptions = res?.map(item => {
-          return {
-            ...item,
-            value: item.orgCode,
-            label: item.orgName
-          };
-        });
-      });
     },
     handleStoreChange (val) {
       const selectedItem = this.storeOptions.find(item => item.orgCode === val);
