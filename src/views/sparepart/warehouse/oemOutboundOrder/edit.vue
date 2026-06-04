@@ -737,11 +737,12 @@ export default {
         showClose: false
       }).then(async () => {
         // 调用 API
-        await getAsync({ id: this._id });
+        const res = await getAsync({ id: this._id });
         // 提示成功
-        this.$message.success('同步成功！');
+        this.$message.success(res || res?.msg || '同步成功！');
         // 执行额外回调（比如刷新列表）
         this.$refs.containerRef.loadDetail();
+        this.getData();
         this.syncLoading = false;
       }).catch(() => {
         this.syncLoading = false;

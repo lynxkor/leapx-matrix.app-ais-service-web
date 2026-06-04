@@ -1,105 +1,70 @@
 <template>
-    <!-- 公共弹窗组件 -->
-    <el-dialog
-    title="维护车型"
-    :visible="visible"
-    width="60%"
-    append-to-body
-    @close="handleClose"
-    >
-    <!-- 车系选择区域 -->
-    <div class="selection-container">
+  <!-- 公共弹窗组件 -->
+  <el-dialog title="维护车型" :visible="visible" width="60%" append-to-body @close="handleClose">
+    <div class="dialog-content-scroll">
+      <!-- 车系选择区域 -->
+      <div class="selection-container">
         <div class="selection-section">
-        <div class="section-title">车系</div>
-        <div class="selection-items">
-            <div
-            v-for="(series, index) in seriesList"
-            :key="'series-' + index"
-            :class="['selection-item', { 'selected': selectedSeriesIndex === index }]"
-            @click="selectSeries(index, series)"
-            >
-            {{ series.seriesName }}
+          <div class="section-title">车系</div>
+          <div class="selection-items">
+            <div v-for="(series, index) in seriesList" :key="'series-' + index"
+              :class="['selection-item', { 'selected': selectedSeriesIndex === index }]"
+              @click="selectSeries(index, series)">
+              {{ series.seriesName }}
             </div>
-        </div>
+          </div>
         </div>
         <!-- 年款选择区域 -->
         <div class="selection-section">
-        <div class="section-title">年款</div>
-        <div class="selection-items">
-            <div
-            v-for="(year, index) in options.vehicleYearTypeName"
-            :key="'year-' + index"
-            :class="['selection-item', { 'selected': selectedYearIndex === index }]"
-            @click="selectYear(index, year)"
-            >
-            {{ year.label }}
+          <div class="section-title">年款</div>
+          <div class="selection-items">
+            <div v-for="(year, index) in options.vehicleYearTypeName" :key="'year-' + index"
+              :class="['selection-item', { 'selected': selectedYearIndex === index }]" @click="selectYear(index, year)">
+              {{ year.label }}
             </div>
-        </div>
+          </div>
         </div>
         <!-- 车型 -->
         <div class="selection-section">
-        <div class="section-title">车型</div>
-        <div class="selection-items">
-            <div
-            v-for="(model, index) in applicableModelList"
-            :key="'model-' + index"
-            :class="['selection-item', { 'selected': selectedModelIndex === index }]"
-            @click="selectModel(index, model)"
-            >
-            {{ model.modelName }}
+          <div class="section-title">车型</div>
+          <div class="selection-items">
+            <div v-for="(model, index) in applicableModelList" :key="'model-' + index"
+              :class="['selection-item', { 'selected': selectedModelIndex === index, 'disabled': isModelDisabled(model.id) }]"
+              @click="!isModelDisabled(model.id) && selectModel(index, model)">
+              {{ model.modelName }}
             </div>
+          </div>
         </div>
-        </div>
-    </div>
+      </div>
 
-    <!-- 表格区域 -->
-    <div class="table-container">
-      <expand-table
-        ref="expandTable"
-        :columns="columns"
-        :data="tableData"
-        :options="options"
-        :auth="{
+      <!-- 表格区域 -->
+      <div class="table-container">
+        <expand-table ref="expandTable" :columns="columns" :data="tableData" :options="options" :auth="{
           add: false,
           edit: false,
           delete: false,
-        }"
-        :delTitle="'确认删除该门店吗？'"
-        :show-toolbar="false"
-        @value-change="handleYearChange"
-      >
-        <template #btn-middle="{ row, rowIndex }">
-          <el-popconfirm
-              v-if="row.id"
-              title="确定要停用此车型吗？"
-              @confirm="toggleStatus(row)"
-            >
-              <span
-                slot="reference"
-                class="action-button btn-delete"
-              >
+        }" :delTitle="'确认删除该门店吗？'" :show-toolbar="false" @value-change="handleYearChange">
+          <template #btn-middle="{ row, rowIndex }">
+            <el-popconfirm v-if="row.id" title="确定要停用此车型吗？" @confirm="toggleStatus(row)">
+              <span slot="reference" class="action-button btn-delete">
                 停用
               </span>
             </el-popconfirm>
-            <el-button
-              v-if="!row.id"
-              type="text"
-              class="btn-move"
-              @click="delStatus(row, rowIndex)"
-            >
+            <el-button v-if="!row.id" type="text" class="btn-move" @click="delStatus(row, rowIndex)">
               移除
             </el-button>
-        </template>
-      </expand-table>
+          </template>
+        </expand-table>
+      </div>
     </div>
 
     <!-- 弹窗底部按钮 -->
     <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="handleClose">取消</el-button>
-        <el-button type="primary" size="small" @click="handleConfirm">确定</el-button>
+      <el-button size="small" @click="handleClose">取消</el-button>
+      <el-button type="primary" size="small" @click="handleConfirm">确定</el-button>
     </div>
-    </el-dialog>
-  </template>
+  </el-dialog>
+</template>
 
 <script>
 import { listVehicleSeries, listVehicleYearTypeFull, listVehicleYearType } from '@/api/common';
@@ -286,9 +251,14 @@ export default {
       this.selectedModelIndex = null;
     },
 
+    // 判断车型是否已被选中（同一车型+同一年款已存在表格中则置灰）
+    isModelDisabled (modelId) {
+      return this.tableData.some(item => item.vehicleModelId === modelId && item.vehicleYearTypeId === this.yearDetail.vehicleYearTypeId);
+    },
     // 选择年款
     selectYear (index, year) {
       this.selectedYearIndex = index;
+      this.selectedModelIndex = null;
       this.yearDetail = {
         vehicleYearTypeId: year?.value,
         vehicleYearTypeName: year?.label,
@@ -345,107 +315,131 @@ export default {
 };
 </script>
 
-  <style scoped>
-  /* 选择区域样式 */
-  .selection-section {
-    display: flex;;
-    /* align-items: center; */
-    margin-bottom: 20px;
-  }
+<style scoped>
+/* 外层滚动容器：车系+年款+车型+表格整体滚动 */
+.dialog-content-scroll {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
 
-  .section-title {
-    white-space: nowrap;
-    font-size: 14px;
-    margin: 6px 12px 6px 0;
-    color: #333;
-  }
+/* 选择区域样式 */
+.selection-section {
+  display: flex;
+  ;
+  /* align-items: center; */
+  margin-bottom: 20px;
+}
 
-  .selection-items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
+.section-title {
+  white-space: nowrap;
+  font-size: 14px;
+  margin: 6px 12px 6px 0;
+  color: #333;
+}
 
-  .selection-item {
-    padding: 0 16px;
-    border: 1px solid #E6E6E5;
-    border-radius: 4px;
-    background-color: #ffffff;
-    color: #3B3E3B;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-size: 14px;
-    user-select: none;
-    height: 32px;
-    line-height: 32px;
-  }
+.selection-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
-  .selection-item:hover {
-    border-color: #c0c4cc;
-    background-color: #f5f7fa;
-    border-radius: 4px;
-  }
+.selection-item {
+  padding: 0 16px;
+  border: 1px solid #E6E6E5;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #3B3E3B;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+  user-select: none;
+  height: 32px;
+  line-height: 32px;
+}
 
-  .selection-item.selected {
-    background-color: #009100;
-    border: 1px solid #009100;
-    color: #fff;
-    border-radius: 4px;
-  }
+.selection-item:hover:not(.disabled) {
+  border-color: #c0c4cc;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+}
 
-  /* 表格容器 */
-  .table-container {
-    margin-top: 20px;
-  }
+.selection-item.selected {
+  background-color: #009100;
+  border: 1px solid #009100;
+  color: #fff;
+  border-radius: 4px;
+}
 
-  /* 停用按钮样式 */
-  .deactivate-btn {
-    color: #f56c6c !important;
-  }
+.selection-item.disabled {
+  background-color: #f5f5f5;
+  border-color: #e6e6e5;
+  color: #c0c4cc;
+  cursor: not-allowed;
+}
 
-  .deactivate-btn:hover {
-    color: #f78989 !important;
-  }
+/* 表格容器 */
+.table-container {
+  margin-top: 20px;
+  max-height: 300px;
+  overflow-y: auto;
+}
 
-  /* 启用按钮样式 */
-  .activate-btn {
-    color: #67c23a !important;
-  }
+/* 停用按钮样式 */
+.deactivate-btn {
+  color: #f56c6c !important;
+}
 
-  .activate-btn:hover {
-    color: #85ce61 !important;
-  }
+.deactivate-btn:hover {
+  color: #f78989 !important;
+}
 
-  /* 弹窗底部按钮 */
-  .dialog-footer {
-    text-align: right;
-  }
+/* 启用按钮样式 */
+.activate-btn {
+  color: #67c23a !important;
+}
 
-  .action-button{
+.activate-btn:hover {
+  color: #85ce61 !important;
+}
+
+/* 弹窗底部按钮 */
+.dialog-footer {
+  text-align: right;
+}
+
+.action-button {
   margin: 0 5px;
   cursor: pointer;
-  &.btn-edit{
-    color:#4C4CD6;
+
+  &.btn-edit {
+    color: #4C4CD6;
   }
-  &.btn-delete{
-    color:#B91919;
+
+  &.btn-delete {
+    color: #B91919;
   }
 }
+
 .btn-move {
-  color:#B91919 !important;
+  color: #B91919 !important;
 }
-.action-button{
+
+.action-button {
   margin: 0 5px;
   cursor: pointer;
-  &.btn-edit{
-    color:#4C4CD6;
+
+  &.btn-edit {
+    color: #4C4CD6;
   }
-  &.active{
+
+  &.active {
     text-decoration: underline;
   }
-  &.disabled{
+
+  &.disabled {
     cursor: not-allowed;
     color: var(--disabled-color);
   }
 }
-  </style>
+</style>
