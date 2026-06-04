@@ -582,24 +582,24 @@ export default {
       });
     },
     // 公共执行逻辑
-    _doSync (params, successMsg) {
+    _doSync (params) {
       this.$confirm('此操作将同步选中项，是否继续?', '提示', { type: 'warning' })
         .then(() => getAsync(params))
-        .then(() => {
-          this.$message({ type: 'success', message: successMsg });
+        .then(res => {
+          this.$message({ type: 'success', message: res || res?.msg || '同步成功' });
           this.getData();
         })
         .catch(err => {
         // 用户取消不报错，接口失败才报错
           if (err !== 'cancel') {
-            this.$message({ type: 'error', message: err?.message || '同步失败' });
+            // this.$message({ type: 'error', message: err?.message || '同步失败' });
           }
         });
     },
 
     // 单个同步
     handleSync (val) {
-      this._doSync({ id: val }, '同步成功!');
+      this._doSync({ id: val });
     },
 
     // 批量同步
@@ -610,7 +610,7 @@ export default {
       }
       // 2. 提取 ID 并调用
       const ids = this.selectionList.map(item => item.id);
-      this._doSync({ idList: ids }, `成功同步 ${ids.length} 项`);
+      this._doSync({ idList: ids });
     },
     // 打开物流信息抽屉
     getLogisticsInfo (row) {
