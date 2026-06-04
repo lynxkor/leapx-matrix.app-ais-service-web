@@ -608,7 +608,7 @@ export default {
       this.exportLoading = true;
       exportInvoiceZip({ ids })
         .then(() => {
-          this.$message.success('导出成功');
+          this.$message.success('导出请求成功，请到系统管理-文件管理-下载管理下载导出文件');
         })
         .finally(() => {
           this.exportLoading = false;
