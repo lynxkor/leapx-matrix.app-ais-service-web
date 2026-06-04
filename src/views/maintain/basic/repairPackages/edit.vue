@@ -252,12 +252,12 @@
       </div>
     </template>
     <!-- 适配车型组件 -->
-    <ModelDialog :visible="modelDialogVisible" :repairId="repairId" :initialData="tableDataModel" @success="handleSuccessModel" @close="handleCloseModel" />
+    <VehicleModelDialog :visible="modelDialogVisible" :initialData="tableDataModel" @confirm="handleSaveModelBatch" @close="handleCloseModel" />
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getRepairType, getModel, getPackagesItem, modelDelete, partDelete, packagesItemDelete, getPackagesPartPage } from '@/api/maintain/basic/repairPackages/index';
+import { getDetail, addOrUpdate, getRepairType, getModel, saveModelBatch, getPackagesItem, modelDelete, partDelete, packagesItemDelete, getPackagesPartPage } from '@/api/maintain/basic/repairPackages/index';
 import { getPage } from '@/api/maintain/basic/repairItem/index';
 import BaseSearch from '@/libs/components/BaseSearch';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -266,7 +266,7 @@ import { getEnum, getLoginUser } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import ModelDialog from './ModelDialog.vue';
+import VehicleModelDialog from '@/libs/components/VehicleModelDialog';
 import RepairPackagesDetail from './RepairPackagesDetail.vue';
 
 const defaultForm = {
@@ -321,7 +321,7 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     BaseSearch,
-    ModelDialog,
+    VehicleModelDialog,
     RepairPackagesDetail
   },
   computed: {
@@ -570,6 +570,16 @@ export default {
       this.modelDialogVisible = true;
     },
     // 处理更新表格数据事件
+    async handleSaveModelBatch (data) {
+      try {
+        const params = data.map(item => ({ ...item, repairPackagesId: this.repairId }));
+        await saveModelBatch(params);
+        this.$message.success('保存成功');
+        this.handleSuccessModel();
+      } catch (e) {
+        this.$message.error('保存车型失败');
+      }
+    },
     handleSuccessModel () {
       this.modelDialogVisible = false;
       this.getModelList();

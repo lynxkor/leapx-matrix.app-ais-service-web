@@ -237,20 +237,24 @@ export default {
         modelArray = [model];
       }
       // 更新当前行的车型选择
-      const list = modelArray.map(item => {
-        return {
-          ...item,
-          value: item.id,
-          label: item.modelName,
-          vehicleModelId: item.id,
-          vehicleModelName: item.modelName,
-          vehicleSeriesId: item.seriesId,
-          vehicleSeriesName: item.seriesName,
-          vehicleModelDesc: item.remark,
-          vehicleYearTypeId: this.yearDetail.vehicleYearTypeId,
-          vehicleYearType: this.yearDetail.vehicleYearTypeName,
-        };
-      }) || [];
+      const existingKeys = new Set(this.tableData.map(item => `${item.vehicleModelId}_${item.vehicleSeriesId}_${item.vehicleYearTypeId}`));
+      const currentYearTypeId = this.yearDetail.vehicleYearTypeId;
+      const list = modelArray
+        .filter(item => !existingKeys.has(`${item.id}_${item.seriesId}_${currentYearTypeId}`))
+        .map(item => {
+          return {
+            ...item,
+            value: item.id,
+            label: item.modelName,
+            vehicleModelId: item.id,
+            vehicleModelName: item.modelName,
+            vehicleSeriesId: item.seriesId,
+            vehicleSeriesName: item.seriesName,
+            vehicleModelDesc: item.remark,
+            vehicleYearTypeId: this.yearDetail.vehicleYearTypeId,
+            vehicleYearType: this.yearDetail.vehicleYearTypeName,
+          };
+        }) || [];
 
       this.tableData.push(...list);
     },
