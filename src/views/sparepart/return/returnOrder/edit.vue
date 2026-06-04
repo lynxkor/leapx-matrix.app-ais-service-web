@@ -327,7 +327,10 @@
                     <vxe-column title="操作" width="100" fixed="right">
                         <template #default="{ row }">
                             <el-popconfirm
+                                v-if="form.returnStatus === '10' || form.returnStatus === '30'"
                                 title="确定删除此出库明细吗？"
+                                confirm-button-text="删除"
+                                confirm-button-type="danger"
                                 @confirm="handleDel(row)"
                             >
                                 <span
