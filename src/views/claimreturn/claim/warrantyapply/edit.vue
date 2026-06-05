@@ -881,7 +881,16 @@ export default {
         }
       },
       immediate: true
-    }
+    },
+    'form.mainPartCode': {
+      handler (val, old) {
+        if (val && val !== old) {
+          if (this.$refs.mainPartSelectRef) {
+            this.$refs.mainPartSelectRef.loadRemoteMethod(this.form.mainPartCode);
+          }
+        }
+      }
+    },
   },
   data () {
     const form = this.getDefautlForm();
