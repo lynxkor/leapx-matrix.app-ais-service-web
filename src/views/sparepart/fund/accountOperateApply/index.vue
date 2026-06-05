@@ -623,13 +623,13 @@ export default {
     },
 
     // 2. 公共方法：处理带 Prompt 的操作 (驳回)
-    _handlePrompt (apiFn, params) {
-      this.$prompt('请输入审批说明！', '提交', { inputValue: '' })
+    _handlePrompt (apiFn, params, successMsg) {
+      this.$prompt('请输入审批说明！', '驳回', { inputValue: '' })
         .then(({ value }) => {
           return apiFn({ ...params, description: value });
         })
         .then(() => {
-          this.$message({ type: 'success', message: '提交成功!' });
+          this.$message({ type: 'success', message: successMsg });
           this.getData();
         })
         .catch(err => {
@@ -642,7 +642,7 @@ export default {
       this._handleConfirm(getAgree, { id: val }, '通过成功!');
     },
     handleReject (val) {
-      this._handlePrompt(getReject, { id: val });
+      this._handlePrompt(getReject, { id: val }, '驳回成功!');
     },
 
     // --- 批量操作 ---
@@ -652,7 +652,7 @@ export default {
     },
     handleBatchReject () {
       const idList = this.selectionList.map(i => i.id);
-      this._handlePrompt(getRejectBatch, { idList });
+      this._handlePrompt(getRejectBatch, { idList }, `成功驳回 ${idList.length} 项`);
     }
   }
 };
