@@ -2,10 +2,6 @@
   <el-dialog class="m-coupons-dialog" title="查询卡券&终身权益" width="1000px" :visible.sync="dialogVisible" @close="close"
     @closed="closed">
     <div class="coupons-content">
-      <div class="action-section">
-
-      </div>
-
       <!-- Tab 切换 -->
       <el-tabs v-model="activeTab" class="coupons-tabs">
         <!-- 卡券 Tab -->
@@ -42,9 +38,9 @@
             <vxe-table ref="lifetimeTable" :data="lifetimeData" stripe :row-config="{ isHover: true }"
               resizable border="inner" size="medium" min-height="0" max-height="500px">
               <vxe-column type="seq" title="序号" width="70" align="center" />
-              <vxe-column field="rightsCode" title="权益编号" width="300"/>
-              <vxe-column field="rightsName" title="权益名称" width="300"/>
-              <vxe-column field="rightsDesc" title="权益规则说明" width="300" >
+              <vxe-column field="rightsCode" title="权益编号" width="220"/>
+              <vxe-column field="rightsName" title="权益名称" width="120"/>
+              <vxe-column field="rightsDesc" title="权益规则说明" >
                <template #default="{ row }">
                   <div v-html="row.rightsDesc"></div>
                 </template>
@@ -222,9 +218,6 @@ export default {
       }
     }
 
-    .table-section {
-      margin-top: 15px;
-    }
   }
 
   .dialog-footer {

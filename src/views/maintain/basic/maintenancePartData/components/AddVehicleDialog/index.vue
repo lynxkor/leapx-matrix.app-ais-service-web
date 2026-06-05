@@ -163,15 +163,6 @@ export default {
           field: 'vehicleYearTypeName',
           title: '年款',
           width: '20%',
-          editable: true,
-          editRender: {
-            name: 'ElSelect',
-            props: {
-              clearable: true,
-              'suffix-icon': 'el-icon-search',
-              placeholder: '请选择年款',
-            },
-          },
         }
       ],
       options: {
@@ -343,6 +334,8 @@ export default {
     // 处理取消按钮
     handleClose () {
       this.tableData = [];
+      this.selectSeries(0);
+      this.selectYear(0);
       this.$emit('close');
     },
   }
