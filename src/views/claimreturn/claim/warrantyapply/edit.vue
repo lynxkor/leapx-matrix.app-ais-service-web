@@ -870,26 +870,7 @@ export default {
       return this.form.repairItemTypeName === '善意保修';
     },
     remindContent () {
-      let result = '';
-      let last = false;
-      const remindList = this.form.spRemindInfo || [];
-      remindList?.forEach((item, index) => {
-        if (index === remindList.length - 1) {
-          last = true;
-        }
-        if (item.type === '2') { // 三包预警
-          item.content?.forEach(contentItem => {
-            result += contentItem.title + '，';
-            result += contentItem.contents.join('，');
-          });
-        } else {
-          result += item.content;
-          if (!last) {
-            result += ' ';
-          }
-        }
-      });
-      return result;
+      return this.form.spRemindInfo;
     }
   },
   watch: {
