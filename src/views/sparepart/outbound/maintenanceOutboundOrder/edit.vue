@@ -388,7 +388,7 @@ export default {
           width: '9%',
         },
         {
-          field: 'returnApplicant',
+          field: 'returnApplicantName',
           title: '退料申请人',
           width: '9%',
         },

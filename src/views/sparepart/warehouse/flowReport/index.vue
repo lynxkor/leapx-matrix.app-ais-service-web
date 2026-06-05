@@ -38,7 +38,20 @@
             collapseTags
             filterable
           />
-        </el-form-item>
+      </el-form-item>
+      <el-form-item label="出入库时间" v-show="this.visibleCount === 3 || show">
+        <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
       <template v-if="show">
         <el-form-item label="操作类型">
           <fetch-select
@@ -60,19 +73,6 @@
             clearable
             multiple
             filterable
-          />
-        </el-form-item>
-        <el-form-item label="出入库时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            unlink-panels
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
           />
         </el-form-item>
       </template>
@@ -191,6 +191,23 @@ export default {
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
+      pickerMinDate: null,
+      pickerOptions: {
+        onPick: ({ minDate }) => {
+          this.pickerMinDate = minDate;
+        },
+        disabledDate: (time) => {
+          if (time.getTime() > Date.now()) {
+            return true;
+          }
+          if (this.pickerMinDate) {
+            const min = new Date(this.pickerMinDate).getTime();
+            const range = 90 * 24 * 3600 * 1000;
+            return Math.abs(time.getTime() - min) > range;
+          }
+          return false;
+        },
+      },
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
@@ -262,6 +279,12 @@ export default {
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const format = (d, t) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${t}`;
+    const oneMonthAgo = new Date(now);
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    this.form.createTime = [format(oneMonthAgo, '00:00:00'), format(now, '23:59:59')];
     this.getData();
   },
   methods: {
@@ -306,11 +329,25 @@ export default {
       });
     },
     onSubmit () {
+      const hasPart = this.form.sparePartIdList && this.form.sparePartIdList.length > 0;
+      const hasDealer = this.form.dealerCodeList && this.form.dealerCodeList.length > 0;
+      const hasTime = this.form.createTime && this.form.createTime.length > 0;
+      if (!hasPart && !hasDealer && !hasTime) {
+        this.$message({ type: 'warning', message: '请至少填写备件、门店或出入库时间中的一个查询条件' });
+        return;
+      }
       this.optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
       this.form = { ...defaultForm };
+      this.pickerMinDate = null;
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const format = (d, t) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${t}`;
+      const oneMonthAgo = new Date(now);
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      this.form.createTime = [format(oneMonthAgo, '00:00:00'), format(now, '23:59:59')];
       this.optionObj.form.page = 1;
       this.optionObj.form.pageSize = pageSize;
       this.getData();
