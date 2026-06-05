@@ -280,7 +280,7 @@
               <el-input placeholder="" v-model="form.isLifetimeWarrantyLabel" clearable disabled />
             </el-form-item>
             <el-form-item label="车辆用途：" prop="vehicleProperty">
-              <el-input placeholder="" v-model="form.vehicleProperty" clearable disabled />
+              <el-input placeholder="" v-model="form.vehiclePropertyLabel" clearable disabled />
             </el-form-item>
             <el-form-item label="开单预警信息：" prop="spRemindInfo">
               <el-input type="textarea" :value="remindContent" clearable disabled />
@@ -301,7 +301,7 @@
                 :value.sync="form.vin"
                 :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
               >
-                <el-link type="success" :href="`/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfileId}`" target="_blank">{{ form.vin }}</el-link>
+                <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfileId}`" target="_blank">{{ form.vin }}</el-link>
               </LPEncrypted>
             </el-form-item>
             <el-form-item label="车牌号：" prop="vehiclePlateNo">
@@ -345,7 +345,7 @@
               {{ form.isLifetimeWarrantyLabel }}
             </el-form-item>
             <el-form-item label="车辆用途：" prop="vehicleProperty">
-              {{ form.vehicleProperty }}
+              {{ form.vehiclePropertyLabel }}
             </el-form-item>
             <el-form-item label="整车是否在保(预测)：" prop="isLifetimeWarrantyForecastLabel">
               {{ form.isLifetimeWarrantyForecastLabel }}
