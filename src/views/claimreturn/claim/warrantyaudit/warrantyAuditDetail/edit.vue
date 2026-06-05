@@ -178,7 +178,7 @@
                   {{ form.warrantyApply?.cccName }}
                 </el-form-item>
                 <el-form-item label="故障信息描述：" style="width: 100%;">
-                  {{ form.warrantyApply?.faultPhenomenon }}
+                  <div v-safe-html.nl2br="form.warrantyApply?.faultPhenomenon"></div>
                 </el-form-item>
                 <el-form-item label="故障排查流程：" style="width: 100%;">
                   {{ form.warrantyApply?.troubleshootingFlow }}
