@@ -1460,7 +1460,7 @@ export default {
         warrantyTypeId: row?.warrantyTypeId,
         warrantyTypeName: row?.warrantyTypeName,
         isOemPart: parseInt(current.isOemPart) || 0,
-        quantity: 1,
+        quantity: current?.quantity || row?.quantity || 1,
         price: current.price || 0,
         discountRate: this.selectedDiscount?.discountPartRate || 0,
         discountAmount: discountAmount,

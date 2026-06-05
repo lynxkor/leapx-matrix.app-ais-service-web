@@ -22,14 +22,14 @@
               {{ repairDetail.checkoutTypeName }}
             </el-form-item>
             <el-form-item label="优惠金额：" prop="discountAmount">
-              <el-input-number type="number" @blur="handleDiscountAmountBlur" clearable size="small" :min="0" :max="repairDetail.price * repairDetail.workHour"
+              <el-input-number type="number" @change="handleDiscountAmountBlur" clearable size="small" :min="0" :max="repairDetail.price * repairDetail.workHour"
                 v-model="repairDetail.discountAmount"></el-input-number>
             </el-form-item>
             <el-form-item label="工时单价：" prop="price">
               {{ repairDetail.price }}
             </el-form-item>
             <el-form-item label="工时数量：" prop="workHour">
-              <el-input-number type="number" @blur="handleDiscountAmountBlur" clearable size="small" :min="0"
+              <el-input-number type="number" @change="handleDiscountAmountBlur" clearable size="small" :min="0"
                 v-model="repairDetail.workHour"></el-input-number>
             </el-form-item>
             <el-form-item label="项目金额：" prop="purchaseQty">

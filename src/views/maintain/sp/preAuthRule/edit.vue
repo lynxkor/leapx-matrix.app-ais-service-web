@@ -173,7 +173,7 @@
             </div>
           </section>
         </el-main>
-        <ModelDialog :visible="modelDialogVisible" :info="form" @submit="handleVehicleModelSubmit" @close="handleCloseModel" />
+        <VehicleModelDialog :visible="modelDialogVisible" @confirm="handleVehicleModelSubmit" @close="handleCloseModel" />
         <!-- TIPS: 填入项目id即可 -->
         <Upload
           :visible="uploadDialogVisible"
@@ -202,7 +202,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import ModelDialog from '@/views/maintain/basic/maintenancePartData/components/AddVehicleDialog/index.vue';
+import VehicleModelDialog from '@/libs/components/VehicleModelDialog';
 import Upload from '@/libs/components/UploadDialog';
 import BaseSearch from '@/libs/components/BaseSearch';
 import moment from 'moment';
@@ -242,7 +242,7 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     BaseSearch,
-    ModelDialog,
+    VehicleModelDialog,
     Upload
   },
   computed: {
@@ -435,12 +435,11 @@ export default {
     },
     // 处理车型提交
     handleVehicleModelSubmit (data) {
-      const submitData = data.addOrUpdateReqList || [];
       addOrUpdate({
         ...this.form,
         authRuleModelParamList: [
           ...this.form.vehicleModels,
-          ...submitData
+          ...data
         ],
         partParamList: this.tableDataPart
       }).then(res => {
