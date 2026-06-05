@@ -381,8 +381,6 @@ export default {
 /* 表格容器 */
 .table-container {
   margin-top: 20px;
-  max-height: 300px;
-  overflow-y: auto;
 }
 
 /* 停用按钮样式 */
