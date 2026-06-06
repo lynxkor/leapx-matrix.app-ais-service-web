@@ -61,7 +61,7 @@
     <!-- 弹窗底部按钮 -->
     <div slot="footer" class="dialog-footer">
       <el-button size="small" @click="handleClose">取消</el-button>
-      <el-button type="primary" size="small" @click="handleConfirm">确定</el-button>
+      <el-button type="primary" size="small" :loading="submitLoading" @click="handleConfirm">确定</el-button>
     </div>
   </el-dialog>
 </template>
@@ -105,6 +105,7 @@ export default {
       selectedModelIndex: null,
       // 表格 选择数据
       tableData: [],
+      submitLoading: false,
       columns: [ // 适配车型
         {
           field: 'index',
@@ -301,14 +302,20 @@ export default {
 
     // 处理确定按钮
     async handleConfirm () {
-      await this.addModel();
-      this.getData(this.modelId);
-      this.$emit('success');
-      this.handleClose();
-      // 车系 年款  车型 全部初始化 表格数据清空
-      this.selectSeries(0);
-      this.selectYear(0);
-      this.getVehicleList();
+      if (this.submitLoading) return;
+      this.submitLoading = true;
+      try {
+        await this.addModel();
+        this.getData(this.modelId);
+        this.$emit('success');
+        this.handleClose();
+        // 车系 年款  车型 全部初始化 表格数据清空
+        this.selectSeries(0);
+        this.selectYear(0);
+        this.getVehicleList();
+      } finally {
+        this.submitLoading = false;
+      }
     },
 
     // 处理取消按钮
