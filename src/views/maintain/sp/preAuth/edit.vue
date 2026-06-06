@@ -796,6 +796,7 @@ export default {
       });
     },
     handleSubmit (v = 0) {
+      this.loading = true;
       addOrUpdate({
         id: this._id,
         saveOrSubmit: v,
@@ -815,6 +816,10 @@ export default {
         } else {
           this.$refs.containerRef.loadDetail();
         }
+      }).catch(() => {
+        this.$message.error(v === 0 ? '保存失败，请稍后重试' : '提交失败，请稍后重试');
+      }).finally(() => {
+        this.loading = false;
       });
     },
     handleShowLog () {
