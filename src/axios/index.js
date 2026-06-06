@@ -74,9 +74,17 @@ const responseInterceptors = (instance, forbidToast) => {
     }
   },
   error => {
-    const flag = NEED_DECRYPT(error.config.url);
-
     const response = error.response;
+    if (!response) {
+      !forbidToast && Message({
+        message: '网络错误，请检查网络连接',
+        type: 'error',
+        duration: 3000
+      });
+      return Promise.reject(error);
+    }
+    const flag = error.config && NEED_DECRYPT(error.config.url);
+
     response.data = flag ? decrypt(response.data) : response.data;
 
     if (response && response.status === 401) {
