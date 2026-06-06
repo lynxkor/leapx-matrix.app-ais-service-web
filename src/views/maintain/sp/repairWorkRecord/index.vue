@@ -238,6 +238,8 @@ export default {
             };
           });
           this.optionObj.total = res.total;
+        }).catch(err => {
+          console.error('获取数据失败', err);
         }).finally(() => {
           this.loading = false;
         });
