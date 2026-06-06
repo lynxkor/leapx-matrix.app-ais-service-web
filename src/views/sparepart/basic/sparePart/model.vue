@@ -168,13 +168,18 @@ export default {
         pageSize: 100,
         sparePartId: val,
       };
-      const res = await searchVehicleModel(params);
-      this.tableData = res.records.map((item, index) => {
-        return {
-          ...item,
-          index: index + 1 // 添加序号字段
-        };
-      });
+      try {
+        const res = await searchVehicleModel(params);
+        this.tableData = (res?.records || []).map((item, index) => {
+          return {
+            ...item,
+            index: index + 1 // 添加序号字段
+          };
+        });
+      } catch (e) {
+        console.error('获取车型数据失败', e);
+        this.tableData = [];
+      }
     },
     async getVehicleList () {
       const res = await listVehicleSeries({ status: 1, pageSize: 1000 });
