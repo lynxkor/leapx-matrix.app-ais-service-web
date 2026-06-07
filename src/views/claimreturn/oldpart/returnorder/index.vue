@@ -71,7 +71,7 @@
       <el-button v-if="canAddOrUpdate&&isFastReturn&&!isDealer" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button  v-if="canDelete"  size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
-      <el-button  v-if="canSign"  size="small" @click="handleBatchSign" :disabled="selectionList.length === 0">批量签收</el-button>
+      <el-button  v-if="canSign"  size="small" :loading="signLoading" @click="handleBatchSign" :disabled="selectionList.length === 0">批量签收</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -169,6 +169,7 @@ export default {
       show: false,
       loading: false,
       exportLoading: false,
+      signLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
       optionObj: {
@@ -509,12 +510,20 @@ export default {
           type: 'warning'
         }).then(() => {
           const ids = this.selectionList.map(item => item.id) || [];
+          this.signLoading = true;
           signByIds(ids).then(() => {
             this.$message({
               type: 'success',
               message: '您已完成签收。'
             });
             this.getData();
+          }).catch(() => {
+            this.$message({
+              type: 'error',
+              message: '签收失败!'
+            });
+          }).finally(() => {
+            this.signLoading = false;
           });
         }).catch(() => {});
       } else {
