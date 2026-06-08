@@ -211,6 +211,7 @@
     <Upload
       :visible="uploadDialogVisible"
       id="sparePartPurchaseApplyDistribution"
+      async
       @close="handleUploadDialogClose"
     />
     <!-- 提交弹窗 -->
