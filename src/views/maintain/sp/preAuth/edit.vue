@@ -18,7 +18,7 @@
         <template #extraButtons>
           <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && permissions.has('AISMC-preAuth-audit') && form.approvalStatus === AUDIT_STATUS.IN_PROGRESS && !form.isGoodWarranty">审批</el-button>
           <el-button size="small" type="primary" plain @click="handleCancel" v-if="_id && permissions.has('AISMC-preAuth-cancel') && form.approvalStatus === AUDIT_STATUS.REJECTED">作废</el-button>
-          <el-button size="small" type="primary" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO || form.approvalStatus === AUDIT_STATUS.REJECTED">提交</el-button>
+          <el-button size="small" type="primary" :loading="loading" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO || form.approvalStatus === AUDIT_STATUS.REJECTED">提交</el-button>
           <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.REFUSED">激活</el-button>
         </template>
         <template #footer>
@@ -796,6 +796,7 @@ export default {
       });
     },
     handleSubmit (v = 0) {
+      this.loading = true;
       addOrUpdate({
         id: this._id,
         saveOrSubmit: v,
@@ -815,6 +816,10 @@ export default {
         } else {
           this.$refs.containerRef.loadDetail();
         }
+      }).catch(() => {
+        this.$message.error(v === 0 ? '保存失败，请稍后重试' : '提交失败，请稍后重试');
+      }).finally(() => {
+        this.loading = false;
       });
     },
     handleShowLog () {

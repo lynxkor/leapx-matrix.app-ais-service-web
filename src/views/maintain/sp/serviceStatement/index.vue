@@ -771,7 +771,7 @@ export default {
         pageSize: this.optionObj.form.size
       })
         .then((res) => {
-          this.optionObj.dataList = res.records.map((item) => {
+          this.optionObj.dataList = (res?.records || []).map((item) => {
             return {
               ...item,
               deleteLoading: false,
