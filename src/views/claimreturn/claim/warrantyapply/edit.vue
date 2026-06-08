@@ -20,7 +20,7 @@
       <el-button v-if="canReject && isPendingCurrentUserReview" size="small" @click="handleReject(false)">驳回</el-button>
       <el-button v-if="canCancel && (EDITABLE_STATUSES.includes(form.applyStatus))" plain size="small" @click="handleCancel">作废</el-button>
       <el-button v-if="canApprove && isPendingCurrentUserReview" type="primary" size="small" @click="handleApprove">同意</el-button>
-      <el-button v-if="canSubmit && (EDITABLE_STATUSES.includes(form.applyStatus))" type="primary" size="small" @click="handleSubmit">提交</el-button>
+      <el-button v-if="canSubmit && (EDITABLE_STATUSES.includes(form.applyStatus))" type="primary" size="small" :loading="loading" @click="handleSubmit">提交</el-button>
     </template>
     <el-main>
       <section class="common-section">
@@ -1119,9 +1119,14 @@ export default {
     },
     // 提交
     handleSubmit () {
+      this.loading = true;
       submit({ id: this._id }).then(() => {
         this.$message.success('提交成功');
         this.$refs.containerRef.loadDetail();
+      }).catch(() => {
+        this.$message.error('提交失败，请稍后重试');
+      }).finally(() => {
+        this.loading = false;
       });
     },
     // 同意

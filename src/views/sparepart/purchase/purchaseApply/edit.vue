@@ -658,14 +658,16 @@ export default {
     };
   },
   mounted () {
-    this.getLoginUser();
-    this.getDetailData();
   },
   methods: {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        return getDetail(id).then(res => {
+          this.getLoginUser();
+          this.getDetailData();
+          return res;
+        });
       }
     },
     // 点击带出门店名称
