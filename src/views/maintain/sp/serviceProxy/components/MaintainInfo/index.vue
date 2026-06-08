@@ -25,8 +25,22 @@
           <vxe-column field="dealerName" title="维修门店名称" min-width="200"/>
           <vxe-column field="orderTime" title="开单时间" width="160"/>
           <vxe-column field="repairFinishTime" title="维修完工时间" width="160"/>
-          <vxe-column field="vehProfileVin" title="VIN码" min-width="200"/>
-          <vxe-column field="carPlate" title="车牌号" width="120"/>
+          <vxe-column field="vehProfileVin" title="VIN码" min-width="200">
+            <template #default="{ row }">
+              <LPEncrypted
+                :value.sync="row.vehProfileVin"
+                :decryptMethod="() => getDecryptField(row.id, 'vehProfileVin')"
+              />
+            </template>
+          </vxe-column>
+          <vxe-column field="carPlate" title="车牌号" width="120">
+            <template #default="{ row }">
+              <LPEncrypted
+                :value.sync="row.carPlate"
+                :decryptMethod="() => getDecryptField(row.id, 'carPlate')"
+              />
+            </template>
+          </vxe-column>
           <vxe-column field="vehModelName" title="车型" min-width="150"/>
           <vxe-column field="mileage" title="进店里程数（KM）" width="130"/>
           <vxe-column field="netMileageExtend" title="车联网里程数（增）" width="140"/>
@@ -48,6 +62,8 @@
 	</section>
 </template>
 <script>
+import LPEncrypted from '@/libs/components/LPEncrypted';
+import { getDecrypt } from '@/api/datacenter/vehicle/serviceProxyHis/index';
 
 export default {
   props: {
@@ -61,7 +77,7 @@ export default {
     }
   },
   components: {
-    // FetchSelect
+    LPEncrypted
   },
   watch: {
     formData: {
@@ -81,6 +97,9 @@ export default {
     };
   },
   methods: {
+    getDecryptField (id, field) {
+      return getDecrypt(id, field);
+    }
   }
 };
 

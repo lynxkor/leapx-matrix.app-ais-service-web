@@ -423,3 +423,20 @@ export function pageRepairWorkTimeliness (data) {
 export function getLastStoreMileage (data) {
   return api.jsonPost(prefix + 'getLastStoreMileage', data);
 }
+
+/**
+ * 解密字段
+ * @param {String} id
+ * @param {String} field
+ */
+export function getDecrypt (id, field) {
+  let param = {
+    id,
+    decryptFields: [field]
+  };
+  return new Promise(resolve => {
+    api.jsonPost(prefix + 'getDecrypt', param).then(res => {
+      resolve(res[field]);
+    });
+  });
+}

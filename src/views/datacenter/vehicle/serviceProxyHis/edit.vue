@@ -22,11 +22,16 @@
                   <el-link type="success" @click="handleLinkClick()">{{ form.serviceProxyCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="VIN码：">
-                  <el-link
-                    type="primary"
-                    :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`"
-                    target="_blank"
-                  >{{ form.vehProfileVin }}</el-link>
+                  <LPEncrypted
+                    :value.sync="form.vehProfileVin"
+                    :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
+                  >
+                    <el-link
+                      type="primary"
+                      :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`"
+                      target="_blank"
+                    >{{ form.vehProfileVin }}</el-link>
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车型：">
                   <el-link
@@ -43,7 +48,10 @@
                   >{{ form.dealerName }}</el-link>
                 </el-form-item>
                 <el-form-item label="车牌号：">
-                  {{ form.carPlate }}
+                  <LPEncrypted
+                    :value.sync="form.carPlate"
+                    :decryptMethod="() => getDecryptField(form.id, 'carPlate')"
+                  />
                 </el-form-item>
                 <el-form-item label="进店里程数（KM）：">
                   {{ form.mileage }}
@@ -176,9 +184,10 @@
 </template>
 
 <script>
-import { getDetail } from '@/api/datacenter/vehicle/serviceProxyHis/index';
+import { getDetail, getDecrypt } from '@/api/datacenter/vehicle/serviceProxyHis/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -223,7 +232,8 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
-    EditBaseContainer
+    EditBaseContainer,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -274,6 +284,9 @@ export default {
     },
     async initLoginUser () {
       this.loginUser = await getLoginUser();
+    },
+    getDecryptField (id, field) {
+      return getDecrypt(id, field);
     },
     handleLinkClick () {
       if (this.loginUser?.accountFlag && this.loginUser.currentDealerCode !== this.form.dealerCode) {
