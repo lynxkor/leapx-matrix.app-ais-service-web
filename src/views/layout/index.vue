@@ -377,6 +377,13 @@ export default {
   //   }
   // },
   methods: {
+    getUserId () {
+      try {
+        return JSON.parse(localStorage.getItem('userInfo')).userId;
+      } catch (e) {
+        return '';
+      }
+    },
     // 获取天润客服链接
     getTrUrl () {
       getTrUrl().then(res => {
@@ -388,7 +395,13 @@ export default {
         if (res.startsWith('http')) { // 判断返回值，开头是不是为http，如果不是就需要通过解密获取解密之后的结果，再模拟表单登录
           window.open(res);
         } else {
-          let resObj = JSON.parse(decryptUC(res));
+          let resObj;
+          try {
+            resObj = JSON.parse(decryptUC(res));
+          } catch (e) {
+            console.error('Failed to parse redirect URL:', e);
+            return;
+          }
           let form = document.createElement('form');
           form.method = 'POST'; // 设置表单提交的HTTP方法为POST
           form.target = '_blank'; // 设置表单提交之后打开新页面
@@ -490,7 +503,7 @@ export default {
     getOnlineOperation (flag, type) {
       // console.log({ userId: JSON.parse(localStorage.getItem('userInfo')).userId, flag });
       // return;
-      getOnlineOperation({ userId: JSON.parse(localStorage.getItem('userInfo')).userId, flag: `${flag}`, type }).catch(() => {
+      getOnlineOperation({ userId: this.getUserId(), flag: `${flag}`, type }).catch(() => {
         switch (type) {
           case 1:
             this.washSeats = !this.washSeats;
@@ -506,12 +519,12 @@ export default {
     // 客服上下线状态
     getServiceOnlineStatus () {
       if (this.resourceBtn.includes('B10307')) {
-        getServiceOnlineStatus({ userId: JSON.parse(localStorage.getItem('userInfo')).userId, type: 1 }).then(res => {
+        getServiceOnlineStatus({ userId: this.getUserId(), type: 1 }).then(res => {
           this.washSeats = res.userServiceOnlineStatus;
         });
       }
       if (this.resourceBtn.includes('B10308')) {
-        getServiceOnlineStatus({ userId: JSON.parse(localStorage.getItem('userInfo')).userId, type: 2 }).then(res => {
+        getServiceOnlineStatus({ userId: this.getUserId(), type: 2 }).then(res => {
           this.getBackSeats = res.userServiceFailOnlineStatus;
         });
       }
