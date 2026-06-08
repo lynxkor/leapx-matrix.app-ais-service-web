@@ -472,8 +472,13 @@ export default {
       if (record) {
         this.form.warrantyId = record.id;
         this.form.vin = record.vin;
+        this.form.dealerCode = record.dealerCode;
+        this.form.dealerName = record.dealerName;
       } else {
         this.form.warrantyId = '';
+        this.form.vin = '';
+        this.form.dealerCode = '';
+        this.form.dealerName = '';
       }
     },
     submitRequest () {
