@@ -1184,8 +1184,12 @@ export default {
       if (repairItemTypeId === MaintenanceTypeEnum.WARRANTY) {
         const target = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeId === CheckoutTypeEnum.WARRANTY);
         row.checkoutTypeId = CheckoutTypeEnum.WARRANTY;
-        this.restoreItemDiscountAmount(row);
         row.checkoutTypeName = target.checkoutTypeName;
+        if (row.partsId) {
+          this.restorePartDiscountAmount(row);
+        } else {
+          this.restoreItemDiscountAmount(row);
+        }
       } else {
         const target = this.itemOptions.checkoutTypeName?.[0];
         row.checkoutTypeId = target.checkoutTypeId;
@@ -1291,7 +1295,7 @@ export default {
     },
     // 优惠金额变化
     handlePartDiscountAmountChange (row) {
-      const originalAmount = row.quantity * row.price;
+      const originalAmount = Number(row.quantity) * Number(row.price);
       row.discountAmount = Number(row.discountAmount) || 0;
       row.partsAmount = originalAmount - row.discountAmount;
       row.discountRate = (row.discountAmount / originalAmount).toFixed(8);
