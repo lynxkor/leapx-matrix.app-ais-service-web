@@ -40,11 +40,12 @@ export function getTemplateCode (data) {
  * @param {*} data
  */
 export function importExcelConfirmFile (formData, config = {}) {
-  const { businessParams, id, token, headers, ...restConfig } = config;
+  const { businessParams, async, id, token, headers, ...restConfig } = config;
   // 动态构建 params 对象，使用解构和条件展开
   const params = {
     id,
     token,
+    ...(async && { async }),
     ...(businessParams && { businessParams }) // 如果 businessParams 存在，则添加到 params 中
   };
   return api.postExport('/data/ExcelManage/importExcelConfirm', formData, {

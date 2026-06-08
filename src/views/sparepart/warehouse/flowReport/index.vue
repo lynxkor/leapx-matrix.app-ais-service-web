@@ -252,6 +252,8 @@ export default {
           { props: 'businessTypeLabel', label: '业务类型', visible: true, width: 120 },
           { props: 'businessNo', label: '流水业务单号', visible: true, width: 200 },
           { props: 'qty', label: '数量', visible: true, width: 100, align: 'right' },
+          { props: 'beforeTotalQty', label: '操作前总库存', visible: true, width: 140, align: 'right' },
+          { props: 'afterTotalQty', label: '操作后总库存', visible: true, width: 140, align: 'right' },
           { props: 'costUnitPrice', label: '成本单价', visible: true, width: 140, align: 'right' },
           { props: 'costAmount', label: '成本金额', visible: true, width: 140, align: 'right' },
           { props: 'transactionUnitPrice', label: '交易单价', visible: true, width: 140, align: 'right' },
