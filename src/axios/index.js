@@ -74,8 +74,6 @@ const responseInterceptors = (instance, forbidToast) => {
     }
   },
   error => {
-    const flag = NEED_DECRYPT(error.config.url);
-
     const response = error.response;
     if (!response) {
       return Promise.reject(error);
