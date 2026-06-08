@@ -53,7 +53,7 @@
                 <el-form-item label="建店类型：" prop="dealerType">
                   <el-cascader
                     class="cascader"
-                    v-model="form.dealerTypeArray"
+                    v-model="form.dealerType"
                     :options="storeTypeOptions"
                     @change="handleCascaderChange"
                   />

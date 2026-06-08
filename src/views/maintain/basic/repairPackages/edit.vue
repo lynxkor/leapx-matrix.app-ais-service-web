@@ -173,6 +173,8 @@
                 >
                   <vxe-column field="repairItemName" title="维修项目" width="14.3%" />
                   <vxe-column field="repairItemCode" title="维修项目代码" width="14.3%" />
+                  <vxe-column field="repairItemTypeName" title="维修类型" width="14.3%" />
+                  <vxe-column field="checkoutTypeName" title="结算类型" width="14.3%" />
                   <vxe-column field="workHour" title="工时" width="14.3%" />
                   <vxe-column field="price" title="工时单价" width="14.3%" />
                   <vxe-column field="discountAmount" title="优惠金额" width="14.3%" />
