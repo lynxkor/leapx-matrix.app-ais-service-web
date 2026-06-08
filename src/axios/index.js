@@ -78,19 +78,20 @@ const responseInterceptors = (instance, forbidToast) => {
     if (!response) {
       return Promise.reject(error);
     }
+    const flag = NEED_DECRYPT(error.config.url);
     response.data = flag ? decrypt(response.data) : response.data;
 
-    if (response && response.status === 401) {
+    if (response.status === 401) {
       store.commit('USER_SIGN_OUT');
       return Promise.reject(response.data);
-    } else if (response && (response.status === 403 || response.status === 405)) {
+    } else if (response.status === 403 || response.status === 405) {
       !forbidToast && Message({
         message: response.data.msg,
         type: 'error',
         duration: 5000
       });
       return Promise.reject(response.data);
-    } else if ((response && response.status === 400) || (response && response.status === 500) || (response && response.status === 710)) {
+    } else if (response.status === 400 || response.status === 500 || response.status === 710) {
       if (response.data.msg) {
         !forbidToast && Message({
           message: response.data.msg,
