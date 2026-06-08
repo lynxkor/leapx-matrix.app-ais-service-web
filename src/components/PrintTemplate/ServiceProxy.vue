@@ -568,9 +568,9 @@ export default {
         costCountResp.preferentialMoneyCount = parseFloat((parseFloat(costCountResp.preferentialMoneyCount) + totalDiscountDeduction)).toFixed(2);
       }
       if (costCountResp.maintenanceCostEstimation !== null && costCountResp.maintenanceCostEstimation !== undefined) {
-        costCountResp.maintenanceCostEstimation = parseFloat((parseFloat(costCountResp.maintenanceCostEstimation) - totalDiscountDeduction)).toFixed(2);
+        const count = parseFloat(costCountResp.maintenanceCostEstimation) - totalDiscountDeduction;
+        costCountResp.maintenanceCostEstimation = parseFloat(count < 0 ? 0 : count).toFixed(2);
       }
-      console.log(totalRepairAmount, totalPartAmount);
       if (costCountResp.workCostCount !== null && costCountResp.workCostCount !== undefined) {
         costCountResp.workCostCount = parseFloat(totalRepairAmount).toFixed(2);
       }
