@@ -42,7 +42,7 @@
               <vxe-column field="rightsName" title="权益名称" width="120"/>
               <vxe-column field="rightsDesc" title="权益规则说明" >
                <template #default="{ row }">
-                  <div v-html="row.rightsDesc"></div>
+                  <div v-safe-html="row.rightsDesc"></div>
                 </template>
               </vxe-column>
             </vxe-table>
