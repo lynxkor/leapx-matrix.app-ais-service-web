@@ -336,7 +336,7 @@
     <template #right>
       <div class="page-common-edit">
         <!-- 右侧栏组件，自行开发 -->
-        <SparePartsDetail :purchase-apply-id="_id" :purchaseApplyDeleteId="purchaseApplyDeleteId"
+        <SparePartsDetail :purchase-apply-id="_id" :purchaseApplyDeleteId="purchaseApplyDeleteId" :orderStatus="form.orderStatus"
           @submit="handleRefresh" />
       </div>
     </template>
