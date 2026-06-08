@@ -83,6 +83,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import commonMixins from '@/libs/mixins/commonMixins';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { downloadExcel } from '@/utils/index.js';
+import {refreshFileAuthUrl} from "@/api/file/fileDetail";
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -158,6 +159,8 @@ export default {
             visible: true,
             width: 200,
             buttons: [{
+              name: '点击下载',
+              show: (row) => row.fileId,
               click: (rowIndex, row) => {
                 this.handleDownload(row);
               },
@@ -380,15 +383,25 @@ export default {
       });
     },
     // 下载导出文件
+
     handleDownload (row) {
-      if (!row.excelUrl) {
-        this.$message({
-          type: 'warning',
-          message: '下载地址为空'
-        });
-        return;
-      }
-      downloadExcel(row.excelUrl, row.excelFileName || '导出文件.xlsx');
+      const url = row?.excelUrl || this.info?.excelUrl;
+      const originalUrl = url.split('?')[0];
+      const fileName = row?.excelFileName || this.info?.excelFileName;
+      refreshFileAuthUrl({
+        url: originalUrl,
+        expireMinutes: 1440
+      }).then(res => {
+        if (res) {
+          // console.log(res);
+          downloadExcel(res.authFileUrl, fileName || '导出文件.xlsx');
+        } else {
+          this.$message({
+            type: 'warning',
+            message: '下载地址为空'
+          });
+        }
+      });
     }
   }
 };

@@ -51,8 +51,8 @@
               {{ info.headerMap }}
             </el-form-item>
             <el-form-item label="导入失败的数据excel下载地址：" prop="importFailUrl" class="header-map-item" style="width: 100%;">
-              <span v-if="!info.importFailUrl"></span>
-              <span v-else class="url-link" @click="handleDownload(info.importFailUrl, info.importFailFileName)">{{ info.importFailUrl }}</span>
+              <span v-if="!info.fileId"></span>
+              <span v-else class="url-link" @click="handleDownload"> 点击下载 </span>
             </el-form-item>
           </el-form>
         </div>
@@ -65,6 +65,7 @@
 import { getDetail } from '@/api/excelManagement/commonDataProcessExcelTask/index';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
 import { downloadExcel } from '@/utils/index.js';
+import { refreshFileAuthUrl } from '@/api/file/fileDetail';
 export default {
   name: 'commonDataProcessExcelTaskDetail',
   components: {
@@ -97,15 +98,23 @@ export default {
         this.loading = false;
       });
     },
-    handleDownload (url, fileName) {
-      if (!url) {
-        this.$message({
-          type: 'warning',
-          message: '下载地址为空'
-        });
-        return;
-      }
-      downloadExcel(url, fileName || '导入失败数据.xlsx');
+    handleDownload (row) {
+      const url = row?.importFailUrl || this.info?.importFailUrl;
+      const originalUrl = url.split('?')[0];
+      refreshFileAuthUrl({
+        url: originalUrl,
+        expireMinutes: 1440
+      }).then(res => {
+        if (res) {
+          // console.log(res);
+          downloadExcel(res.authFileUrl, res.originalFilename || '导入失败数据.xlsx');
+        } else {
+          this.$message({
+            type: 'warning',
+            message: '下载地址为空'
+          });
+        }
+      });
     }
   }
 };
