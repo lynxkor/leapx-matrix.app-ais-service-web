@@ -546,10 +546,13 @@ export default {
           this.isEditing = true;
           return;
         }
-        if (+this.form.mileage < +this.form.lastMileage) {
-          this.$message.warning(`本次进店里程数${this.form.mileage}小于上次进店里程数${this.form.lastMileage}，请注意`);
-        } else if (Math.abs(+this.form.mileage - +this.form.netMileage) > 300) {
-          this.$message.warning('进店里程数和车联网里程数不符，请注意');
+        // 进店里程数变化时才校验
+        if (this.form.mileage !== this.originalForm.mileage) {
+          if (+this.form.mileage < +this.form.lastMileage) {
+            this.$message.warning(`本次进店里程数${this.form.mileage}小于上次进店里程数${this.form.lastMileage}，请注意`);
+          } else if (Math.abs(+this.form.mileage - +this.form.netMileage) > 300) {
+            this.$message.warning('进店里程数和车联网里程数不符，请注意');
+          }
         }
         this.submitLoading = true;
         addOrUpdate(data).then(res => {

@@ -16,6 +16,7 @@
         </el-form-item>
         <el-form-item label="VIN码：" prop="vehProfileVin">
           <fetch-select
+            v-if="!vinDisabled"
             filterable
             clearable
             remote
@@ -28,14 +29,39 @@
             label-key="vin"
             :selectRef="onSelectRef"
           />
+          <LPEncrypted
+            v-else
+            :value.sync="form.vehProfileVin"
+            :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
+          >
+            <el-input
+              placeholder="请输入"
+              v-model="form.vehProfileVin"
+              clearable
+              :disabled="vinDisabled"
+            />
+          </LPEncrypted>
         </el-form-item>
         <el-form-item label="车牌号：" prop="carPlate" :required="carPlateRequired">
           <el-input
+            v-if="!_id"
             placeholder="请输入"
             v-model="form.carPlate"
             clearable
             :disabled="carPlateDisabled"
           />
+          <LPEncrypted
+            v-else
+            :value.sync="form.carPlate"
+            :decryptMethod="() => getDecryptField(form.id, 'carPlate')"
+          >
+            <el-input
+              placeholder="请输入"
+              v-model="form.carPlate"
+              clearable
+              :disabled="carPlateDisabled"
+            />
+          </LPEncrypted>
         </el-form-item>
         <el-form-item label="数据来源：" prop="dataSourceLabel">
           <el-input
@@ -128,10 +154,16 @@
         </el-form-item>
         <el-form-item label="车主姓名：" prop="customerName">
           <el-input
+            v-if="!_id"
             placeholder="请输入"
             v-model="form.customerName"
             clearable
             disabled
+          />
+          <LPEncrypted
+            v-else
+            :value.sync="form.customerName"
+            :decryptMethod="() => getDecryptField(form.id, 'customerName')"
           />
         </el-form-item>
         <el-form-item label="上次进店里程数：" prop="lastMileage">
@@ -160,10 +192,16 @@
         </el-form-item>
         <el-form-item label="车主手机：" prop="customerPhone">
           <el-input
+            v-if="!_id"
             placeholder="请输入"
             v-model="form.customerPhone"
             clearable
             disabled
+          />
+          <LPEncrypted
+            v-else
+            :value.sync="form.customerPhone"
+            :decryptMethod="() => getDecryptField(form.id, 'customerPhone')"
           />
         </el-form-item>
         <el-form-item label="进店里程数：" prop="mileage">
@@ -282,10 +320,16 @@
         </el-form-item>
         <el-form-item label="绑车人姓名：" prop="bindingUser">
           <el-input
+            v-if="!_id"
             placeholder="请输入"
             v-model="form.bindingUser"
             clearable
             disabled
+          />
+          <LPEncrypted
+            v-else
+            :value.sync="form.bindingUser"
+            :decryptMethod="() => getDecryptField(form.id, 'bindingUser')"
           />
         </el-form-item>
         <el-form-item label="离店电量%：" prop="outPower">
@@ -316,10 +360,16 @@
         </el-form-item> -->
         <el-form-item label="绑车人手机号码：" prop="bindingPhone">
           <el-input
+            v-if="!_id"
             placeholder="请输入"
             v-model="form.bindingPhone"
             clearable
             disabled
+          />
+          <LPEncrypted
+            v-else
+            :value.sync="form.bindingPhone"
+            :decryptMethod="() => getDecryptField(form.id, 'bindingPhone')"
           />
         </el-form-item>
         <!-- <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
@@ -398,10 +448,18 @@
           {{ form.code }}
         </el-form-item>
         <el-form-item label="VIN码：" prop="vehProfileVin">
-          <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
+          <LPEncrypted
+            :value.sync="form.vehProfileVin"
+            :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
+          >
+            <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
+          </LPEncrypted>
         </el-form-item>
         <el-form-item label="车牌号：" prop="carPlate">
-          {{ form.carPlate }}
+          <LPEncrypted
+            :value.sync="form.carPlate"
+            :decryptMethod="() => getDecryptField(form.id, 'carPlate')"
+          />
         </el-form-item>
         <el-form-item label="数据来源：" prop="dataSourceLabel">
           {{ form.dataSourceLabel }}
@@ -434,7 +492,10 @@
           <el-link type="success" :href="`/partner/user/list/detail?&userId=${form.creator}`" target="_blank">{{ form.creatorName }}</el-link>
         </el-form-item>
         <el-form-item label="车主姓名：" prop="customerName">
-          {{ form.customerName }}
+          <LPEncrypted
+            :value.sync="form.customerName"
+            :decryptMethod="() => getDecryptField(form.id, 'customerName')"
+          />
         </el-form-item>
         <el-form-item label="上次进店里程数：" prop="lastMileage">
           {{ form.lastMileage }}
@@ -446,7 +507,10 @@
           <el-link type="success" :href="`/sales/datacenter/materials/vehicleModel/edit?id=${form.vehModelId}`" target="_blank">{{ form.vehModelName }}</el-link>
         </el-form-item>
         <el-form-item label="车主手机：" prop="customerPhone">
-          {{ form.customerPhone }}
+          <LPEncrypted
+            :value.sync="form.customerPhone"
+            :decryptMethod="() => getDecryptField(form.id, 'customerPhone')"
+          />
         </el-form-item>
         <el-form-item label="进店里程数：" prop="mileage">
           {{ form.mileage }}
@@ -482,7 +546,10 @@
           {{ form.payTypeLabel }}
         </el-form-item>
         <el-form-item label="绑车人姓名：" prop="bindingUser">
-          {{ form.bindingUser }}
+          <LPEncrypted
+            :value.sync="form.bindingUser"
+            :decryptMethod="() => getDecryptField(form.id, 'bindingUser')"
+          />
         </el-form-item>
         <el-form-item label="离店电量%：" prop="outPower">
           {{ form.outPower }}
@@ -494,7 +561,10 @@
           {{ form.warrantyCompany }}
         </el-form-item> -->
         <el-form-item label="绑车人手机号码：" prop="bindingPhone">
-          {{ form.bindingPhone }}
+          <LPEncrypted
+            :value.sync="form.bindingPhone"
+            :decryptMethod="() => getDecryptField(form.id, 'bindingPhone')"
+          />
         </el-form-item>
         <!-- <el-form-item label="车联网里程数（纯）：" prop="netMileageElectricity">
           {{ form.netMileageElectricity }}
@@ -526,7 +596,8 @@
 </template>
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
-import { getVehicleProfile, getCarInfo, checkVinTag, getEnum, getActivityInfo, getRecentlyServiceProxy, getLastStoreMileage } from '@/api/maintain/sp/serviceProxy/index';
+import LPEncrypted from '@/libs/components/LPEncrypted';
+import { getVehicleProfile, getCarInfo, checkVinTag, getEnum, getActivityInfo, getRecentlyServiceProxy, getLastStoreMileage, getDecrypt } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../constant';
 
 export const CustomTypeEnum = {
@@ -571,7 +642,8 @@ export default {
     }
   },
   components: {
-    FetchSelect
+    FetchSelect,
+    LPEncrypted
   },
   watch: {
     formData: {
@@ -827,6 +899,9 @@ export default {
           });
         }
       });
+    },
+    getDecryptField (id, field) {
+      return getDecrypt(id, field);
     },
     handleCustomTypeChange (value) {
       this.$emit('update:formData', {

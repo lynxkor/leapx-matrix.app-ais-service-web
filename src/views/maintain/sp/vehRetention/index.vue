@@ -64,7 +64,6 @@
             multiple
             v-model="form.retainedScopeList"
             :remote-method="getProvince"
-            @change="handleProvinceChange"
             value-key="code"
             label-key="name"
           />

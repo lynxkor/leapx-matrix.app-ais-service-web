@@ -83,6 +83,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import commonMixins from '@/libs/mixins/commonMixins';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { downloadExcel } from '@/utils/index.js';
+import {refreshFileAuthUrl} from "@/api/file/fileDetail";
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -159,6 +160,8 @@ export default {
             visible: true,
             width: 200,
             buttons: [{
+              name: '点击下载',
+              show: (row) => row.fileId,
               click: (rowIndex, row) => {
                 this.handleDownload(row);
               },
@@ -410,14 +413,22 @@ export default {
     },
     // 下载导入失败数据
     handleDownload (row) {
-      if (!row.importFailUrl) {
-        this.$message({
-          type: 'warning',
-          message: '下载地址为空'
-        });
-        return;
-      }
-      downloadExcel(row.importFailUrl, row.importExcelFileName || '导入失败数据.xlsx');
+      const url = row?.importFailUrl || this.info?.importFailUrl;
+      const originalUrl = url.split('?')[0];
+      refreshFileAuthUrl({
+        url: originalUrl,
+        expireMinutes: 1440
+      }).then(res => {
+        if (res) {
+          // console.log(res);
+          downloadExcel(res.authFileUrl, res.originalFilename || '导入失败数据.xlsx');
+        } else {
+          this.$message({
+            type: 'warning',
+            message: '下载地址为空'
+          });
+        }
+      });
     }
   }
 };

@@ -55,8 +55,8 @@
                     @change="handleWarrantyApplyChange"
                   :params="{}" />
                 </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerCode">
-                  <dealer-select v-model="form.dealerCode" disabled />
+                <el-form-item label="门店名称：" prop="dealerName">
+                  <dealer-select v-model="form.dealerName" disabled />
                 </el-form-item>
                 <el-form-item label="首次下发时间：">
                   <el-input v-model="form.firstIssueTime" disabled />
@@ -472,8 +472,13 @@ export default {
       if (record) {
         this.form.warrantyId = record.id;
         this.form.vin = record.vin;
+        this.form.dealerCode = record.dealerCode;
+        this.form.dealerName = record.dealerName;
       } else {
         this.form.warrantyId = '';
+        this.form.vin = '';
+        this.form.dealerCode = '';
+        this.form.dealerName = '';
       }
     },
     submitRequest () {

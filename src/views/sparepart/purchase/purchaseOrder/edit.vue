@@ -13,6 +13,10 @@
         :originalForm.sync="originalForm"
         :showEditBtn="false"
       >
+        <template #status>
+          <!-- 支持primary,warning,success,danger等状态 -->
+          <span class="status primary">{{ form.orderStatusLabel }}</span>
+        </template>
         <template #extraButtons>
           <el-button plain size="small" v-if="type === 'sign' && form.orderStatus === '2'" @click="handleSign(false)">签收</el-button>
           <el-button plain size="small" v-if="type === 'sign' && form.orderStatus === '2'" @click="handleSign(true)">签收并入库</el-button>

@@ -308,7 +308,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, getStatistics } from '@/api/maintain/sp/serviceProxy/index';
+import { getList, deleteItem, enableItem, getStatistics, getDecrypt } from '@/api/maintain/sp/serviceProxy/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, repairItemType, listVehicleModel, getUserByNameOrNo } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -413,6 +413,8 @@ export default {
             label: 'VIN',
             visible: true,
             width: 200,
+            mask: true,
+            getValue: (row) => getDecrypt(row.id, 'vehProfileVin'),
             buttons: [{
               click: (rowIndex, row) => {
                 window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
@@ -421,7 +423,7 @@ export default {
             }]
           },
           { props: 'repairItemTypeDetailCollect', label: '维修类型（汇总）', visible: true, width: 200 },
-          { props: 'customerName', label: '车主姓名', visible: true, width: 200 },
+          { props: 'customerName', label: '车主姓名', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'customerName') },
           { props: 'custTypeLabel', label: '客户类型', visible: true, width: 200 },
           {
             props: 'vehModelName',
@@ -435,7 +437,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'carPlate', label: '车牌号', visible: true, width: 200 },
+          { props: 'carPlate', label: '车牌号', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'carPlate') },
           {
             props: 'dealerName',
             label: '门店名称',

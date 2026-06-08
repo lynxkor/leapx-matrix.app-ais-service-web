@@ -42,3 +42,20 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 解密字段
+ * @param {String} id
+ * @param {String} field
+ */
+export function getDecrypt (id, field) {
+  let param = {
+    id,
+    decryptFields: [field]
+  };
+  return new Promise(resolve => {
+    api.jsonPost(prefix + 'getDecrypt', param).then(res => {
+      resolve(res[field]);
+    });
+  });
+}

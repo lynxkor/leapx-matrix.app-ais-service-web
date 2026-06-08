@@ -189,6 +189,7 @@ export default {
           { props: 'firstServiceMonth', label: '首次保养时间(月)', visible: true, width: 180, align: 'right', headerAlign: 'right' },
           { props: 'mileageInterval', label: '定期保养里程间隔(KM)', visible: true, width: 180, align: 'right', headerAlign: 'right' },
           { props: 'monthInterval', label: '定期保养时间间隔(月)', visible: true, width: 180, align: 'right', headerAlign: 'right' },
+          { props: 'createTime', label: '创建时间', visible: true, width: 180 },
           {
             props: 'operate',
             label: '操作',

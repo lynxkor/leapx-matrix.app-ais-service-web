@@ -771,11 +771,13 @@ export default {
     this.canReject = this.permissions.has(`${this.moduleKey}-reject`);
   },
   mounted () {
-    loginUserGet().then(data => {
-      this.form.dealerName = data.currentOrgName;
-      this.form.dealerCode = data.currentOrgCode;
-      this.form.ownerOrgId = data.currentOrgId;
-    });
+    if (!this._id) {
+      loginUserGet().then(data => {
+        this.form.dealerName = data.currentOrgName;
+        this.form.dealerCode = data.currentOrgCode;
+        this.form.ownerOrgId = data.currentOrgId;
+      });
+    }
   },
   methods: {
     ocrSuccess () {

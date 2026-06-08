@@ -53,7 +53,7 @@
                 <el-form-item label="建店类型：" prop="dealerType">
                   <el-cascader
                     class="cascader"
-                    v-model="form.dealerTypeArray"
+                    v-model="form.dealerType"
                     :options="storeTypeOptions"
                     @change="handleCascaderChange"
                   />
@@ -182,6 +182,18 @@ export default {
       }
     };
   },
+  watch: {
+    'form.checkoutTypeId': {
+      handler (val) {
+        if (val) {
+          this.loadRepairItemOptions();
+        } else {
+          this.repairItemOptions = [];
+        }
+      },
+      immediate: true,
+    },
+  },
   mounted () {
     this.getStore();
     this.loadSettlementOptions();
@@ -217,7 +229,6 @@ export default {
       }
       this.form.repairItemTypeId = null;
       this.form.repairItemTypeName = '';
-      this.loadRepairItemOptions();
     },
     async loadSettlementOptions () {
       const res = await listSettlementType({});
