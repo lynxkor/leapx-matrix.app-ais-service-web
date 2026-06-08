@@ -76,7 +76,11 @@ export function decrypt (word) {
   let decryptd = CryptoJS.AES.decrypt(word, key, schema);// 解密
   // return CryptoJS.enc.Hex.stringify(decrypt).toString();
   // console.log(CryptoJS.enc.Utf8.stringify(decryptd).toString(), 'decrypt');
-  return JSON.parse(CryptoJS.enc.Utf8.stringify(decryptd).toString());
+  try {
+    return JSON.parse(CryptoJS.enc.Utf8.stringify(decryptd).toString());
+  } catch (e) {
+    return null;
+  }
 }
 
 /**
