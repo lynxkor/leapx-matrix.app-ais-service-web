@@ -313,6 +313,8 @@ export default {
                   });
                 }
               }
+            }).catch(() => {
+              this.$message.error('保存失败，请重试');
             }).finally(() => {
               this.submitLoading = false;
             });
