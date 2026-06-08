@@ -443,7 +443,7 @@ export default {
 
     // 具体的搜索API调用
     async searchVehicleModel (query) {
-      const res = await listVehicleModel({ name: query });
+      const res = await listVehicleModel({ modelNameLike: query });
       return res;
     },
 

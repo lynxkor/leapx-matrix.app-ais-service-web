@@ -1,7 +1,7 @@
 <template>
     <div>
         <div>
-            <fetch-select :remote-method="getSparePart" remote v-model="sparePartId"
+            <fetch-select :remote-method="getSparePart" remote v-model="sparePartId" :disabled="orderStatus === '2'"
             placeholder="请输入编码或名称" labelKey="name" valueKey="id" subLabelKey="code" clearable filterable
             @change="handleSparePartChange" />
         </div>
@@ -90,6 +90,10 @@ export default {
       default: ''
     },
     purchaseApplyDeleteId: { // 采购申请单详情ID
+      type: [String, Number],
+      default: ''
+    },
+    orderStatus: { // 采购申请单状态
       type: [String, Number],
       default: ''
     }
