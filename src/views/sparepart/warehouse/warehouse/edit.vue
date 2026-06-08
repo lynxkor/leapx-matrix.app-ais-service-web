@@ -279,7 +279,10 @@ export default {
           this.loading = false;
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
-          this.tableData = this.form.locationRespList;
+          this.tableData = this.form.locationRespList || [];
+        }).catch(() => {
+          this.loading = false;
+          this.$message.error('获取详情失败，请重试');
         });
       }
     },
