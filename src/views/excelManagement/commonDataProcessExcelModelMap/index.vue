@@ -10,8 +10,9 @@
       >
         <el-form-item label="创建时间">
           <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
-            type="daterange"
+            type="datetimerange"
             unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
@@ -22,8 +23,9 @@
         </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
-            type="daterange"
+            type="datetimerange"
             unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
@@ -357,7 +359,13 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
-
+      if (this.form.updateTime) {
+        delete data.updateTime;
+        if (this.form.updateTime.length > 1) {
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
+        }
+      }
       return data;
     },
     async fetchOptions (code) {

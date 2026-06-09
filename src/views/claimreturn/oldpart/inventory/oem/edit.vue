@@ -124,12 +124,14 @@
                   <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/edit?id=' + form.mainPartSupplierId)" type="text">{{form.mainPartSupplierName}}</el-button>
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
-                  <LPEncrypted
-                    :value.sync="form.vin"
-                    :decryptMethod="getDetailDecryptField"
-                  >
-                    <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfileId}`" target="_blank">{{ form.vin }}</el-link>
-                  </LPEncrypted>
+                  <template v-if="vinDecrypted">
+                    <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehOwnerId}`" target="_blank">{{ form.vin }}</el-link>
+                    <span @click="onEncryptVin" class="eye-icon iconfont icon-lxppc-eye-off"></span>
+                  </template>
+                  <template v-else>
+                    <span>{{ form.vin }}</span>
+                    <span @click="onDecryptVin" class="eye-icon iconfont icon-lxppc-eye"></span>
+                  </template>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   <el-button class="link"
@@ -285,8 +287,6 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 import AisAttachment from '@/libs/components/AisAttachment';
 import SecondDialog from './SecondDialog/index.vue';
-import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
-
 const defaultForm = {
   // 多选时字段有变化，自行修复
   warrantyMonth: '',
@@ -371,7 +371,6 @@ export default {
     BaseInput,
     AisAttachment,
     SecondDialog,
-    LPEncrypted,
   },
   computed: {
     _id () {
@@ -406,6 +405,8 @@ export default {
         ],
       },
       visible: false,
+      vinDecrypted: false,
+      vinEncrypted: '',
     };
   },
   mounted () {
@@ -417,8 +418,18 @@ export default {
         return getDetail(id);
       }
     },
-    getDetailDecryptField () {
-      return getDetailDecryptField(this.form.id, 'vin');
+    onDecryptVin () {
+      getDetailDecryptField(this.form.id, 'vin').then(decryptedVin => {
+        this.vinEncrypted = this.form.vin;
+        this.form.vin = decryptedVin;
+        this.vinDecrypted = true;
+      }).catch(() => {
+        this.$message.error('VIN解密失败');
+      });
+    },
+    onEncryptVin () {
+      this.form.vin = this.vinEncrypted;
+      this.vinDecrypted = false;
     },
     submitRequest () {
       return addOrUpdate({ ...this.form });
@@ -467,3 +478,12 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.eye-icon {
+  cursor: pointer;
+  color: var(--leap-color-primary);
+  font-size: 14px;
+  margin-left: 4px;
+}
+</style>
