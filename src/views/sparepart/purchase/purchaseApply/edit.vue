@@ -658,6 +658,9 @@ export default {
     };
   },
   mounted () {
+    if (!this._id) {
+      this.getLoginUser();
+    }
   },
   methods: {
     detailRequest () {

@@ -295,7 +295,9 @@ export default {
         remark: [
           { required: true, message: '请输入备注', trigger: 'change' }
         ],
-      }
+      },
+      loadingLogistics: false,
+      logisticsData: null,
     };
   },
   mounted () {
@@ -456,3 +458,38 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+
+.logistics-container {
+  margin-top: 16px;
+}
+
+.logistics-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.label {
+  font-weight: bold;
+  color: #333;
+}
+
+.value {
+  color: #666;
+}
+
+.timeline-content {
+  strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+  p {
+    font-size: 12px;
+    color: #999;
+  }
+}
+
+</style>
