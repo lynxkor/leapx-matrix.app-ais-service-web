@@ -551,6 +551,8 @@ export default {
       this.$prompt('请输入驳回原因！', '驳回', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
+        inputPattern: /\S/,
+        inputErrorMessage: '驳回原因不能为空',
       }).then(({ value }) => {
         // 调用驳回接口
         getReject({ id: val, description: value }).then(() => {
