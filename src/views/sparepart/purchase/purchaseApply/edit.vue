@@ -742,16 +742,15 @@ export default {
           this.isPartOrder = true;
         }
 
-        if (res.accountFlag) {
-          this.form.dealerCode = res.currentDealerCode;
-          this.form.dealerName = res.currentDealerName;
-        } else {
-          this.form.dealerCode = '';
-          this.form.dealerName = '';
-        }
         this.getOrderType(); // 先请求 账号权限接口 再请求类型接口
-        if (this.form.dealerCode) {
-          this.getPartDealer(this.form.dealerCode);
+        if (!this._id) {
+          if (res.accountFlag) {
+            this.form.dealerCode = res.currentDealerCode;
+            this.form.dealerName = res.currentDealerName;
+          }
+          if (this.form.dealerCode) {
+            this.getPartDealer(this.form.dealerCode);
+          }
         }
       } catch (error) {
         console.error('Error fetching series list:', error);

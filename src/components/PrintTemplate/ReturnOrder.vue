@@ -47,40 +47,42 @@
     <table class="gridtable">
       <thead>
         <tr>
-          <th style="width:30px">序号</th>
-          <th style="width:160px">旧件唯一码</th>
-          <th style="width:140px">Vin码</th>
-          <th style="width:100px">旧件编码</th>
-          <th style="width:140px">旧件名称</th>
-          <th style="width:60px">供应商代码</th>
-          <th style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">供应商名称</th>
-          <th style="width:50px;">数量</th>
-          <th style="width:60px;">是否主因件</th>
-          <th>门店备注</th>
-          <th style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">验收记录</th>
+          <th style="width:26px">序号</th>
+          <th style="width:70px">旧件编码</th>
+          <th style="width:90px">保修申请单</th>
+          <th style="width:110px">旧件唯一码</th>
+          <th style="width:110px">Vin码</th>
+          <th style="width:80px">旧件名称</th>
+          <th style="width:50px">供应商代码</th>
+          <th style="width:70px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">供应商名称</th>
+          <th style="width:60px;">保修类型</th>
+          <th style="width:40px;">是否主因件</th>
+          <th style="width:60px;">门店备注</th>
+          <th style="width:60px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">验收记录</th>
         </tr>
       </thead>
       <tbody id="data-list">
         <tr v-for="(item, index) in tableData" :key="item.id">
           <td>{{index + 1}}</td>
+          <td>{{item.oldPartCode}}</td>
+          <td>{{item.warrantyNo}}</td>
           <td>{{item.oldPartUniqueCode}}</td>
           <td>{{item.vin}}</td>
-          <td>{{item.oldPartCode}}</td>
           <td>{{item.oldPartName}}</td>
           <td>{{item.mainPartSupplierCode}}</td>
           <td style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{item.mainPartSupplierName}}</td>
-          <td>{{item.oldPartQuantity}}</td>
+          <td>{{item.repairItemTypeName}}</td>
           <td>{{item.isMainPartLabel}}</td>
           <td>{{ item.remark }}</td>
           <td>{{item.checkRemark}}</td>
         </tr>
         <tr>
           <td colspan="2">门店确认：</td>
-          <td colspan="3"></td>
-          <td>零跑验收：</td>
-          <td></td>
-          <td colspan="2">验收日期：</td>
           <td colspan="2"></td>
+          <td>零跑验收：</td>
+          <td colspan="2"></td>
+          <td colspan="2">验收日期：</td>
+          <td colspan="3"></td>
         </tr>
       </tbody>
     </table>
