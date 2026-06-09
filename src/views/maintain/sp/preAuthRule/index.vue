@@ -149,7 +149,7 @@ export default {
         dataProp: [
           {
             props: 'code',
-            label: '授权规则编号',
+            label: '预授权规则编号',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -193,7 +193,7 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'authAmount', label: '预售授权金额', visible: true, width: 150 },
+          { props: 'authAmount', label: '预授权金额', visible: true, width: 150 },
           {
             props: 'statusLabel',
             label: '启用状态',

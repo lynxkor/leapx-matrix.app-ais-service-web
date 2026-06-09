@@ -69,11 +69,6 @@
                     filterable
                     :params="{}" />
                 </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerCode">
-                  <dealer-select
-                    v-model="form.dealerCode"
-                    :defaultDealerName="form.dealerName"/>
-                </el-form-item>
                 <el-form-item label="收货供应商：" prop="supplierId">
                   <list-select
                     listUrl="/sp/web/basic/supplierInfo/list"
@@ -161,17 +156,6 @@
                 </el-form-item>
                 <el-form-item label="仓库代码：" prop="warehouseCode">
                   <el-button class="link" @click="$router.push('/claimreturn/oldpart/basic/oldPartOemWarehouse/edit?id=' + form.warehouseId)" type="text">{{ form.warehouseCode }}</el-button>
-                </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
-                  <el-button
-                    class="link"
-                    @click="navigateToRoute({
-                      path: '/partner/channelManagement/shopDetail',
-                      query: {
-                        dealerCode: form.dealerCode,
-                      },
-                    })"
-                    type="text">{{form.dealerName}}</el-button>
                 </el-form-item>
                 <el-form-item label="收货供应商：" prop="supplierName">
                   <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/edit?id=' + form.supplierId)" type="text">{{ form.supplierName }}</el-button>
@@ -283,7 +267,6 @@ export default {
     ListSelect,
     EditBaseContainer,
     FetchSelect,
-    DealerSelect,
     ReturnOrderTable,
   },
   computed: {
