@@ -75,7 +75,18 @@ const responseInterceptors = (instance, forbidToast) => {
   },
   error => {
     const response = error.response;
+    // Handle cases where gateway returns HTML (e.g. login page) instead of JSON,
+    // causing SyntaxError: Unexpected token '<' during axios auto-parsing
     if (!response) {
+      if (error instanceof SyntaxError && error.message.includes('<')) {
+        store.commit('USER_SIGN_OUT');
+        Message({
+          message: '登录已过期，请重新登录',
+          type: 'error',
+          duration: 3000
+        });
+        return Promise.reject(error);
+      }
       return Promise.reject(error);
     }
     const flag = NEED_DECRYPT(error.config.url);
