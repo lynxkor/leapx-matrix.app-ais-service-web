@@ -178,7 +178,9 @@
                   {{ form.dealerName }}
                 </el-form-item>
                 <el-form-item label="采购订单号：" prop="purchaseOrderCode">
-                  {{ form.purchaseOrderCode }}
+                  <el-link type="primary" :href="`/service/sparepart/purchase/purchaseOrder/edit?id=${form.purchaseOrderId}`" target="_blank">
+                    {{ form.purchaseOrderCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="提交人：" prop="submitter">
                   {{ form.submitterName }}
