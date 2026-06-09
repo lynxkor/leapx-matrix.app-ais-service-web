@@ -118,7 +118,7 @@
                   <el-link
                     v-if="form.vehicleOrderId"
                     type="primary"
-                    :href="`/service/sales/vehretail/orderManager/retailOrderInfo/edit?id=${form.vehicleOrderId}`"
+                    :href="`/sales/vehretail/orderManager/retailOrderInfo/edit?id=${form.vehicleOrderId}`"
                     target="_blank"
                   >{{ form.vehicleOrder }}</el-link>
                   <span v-else>{{ form.vehicleOrder }}</span>
@@ -127,7 +127,7 @@
                   <el-link
                     v-if="form.vehicleEnterpriseOrderId"
                     type="primary"
-                    :href="`/service/sales/vehwholesale/entorder/entVehicleOrder/edit?id=${form.vehicleEnterpriseOrderId}`"
+                    :href="`/sales/vehwholesale/entorder/entVehicleOrder/edit?id=${form.vehicleEnterpriseOrderId}`"
                     target="_blank"
                   >{{ form.vehicleEnterpriseOrder }}</el-link>
                   <span v-else>{{ form.vehicleEnterpriseOrder }}</span>
