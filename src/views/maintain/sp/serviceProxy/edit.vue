@@ -23,7 +23,7 @@
                     <el-button size="small" @click="discardDialogVisible = true" v-if="!isCompleted && !form.isCreateStatementInfo">作废</el-button>
                     <el-button size="small" @click="materialReturnDialogVisible = true" v-if="!isCompleted && hasRepairItems">退料</el-button>
                     <el-button size="small" @click="handlePreCheck" v-if="orderStatus === RepairOrderStatusEnum.RECEPTION_INSPECTION">预检确认</el-button>
-                    <el-button size="small" @click="handleCreatingOrder" v-if="orderStatus === RepairOrderStatusEnum.CREATING_ORDER && hasItems && !form.signStatus">制单确认并签字</el-button>
+                    <el-button size="small" @click="handleCreatingOrder" v-if="canSign">制单确认并签字</el-button>
                     <el-button size="small" @click="selectRepairItemDialogVisible = true" v-if="canEditOrder && form.isCreateStatementInfo === 0">选择维修项目</el-button>
                     <el-button size="small" @click="dispatchWorkDialogVisible = true" v-if="isInConstruction && hasUndispatchedItems">派工</el-button>
                     <el-button size="small" @click="deleteDispatchWorkDialogVisible = true" v-if="isInConstruction && hasDispatchedItems">删除派工</el-button>
@@ -158,7 +158,7 @@
 
 <script>
 import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal, getSpRemindInfo, isVehRetention, addVehRetentionList, resendSignSms } from '@/api/maintain/sp/serviceProxy/index';
-import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum, CurrentSituationEnum, CustomerTypeEnum } from './constant';
+import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum, CurrentSituationEnum, CustomerTypeEnum, ConfirmFaultEnum, CurrentFaultEnum } from './constant';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -428,7 +428,14 @@ export default {
       // 假设 signStatus 为空或特定状态表示待签字，这里主要依据题目要求的“签字生成时间不为空”和“非作废”
       // 如果需要严格判断“待签字”，请加上 && this.form.signStatus === 'YOUR_PENDING_STATUS_CODE'
       return !this.isCanceled && this.form.signGeneratedOn && this.form.signStatus && this.form.signStatus === 10;
-    }
+    },
+    canSign () {
+      // 制单中状态，且签字状态为空或非待签字/已签字，存在维修项目
+      const isCreatingAndUnsigned = this.orderStatus === RepairOrderStatusEnum.CREATING_ORDER && this.hasItems && !this.form.signStatus;
+      // 无故障且确认结果为不准确
+      const hasFaultConflict = Number(this.form.currentFault) === CurrentFaultEnum.NONE && Number(this.form.confirmFault) === ConfirmFaultEnum.INACCURATE;
+      return isCreatingAndUnsigned || hasFaultConflict;
+    },
   },
   watch: {
     id: {

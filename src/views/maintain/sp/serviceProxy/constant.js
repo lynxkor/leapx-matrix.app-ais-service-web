@@ -194,3 +194,19 @@ export const CustomerTypeEnum = {
   BOOKED: '10',
   WALK_IN: '20'
 };
+
+/** 当前故障 */
+export const CurrentFaultEnum = {
+  /** 无故障 */
+  NONE: 0,
+  /** 有故障 */
+  HAS_FAULT: 1
+};
+
+/** 故障确认结果 */
+export const ConfirmFaultEnum = {
+  /** 准确 */
+  ACCURATE: 1,
+  /** 不准确 */
+  INACCURATE: 2
+};
