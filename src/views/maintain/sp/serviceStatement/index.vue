@@ -311,6 +311,7 @@ import {
   deleteItem,
   enableItem,
   getStatistics,
+  getDecrypt,
 } from '@/api/maintain/sp/serviceStatement/index';
 import {
   getTableConfig,
@@ -468,6 +469,8 @@ export default {
             label: 'VIN码',
             visible: true,
             width: 200,
+            mask: true,
+            getValue: (row) => getDecrypt(row.id, 'vehProfileVin'),
             buttons: [{
               click: (rowIndex, row) => {
                 window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
@@ -481,7 +484,7 @@ export default {
             visible: true,
             width: 200,
           },
-          { props: 'carPlate', label: '车牌号', visible: true, width: 200 },
+          { props: 'carPlate', label: '车牌号', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'carPlate') },
           {
             props: 'dealerName',
             label: '门店名称',

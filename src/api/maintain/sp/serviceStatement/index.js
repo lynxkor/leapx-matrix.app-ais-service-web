@@ -171,3 +171,20 @@ export function getPrintInfo (data) {
 export function resendSignSms (data) {
   return api.jsonPost(prefix + 'resendSignSms', data);
 }
+
+/**
+ * 解密字段
+ * @param {String} id
+ * @param {String} field
+ */
+export function getDecrypt (id, field) {
+  let param = {
+    id,
+    decryptFields: [field]
+  };
+  return new Promise(resolve => {
+    api.jsonPost(prefix + 'getDecrypt', param).then(res => {
+      resolve(res[field]);
+    });
+  });
+}

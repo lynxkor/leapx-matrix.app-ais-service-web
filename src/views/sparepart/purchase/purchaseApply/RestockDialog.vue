@@ -131,6 +131,7 @@ export default {
       pageSize: 10,
       total: 0,
       selectedRows: [],
+      pickerOptions: {},
       rules: {
         onceSatisfactionRate: [
           { required: true, message: '一次性满足率不能为空', trigger: 'blur' },

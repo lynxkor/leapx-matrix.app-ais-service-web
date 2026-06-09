@@ -311,7 +311,7 @@ export default {
             }, {
               name: '允许BO调拨',
               show: (row) => {
-                return row.boTransferIs === '0' && row.oemPart === '1';
+                return row.boTransferIs === '0' && row.oemPart === '1' && this.permissions.has('AISPART-sparePart-canBoTransfer');
               },
               popconfirmTitle: '此操作将允许BO调拨, 是否继续?',
               click: (rowIndex, row) => {
@@ -326,7 +326,7 @@ export default {
             }, {
               name: '禁止BO调拨',
               show: (row) => {
-                return row.boTransferIs === '1' && row.oemPart === '1';
+                return row.boTransferIs === '1' && row.oemPart === '1' && this.permissions.has('AISPART-sparePart-canBoTransfer');
               },
               popconfirmTitle: '此操作将禁止BO调拨, 是否继续?',
               click: (rowIndex, row) => {
@@ -341,7 +341,7 @@ export default {
             }, {
               name: '允许备附件销售',
               show: (row) => {
-                return row.retailIs === '0' && row.oemPart === '1';
+                return row.retailIs === '0' && row.oemPart === '1' && this.permissions.has('AISPART-sparePart-canCetail');
               },
               popconfirmTitle: '此操作将允许备附件销售, 是否继续?',
               click: (rowIndex, row) => {
@@ -356,7 +356,7 @@ export default {
             }, {
               name: '禁止备附件销售',
               show: (row) => {
-                return row.retailIs === '1' && row.oemPart === '1';
+                return row.retailIs === '1' && row.oemPart === '1' && this.permissions.has('AISPART-sparePart-canCetail');
               },
               popconfirmTitle: '此操作将禁止备附件销售, 是否继续?',
               click: (rowIndex, row) => {

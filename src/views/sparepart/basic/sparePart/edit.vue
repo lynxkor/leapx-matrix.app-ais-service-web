@@ -735,16 +735,16 @@ export default {
       return '备件编码：' + (this.form.partCode || '');
     },
     canShowAllowBoTransfer () {
-      return this.form.oemPart === '1' && this.form.boTransferIs === '0';
+      return this.form.oemPart === '1' && this.form.boTransferIs === '0' && this.permissions.has('AISPART-sparePart-canBoTransfer');
     },
     canShowForbidBoTransfer () {
-      return this.form.oemPart === '1' && this.form.boTransferIs === '1';
+      return this.form.oemPart === '1' && this.form.boTransferIs === '1' && this.permissions.has('AISPART-sparePart-canBoTransfer');
     },
     canShowAllowSales () {
-      return this.form.oemPart === '1' && this.form.retailIs === '0';
+      return this.form.oemPart === '1' && this.form.retailIs === '0' && this.permissions.has('AISPART-sparePart-canCetail');
     },
     canShowForbidSales () {
-      return this.form.oemPart === '1' && this.form.retailIs === '1';
+      return this.form.oemPart === '1' && this.form.retailIs === '1' && this.permissions.has('AISPART-sparePart-canCetail');
     }
   },
   watch: {

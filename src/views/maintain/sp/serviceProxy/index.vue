@@ -227,10 +227,10 @@
           <fetch-select
             :remote-method="getUserList"
             remote
-            v-model="form.creatorNameList"
+            v-model="form.createNameList"
             placeholder="请输入"
             labelKey="username"
-            valueKey="userId"
+            valueKey="username"
             clearable
             multiple
             filterable
@@ -345,7 +345,7 @@ const defaultForm = {
   alarmLevelList: [],
   createTime: [],
   repairItemTypeCollectList: [],
-  creatorNameList: [],
+  createNameList: [],
   vehModelNameList: [],
 };
 
@@ -768,7 +768,7 @@ export default {
     },
     async getUserList (query) {
       try {
-        const res = await getUserByNameOrNo({ nameOrEmpNo: query });
+        const res = await getUserByNameOrNo({ name: query });
         return res;
       } catch (error) {
         console.error(error);
