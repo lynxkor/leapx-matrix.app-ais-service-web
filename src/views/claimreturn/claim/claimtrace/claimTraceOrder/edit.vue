@@ -157,7 +157,7 @@
                 <el-form-item label="同意追溯时间：">
                   <el-input v-model="form.agreeTraceTime" disabled />
                 </el-form-item>
-                <el-form-item label="追溯金调整人：">
+                <el-form-item label="追溯金额调整人：">
                   <el-input v-model="form.traceAmountAdjuster" disabled />
                 </el-form-item>
                 <el-form-item label="申诉审核意见：">
