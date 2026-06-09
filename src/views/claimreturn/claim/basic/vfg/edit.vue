@@ -73,7 +73,7 @@
                   <el-form-item label="VRT名称：" prop="vrtName">
                     <el-link
                       type="primary"
-                      :href="`/claimreturn/claim/basic/vrt/edit?id=${form.vrtId}`"
+                      :href="`/service/claimreturn/claim/basic/vrt/edit?id=${form.vrtId}`"
                       target="_blank"
                     >{{ form.vrtName }}</el-link>
                   </el-form-item>

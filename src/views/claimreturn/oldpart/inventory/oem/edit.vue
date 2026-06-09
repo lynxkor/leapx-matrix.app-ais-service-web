@@ -48,9 +48,6 @@
                 <el-form-item label="门店库存状态：" prop="dealerStatusLabel">
                   <el-input placeholder="请输入" v-model="form.dealerStatusLabel" disabled />
                 </el-form-item>
-                <el-form-item label="数量：" prop="oldPartQuantity">
-                  <el-input placeholder="请输入" v-model="form.oldPartQuantity" disabled />
-                </el-form-item>
                 <el-form-item label="旧件供应商：" prop="oldPartSupplierName">
                   <el-input placeholder="请输入" v-model="form.oldPartSupplierName" disabled />
                 </el-form-item>
@@ -117,9 +114,6 @@
                 <el-form-item label="门店库存状态：" prop="dealerStatusLabel">
                   {{form.dealerStatusLabel}}
                 </el-form-item>
-                <el-form-item label="数量：" prop="oldPartQuantity">
-                  {{form.oldPartQuantity}}
-                </el-form-item>
                 <el-form-item label="旧件供应商：" prop="oldPartSupplierName">
                   <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/edit?id=' + form.oldPartSupplierId)" type="text">{{form.oldPartSupplierName}}</el-button>
                 </el-form-item>
@@ -130,7 +124,14 @@
                   <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/edit?id=' + form.mainPartSupplierId)" type="text">{{form.mainPartSupplierName}}</el-button>
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
-                  {{form.vin}}
+                  <template v-if="vinDecrypted">
+                    <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehOwnerId}`" target="_blank">{{ form.vin }}</el-link>
+                    <span @click="onEncryptVin" class="eye-icon iconfont icon-lxppc-eye-off"></span>
+                  </template>
+                  <template v-else>
+                    <span>{{ form.vin }}</span>
+                    <span @click="onDecryptVin" class="eye-icon iconfont icon-lxppc-eye"></span>
+                  </template>
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   <el-button class="link"
@@ -174,7 +175,8 @@
                   {{form.dealerOutTime}}
                 </el-form-item>
                 <el-form-item label="门店回运单：" prop="returnOrderNo">
-                  {{form.returnOrderNo}}
+                  <el-button v-if="form.returnOrderId" class="link" @click="$router.push(`/claimreturn/oldpart/returnorder/edit?id=${form.returnOrderId}`)" type="text">{{form.returnOrderNo}}</el-button>
+                  <span v-else>{{form.returnOrderNo}}</span>
                 </el-form-item>
                 <el-form-item label="主机厂验收时间：" prop="oemCheckTime">
                   {{form.oemCheckTime}}
@@ -218,7 +220,8 @@
             <div class="common-section-body">
               <el-form :inline="true" class="form-detail">
                 <el-form-item label="主机厂出库单：" prop="oemOutboundOrderNo">
-                  {{ form.oemOutboundOrderNo }}
+                  <el-button v-if="form.oemOutboundOrderId" class="link" @click="$router.push(`/claimreturn/oldpart/outbound/edit?id=${form.oemOutboundOrderId}`)" type="text">{{ form.oemOutboundOrderNo }}</el-button>
+                  <span v-else>{{ form.oemOutboundOrderNo }}</span>
                 </el-form-item>
                 <el-form-item label="主机厂仓库：" prop="oemWarehouseId">
                   {{ form.oemWarehouseId }}
@@ -239,7 +242,8 @@
             <div class="common-section-body">
               <el-form :inline="true" class="form-detail">
                 <el-form-item label="旧件销毁单：" prop="oldPartDestroyOrderNo">
-                  <el-button class="link" @click="$router.push(`/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit?id=${form.oldPartDestroyOrderId}`)" type="text">{{form.oldPartDestroyOrderNo}}</el-button>
+                  <el-button v-if="form.oldPartDestroyOrderId" class="link" @click="$router.push(`/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit?id=${form.oldPartDestroyOrderId}`)" type="text">{{form.oldPartDestroyOrderNo}}</el-button>
+                  <span v-else>{{form.oldPartDestroyOrderNo}}</span>
                 </el-form-item>
                 <!--  -->
                 <el-form-item label="销毁驳回原因：" prop="destroyRejectReason">
@@ -272,7 +276,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/claimreturn/oldpart/inventory/oem';
+import { getDetail, addOrUpdate, getDetailDecryptField } from '@/api/claimreturn/oldpart/inventory/oem';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -283,7 +287,6 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 import AisAttachment from '@/libs/components/AisAttachment';
 import SecondDialog from './SecondDialog/index.vue';
-
 const defaultForm = {
   // 多选时字段有变化，自行修复
   warrantyMonth: '',
@@ -349,6 +352,7 @@ const defaultForm = {
   oemWarehouseName: '',
   ownerUserId: '',
   ownerOrgId: '',
+  vehicleProfileId: '',
 };
 
 export default {
@@ -401,6 +405,8 @@ export default {
         ],
       },
       visible: false,
+      vinDecrypted: false,
+      vinEncrypted: '',
     };
   },
   mounted () {
@@ -411,6 +417,19 @@ export default {
       if (id) {
         return getDetail(id);
       }
+    },
+    onDecryptVin () {
+      getDetailDecryptField(this.form.id, 'vin').then(decryptedVin => {
+        this.vinEncrypted = this.form.vin;
+        this.form.vin = decryptedVin;
+        this.vinDecrypted = true;
+      }).catch(() => {
+        this.$message.error('VIN解密失败');
+      });
+    },
+    onEncryptVin () {
+      this.form.vin = this.vinEncrypted;
+      this.vinDecrypted = false;
     },
     submitRequest () {
       return addOrUpdate({ ...this.form });
@@ -459,3 +478,12 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.eye-icon {
+  cursor: pointer;
+  color: var(--leap-color-primary);
+  font-size: 14px;
+  margin-left: 4px;
+}
+</style>

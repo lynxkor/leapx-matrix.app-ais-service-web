@@ -99,20 +99,20 @@
             <el-form-item label="工时金额：" prop="workHourTotal">
               <el-input placeholder="" :value="form.workHourTotal" clearable disabled />
             </el-form-item>
-            <el-form-item label="追溯金额：" prop="tracebackAmount">
-              <el-input placeholder="" :value="form.tracebackAmount" clearable disabled />
-            </el-form-item>
             <el-form-item label="零件总额：" prop="partTotal">
               <el-input placeholder="" :value="form.partTotal" clearable disabled />
-            </el-form-item>
-            <el-form-item label="判定金额：" prop="determineAmount">
-              <el-input placeholder="" :value="form.determineAmount" clearable disabled />
             </el-form-item>
             <el-form-item label="其他总额：" prop="otherTotal">
               <el-input placeholder="" :value="form.otherTotal" clearable disabled />
             </el-form-item>
             <el-form-item label="总金额：" prop="totalAmount">
               <el-input placeholder="" :value="form.totalAmount" clearable disabled />
+            </el-form-item>
+            <el-form-item label="追溯金额：" prop="tracebackAmount">
+              <el-input placeholder="" :value="form.tracebackAmount" clearable disabled />
+            </el-form-item>
+            <el-form-item label="判定金额：" prop="determineAmount">
+              <el-input placeholder="" :value="form.determineAmount" clearable disabled />
             </el-form-item>
             <el-form-item label="开票金额一（13%）：" prop="invoiceAmount13">
               <el-input placeholder="" :value="form.invoiceAmount13" clearable disabled />
@@ -125,20 +125,20 @@
             <el-form-item label="工时金额：" prop="workHourTotal">
               {{ form.workHourTotal }}
             </el-form-item>
-            <el-form-item label="追溯金额：" prop="tracebackAmount">
-              {{ form.tracebackAmount }}
-            </el-form-item>
             <el-form-item label="零件总额：" prop="partTotal">
               {{ form.partTotal }}
-            </el-form-item>
-            <el-form-item label="判定金额：" prop="determineAmount">
-              {{ form.determineAmount }}
             </el-form-item>
             <el-form-item label="其他总额：" prop="otherTotal">
               {{ form.otherTotal }}
             </el-form-item>
             <el-form-item label="总金额：" prop="totalAmount">
               {{ form.totalAmount }}
+            </el-form-item>
+            <el-form-item label="追溯金额：" prop="tracebackAmount">
+              {{ form.tracebackAmount }}
+            </el-form-item>
+            <el-form-item label="判定金额：" prop="determineAmount">
+              {{ form.determineAmount }}
             </el-form-item>
             <el-form-item label="开票金额一（13%）：" prop="invoiceAmount13">
               {{ form.invoiceAmount13 }}
