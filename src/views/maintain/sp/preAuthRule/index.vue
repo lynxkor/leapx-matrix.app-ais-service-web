@@ -149,7 +149,7 @@ export default {
         dataProp: [
           {
             props: 'code',
-            label: '授权规则编号',
+            label: '预授权规则编号',
             visible: true,
             width: 200,
             fixed: 'left',
