@@ -756,8 +756,10 @@ export default {
       // 查询是否店端 true为门店  false为厂端
       const res = await getLoginUser();
       this.accountFlag = res.accountFlag;
-      this.form.dealerCode = res.currentDealerCode;// 当前门店code
-      this.form.dealerName = res.currentDealerName;// 当前门店名称
+      if (!this._id) {
+        this.form.dealerCode = res.currentDealerCode;// 当前门店code
+        this.form.dealerName = res.currentDealerName;// 当前门店名称
+      }
       if (this.accountFlag === true) {
         const res = await getPartDealer({ code: this.form.dealerCode });
         this.form.warehouseId = res.warehouseId;
