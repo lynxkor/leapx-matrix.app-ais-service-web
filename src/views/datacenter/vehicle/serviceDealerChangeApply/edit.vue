@@ -184,7 +184,6 @@
                 <AisAttachment
                   :businessId="_id"
                   configCode="mcs_servicedealerchange"
-                  attachType="附件"
                   ref="attachment"
                   :readonly="!canEdit"
                 />

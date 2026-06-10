@@ -21,7 +21,11 @@
       </vxe-column>
       <vxe-column field="rightsCode" title="权益编码" width="120" />
       <vxe-column field="rightsName" title="权益名称" width="120" />
-      <vxe-column field="rightsRuleDesc" title="权益规则说明" />
+      <vxe-column field="rightsRuleDesc" title="权益规则说明">
+        <template #default="{ row }">
+          <span v-safe-html="row.rightsRuleDesc" />
+        </template>
+      </vxe-column>
     </vxe-table>
   </simple-table-dialog>
 </template>

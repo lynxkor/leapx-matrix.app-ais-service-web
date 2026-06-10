@@ -238,7 +238,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '备件销售分类',
+      pageTitle: '备件营销分类',
       pageType: 'edit',
       moduleKey: 'AISPART-spareSalesCategory',
       loading: false,

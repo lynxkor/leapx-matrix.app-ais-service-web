@@ -178,7 +178,9 @@
                   {{ form.dealerName }}
                 </el-form-item>
                 <el-form-item label="采购订单号：" prop="purchaseOrderCode">
-                  {{ form.purchaseOrderCode }}
+                  <el-link type="primary" :href="`/service/sparepart/purchase/purchaseOrder/edit?id=${form.purchaseOrderId}`" target="_blank">
+                    {{ form.purchaseOrderCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="提交人：" prop="submitter">
                   {{ form.submitterName }}
@@ -497,7 +499,6 @@ const defaultForm = {
 const ACTION_CONFIG = { // 按钮配置
   commit: { title: '是否提交?', success: '提交成功' },
   agree: { title: '是否同意?', success: '同意成功' },
-  reject: { title: '是否驳回?', success: '驳回成功' },
 };
 
 export default {
@@ -848,6 +849,10 @@ export default {
         title: `${this.form.dealerName}备件索赔单`// 可选，打印标题
       });
     },
+    // 刷新数据
+    handleRefresh () {
+      this.$refs.containerRef.loadDetail();
+    },
     // 调用二次确认弹框
     _handleAction (apiFn, config) {
       handleCommonAction({
@@ -856,7 +861,7 @@ export default {
         apiFn,
         id: this._id,
         config,
-        onSuccess: () => this.$refs.containerRef.loadDetail()
+        onSuccess: () => this.handleRefresh(),
       });
     },
     // 提交
@@ -869,8 +874,23 @@ export default {
     },
     // 驳回
     handleReject () {
-      this._handleAction(getReject, ACTION_CONFIG.reject);
-    },
+      this.$prompt('请输入驳回原因！', '驳回', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /\S/,
+        inputErrorMessage: '驳回原因不能为空',
+      }).then(({ value }) => {
+        // 调用驳回接口
+        getReject({ id: this._id, description: value }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '驳回成功!'
+          });
+          this.handleRefresh();
+        }).catch(() => {
+        });
+      }).catch(() => { });
+    }
   }
 };
 </script>

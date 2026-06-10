@@ -35,6 +35,7 @@
                 </el-form-item>
                 <el-form-item label="VFG名称：" prop="vfgId">
                   <list-select
+                    v-if="form.vrtId"
                     listUrl="/claimreturn/claim/web/basic/vfg/list"
                     placeholder="请选择"
                     v-model="form.vfgId"
@@ -79,14 +80,14 @@
                 <el-form-item label="VRT名称：" prop="vrtName">
                   <el-link
                     type="primary"
-                    :href="`/claimreturn/claim/basic/vrt/edit?id=${form.vrtId}`"
+                    :href="`/service/claimreturn/claim/basic/vrt/edit?id=${form.vrtId}`"
                     target="_blank"
                   >{{ form.vrtName }}</el-link>
                 </el-form-item>
                 <el-form-item label="VFG名称：" prop="vfgName">
                   <el-link
                     type="primary"
-                    :href="`/claimreturn/claim/basic/vfg/edit?id=${form.vfgId}`"
+                    :href="`/service/claimreturn/claim/basic/vfg/edit?id=${form.vfgId}`"
                     target="_blank"
                   >{{ form.vfgName }}</el-link>
                 </el-form-item>
