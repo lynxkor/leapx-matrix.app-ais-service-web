@@ -35,7 +35,7 @@
                 </el-form-item>
                 <el-form-item label="VFG名称：" prop="vfgId">
                   <list-select
-                    v-if="form.id"
+                    v-if="form.vrtId"
                     listUrl="/claimreturn/claim/web/basic/vfg/list"
                     placeholder="请选择"
                     v-model="form.vfgId"

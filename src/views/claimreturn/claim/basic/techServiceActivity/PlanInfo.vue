@@ -63,18 +63,22 @@
             <template v-if="!isServiceCareActivity">
             <el-form-item label="主因零部件：" prop="mainPartName">
               <fetch-select
-                filterable
-                clearable
+                ref="mainPartSelectRef"
                 remote
-                reserve-keyword
                 v-model="form.mainPartId"
                 :remote-method="partRemote"
                 :params="form.mainPartName"
                 @change="partChange"
-                value-key="sparePartId"
-                subLabelKey="partCode"
-                label-key="partName"
-              />
+                labelKey="partName"
+                valueKey="sparePartId"
+                clearable
+                filterable
+              >
+                <template #option="{ item }">
+                  <span v-if="item.disabled">{{ item.placeholder }}</span>
+                  <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
+                </template>
+              </fetch-select>
             </el-form-item>
             <el-form-item label="主因供应商：" prop="mainSupplierId">
               <fetch-select
@@ -84,7 +88,7 @@
                 placeholder="请选择"
                 clearable
                 filterable
-                :disabled="!form.mainPartId"
+                disabled
                 value-key="value"
                 label-key="label"
               />
@@ -206,8 +210,8 @@ import {
   serviceActivitySchemeDelete,
   serviceActivitySchemeGet, serviceActivitySchemeList, serviceActivitySchemeUpdate
 } from '../../../../../api/claimreturn/claim/basic/serviceActivity';
-import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
-import { getList as sparePartList } from '../../../../../api/sparepart/basic/sparePartSupplier';
+import { getDetail as getSparePartDetail } from '@/api/sparepart/basic/sparePart/index';
+import { getLists as sparePartList } from '../../../../../api/sparepart/basic/sparePartSupplier';
 import permissions from '@/libs/mixins/permissions';
 import EnhancedTabs from '@/libs/components/EnhancedTabs/index.vue';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
@@ -407,18 +411,35 @@ export default {
     },
     // 主因零部件下拉接口
     partRemote (query) {
-      return sparePartList({
-        partCodeOrNameLike: query,
-        pageSize: 20,
-        pageNum: 1,
-        status: 1
-      }).then(res => {
-        // this.form
-        return res;
+      return new Promise((resolve, reject) => {
+        sparePartList({
+          pageNum: 1,
+          pageSize: 20,
+          oemPart: 1,
+          partCodeOrNameLike: query,
+          status: 1,
+        }).then(res => {
+          if (!res?.length) {
+            resolve([
+              {
+                placeholder: `备件编码：${query}不存在备件供应商关系信息`,
+                disabled: true,
+              }
+            ]);
+          } else {
+            const records = res.map(item => {
+              return {
+                ...item,
+                partAndSupplierId: item.sparePartId + item.supplierInfoId,
+              };
+            });
+            resolve(records);
+          }
+        });
       });
     },
     // 主因供应商列表
-    partChange (val, record) {
+    async partChange (val, record) {
       // 零部件id
       if (val) {
         // 先清空所有 id，避免显示 id
@@ -427,37 +448,39 @@ export default {
         this.form.vfgId = '';
 
         // 设置供应商选项
-        this.supplierOptions = record.sparePartSupplierRespList?.map(item => {
-          return {
-            label: item.supplierName,
-            value: item.supplierInfoId
-          };
-        }) || [];
+        this.supplierOptions = record.supplierInfoId ? [{
+          label: record.supplierName,
+          value: record.supplierInfoId
+        }] : [];
+
+        // 获取备件详情
+        const detail = await getSparePartDetail(record.sparePartId);
+        const { vrtId, vrtName, vfgId, vfgName } = detail || {};
 
         // 设置 name 用于反显
-        if (record.vrtId) {
-          this.form.vrtName = record.vrtName || '';
+        if (vrtId) {
+          this.form.vrtName = vrtName || '';
         }
-        if (record.vfgId) {
-          this.form.vfgName = record.vfgName || '';
+        if (vfgId) {
+          this.form.vfgName = vfgName || '';
         }
 
         // 使用 nextTick 确保 options 和 params 先更新，再赋值 id
         this.$nextTick(() => {
           // 设置 VRT 下拉组件的选项数据
-          if (record.vrtId && this.$refs.vrtSelect) {
+          if (vrtId && this.$refs.vrtSelect) {
             this.$refs.vrtSelect.remoteOptions = [{
-              id: record.vrtId,
-              vrtName: record.vrtName
+              id: vrtId,
+              vrtName: vrtName
             }];
             this.$refs.vrtSelect.initialLoaded = true;
-            this.form.vrtId = record.vrtId;
+            this.form.vrtId = vrtId;
           }
           // 加载 VFG 下拉选项并赋值
-          if (record.vrtId) {
+          if (vrtId) {
             this.loadVfgOptions().then(() => {
-              if (record.vfgId) {
-                this.form.vfgId = record.vfgId;
+              if (vfgId) {
+                this.form.vfgId = vfgId;
               }
             });
           }
@@ -506,7 +529,7 @@ export default {
     },
     // vfg
     loadVfgOptions () {
-      getVfgList({
+      return getVfgList({
         vrtNameLike: this.form.vrtName,
         pageSize: 100,
         pageNum: 1,
