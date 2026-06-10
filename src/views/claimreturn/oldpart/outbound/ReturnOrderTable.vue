@@ -55,6 +55,7 @@
       :visible.sync="visible"
       :_id="_id"
       :dealerCode="dealerCode"
+      :supplierId="supplierId"
       @update="getTableData"
       />
   </section>
@@ -85,6 +86,9 @@ export default {
     dealerCode: {
       type: String,
     },
+    supplierId: {
+      type: String,
+    },
     disabled: {
       type: Boolean,
       default: false
@@ -99,7 +103,6 @@ export default {
     return {
       defaultNewRow: {
         oldPartUniqueCode: '', // 旧件唯一码
-        dealerName: '', // 厅店名称
         dealerStatus: '', // 门店库存状态
         isMainPart: '', // 是否主因零部件
         vin: '', // VIN
@@ -236,10 +239,6 @@ export default {
       });
     },
     openAdd () {
-      if (!this.dealerCode) {
-        this.$message.warning('请选择门店');
-        return;
-      }
       this.visible = true;
     },
     handleRemoveRows () {
@@ -307,10 +306,6 @@ export default {
     },
     // 连带件
     addAttach () {
-      if (!this.dealerCode) {
-        this.$message.warning('请选择门店');
-        return;
-      }
       this.attachLoading = true;
       addAssociatedParts(this._id).then(res => {
         this.$message.success('正在添加连带件，请稍后刷新查看');
@@ -320,10 +315,6 @@ export default {
       });
     },
     handleImport () {
-      if (!this.dealerCode) {
-        this.$message.warning('请选择门店');
-        return;
-      }
       this.uploadDialogVisible = true;
     },
     handleUploadDialogClose () {

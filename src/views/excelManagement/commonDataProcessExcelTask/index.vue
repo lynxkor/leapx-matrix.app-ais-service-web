@@ -172,15 +172,7 @@ export default {
           { props: 'importRemark', label: '描述', visible: true, width: 200 },
           { props: 'creatorName', label: '创建者', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
-            visible: true,
-            fixed: 'right',
-            buttons: []
-          }
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 }
         ],
         total: 0
       },
