@@ -101,7 +101,7 @@
         <el-form-item label="是否下发">
           <fetch-select
             :request="fetchOptions"
-            enumCode="BooleanEnum"
+            enumCode="RepairPackageComboStatusEnum"
             v-model="form.comboStatusList"
             placeholder="请选择"
             clearable
