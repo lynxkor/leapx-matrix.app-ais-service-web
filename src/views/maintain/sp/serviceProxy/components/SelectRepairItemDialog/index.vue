@@ -272,9 +272,9 @@
               <vxe-column title="操作" width="100" align="center" fixed="right">
                 <template #default="{ row, rowIndex }">
                   <span class="btn-delete disabled" v-if="disabled">删除</span>
-                  <span v-else-if="row.packageId" :class="['btn-delete', {'disabled': row.workRecordStatus === 40}]" @click="handleRemoveItemRow(rowIndex, row)">删除</span>
+                  <span v-else-if="row.packageId" :class="['btn-delete', {'disabled': row.workRecordStatus === WorkRecordStatusEnum.COMPLETED}]" @click="handleRemoveItemRow(rowIndex, row)">删除</span>
                   <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex, row)">
-                    <span slot="reference" :class="['btn-delete'/*, {'disabled': row.workRecordStatus === 40}*/]">删除</span>
+                    <span slot="reference" :class="['btn-delete'/*, {'disabled': row.workRecordStatus === WorkRecordStatusEnum.COMPLETED}*/]">删除</span>
                   </el-popconfirm>
                 </template>
               </vxe-column>
@@ -1020,7 +1020,7 @@ export default {
         return;
       }
       // 校验是否重复添加
-      const target = this.itemData.filter(el => el.repairItemCode !== this.universalLaborHourItemId && el.workRecordStatus !== 40).find(el => el.repairItemId === item.id);
+      const target = this.itemData.filter(el => el.repairItemCode !== this.universalLaborHourItemId && el.workRecordStatus !== WorkRecordStatusEnum.COMPLETED).find(el => el.repairItemId === item.id);
       if (target) {
         this.$message.error('维修项目已存在，请勿重复添加');
         return;
@@ -1388,7 +1388,7 @@ export default {
       // if (!this.checkoutTypeIncluded(row.checkoutTypeId) && row.repairItemId !== this.universalLaborHourItemId) {
       //   return false;
       // }
-      if (row.repairItemCode === this.universalLaborHourItemId && row.workRecordStatus !== 40) {
+      if (row.repairItemCode === this.universalLaborHourItemId && row.workRecordStatus !== WorkRecordStatusEnum.COMPLETED) {
         return true;
       }
       return false;
