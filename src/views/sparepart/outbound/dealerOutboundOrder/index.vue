@@ -568,7 +568,7 @@ export default {
       }
       exportTable({
         businessType: '内部领料申请',
-        dataFetchPath: 'sp/web/outbound/dealerOutboundOrder/page',
+        dataFetchPath: 'sp/web/dealer/dealerOutboundOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
