@@ -91,6 +91,11 @@
         </el-form>
       </div>
 
+      <!-- 操作按钮 -->
+      <div class="ais-actions" style="margin: 8px 0;">
+        <el-button size="small" :loading="exportLoading" @click="exportExcel">导出</el-button>
+      </div>
+
       <!-- 数据表格 -->
       <div class="table-section" :class="{'visibleForm': visibleForm}">
         <vxe-table
@@ -110,7 +115,6 @@
           <vxe-column field="warrantyNo" title="保修申请单" width="200" />
           <vxe-column field="oldPartUniqueCode" title="旧件唯一码" width="200" />
           <vxe-column field="dealerName" title="门店名称" width="200" />
-          <vxe-column field="dealerStatusLabel" title="门店库存状态" width="120" />
           <vxe-column field="isMainPartLabel" title="是否主因零部件" width="160" />
           <vxe-column field="vin" title="VIN" width="140" />
           <vxe-column field="oldPartSupplierName" title="零件供应商" width="200" />
@@ -120,12 +124,8 @@
           <vxe-column field="partCode" title="换上零件编码" width="200" />
           <vxe-column field="partName" title="换上零件名称" width="220" />
           <vxe-column field="oldPartCode" title="入库旧件编码" width="200" />
-          <vxe-column field="oemStatus" title="主机厂库存状态" width="140" />
-          <vxe-column field="dealerOutTime" title="门店出库时间" width="180" />
-          <vxe-column field="returnOrderNo" title="门店回运单号" width="120" />
+          <vxe-column field="oemStatusLabel" title="主机厂库存状态" width="140" />
           <vxe-column field="oemCheckTime" title="主机厂验收时间" width="180" />
-          <vxe-column field="oemOutboundOrderNo" title="主机厂出库单" width="140" />
-          <vxe-column field="oemOutTime" title="主机厂出库时间" width="180" />
           <vxe-column field="returnTypeLabel" title="旧件返回类型" width="120" />
           <vxe-column field="remark" title="备注" width="120" />
           <vxe-column field="checkRemark" title="验收备注" width="120" />
@@ -160,10 +160,11 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
 import {
   getList, // 旧件库存详情分页查询
 } from '@/api/claimreturn/oldpart/inventory/oem/index';
+import { exportTable } from '@/api/common';
 import { addDetail as addDetailReturnorder } from '@/api/claimreturn/oldpart/returnorder/index';
 import { addDetail as addDetailOutbound } from '@/api/claimreturn/oldpart/outbound/index';
 import RepairTypeSelect from '@/components/RepairTypeSelect';
-import { formatDateTime, getEndOfDayString } from '@/libs/utils';
+import { formatDateTime, getEndOfDayString, downloadExcel } from '@/libs/utils';
 
 const defaultForm = {
   warrantyNo: '',
@@ -197,6 +198,9 @@ export default {
     dealerCode: {
       type: String,
     },
+    supplierId: {
+      type: String,
+    },
     type: {
       type: String// ['outbound', 'returnorder'],
     }
@@ -209,6 +213,7 @@ export default {
       pageSize: 20,
       pageNum: 1,
       loading: false,
+      exportLoading: false,
       //
       dialogVisible: this.visible,
       submitLoading: false,
@@ -300,27 +305,7 @@ export default {
     getData () {
       this.loading = true;
       this.selectedRows = [];
-      let data = {
-        ...this.getFormData(),
-        pageNum: this.pageNum,
-        pageSize: this.pageSize,
-        dealerCode: this.dealerCode,
-      };
-      if (this.type === 'outbound') {
-        data = {
-          ...data,
-          oemStatus: '700', // 主机厂入库
-          oemOutboundOrderIdIsNull: true,
-        };
-      } else {
-        data = {
-          ...data,
-          dealerStatus: '300', // 门店入库
-          returnOrderIdIsNull: true,
-          returnType: '30', // 正常返还
-        };
-      }
-      getList(data)
+      getList(this.getQueryData())
         .then(res => {
           this.tableData = res.records;
           this.total = res.total;
@@ -361,6 +346,69 @@ export default {
       return data;
     },
     // -------------- 表单查询 --------------------------
+    exportExcel () {
+      this.exportLoading = true;
+      const titleMap = {
+        serviceProxyNo: '接车施工单',
+        warrantyNo: '保修申请单',
+        oldPartUniqueCode: '旧件唯一码',
+        dealerName: '门店名称',
+        isMainPartLabel: '是否主因零部件',
+        vin: 'VIN',
+        oldPartSupplierName: '零件供应商',
+        mainPartSupplierName: '主因件供应商',
+        oldPartCode: '旧件编码',
+        oldPartName: '旧件名称',
+        partCode: '换上零件编码',
+        partName: '换上零件名称',
+        oemStatusLabel: '主机厂库存状态',
+        oemCheckTime: '主机厂验收时间',
+        returnTypeLabel: '旧件返回类型',
+        remark: '备注',
+        checkRemark: '验收备注',
+      };
+      exportTable({
+        businessType: '旧件库存',
+        dataFetchPath: '/claimreturn/oldpart/web/inventory/oldPartOemInventory/page',
+        reqParams: this.getQueryData(),
+        titleMap,
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '旧件库存.xlsx');
+          } catch (error) {
+            this.$message({ type: 'error', message: '文件导出失败' });
+          }
+        } else {
+          this.$message({ type: 'info', message: '请前往导出列表中查询导出结果' });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
+    },
+    getQueryData () {
+      const data = {
+        ...this.getFormData(),
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
+      };
+      if (this.type === 'outbound') {
+        Object.assign(data, {
+          mainPartSupplierId: this.supplierId,
+          oemStatus: '700',
+          oemOutboundOrderIdIsNull: true,
+        });
+      } else {
+        Object.assign(data, {
+          dealerCode: this.dealerCode,
+          dealerStatus: '300',
+          returnOrderIdIsNull: true,
+          returnType: '30',
+        });
+      }
+      return data;
+    },
   }
 };
 </script>
