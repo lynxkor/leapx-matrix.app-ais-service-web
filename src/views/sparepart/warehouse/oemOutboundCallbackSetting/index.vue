@@ -143,7 +143,7 @@ export default {
             buttons: [{
               name: '关闭',
               show: (row) => {
-                return row.status === 1 && this.permissions.has('AISPART-oemOutboundCallbackSetting-close');
+                return row.status === 1 && this.permissions.has('AISPART-oemOutboundCallbackSetting-enableOrDisable');
               },
               popconfirmTitle: '确认关闭?',
               click: (rowIndex, row) => {
@@ -154,7 +154,7 @@ export default {
             {
               name: '开启',
               show: (row) => {
-                return row.status === 0 && this.permissions.has('AISPART-oemOutboundCallbackSetting-open');
+                return row.status === 0 && this.permissions.has('AISPART-oemOutboundCallbackSetting-enableOrDisable');
               },
               popconfirmTitle: '确认开启?',
               click: (rowIndex, row) => {
