@@ -16,6 +16,19 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="门店所属区域：">
+        <fetch-select
+          v-model="form.dealerRegionCodeList"
+          :remote-method="getScopeTypeOrg"
+          placeholder="请选择"
+          clearable
+          remote
+          multiple
+          filterable
+          value-key="code"
+          label-key="name"
+        />
+      </el-form-item>
       <el-form-item label="厅店名称：">
         <el-input
           placeholder="请输入"
@@ -94,7 +107,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/claimreturn/oldpart/destroy/oldPartDestroyOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getScopeTypeOrg } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -108,6 +121,7 @@ import { loginUserGet } from '@/libs/api/common';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   destroyOrderNo: '',
+  dealerRegionCodeList: [],
   dealerName: '',
   destroyStatus: '',
   destroyDate: '',
@@ -373,6 +387,9 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    getScopeTypeOrg () {
+      return getScopeTypeOrg({ type: '1020' });
     },
     // 批量删除
     handleBatchDelete () {
