@@ -74,7 +74,7 @@
             listUrl="/claimreturn/oldpart/web/returnorder/oldPartReturnOrder/list"
             placeholder="请选择"
             v-model="form.returnOrderId"
-            query-key="returnOrderNo"
+            query-key="returnOrderNoLike"
             clearable
             collapseTags
             :show-code="false"

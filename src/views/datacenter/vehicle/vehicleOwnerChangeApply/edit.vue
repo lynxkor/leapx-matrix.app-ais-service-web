@@ -500,7 +500,7 @@
         <div v-if="_id" class="common-section-body">
           <div class="common-section-table">
             <el-tabs v-model="activeTab" v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND">
-              <el-tab-pane label="个人" name="1" lazy>
+              <el-tab-pane label="个人" name="1" lazy v-if="PERSONAL_ID_TYPES.includes(String(form.oldIdType))">
                 <AisAttachment
                   v-for="value in ['车主身份证-正面', '车主身份证-反面', '车辆登记证书', '车辆行驶证']"
                   :key="'personal-' + value"
@@ -514,7 +514,7 @@
                   :readonly="attachmentDisabled"
                 />
               </el-tab-pane>
-              <el-tab-pane label="企业" name="2" lazy>
+              <el-tab-pane label="企业" name="2" lazy v-if="ENTERPRISE_ID_TYPES.includes(String(form.oldIdType))">
                 <AisAttachment
                   v-for="value in ['营业执照', '车辆登记证书', '车辆行驶证']"
                   :key="'enterprise-' + value"
@@ -573,6 +573,19 @@
                 :readonly="attachmentDisabled"
               />
             </div>
+            <div v-if="unclassifiedTypes.length">
+              <AisAttachment
+                v-for="type in unclassifiedTypes"
+                :key="'unclassified-' + type"
+                :businessId="_id"
+                configCode="mcs_vehownerchange"
+                :attachType="type"
+                type="card"
+                :title="type"
+                :businessData="businessData"
+                :readonly="attachmentDisabled"
+              />
+            </div>
           </div>
         </div>
         <div class="common-section-body not-commit" v-else>
@@ -610,6 +623,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import AisAttachment from '@/libs/components/AisAttachment';
+import { getFileList } from '@/libs/api/attachment';
 import { vehicleListFull } from '@/api/datacenter/vehicle/vehicleProfile';
 import { loginUserGet } from '@/libs/api/common';
 import LPEncrypted from '@/libs/components/LPEncrypted';
@@ -702,6 +716,27 @@ export default {
     },
     attachmentDisabled () {
       return !(this.form.applyStatus === APPLY_STATUS.DRAFT || this.form.applyStatus === APPLY_STATUS.REJECTED);
+    },
+    configuredAttachTypes () {
+      const types = new Set();
+      if (this.form.businessType === BUSINESS_TYPE.SECOND_HAND) {
+        if (PERSONAL_ID_TYPES.includes(String(this.form.oldIdType))) {
+          ['车主身份证-正面', '车主身份证-反面', '车辆登记证书', '车辆行驶证'].forEach(t => types.add(t));
+        }
+        if (ENTERPRISE_ID_TYPES.includes(String(this.form.oldIdType))) {
+          ['营业执照', '车辆登记证书', '车辆行驶证'].forEach(t => types.add(t));
+        }
+      } else if (this.form.businessType === BUSINESS_TYPE.OWNER_ADJUST) {
+        if (PERSONAL_ID_TYPES.includes(String(this.form.oldIdType))) {
+          ['车主身份证-正面', '车主身份证-反面', '车辆行驶证'].forEach(t => types.add(t));
+        }
+        if (ENTERPRISE_ID_TYPES.includes(String(this.form.oldIdType))) {
+          ['营业执照', '车辆行驶证'].forEach(t => types.add(t));
+        }
+      } else if (this.form.businessType === BUSINESS_TYPE.SCRAP) {
+        types.add('报废灭失证明');
+      }
+      return types;
     }
   },
   watch: {
@@ -762,6 +797,7 @@ export default {
       // 驳回弹窗
       rejectDialogVisible: false,
       rejectId: '',
+      unclassifiedTypes: [],
     };
   },
   created () {
@@ -782,6 +818,21 @@ export default {
   methods: {
     ocrSuccess () {
       this.$refs.containerRef.loadDetail();
+    },
+    async loadUnclassifiedTypes () {
+      if (!this._id) return;
+      try {
+        const res = await getFileList({ businessId: this._id });
+        const allFiles = res || [];
+        this.unclassifiedTypes = [...new Set(
+          allFiles
+            .filter(f => !this.configuredAttachTypes.has(f.attachType))
+            .map(f => f.attachType)
+            .filter(Boolean)
+        )];
+      } catch (e) {
+        console.error('获取未分类附件失败:', e);
+      }
     },
     onBusinessType (value) {
       // 切换业务类型时清空已录入信息
@@ -817,7 +868,12 @@ export default {
     detailRequest () {
       const id = this._id;
       if (id) {
-        return getDetail(id);
+        return getDetail(id).then(res => {
+          this.$nextTick(() => {
+            this.loadUnclassifiedTypes();
+          });
+          return res;
+        });
       }
     },
     submitRequest () {

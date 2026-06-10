@@ -1250,7 +1250,7 @@ export default {
       const originalAmount = row.workHour * row.price;
       row.discountAmount = Number(row.discountAmount) || 0;
       row.repairAmount = originalAmount - row.discountAmount;
-      row.discountRate = (row.discountAmount / originalAmount).toFixed(8);
+      row.discountRate = (row.discountAmount / (originalAmount || 1)).toFixed(8);
       this.updateTotals();
     },
 
@@ -1299,7 +1299,7 @@ export default {
       const originalAmount = Number(row.quantity) * Number(row.price);
       row.discountAmount = Number(row.discountAmount) || 0;
       row.partsAmount = originalAmount - row.discountAmount;
-      row.discountRate = (row.discountAmount / originalAmount).toFixed(8);
+      row.discountRate = (row.discountAmount / (originalAmount || 1)).toFixed(8);
       this.updateTotals();
     },
     // 维修项目名称变化
