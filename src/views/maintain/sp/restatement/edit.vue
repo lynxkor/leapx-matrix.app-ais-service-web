@@ -69,7 +69,7 @@
                   <el-input v-model="form.repairItemAmount" disabled placeholder="请输入" />
                 </el-form-item>
                 <el-form-item label="收款人：">
-                  <el-input v-model="form.payeeName" disabled placeholder="请输入" />
+                  <el-input v-model="form.payee" disabled placeholder="请输入" />
                 </el-form-item>
                 <el-form-item label="优惠总金额：" required>
                   <el-input v-model="form.discountAmount" disabled placeholder="请输入" />
@@ -161,7 +161,7 @@
                   {{ form.repairItemAmount || '-' }}
                 </el-form-item>
                 <el-form-item label="收款人：">
-                  {{ form.payeeName || '-' }}
+                  {{ form.payee || '-' }}
                 </el-form-item>
                 <el-form-item label="优惠总金额：">
                   {{ form.discountAmount || '-' }}
@@ -309,7 +309,7 @@ const defaultForm = {
   statementTime: '',
   rightsAmount: '',
   repairItemPayableAmount: '',
-  payeeName: '',
+  payee: '',
   discountAmount: '',
   partAmount: '',
   receiveAt: '',

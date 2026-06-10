@@ -190,6 +190,7 @@
             :_id="_id"
             :outboundStatus="form.outboundStatus"
             :dealerCode="dealerCode"
+            :supplierId="form.supplierId"
             @getTableData="getTableData"
             @checkboxChange="checkboxChange"
           />

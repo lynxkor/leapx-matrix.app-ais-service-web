@@ -156,6 +156,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
+import { getFileList } from '@/libs/api/attachment';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
@@ -296,7 +297,12 @@ export default {
                 return (row.claimStatus === '10' || row.claimStatus === '30') && this.permissions.has('AISPART-sparePartClaim-commit');
               },
               popconfirmTitle: '是否提交?',
-              click: (rowIndex, row) => {
+              click: async (rowIndex, row) => {
+                const fileList = await getFileList({ businessId: row.id, attachType: '索赔申请附件' });
+                if (!fileList || fileList.length === 0) {
+                  this.$message.warning('请上传附件后再提交');
+                  return;
+                }
                 getCommit({ id: row.id }).then(() => {
                   this.$message({
                     type: 'success',

@@ -158,8 +158,8 @@
               <vxe-column field="repairItemCode" title="维修项目代码" width="140px" />
               <vxe-column field="repairItemName" title="维修项目名称" width="180px" >
                <template #default="{ row }">
-                  <template v-if="row.id || row.repairItemCode !== universalLaborHourItemId || row.packageId">{{ row?.repairItemName }}</template>
-                   <el-input
+                  <template v-if="row.workRecordStatus >= WorkRecordStatusEnum.COMPLETED || row.repairItemCode !== universalLaborHourItemId || row.packageId">{{ row?.repairItemName }}</template>
+                  <el-input
                     v-else
                     v-model="row.repairItemName"
                     size="small"
@@ -479,7 +479,7 @@
 // import EditTable from '@/libs/components/EditTable';
 import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
 import UpdateActivityDialog from '../UpdateActivityDialog';
-import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID, MaintenanceTypeEnum, PackageTypeEnum, PackageTypeOptions } from '../../constant';
+import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID, MaintenanceTypeEnum, PackageTypeEnum, PackageTypeOptions, WorkRecordStatusEnum } from '../../constant';
 
 export default {
   name: 'SelectRepairItemDialog',
@@ -524,6 +524,7 @@ export default {
       // 常量
       universalLaborHourItemId: UNIVERSAL_LABOR_HOUR_ITEM_ID,
       PackageTypeEnum,
+      WorkRecordStatusEnum,
 
       // 维修项目表格配置
       itemData: [],
@@ -1249,7 +1250,7 @@ export default {
       const originalAmount = row.workHour * row.price;
       row.discountAmount = Number(row.discountAmount) || 0;
       row.repairAmount = originalAmount - row.discountAmount;
-      row.discountRate = (row.discountAmount / originalAmount).toFixed(8);
+      row.discountRate = (row.discountAmount / (originalAmount || 1)).toFixed(8);
       this.updateTotals();
     },
 
@@ -1298,7 +1299,7 @@ export default {
       const originalAmount = Number(row.quantity) * Number(row.price);
       row.discountAmount = Number(row.discountAmount) || 0;
       row.partsAmount = originalAmount - row.discountAmount;
-      row.discountRate = (row.discountAmount / originalAmount).toFixed(8);
+      row.discountRate = (row.discountAmount / (originalAmount || 1)).toFixed(8);
       this.updateTotals();
     },
     // 维修项目名称变化
