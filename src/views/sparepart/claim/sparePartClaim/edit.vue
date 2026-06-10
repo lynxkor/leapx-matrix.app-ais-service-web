@@ -321,6 +321,7 @@
               <div class="common-section-table">
                 <!-- 附件上传组件 -->
                 <AisAttachment
+                  ref="claimAttachment"
                   :businessId="_id"
                   configCode="mcs_partsclaimorder"
                   attachType="索赔申请附件"
@@ -866,6 +867,11 @@ export default {
     },
     // 提交
     handleCommit () {
+      const fileList = this.$refs.claimAttachment?.getFileList() || [];
+      if (fileList.length === 0) {
+        this.$message.warning('请上传附件后再提交');
+        return;
+      }
       this._handleAction(getCommit, ACTION_CONFIG.commit);
     },
     // 同意
