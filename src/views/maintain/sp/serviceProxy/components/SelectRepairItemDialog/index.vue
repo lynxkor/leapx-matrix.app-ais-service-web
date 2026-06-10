@@ -1155,9 +1155,18 @@ export default {
     },
     // 处理维修配件表格删除行
     async handleRemovePartRow (index, row) {
+      const packageTypeLabelMap = {
+        [PackageTypeEnum.REPAIR]: '维修套餐',
+        [PackageTypeEnum.EQUITY]: '权益套餐',
+        [PackageTypeEnum.STORE]: '商城订单',
+        [PackageTypeEnum.FREE]: '免保项目',
+        [PackageTypeEnum.TECH_ACTIVITY]: '技术服务活动',
+        [PackageTypeEnum.CARE_ACTIVITY]: '关爱服务活动'
+      };
+      const packageLabel = packageTypeLabelMap[row.packageType];
       if (row.packageId) {
         // 分支1: 删除权益套餐
-        const confirmed = await this.showMsg('本操作视为您取消核销本次权益套餐，请确认');
+        const confirmed = await this.showMsg(`本操作视为您取消核销本次${packageLabel}，请确认`);
         if (!confirmed) return;
 
         this.deleteRights(row);
