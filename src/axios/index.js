@@ -11,7 +11,7 @@ const ais = window.APP_AIS_WEB_CONFIG.VUE_APP_AIS_URL;
 // 路由到 ais 后端的 URL 前缀列表，新增前缀只需在此添加一行
 const AIS_PREFIXES = [
   '/vehstock/', '/maintain/', '/claimreturn/', '/datacenter/',
-  '/sp/', '/data/', '/vr/', '/vw/', '/datareport/', '/file/'
+  '/sp/', '/sp-local/', '/data/', '/vr/', '/vw/', '/datareport/', '/file/'
 ];
 
 function resolveBaseURL (url, sign) {

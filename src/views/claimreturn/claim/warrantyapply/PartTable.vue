@@ -25,7 +25,11 @@
         </template>
       </vxe-column>
       <vxe-column field="oldPartUniqueCode" title="旧件唯一码" width="180"></vxe-column>
-      <vxe-column field="partCode" title="零件编码" width="150"></vxe-column>
+      <vxe-column field="partCode" title="零件编码" width="150">
+        <template #default="{ row }">
+          <el-link type="primary" :href="`/service/sparepart/basic/sparePart/edit?id=${row.partId}`" target="_blank">{{ row.partCode }}</el-link>
+        </template>
+      </vxe-column>
       <vxe-column field="partName" title="零件名称" width="150"></vxe-column>
       <vxe-column field="returnPartTypeLabel" title="旧件返还类型" width="120"></vxe-column>
       <vxe-column title="是否已返" width="120">
@@ -53,11 +57,17 @@
               <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
             </template>
           </fetch-select>
-          <span v-else>{{ row.oldPartCode }}</span>
+          <span v-else>
+            <el-link type="primary" :href="`/service/sparepart/basic/sparePart/edit?id=${row.oldPartId}`" target="_blank">{{ row.oldPartCode }}</el-link>
+          </span>
         </template>
       </vxe-column>
       <vxe-column field="oldPartName" title="旧件名称" width="150"></vxe-column>
-      <vxe-column field="oldPartSupplierCode" title="旧件供应商编码" width="150"></vxe-column>
+      <vxe-column field="oldPartSupplierCode" title="旧件供应商编码" width="150">
+        <template #default="{ row }">
+          <el-link type="primary" :href="`/service/sparepart/basic/supplierInfo/edit?id=${row.oldPartSupplierId}`" target="_blank">{{ row.oldPartSupplierCode }}</el-link>
+        </template>
+      </vxe-column>
       <vxe-column field="oldPartSupplierName" title="旧件供应商名称" width="150"></vxe-column>
       <vxe-column field="partQuantity" title="零件数" width="120"></vxe-column>
       <vxe-column field="partUnitPrice" title="零件单价" width="120"></vxe-column>

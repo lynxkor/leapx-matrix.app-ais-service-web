@@ -22,7 +22,11 @@
         <span v-else>{{ row.isMainItem ? '是' : '否' }}</span>
       </template>
     </vxe-column>
-    <vxe-column field="repairItemCode" title="工时代码"></vxe-column>
+    <vxe-column field="repairItemCode" title="工时代码">
+      <template #default="{ row }">
+        <el-link type="primary" :href="`/service/maintain/basic/repairItem/edit?id=${row.repairItemId}`" target="_blank">{{ row.repairItemCode }}</el-link>
+      </template>
+    </vxe-column>
     <vxe-column field="repairItemName" title="工时名称"></vxe-column>
     <vxe-column field="workHour" title="工时数"></vxe-column>
     <vxe-column field="workHourUnitPrice" title="工时单价"></vxe-column>
