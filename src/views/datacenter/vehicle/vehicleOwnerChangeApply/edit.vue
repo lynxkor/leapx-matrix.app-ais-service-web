@@ -573,7 +573,7 @@
                 :readonly="attachmentDisabled"
               />
             </div>
-            <template v-if="unclassifiedTypes.length">
+            <div v-if="unclassifiedTypes.length">
               <AisAttachment
                 v-for="type in unclassifiedTypes"
                 :key="'unclassified-' + type"
@@ -585,7 +585,7 @@
                 :businessData="businessData"
                 :readonly="attachmentDisabled"
               />
-            </template>
+            </div>
           </div>
         </div>
         <div class="common-section-body not-commit" v-else>
