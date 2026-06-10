@@ -158,8 +158,8 @@
               <vxe-column field="repairItemCode" title="维修项目代码" width="140px" />
               <vxe-column field="repairItemName" title="维修项目名称" width="180px" >
                <template #default="{ row }">
-                  <template v-if="row.id || row.repairItemCode !== universalLaborHourItemId || row.packageId">{{ row?.repairItemName }}</template>
-                   <el-input
+                  <template v-if="row.workRecordStatus >= WorkRecordStatusEnum.COMPLETED || row.repairItemCode !== universalLaborHourItemId || row.packageId">{{ row?.repairItemName }}</template>
+                  <el-input
                     v-else
                     v-model="row.repairItemName"
                     size="small"
@@ -272,9 +272,9 @@
               <vxe-column title="操作" width="100" align="center" fixed="right">
                 <template #default="{ row, rowIndex }">
                   <span class="btn-delete disabled" v-if="disabled">删除</span>
-                  <span v-else-if="row.packageId" :class="['btn-delete', {'disabled': row.workRecordStatus === 40}]" @click="handleRemoveItemRow(rowIndex, row)">删除</span>
+                  <span v-else-if="row.packageId" :class="['btn-delete', {'disabled': row.workRecordStatus === WorkRecordStatusEnum.COMPLETED}]" @click="handleRemoveItemRow(rowIndex, row)">删除</span>
                   <el-popconfirm v-else title="确定要删除这条记录吗？" @confirm="handleRemoveItemRow(rowIndex, row)">
-                    <span slot="reference" :class="['btn-delete'/*, {'disabled': row.workRecordStatus === 40}*/]">删除</span>
+                    <span slot="reference" :class="['btn-delete'/*, {'disabled': row.workRecordStatus === WorkRecordStatusEnum.COMPLETED}*/]">删除</span>
                   </el-popconfirm>
                 </template>
               </vxe-column>
@@ -479,7 +479,7 @@
 // import EditTable from '@/libs/components/EditTable';
 import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
 import UpdateActivityDialog from '../UpdateActivityDialog';
-import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID, MaintenanceTypeEnum, PackageTypeEnum, PackageTypeOptions } from '../../constant';
+import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID, MaintenanceTypeEnum, PackageTypeEnum, PackageTypeOptions, WorkRecordStatusEnum } from '../../constant';
 
 export default {
   name: 'SelectRepairItemDialog',
@@ -524,6 +524,7 @@ export default {
       // 常量
       universalLaborHourItemId: UNIVERSAL_LABOR_HOUR_ITEM_ID,
       PackageTypeEnum,
+      WorkRecordStatusEnum,
 
       // 维修项目表格配置
       itemData: [],
@@ -1019,7 +1020,7 @@ export default {
         return;
       }
       // 校验是否重复添加
-      const target = this.itemData.filter(el => el.repairItemCode !== this.universalLaborHourItemId && el.workRecordStatus !== 40).find(el => el.repairItemId === item.id);
+      const target = this.itemData.filter(el => el.repairItemCode !== this.universalLaborHourItemId && el.workRecordStatus !== WorkRecordStatusEnum.COMPLETED).find(el => el.repairItemId === item.id);
       if (target) {
         this.$message.error('维修项目已存在，请勿重复添加');
         return;
@@ -1154,9 +1155,18 @@ export default {
     },
     // 处理维修配件表格删除行
     async handleRemovePartRow (index, row) {
+      const packageTypeLabelMap = {
+        [PackageTypeEnum.REPAIR]: '维修套餐',
+        [PackageTypeEnum.EQUITY]: '权益套餐',
+        [PackageTypeEnum.STORE]: '商城订单',
+        [PackageTypeEnum.FREE]: '免保项目',
+        [PackageTypeEnum.TECH_ACTIVITY]: '技术服务活动',
+        [PackageTypeEnum.CARE_ACTIVITY]: '关爱服务活动'
+      };
+      const packageLabel = packageTypeLabelMap[row.packageType];
       if (row.packageId) {
         // 分支1: 删除权益套餐
-        const confirmed = await this.showMsg('本操作视为您取消核销本次权益套餐，请确认');
+        const confirmed = await this.showMsg(`本操作视为您取消核销本次${packageLabel}，请确认`);
         if (!confirmed) return;
 
         this.deleteRights(row);
@@ -1249,7 +1259,7 @@ export default {
       const originalAmount = row.workHour * row.price;
       row.discountAmount = Number(row.discountAmount) || 0;
       row.repairAmount = originalAmount - row.discountAmount;
-      row.discountRate = (row.discountAmount / originalAmount).toFixed(8);
+      row.discountRate = (row.discountAmount / (originalAmount || 1)).toFixed(8);
       this.updateTotals();
     },
 
@@ -1298,7 +1308,7 @@ export default {
       const originalAmount = Number(row.quantity) * Number(row.price);
       row.discountAmount = Number(row.discountAmount) || 0;
       row.partsAmount = originalAmount - row.discountAmount;
-      row.discountRate = (row.discountAmount / originalAmount).toFixed(8);
+      row.discountRate = (row.discountAmount / (originalAmount || 1)).toFixed(8);
       this.updateTotals();
     },
     // 维修项目名称变化
@@ -1378,7 +1388,7 @@ export default {
       // if (!this.checkoutTypeIncluded(row.checkoutTypeId) && row.repairItemId !== this.universalLaborHourItemId) {
       //   return false;
       // }
-      if (row.repairItemCode === this.universalLaborHourItemId && row.workRecordStatus !== 40) {
+      if (row.repairItemCode === this.universalLaborHourItemId && row.workRecordStatus !== WorkRecordStatusEnum.COMPLETED) {
         return true;
       }
       return false;

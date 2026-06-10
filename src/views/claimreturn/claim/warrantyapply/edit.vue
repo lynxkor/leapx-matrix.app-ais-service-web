@@ -197,7 +197,7 @@
               {{ form.paymentTime }}
             </el-form-item>
             <el-form-item label="索赔追溯单：" prop="claimTrackNo">
-              <el-link type="success" :href="`/claimreturn/claim/claimtrace/claimtraceorder/edit?id=${form.claimTrackId}`" target="_blank">{{ form.claimTrackNo }}</el-link>
+              <el-link type="success" :href="`/claimreturn/claim/claimtrace/claimTraceOrder/edit?id=${form.claimTrackId}`" target="_blank">{{ form.claimTrackNo }}</el-link>
             </el-form-item>
           </el-form>
         </div>
@@ -540,13 +540,13 @@
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id) && !canEditMainPart">
             <el-form-item label="主因零件编码：" prop="mainPartCode">
-              {{ form.mainPartCode }}
+              <el-link type="primary" :href="`/service/sparepart/basic/sparePart/edit?id=${form.mainPartId}`" target="_blank">{{ form.mainPartCode }}</el-link>
             </el-form-item>
             <el-form-item label="主因零件名称：" prop="mainPartName">
               {{ form.mainPartName }}
             </el-form-item>
             <el-form-item label="主因供应商编码：" prop="mainPartSupplierCode">
-              {{ form.mainPartSupplierCode }}
+              <el-link type="primary" :href="`/service/sparepart/basic/supplierInfo/edit?id=${form.mainPartSupplierId}`" target="_blank">{{ form.mainPartSupplierCode }}</el-link>
             </el-form-item>
             <el-form-item label="主因供应商名称：" prop="mainPartSupplierName">
               {{ form.mainPartSupplierName }}
