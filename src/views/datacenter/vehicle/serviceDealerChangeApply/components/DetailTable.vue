@@ -26,7 +26,11 @@
           :checkbox="true"
           @checkboxChange="checkboxChange"
         >
-          <vxe-column field="vin" title="VIN" width="160"></vxe-column>
+          <vxe-column field="vin" title="VIN" width="160">
+            <template #default="{ row }">
+              <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?vin=${row.vin}`" target="_blank">{{ row.vin }}</el-link>
+            </template>
+          </vxe-column>
           <vxe-column field="beforeDealerCode" title="变更前门店编码" width="160"></vxe-column>
           <vxe-column field="beforeDealerName" title="变更前门店名称" width="160"></vxe-column>
           <vxe-column field="afterDealerCode" title="变更后门店编码" width="160"></vxe-column>
