@@ -215,7 +215,7 @@ export default {
       pageTitle: '门店盘盈申请',
       pageType: 'list',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
-      moduleKey: 'AISPART-stockTakingDifferences',
+      moduleKey: 'AISPART-stockTakingDifferencesProfit',
       form: {
         ...defaultForm
       },
@@ -335,7 +335,7 @@ export default {
             {
               name: '申请',
               show: (row) => {
-                return row.orderStatus === '0' && this.permissions.has('AISPART-stockTakingDifferences-apply');
+                return row.orderStatus === '0' && this.permissions.has('AISPART-stockTakingDifferencesProfit-apply');
               },
               click: (rowIndex, row) => {
                 this.handleApply(row);
@@ -344,7 +344,7 @@ export default {
             }, {
               name: '盘亏同意',
               show: (row) => {
-                return row.orderStatus === '1' && row.differencesType === '20' && this.permissions.has('AISPART-stockTakingDifferences-agreeLoss');
+                return row.orderStatus === '1' && row.differencesType === '20' && this.permissions.has('AISPART-stockTakingDifferencesProfit-agreeLoss');
               },
               popconfirmTitle: '此操作将同意盘亏, 是否继续?',
               click: (rowIndex, row) => {
@@ -367,7 +367,7 @@ export default {
             }, {
               name: '盘亏拒绝',
               show: (row) => {
-                return row.orderStatus === '1' && row.differencesType === '20' && this.permissions.has('AISPART-stockTakingDifferences-rejectLoss');
+                return row.orderStatus === '1' && row.differencesType === '20' && this.permissions.has('AISPART-stockTakingDifferencesProfit-rejectLoss');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入拒绝原因', '拒绝盘亏', {
@@ -396,7 +396,7 @@ export default {
             }, {
               name: '盘盈同意',
               show: (row) => {
-                return row.orderStatus === '1' && row.differencesType === '10' && this.permissions.has('AISPART-stockTakingDifferences-agreeProfit');
+                return row.orderStatus === '1' && row.differencesType === '10' && this.permissions.has('AISPART-stockTakingDifferencesProfit-agreeProfit');
               },
               popconfirmTitle: '此操作将同意盘盈, 是否继续?',
               click: (rowIndex, row) => {
@@ -419,7 +419,7 @@ export default {
             }, {
               name: '盘盈拒绝',
               show: (row) => {
-                return row.orderStatus === '1' && row.differencesType === '10' && this.permissions.has('AISPART-stockTakingDifferences-rejectProfit');
+                return row.orderStatus === '1' && row.differencesType === '10' && this.permissions.has('AISPART-stockTakingDifferencesProfit-rejectProfit');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入拒绝原因', '拒绝盘盈', {
@@ -448,7 +448,7 @@ export default {
             }, {
               name: '入库',
               show: (row) => {
-                return row.orderStatus === '2' && row.differencesType === '10' && row.outInboundStatus === '2' && this.permissions.has('AISPART-stockTakingDifferences-inbound');
+                return row.orderStatus === '2' && row.differencesType === '10' && row.outInboundStatus === '2' && this.permissions.has('AISPART-stockTakingDifferencesProfit-inbound');
               },
               popconfirmTitle: '确定入库吗, 是否继续?',
               click: (rowIndex, row) => {
@@ -471,7 +471,7 @@ export default {
             }, {
               name: '出库',
               show: (row) => {
-                return row.orderStatus === '2' && row.differencesType === '20' && row.outInboundStatus === '0' && this.permissions.has('AISPART-stockTakingDifferences-outbound');
+                return row.orderStatus === '2' && row.differencesType === '20' && row.outInboundStatus === '0' && this.permissions.has('AISPART-stockTakingDifferencesProfit-outbound');
               },
               popconfirmTitle: '确定出库吗, 是否继续?',
               click: (rowIndex, row) => {
@@ -597,13 +597,14 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
+      reqParams.profit=true;
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
       exportTable({
         businessType: '盘点差异单',
-        dataFetchPath: 'sp/web/dealer/stockTakingDifferences/page',
+        dataFetchPath: 'sp/web/dealer/stockTakingDifferences/page', 
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
@@ -634,7 +635,7 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size, profit: true })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          this.optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false

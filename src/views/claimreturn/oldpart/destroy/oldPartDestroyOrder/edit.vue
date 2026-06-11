@@ -73,6 +73,9 @@
               <h2>旧件销毁明细</h2>
             </div>
             <div class="common-section-body">
+              <div class="ais-actions">
+                <el-button size="small" :loading="exportLoading" @click="exportExcel">导出</el-button>
+              </div>
               <div class="common-section-table">
                 <edit-table
                   ref="editTable"
@@ -169,7 +172,8 @@ import { getDetail, addOrUpdate, deleteItem, executeDestroy, approve } from '@/a
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, exportTable } from '@/api/common';
+import { downloadExcel } from '@/libs/utils';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -251,6 +255,7 @@ export default {
       isDealer: null,
       loading: false,
       submitLoading: false,
+      exportLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -671,6 +676,34 @@ export default {
         return;
       }
       this.dialogFormVisible = true;
+    },
+    exportExcel () {
+      this.exportLoading = true;
+      const titleMap = {};
+      this.columns.forEach(col => {
+        titleMap[col.field] = col.title;
+      });
+      exportTable({
+        businessType: '旧件销毁明细',
+        dataFetchPath: '/claimreturn/oldpart/web/inventory/oldPartOemInventory/page',
+        reqParams: {
+          oldPartDestroyOrderId: this._id,
+        },
+        titleMap,
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '旧件销毁明细.xlsx');
+          } catch (error) {
+            this.$message({ type: 'error', message: '文件导出失败' });
+          }
+        } else {
+          this.$message({ type: 'info', message: '请前往导出列表中查询导出结果' });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
     }
   }
 };

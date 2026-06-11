@@ -89,7 +89,7 @@ const responseInterceptors = (instance, forbidToast) => {
       }
       return Promise.reject(error);
     }
-    const flag = NEED_DECRYPT(error.config.url);
+    const flag = NEED_DECRYPT(error.config?.url);
     response.data = flag ? decrypt(response.data) : response.data;
 
     if (response.status === 401) {

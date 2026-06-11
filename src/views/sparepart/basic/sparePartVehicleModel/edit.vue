@@ -189,7 +189,7 @@
                   {{ form.partName }}
                 </el-form-item>
                 <el-form-item label="车系名称：">
-                  <el-link type="primary" :href="`/sales/datacenter/materials/vehicleseries/edit?id=${form.vehicleSeriesId}`" target="_blank">
+                  <el-link type="primary" :href="`/sales/datacenter/materials/vehicleSeries/edit?id=${form.vehicleSeriesId}`" target="_blank">
                     {{ form.vehicleSeriesName }}
                   </el-link>
                 </el-form-item>

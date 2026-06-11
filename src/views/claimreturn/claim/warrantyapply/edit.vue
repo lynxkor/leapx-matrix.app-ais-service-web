@@ -197,7 +197,7 @@
               {{ form.paymentTime }}
             </el-form-item>
             <el-form-item label="索赔追溯单：" prop="claimTrackNo">
-              <el-link type="success" :href="`/claimreturn/claim/claimtrace/claimtraceorder/edit?id=${form.claimTrackId}`" target="_blank">{{ form.claimTrackNo }}</el-link>
+              <el-link type="success" :href="`/claimreturn/claim/claimtrace/claimTraceOrder/edit?id=${form.claimTrackId}`" target="_blank">{{ form.claimTrackNo }}</el-link>
             </el-form-item>
           </el-form>
         </div>
