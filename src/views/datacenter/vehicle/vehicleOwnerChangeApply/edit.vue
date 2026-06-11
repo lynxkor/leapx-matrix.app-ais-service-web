@@ -660,10 +660,28 @@ export default {
       if (String(this.form.dataSource) === '30') {
         return this.allFileTypes;
       }
-      const configTypes = (this.attachmentConfigs || []).map(c => c.attachType);
-      const configSet = new Set(configTypes);
-      const unclassified = this.allFileTypes.filter(t => !configSet.has(t));
-      return [...configTypes, ...unclassified];
+      const types = new Set();
+      if (this.form.businessType === BUSINESS_TYPE.SECOND_HAND) {
+        if (PERSONAL_ID_TYPES.includes(this.idType)) {
+          ['车主身份证-正面', '车主身份证-反面', '车辆登记证书', '车辆行驶证'].forEach(t => types.add(t));
+        }
+        if (ENTERPRISE_ID_TYPES.includes(this.idType)) {
+          ['营业执照', '车辆登记证书', '车辆行驶证'].forEach(t => types.add(t));
+        }
+      } else if (this.form.businessType === BUSINESS_TYPE.OWNER_ADJUST) {
+        if (PERSONAL_ID_TYPES.includes(this.idType)) {
+          ['车主身份证-正面', '车主身份证-反面', '车辆行驶证'].forEach(t => types.add(t));
+        }
+        if (ENTERPRISE_ID_TYPES.includes(this.idType)) {
+          ['营业执照', '车辆行驶证'].forEach(t => types.add(t));
+        }
+      } else if (this.form.businessType === BUSINESS_TYPE.SCRAP) {
+        types.add('报废灭失证明');
+      }
+      const configured = [...types];
+      const configuredSet = new Set(configured);
+      const unclassified = this.allFileTypes.filter(t => !configuredSet.has(t));
+      return [...configured, ...unclassified];
     },
     idType () {
       if (this.form.businessType === BUSINESS_TYPE.SECOND_HAND) {
