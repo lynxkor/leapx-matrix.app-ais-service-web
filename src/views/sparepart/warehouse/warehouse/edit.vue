@@ -92,6 +92,9 @@
                   <el-button plain @click="handleImport" size="small">
                     导入
                   </el-button>
+                  <el-button plain @click="batchDeleteLocation" size="small">
+                    批量删除
+                  </el-button>
                 </div>
                 <div class="common-section-table">
                   <part-table
@@ -99,6 +102,7 @@
                     ref="partTable"
                     :id="id"
                     @openPane="openPane"
+                    @selection-change="handleLocationSelectionChange"
                     >
                   </part-table>
                 </div>
@@ -131,7 +135,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, locationOrUpdate } from '@/api/sparepart/warehouse/warehouse/index';
+import { getDetail, addOrUpdate, locationOrUpdate, locationDel } from '@/api/sparepart/warehouse/warehouse/index';
 // import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import { getEnum, listOrgStoreInfo } from '@/api/common';
@@ -231,6 +235,7 @@ export default {
       submitLoading: false,
       locationName: '', // 库位信息
       replaceData: {}, // 库位当行信息
+      selectedLocationRows: [], // 选中的库位记录
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -413,7 +418,32 @@ export default {
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
-    }
+    },
+    handleLocationSelectionChange (selection) {
+      this.selectedLocationRows = selection;
+    },
+    batchDeleteLocation () {
+      if (!this.selectedLocationRows || this.selectedLocationRows.length === 0) {
+        this.$message.warning('请选择需要删除的库位记录');
+        return;
+      }
+      this.$confirm('此操作将删除选中的库位记录，对应备件库存记录中的库位信息将同步清空, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const ids = this.selectedLocationRows.map(row => row.id);
+        locationDel(ids).then(() => {
+          this.$message.success('删除成功');
+          this.$refs.partTable.getDetailPageApi();
+          this.selectedLocationRows = [];
+        }).catch(() => {
+          this.$message.error('删除失败，请重试');
+        });
+      }).catch(() => {
+        // 用户取消
+      });
+    },
   }
 };
 </script>

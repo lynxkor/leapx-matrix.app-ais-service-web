@@ -10,6 +10,7 @@
       :isFocusNewRow="false"
       :enableSingleRowSave="true"
       :showPagination="true"
+      :checkbox="canAddOrUpdate"
       :current="current"
       :pageSize="pageSize"
       :total="total"
@@ -17,6 +18,7 @@
       @remove-row="handleRemoveRow"
       @page-size-change="pageSizeChange"
       @current-page-change="currentPageChange"
+      @checkboxChange="handleCheckboxChange"
       :actionWidth="200"
       :emptyText="_id ? '' : '新增后，即可添加'"
       :disabled="disabled"
@@ -106,6 +108,7 @@ export default {
         },
       ],
       selectedRow: {},
+      selectedRows: [],
     };
   },
   watch: {
@@ -170,6 +173,10 @@ export default {
     // -------------
     handleAdd (newItem) {
       this.$refs.editTable.addRow(newItem);
+    },
+    handleCheckboxChange (selection) {
+      this.selectedRows = selection;
+      this.$emit('selection-change', selection);
     },
     openPane (row, rowIndex) {
       this.selectedRow = row;
