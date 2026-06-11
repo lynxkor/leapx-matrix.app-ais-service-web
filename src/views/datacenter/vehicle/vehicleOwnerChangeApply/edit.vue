@@ -509,7 +509,6 @@
                   :attachType="value"
                   type="card"
                   :title="value"
-                  :businessData="businessData"
                   @ocr-success="ocrSuccess"
                   :readonly="attachmentDisabled"
                 />
@@ -523,7 +522,6 @@
                   :attachType="value"
                   type="card"
                   :title="value"
-                  :businessData="businessData"
                   @ocr-success="ocrSuccess"
                   :readonly="attachmentDisabled"
                 />
@@ -539,7 +537,6 @@
                   :attachType="value"
                   type="card"
                   :title="value"
-                  :businessData="businessData"
                   @ocr-success="ocrSuccess"
                   :readonly="attachmentDisabled"
                 />
@@ -555,7 +552,6 @@
                   :attachType="value"
                   type="card"
                   :title="value"
-                  :businessData="businessData"
                   @ocr-success="ocrSuccess"
                   :readonly="attachmentDisabled"
                 />
@@ -568,7 +564,6 @@
                 attachType="报废灭失证明"
                 type="card"
                 title="报废灭失证明"
-                :businessData="businessData"
                 @ocr-success="ocrSuccess"
                 :readonly="attachmentDisabled"
               />
@@ -582,7 +577,6 @@
                 :attachType="type"
                 type="card"
                 :title="type"
-                :businessData="businessData"
                 :readonly="attachmentDisabled"
               />
             </div>
@@ -705,12 +699,6 @@ export default {
     title () {
       return '车主信息变更';
     },
-    businessData () {
-      const data = {
-        ...this.form,
-      };
-      return JSON.stringify(data);
-    },
     showEditBtn () {
       return this.form.applyStatus === APPLY_STATUS.DRAFT || this.form.applyStatus === APPLY_STATUS.REJECTED;
     },
@@ -816,6 +804,19 @@ export default {
     }
   },
   methods: {
+    refreshAllAttachments () {
+      const find = (vm) => {
+        let result = [];
+        vm.$children.forEach(child => {
+          if (child.$options.name === 'AisAttachment') {
+            result.push(child);
+          }
+          result = result.concat(find(child));
+        });
+        return result;
+      };
+      find(this).forEach(a => a.refresh());
+    },
     ocrSuccess () {
       this.$refs.containerRef.loadDetail();
     },
@@ -882,7 +883,10 @@ export default {
         this.$message.warning('当前只支持从家用车辆属性申请变更为运营车辆属性');
         return Promise.reject(new Error('validation failed'));
       }
-      return addOrUpdate({ ...this.form });
+      return addOrUpdate({ ...this.form }).then(res => {
+        this.$nextTick(() => this.refreshAllAttachments());
+        return res;
+      });
     },
     // 提交
     handleSubmit () {
