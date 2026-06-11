@@ -499,87 +499,32 @@
         </div>
         <div v-if="_id" class="common-section-body">
           <div class="common-section-table">
-            <el-tabs v-model="activeTab" v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND">
-              <el-tab-pane label="个人" name="1" lazy v-if="PERSONAL_ID_TYPES.includes(String(form.oldIdType))">
+            <el-tabs v-model="activeTab">
+              <el-tab-pane label="个人" name="1" lazy v-if="PERSONAL_ID_TYPES.includes(String(idType))">
                 <AisAttachment
-                  v-for="value in ['车主身份证-正面', '车主身份证-反面', '车辆登记证书', '车辆行驶证']"
-                  :key="'personal-' + value"
+                  v-for="type in displayAttachTypes"
+                  :key="type"
                   :businessId="_id"
-                  configCode="mcs_vehownerchange"
-                  :attachType="value"
+                  :attachType="type"
                   type="card"
-                  :title="value"
+                  :title="type"
                   @ocr-success="ocrSuccess"
                   :readonly="attachmentDisabled"
                 />
               </el-tab-pane>
-              <el-tab-pane label="企业" name="2" lazy v-if="ENTERPRISE_ID_TYPES.includes(String(form.oldIdType))">
+              <el-tab-pane label="企业" name="2" lazy v-if="ENTERPRISE_ID_TYPES.includes(String(idType))">
                 <AisAttachment
-                  v-for="value in ['营业执照', '车辆登记证书', '车辆行驶证']"
-                  :key="'enterprise-' + value"
+                  v-for="type in displayAttachTypes"
+                  :key="type"
                   :businessId="_id"
-                  configCode="mcs_vehownerchange"
-                  :attachType="value"
+                  :attachType="type"
                   type="card"
-                  :title="value"
-                  @ocr-success="ocrSuccess"
-                  :readonly="attachmentDisabled"
-                />
-              </el-tab-pane>
-            </el-tabs>
-            <el-tabs value="1" v-else-if="form.businessType === BUSINESS_TYPE.OWNER_ADJUST && PERSONAL_ID_TYPES.includes(String(form.oldIdType))">
-              <el-tab-pane label="个人" name="1">
-                <AisAttachment
-                  v-for="value in ['车主身份证-正面', '车主身份证-反面', '车辆行驶证']"
-                  :key="'personal-' + value"
-                  :businessId="_id"
-                  configCode="mcs_vehownerchange"
-                  :attachType="value"
-                  type="card"
-                  :title="value"
+                  :title="type"
                   @ocr-success="ocrSuccess"
                   :readonly="attachmentDisabled"
                 />
               </el-tab-pane>
             </el-tabs>
-            <el-tabs value="1" v-else-if="form.businessType === BUSINESS_TYPE.OWNER_ADJUST && ENTERPRISE_ID_TYPES.includes(String(form.oldIdType))">
-              <el-tab-pane label="企业" name="1">
-                <AisAttachment
-                  v-for="value in ['营业执照', '车辆行驶证']"
-                  :key="'personal-' + value"
-                  :businessId="_id"
-                  configCode="mcs_vehownerchange"
-                  :attachType="value"
-                  type="card"
-                  :title="value"
-                  @ocr-success="ocrSuccess"
-                  :readonly="attachmentDisabled"
-                />
-              </el-tab-pane>
-            </el-tabs>
-            <div v-else-if="form.businessType === BUSINESS_TYPE.SCRAP">
-              <AisAttachment
-                :businessId="_id"
-                configCode="mcs_vehownerchange"
-                attachType="报废灭失证明"
-                type="card"
-                title="报废灭失证明"
-                @ocr-success="ocrSuccess"
-                :readonly="attachmentDisabled"
-              />
-            </div>
-            <div v-if="unclassifiedTypes.length">
-              <AisAttachment
-                v-for="type in unclassifiedTypes"
-                :key="'unclassified-' + type"
-                :businessId="_id"
-                configCode="mcs_vehownerchange"
-                :attachType="type"
-                type="card"
-                :title="type"
-                :readonly="attachmentDisabled"
-              />
-            </div>
           </div>
         </div>
         <div class="common-section-body not-commit" v-else>
@@ -617,7 +562,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import AisAttachment from '@/libs/components/AisAttachment';
-import { getFileList } from '@/libs/api/attachment';
+import { getByCode, getFileList } from '@/libs/api/attachment';
 import { vehicleListFull } from '@/api/datacenter/vehicle/vehicleProfile';
 import { loginUserGet } from '@/libs/api/common';
 import LPEncrypted from '@/libs/components/LPEncrypted';
@@ -699,32 +644,50 @@ export default {
     title () {
       return '车主信息变更';
     },
+    businessData () {
+      const data = {
+        ...this.form,
+      };
+      return JSON.stringify(data);
+    },
     showEditBtn () {
       return this.form.applyStatus === APPLY_STATUS.DRAFT || this.form.applyStatus === APPLY_STATUS.REJECTED;
     },
     attachmentDisabled () {
       return !(this.form.applyStatus === APPLY_STATUS.DRAFT || this.form.applyStatus === APPLY_STATUS.REJECTED);
     },
-    configuredAttachTypes () {
+    displayAttachTypes () {
+      if (String(this.form.dataSource) === '30') {
+        return this.allFileTypes;
+      }
       const types = new Set();
       if (this.form.businessType === BUSINESS_TYPE.SECOND_HAND) {
-        if (PERSONAL_ID_TYPES.includes(String(this.form.oldIdType))) {
+        if (PERSONAL_ID_TYPES.includes(this.idType)) {
           ['车主身份证-正面', '车主身份证-反面', '车辆登记证书', '车辆行驶证'].forEach(t => types.add(t));
         }
-        if (ENTERPRISE_ID_TYPES.includes(String(this.form.oldIdType))) {
+        if (ENTERPRISE_ID_TYPES.includes(this.idType)) {
           ['营业执照', '车辆登记证书', '车辆行驶证'].forEach(t => types.add(t));
         }
       } else if (this.form.businessType === BUSINESS_TYPE.OWNER_ADJUST) {
-        if (PERSONAL_ID_TYPES.includes(String(this.form.oldIdType))) {
+        if (PERSONAL_ID_TYPES.includes(this.idType)) {
           ['车主身份证-正面', '车主身份证-反面', '车辆行驶证'].forEach(t => types.add(t));
         }
-        if (ENTERPRISE_ID_TYPES.includes(String(this.form.oldIdType))) {
+        if (ENTERPRISE_ID_TYPES.includes(this.idType)) {
           ['营业执照', '车辆行驶证'].forEach(t => types.add(t));
         }
       } else if (this.form.businessType === BUSINESS_TYPE.SCRAP) {
         types.add('报废灭失证明');
       }
-      return types;
+      const configured = [...types];
+      const configuredSet = new Set(configured);
+      const unclassified = this.allFileTypes.filter(t => !configuredSet.has(t));
+      return [...configured, ...unclassified];
+    },
+    idType () {
+      if (this.form.businessType === BUSINESS_TYPE.SECOND_HAND) {
+        return this.form.targetIdType;
+      }
+      return this.form.oldIdType;
     }
   },
   watch: {
@@ -735,7 +698,7 @@ export default {
         }
       },
       immediate: true
-    },
+    }
   },
   data () {
     const form = this.getDefautlForm();
@@ -766,6 +729,9 @@ export default {
         applyDesc: [
           { required: true, message: '请输入申请说明', trigger: 'blur' }
         ],
+        targetIdType: [
+          { required: true, message: '请选择证件类型', trigger: 'change' }
+        ],
         targetOwnerPhone: [
           {
             pattern: /^1[3-9]\d{9}$/,
@@ -785,7 +751,8 @@ export default {
       // 驳回弹窗
       rejectDialogVisible: false,
       rejectId: '',
-      unclassifiedTypes: [],
+      attachmentConfigs: [],
+      allFileTypes: [],
     };
   },
   created () {
@@ -820,19 +787,30 @@ export default {
     ocrSuccess () {
       this.$refs.containerRef.loadDetail();
     },
-    async loadUnclassifiedTypes () {
+    async loadAllFileTypes () {
       if (!this._id) return;
       try {
         const res = await getFileList({ businessId: this._id });
         const allFiles = res || [];
-        this.unclassifiedTypes = [...new Set(
-          allFiles
-            .filter(f => !this.configuredAttachTypes.has(f.attachType))
-            .map(f => f.attachType)
-            .filter(Boolean)
+        this.allFileTypes = [...new Set(
+          allFiles.map(f => f.attachType).filter(Boolean)
         )];
       } catch (e) {
-        console.error('获取未分类附件失败:', e);
+        console.error('获取附件列表失败:', e);
+      }
+    },
+    async loadAttachmentConfig (config) {
+      if (!this._id) return;
+      try {
+        const data = await getByCode({
+          configCode: 'mcs_vehownerchange',
+          businessData: JSON.stringify(config),
+        });
+        if (data && data.detailList) {
+          this.attachmentConfigs = data.detailList;
+        }
+      } catch (e) {
+        console.error('获取附件配置失败:', e);
       }
     },
     onBusinessType (value) {
@@ -871,8 +849,10 @@ export default {
       if (id) {
         return getDetail(id).then(res => {
           this.$nextTick(() => {
-            this.loadUnclassifiedTypes();
+            this.loadAttachmentConfig(res);
+            this.loadAllFileTypes();
           });
+          this.activeTab = PERSONAL_ID_TYPES.includes(String(res.targetIdType || res.oldIdType)) ? '1' : '2';
           return res;
         });
       }
