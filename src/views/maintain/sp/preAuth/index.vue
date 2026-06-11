@@ -36,10 +36,10 @@
           label-key="name"
         />
       </el-form-item>
-      <el-form-item label="门店名称">
-        <dealer-select v-model="form.dealerCode"/>
-      </el-form-item>
       <template v-if="show">
+        <el-form-item label="门店名称">
+          <dealer-select v-model="form.dealerCode"/>
+        </el-form-item>
         <el-form-item label="车牌号">
           <el-input
             placeholder="请输入"
