@@ -732,7 +732,7 @@
                   <el-input clearable v-model="form.vehicleEnterpriseName" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="车辆产地：">
-                  <el-input clearable v-model="form.vehiclePlaceOrigin" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.vehiclePlaceOriginLabel" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="制造工厂：">
                   <el-input clearable v-model="form.factoryinfoName" placeholder="请输入" disabled />
@@ -835,7 +835,7 @@
                   {{ form.vehicleEnterpriseName }}
                 </el-form-item>
                 <el-form-item label="车辆产地：">
-                  {{ form.vehiclePlaceOrigin }}
+                  {{ form.vehiclePlaceOriginLabel }}
                 </el-form-item>
                 <el-form-item label="制造工厂：">
                   {{ form.factoryinfoName }}
