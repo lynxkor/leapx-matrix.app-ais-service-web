@@ -23,10 +23,23 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="门店名称" v-show="this.visibleCount === 3 || show">
-        <dealer-select v-model="form.dealerCode"/>
+      <el-form-item label="门店所属区域" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          v-model="form.dealerUnitIdList"
+          :remote-method="getScopeTypeOrg"
+          placeholder="请选择"
+          clearable
+          remote
+          multiple
+          filterable
+          value-key="code"
+          label-key="name"
+        />
       </el-form-item>
       <template v-if="show">
+        <el-form-item label="门店名称">
+          <dealer-select v-model="form.dealerCode"/>
+        </el-form-item>
         <el-form-item label="车牌号">
           <el-input
             placeholder="请输入"
@@ -39,6 +52,17 @@
             placeholder="请输入"
             v-model="form.vehProfileVin"
             clearable
+          />
+        </el-form-item>
+        <el-form-item label="预授权类型">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="PreAuthTypeEnum"
+            v-model="form.preAuthTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
           />
         </el-form-item>
         <el-form-item label="状态">
@@ -108,8 +132,8 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, cancelItem, auditItem, regenerate, getEnum } from '@/api/maintain/sp/preAuth/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getPartDealer } from '@/api/common';
+import { getList, deleteItem, enableItem, cancelItem, revokeItem, auditItem, regenerate, getEnum } from '@/api/maintain/sp/preAuth/index';
+import { getTableConfig, tableAddOrUpdate, exportTable, getPartDealer, getScopeTypeOrg } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -127,6 +151,11 @@ const defaultForm = {
   code: '',
   serviceProxyCode: '',
   dealerName: '',
+  dealerUnitIdList: [],
+  dealerUnitName: '',
+  preAuthTypeList: [],
+  approvalStatusList: [],
+  carPlate: '',
   licensePlateNo: '',
   vehProfileVin: '',
   status: ''
@@ -193,6 +222,7 @@ export default {
             }]
           },
           { props: 'serviceProxyCode', label: '施工单号', visible: true, width: 200 },
+          { props: 'preAuthTypeLabel', label: '预授权类型', visible: true, width: 150 },
           {
             props: 'dealerName',
             label: '门店名称',
@@ -205,8 +235,13 @@ export default {
               type: 'primary'
             }]
           },
+          { props: 'dealerUnitName', label: '门店所属大区', visible: true, width: 150 },
           { props: 'carPlate', label: '车牌号', visible: true, width: 150 },
           { props: 'vehProfileVin', label: 'VIN', visible: true, width: 200 },
+          { props: 'alarmInfo', label: '预警信息', visible: true, width: 200 },
+          { props: 'approvedLaborClaimTotal', label: '工时索赔合计', visible: true, width: 150 },
+          { props: 'approvedPartsClaimTotal', label: '零件索赔合计', visible: true, width: 150 },
+          { props: 'approvedOtherClaimTotal', label: '其他索赔费用', visible: true, width: 150 },
           { props: 'approvalStatusLabel', label: '单据状态', visible: true, width: 150 },
           { props: 'approver', label: '审批人', visible: true, width: 150 },
           { props: 'approvalOn', label: '审批时间', visible: true, width: 180 },
@@ -220,7 +255,7 @@ export default {
             type: 'operate',
             visible: true,
             fixed: 'right',
-            width: 350,
+            width: 400,
             buttons: [{
               name: '审批',
               click: (rowIndex, row) => {
@@ -251,6 +286,13 @@ export default {
               },
               type: 'info',
               show: (row) => this.permissions.has('AISMC-preAuth-cancel') && row.approvalStatus === AUDIT_STATUS.REJECTED // 审批驳回
+            }, {
+              name: '撤回',
+              click: (rowIndex, row) => {
+                this.handleRevoke(row);
+              },
+              type: 'info',
+              show: (row) => this.permissions.has('AISMC-preAuth-audit') && row.approvalStatus === AUDIT_STATUS.APPROVED
             }, {
               name: '删除',
               popconfirmConfirmButtonType: 'danger',
@@ -353,6 +395,18 @@ export default {
       cancelItem(row.id).then(() => {
         this.$message.success('作废成功');
         this.getData();
+      });
+    },
+    handleRevoke (row) {
+      this.$confirm('确定审核撤回吗?撤回后将重置为【已驳回】状态。', '撤回确认', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        revokeItem(row.id).then(() => {
+          this.$message.success('撤回成功');
+          this.getData();
+        });
       });
     },
     handleApprove (row, action) {
@@ -494,6 +548,9 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    getScopeTypeOrg () {
+      return getScopeTypeOrg({ type: '1020' });
     },
     // 门店搜索相关方法
     async fetchDealerOptions (query) {
