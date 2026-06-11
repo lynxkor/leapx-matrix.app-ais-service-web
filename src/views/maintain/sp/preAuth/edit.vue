@@ -18,7 +18,8 @@
         <template #extraButtons>
           <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && permissions.has('AISMC-preAuth-audit') && form.approvalStatus === AUDIT_STATUS.IN_PROGRESS && !form.isGoodWarranty">审批</el-button>
           <el-button size="small" type="primary" plain @click="handleCancel" v-if="_id && permissions.has('AISMC-preAuth-cancel') && form.approvalStatus === AUDIT_STATUS.REJECTED">作废</el-button>
-          <el-button size="small" type="primary" :loading="loading" @click="handleSubmit(1)" v-if="_id && form.approvalStatus === AUDIT_STATUS.TODO || form.approvalStatus === AUDIT_STATUS.REJECTED">提交</el-button>
+          <el-button size="small" type="primary" plain @click="handleRevoke" v-if="_id && permissions.has('AISMC-preAuth-audit') && form.approvalStatus === AUDIT_STATUS.APPROVED">撤回</el-button>
+          <el-button size="small" type="primary" :loading="loading" @click="handleSubmit(1)" v-if="_id && (form.approvalStatus === AUDIT_STATUS.TODO || form.approvalStatus === AUDIT_STATUS.REJECTED)">提交</el-button>
           <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.REFUSED">激活</el-button>
         </template>
         <template #footer>
@@ -510,7 +511,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getServiceProxyDetail, cancelItem, getPreAuthInfo, checkPreAuth } from '@/api/maintain/sp/preAuth/index';
+import { getDetail, addOrUpdate, getServiceProxyDetail, cancelItem, revokeItem, getPreAuthInfo, checkPreAuth } from '@/api/maintain/sp/preAuth/index';
 import { getList as getQualityReportList } from '@/api/maintain/sp/qualityOrderReport/index';
 import { selectServiceProxy as selectServiceProxyApi, getEnum } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -953,6 +954,23 @@ export default {
           this.$refs.containerRef.loadDetail();
         }).catch(() => {
           this.$message.error('作废失败');
+        });
+      }).catch(() => {
+        // 用户取消操作
+      });
+    },
+    /**
+     * 撤回操作
+     */
+    handleRevoke () {
+      this.$confirm('确定审核撤回吗?撤回后将重置为【已驳回】状态。', '撤回确认', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        revokeItem(this._id).then(() => {
+          this.$message.success('撤回成功');
+          this.$refs.containerRef.loadDetail();
         });
       }).catch(() => {
         // 用户取消操作

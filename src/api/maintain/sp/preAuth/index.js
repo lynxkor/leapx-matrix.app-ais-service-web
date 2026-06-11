@@ -51,6 +51,14 @@ export function cancelItem (data) {
 }
 
 /**
+ * 撤回
+ * @param {Object} data
+ */
+export function revokeItem (data) {
+  return api.jsonPost(prefix + 'revoke', data);
+}
+
+/**
  * 审批
  * @param {Object} data
  */
