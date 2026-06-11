@@ -2959,7 +2959,7 @@ export function getRouter () {
         }).then(() => {
           return logout().then(() => {
             store.commit('USER_CLICK_MENU');
-            store.commit('USER_SIGN_OUT', router);
+            store.commit('USER_SIGN_OUT');
           });
         }).finally(() => {
           confirmInstance = null;
