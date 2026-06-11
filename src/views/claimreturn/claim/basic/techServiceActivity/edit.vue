@@ -270,6 +270,7 @@
               </div>
             </section>
             <plan-info
+              ref="planInfo"
               :id="_id"
               :moduleKey="moduleKey"
               @change="schemeChange"
@@ -500,13 +501,17 @@ export default {
     async submitRequest () {
       const startTime = formatDateTime(this.form.startTime);
       const endTime = formatDateTime(this.form.endTime);
-      return addOrUpdate({
+      const res = await addOrUpdate({
         ...this.form,
         startTime,
         endTime,
         autoApprove: this.form.autoApprove ? '1' : '0',
         attachmentRequired: this.form.attachmentRequired ? '1' : '0',
       });
+      if (res && this.schemeId) {
+        this.$refs.planInfo.getDetail(this.schemeId);
+      }
+      return res;
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
