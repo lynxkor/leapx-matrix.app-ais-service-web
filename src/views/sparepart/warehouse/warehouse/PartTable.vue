@@ -10,7 +10,7 @@
       :isFocusNewRow="false"
       :enableSingleRowSave="true"
       :showPagination="true"
-      :checkbox="canAddOrUpdate"
+      :checkbox="true"
       :current="current"
       :pageSize="pageSize"
       :total="total"
@@ -177,6 +177,9 @@ export default {
     handleCheckboxChange (selection) {
       this.selectedRows = selection;
       this.$emit('selection-change', selection);
+    },
+    getSelectedRows () {
+      return this.$refs.editTable.$refs.editTable.getCheckboxRecords() || [];
     },
     openPane (row, rowIndex) {
       this.selectedRow = row;
