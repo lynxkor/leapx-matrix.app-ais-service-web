@@ -26,14 +26,28 @@
           filterable
         />
       </el-form-item>
-      <el-form-item label="物流单号:"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.logisticsTrackingNo"
+
+      <el-form-item label="收货供应商："  v-show="this.visibleCount === 3 || show">
+        <list-select
+          listUrl="/sp/web/basic/supplierInfo/list"
+          placeholder="请选择"
+          v-model="form.supplierId"
+          query-key="supplierCodeOrNameLike"
+          auto-load-options
+          no-param-load
           clearable
-        />
+          filterable
+          :params="{}" />
       </el-form-item>
+
       <template v-if="show">
+        <el-form-item label="物流单号:">
+          <el-input
+            placeholder="请输入"
+            v-model="form.logisticsTrackingNo"
+            clearable
+          />
+        </el-form-item>
         <el-form-item label="物流商">
           <el-input
             placeholder="请输入"
@@ -114,6 +128,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel, getEndOfDayString, formatDateTime } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -132,6 +147,7 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
+    ListSelect,
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
