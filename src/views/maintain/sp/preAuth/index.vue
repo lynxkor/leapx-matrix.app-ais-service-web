@@ -23,14 +23,20 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="门店所属区域">
-        <el-input
-          placeholder="请输入"
-          v-model="form.dealerUnitName"
+      <el-form-item label="门店所属区域" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          v-model="form.dealerUnitIdList"
+          :remote-method="getScopeTypeOrg"
+          placeholder="请选择"
           clearable
+          remote
+          multiple
+          filterable
+          value-key="code"
+          label-key="name"
         />
       </el-form-item>
-      <el-form-item label="门店名称" v-show="this.visibleCount === 3 || show">
+      <el-form-item label="门店名称">
         <dealer-select v-model="form.dealerCode"/>
       </el-form-item>
       <template v-if="show">
@@ -127,7 +133,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, cancelItem, revokeItem, auditItem, regenerate, getEnum } from '@/api/maintain/sp/preAuth/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getPartDealer } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getPartDealer, getScopeTypeOrg } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -145,6 +151,7 @@ const defaultForm = {
   code: '',
   serviceProxyCode: '',
   dealerName: '',
+  dealerUnitIdList: [],
   dealerUnitName: '',
   preAuthTypeList: [],
   approvalStatusList: [],
@@ -541,6 +548,9 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    getScopeTypeOrg () {
+      return getScopeTypeOrg({ type: '1020' });
     },
     // 门店搜索相关方法
     async fetchDealerOptions (query) {
