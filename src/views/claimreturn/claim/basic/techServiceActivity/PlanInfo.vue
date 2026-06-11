@@ -447,6 +447,9 @@ export default {
         this.form.vrtId = '';
         this.form.vfgId = '';
 
+        // fetch-select 只更新 id，需手动同步 name
+        this.form.mainPartName = record.partName || '';
+
         // 设置供应商选项
         this.supplierOptions = record.supplierInfoId ? [{
           label: record.supplierName,
@@ -457,15 +460,17 @@ export default {
         const detail = await getSparePartDetail(record.sparePartId);
         const { vrtId, vrtName, vfgId, vfgName } = detail || {};
 
-        // 设置 name 用于反显
+        // 设置值用于反显
         if (vrtId) {
           this.form.vrtName = vrtName || '';
+          this.form.vrtId = vrtId || '';
         }
         if (vfgId) {
           this.form.vfgName = vfgName || '';
+          this.form.vfgId = vfgId || '';
         }
 
-        // 使用 nextTick 确保 options 和 params 先更新，再赋值 id
+        // 使用 nextTick 填充下拉选项数据
         this.$nextTick(() => {
           // 设置 VRT 下拉组件的选项数据
           if (vrtId && this.$refs.vrtSelect) {
@@ -474,13 +479,16 @@ export default {
               vrtName: vrtName
             }];
             this.$refs.vrtSelect.initialLoaded = true;
-            this.form.vrtId = vrtId;
           }
-          // 加载 VFG 下拉选项并赋值
+          // 加载 VFG 下拉选项
           if (vrtId) {
             this.loadVfgOptions().then(() => {
               if (vfgId) {
-                this.form.vfgId = vfgId;
+                // 确保目标 VFG 在 options 中，模糊搜索可能漏掉
+                const exists = this.vfgOptions.some(o => String(o.id) === String(vfgId));
+                if (!exists) {
+                  this.vfgOptions.push({ id: vfgId, vfgName: vfgName || '' });
+                }
               }
             });
           }
