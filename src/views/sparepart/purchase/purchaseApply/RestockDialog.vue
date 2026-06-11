@@ -24,6 +24,9 @@
             </el-form-item>
             <page-search-action v-model="show" :isExpandable="false" :loading="loading" @submit="onSubmit"
             @reset="onReset" />
+            <el-form-item>
+                <el-button size="small" :loading="exportLoading" @click="exportExcel">导出</el-button>
+            </el-form-item>
         </el-form>
         <!-- 数据表格 -->
         <div class="table-section">
@@ -92,6 +95,8 @@
 <script>
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { purchaseApplyGetCouponPage, addDetail } from '@/api/sparepart/purchase/purchaseApply/index';
+import { exportTable } from '@/api/common';
+import { downloadExcel } from '@/libs/utils';
 import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
@@ -123,6 +128,7 @@ export default {
     return {
       dialogVisible: false,
       loading: false,
+      exportLoading: false,
       show: false,
       tableData: [],
       submitLoading: false,
@@ -209,6 +215,54 @@ export default {
       delete data.expectedShortageDate;
 
       return data;
+    },
+    exportExcel () {
+      this.exportLoading = true;
+      exportTable({
+        businessType: '补货预测',
+        dataFetchPath: 'sp/web/purchase/dealerPartsRecommendationT/page',
+        reqParams: { ...this.getFormData(), orderId: this.id, pageNum: this.current, pageSize: this.pageSize },
+        titleMap: {
+          partsCode: '备件编码',
+          partsName: '备件名称',
+          replacePartsCodes: '替换关系集合',
+          planCategory: '计划分类',
+          partsCategory: '备件分类',
+          avgWeeklyDemand: '周平均值需求',
+          riskWarning: '风险预警',
+          expectedShortageDate: '预计缺货日期',
+          minTargetAmount: 'Min',
+          maxForecast: 'Max',
+          minOrderQty: '最小订购量',
+          totalInventory: '总库存',
+          availableInventory: '可用库存',
+          inTransitQuantity: '在途数量',
+          sharedInventory: '共享库存',
+          suggestedPurchaseQty: '建议采购数',
+          unitPrice: '单价',
+          subtotal: '小计',
+          purchaseQty: '采购量'
+        },
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '补货预测.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
     },
     // 请求表格数据
     getData () {
