@@ -18,6 +18,7 @@
       </el-form-item>
       <el-form-item label="门店所属区域：">
         <fetch-select
+          :key="regionSelectKey"
           v-model="form.dealerRegionCodeList"
           :remote-method="getScopeTypeOrg"
           placeholder="请选择"
@@ -154,6 +155,7 @@ export default {
       isDealer: null,
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
+      regionSelectKey: 0,
       show: false,
       loading: false,
       exportLoading: false,
@@ -280,6 +282,8 @@ export default {
       this.form = { ...defaultForm };
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
+      this._scopeTypeOrgCache = null;
+      this.regionSelectKey++;
       this.getData();
     },
     exportExcel () {
@@ -388,8 +392,16 @@ export default {
       }
       return [];
     },
-    getScopeTypeOrg () {
-      return getScopeTypeOrg({ type: '1020' });
+    async getScopeTypeOrg (query) {
+      if (!this._scopeTypeOrgCache) {
+        const res = await getScopeTypeOrg({ type: '1020' });
+        this._scopeTypeOrgCache = res?.data || res || [];
+      }
+      if (!query) {
+        return { data: this._scopeTypeOrgCache };
+      }
+      const filtered = this._scopeTypeOrgCache.filter(item => item.name && item.name.includes(query));
+      return { data: filtered };
     },
     // 批量删除
     handleBatchDelete () {
