@@ -13,6 +13,9 @@
         :originalForm.sync="originalForm"
         :showEditBtn="false"
       >
+        <template #status>
+          <span v-if="form.backStatusLabel" class="status primary">{{ form.backStatusLabel }}</span>
+        </template>
         <el-main>
           <section class="common-section">
             <div class="common-section-header">

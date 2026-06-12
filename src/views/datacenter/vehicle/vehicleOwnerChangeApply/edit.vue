@@ -563,7 +563,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import AisAttachment from '@/libs/components/AisAttachment';
 import { getByCode, getFileList } from '@/libs/api/attachment';
-import { vehicleListFull } from '@/api/datacenter/vehicle/vehicleProfile';
+import { vehicleListFullByVin } from '@/api/datacenter/vehicle/vehicleProfile';
 import { loginUserGet } from '@/libs/api/common';
 import LPEncrypted from '@/libs/components/LPEncrypted';
 import FormCancelDialog from './FormCancelDialog';
@@ -955,7 +955,7 @@ export default {
       //   { "报废灭失": "60" }
       // ]
       // 只允许选择【销售日期】非空，且【车辆属性】不是报废灭失的车辆
-      return vehicleListFull({
+      return vehicleListFullByVin({
         searchVin: query,
         pageSize: 20,
         pageNum: 1,

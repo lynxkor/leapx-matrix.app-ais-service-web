@@ -4,8 +4,8 @@ import api from '@/axios';
 const prefix = 'datacenter/web/vehicle/vehicleProfile/';
 
 // vin是明文
-export function vehicleListFull (data) {
-  return api.jsonPost(prefix + 'listFull', data);
+export function vehicleListFullByVin (data) {
+  return api.jsonPost(prefix + 'listFullByVin', data);
 };
 
 /**

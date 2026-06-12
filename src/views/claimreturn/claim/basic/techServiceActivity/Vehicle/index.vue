@@ -49,7 +49,7 @@ import {
 import permissions from '@/libs/mixins/permissions';
 import { getEnum } from '@/api/common';
 import VehicleTable from './VehicleTable.vue';
-import { vehicleListFull } from '@/api/datacenter/vehicle/vehicleProfile';
+import { vehicleListFullByVin } from '@/api/datacenter/vehicle/vehicleProfile';
 import BaseSearch from '@/libs/components/BaseSearch';
 import Upload from '@/libs/components/UploadDialog/index.vue';
 
@@ -140,7 +140,7 @@ export default {
       return [];
     },
     vinRemote (query) {
-      return vehicleListFull({
+      return vehicleListFullByVin({
         searchVin: query,
         limitSize: 20,
       });
