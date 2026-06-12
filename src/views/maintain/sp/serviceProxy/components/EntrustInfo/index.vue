@@ -293,7 +293,7 @@
             :disabled="!form.currentFault || form.confirmFault === 1"
           />
         </el-form-item>
-        <el-form-item label="作废描述：" prop="invaildDesc" class="form-item-full">
+        <el-form-item label="作废描述：" prop="invaildDesc" class="form-item-full" v-if="form.orderStatus === RepairOrderStatusEnum.CANCEL">
           <el-input
             type="textarea"
             show-word-limit
@@ -410,7 +410,7 @@
         <el-form-item label="客户故障描述：" prop="customerContent" class="form-item-half">
           {{ form.customerContent }}
         </el-form-item>
-        <el-form-item label="作废描述：" prop="invaildDesc" class="form-item-full">
+        <el-form-item label="作废描述：" prop="invaildDesc" class="form-item-full" v-if="form.orderStatus === RepairOrderStatusEnum.CANCEL">
           {{ form.invaildDesc }}
         </el-form-item>
         <el-form-item label="异常描述：" prop="anomalyDescription" class="form-item-full">
