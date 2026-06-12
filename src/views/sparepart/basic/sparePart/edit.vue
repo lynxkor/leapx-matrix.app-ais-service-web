@@ -626,14 +626,14 @@
           </section>
         </el-main>
         <!-- 维护车型弹窗组件 - 保留在edit-base-container外部 -->
-        <ModelDialog :visible="modelDialogVisible" :modelId="modelId" @success="getDetailData" @close="handleCloseModel" />
+        <VehicleModelDialog :visible="modelDialogVisible" :initialData="modelData" @confirm="handleModelConfirm" @close="handleCloseModel" />
       </edit-base-container>
     </template>
   </edit-page-layout>
 </template>
 
 <script>
-import { getDetail, addOrUpdate, allowBoTransfer, forbidBoTransfer, allowPartsAttachmentSales, forbidPartsAttachmentSales } from '@/api/sparepart/basic/sparePart/index';
+import { getDetail, addOrUpdate, allowBoTransfer, forbidBoTransfer, allowPartsAttachmentSales, forbidPartsAttachmentSales, addOrUpdateVehicleModel, deleteVehicleModel } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import EditTable from '@/libs/components/EditTable';
@@ -644,7 +644,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import ModelDialog from './model.vue';
+import VehicleModelDialog from '@/libs/components/VehicleModelDialog';
 import { getSupplyList } from '@/api/sparepart/basic/spareSupplyCategory';
 import { getEngineeringList } from '@/api/sparepart/basic/spareEngineeringCategory';
 import { getSalesList } from '@/api/sparepart/basic/spareSalesCategory';
@@ -722,7 +722,7 @@ export default {
   components: {
     ListSelect,
     FetchSelect,
-    ModelDialog,
+    VehicleModelDialog,
     EditTable,
     EditPageLayout,
     EditBaseContainer,
@@ -776,6 +776,7 @@ export default {
       supplierData: [],
       replacementData: [],
       modelDialogVisible: false,
+      originalModelIds: new Set(),
       storeOptions: [],
       supplierColumns: [
         {
@@ -941,8 +942,28 @@ export default {
       this.form.categorySpareSalesName = all.name;
     },
     handleModel () {
-      this.modelId = this.$route.query.id;
+      const id = this.$route.query.id;
+      if (!id) return;
+      this.originalModelIds = new Set(
+        this.modelData.filter(item => item.id).map(item => item.id)
+      );
       this.modelDialogVisible = true;
+    },
+    async handleModelConfirm (selectedData) {
+      const sparePartId = this.$route.query.id;
+      const selectedIds = new Set(selectedData.filter(item => item.id).map(item => item.id));
+      const deletedIds = [...this.originalModelIds].filter(id => !selectedIds.has(id));
+
+      if (deletedIds.length) {
+        await deleteVehicleModel(deletedIds);
+      }
+      if (selectedData.length) {
+        await addOrUpdateVehicleModel({
+          sparePartId,
+          addOrUpdateReqList: selectedData,
+        });
+      }
+      this.getDetailData();
     },
     handleCloseModel () {
       this.modelDialogVisible = false;

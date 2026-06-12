@@ -23,7 +23,7 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="门店所属区域" v-show="this.visibleCount === 3 || show">
+      <el-form-item label="门店所属大区" v-show="this.visibleCount === 3 || show">
         <fetch-select
           v-model="form.dealerUnitIdList"
           :remote-method="getScopeTypeOrg"
