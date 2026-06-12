@@ -942,7 +942,7 @@ export default {
       this.form.categorySpareSalesName = all.name;
     },
     handleModel () {
-      const id = this.$route.query.id;
+      const id = this._id;
       if (!id) return;
       this.originalModelIds = new Set(
         this.modelData.filter(item => item.id).map(item => item.id)
