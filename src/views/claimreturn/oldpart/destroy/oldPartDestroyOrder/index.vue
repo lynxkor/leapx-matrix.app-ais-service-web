@@ -16,20 +16,6 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="门店所属区域：">
-        <fetch-select
-          :key="regionSelectKey"
-          v-model="form.dealerRegionCodeList"
-          :remote-method="getScopeTypeOrg"
-          placeholder="请选择"
-          clearable
-          remote
-          multiple
-          filterable
-          value-key="code"
-          label-key="name"
-        />
-      </el-form-item>
       <el-form-item label="厅店名称：">
         <el-input
           placeholder="请输入"
@@ -50,6 +36,20 @@
         />
       </el-form-item>
       <template v-if="show">
+        <el-form-item label="门店所属区域：">
+        <fetch-select
+          :key="regionSelectKey"
+          v-model="form.dealerRegionCodeList"
+          :remote-method="getScopeTypeOrg"
+          placeholder="请选择"
+          clearable
+          remote
+          multiple
+          filterable
+          value-key="code"
+          label-key="name"
+        />
+      </el-form-item>
         <el-form-item label="销毁日期：">
           <el-date-picker
             v-model="form.destroyDate"
