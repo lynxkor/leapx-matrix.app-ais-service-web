@@ -263,27 +263,27 @@
               <div class="common-section-table">
                 <vxe-table ref="editTableRight" :data="tableData" stripe show-overflow resizable border="inner"
                   size="medium">
-                  <vxe-column field="partCode" title="备件编码">
+                  <vxe-column field="partCode" title="备件编码" width="180">
                     <template v-slot="{ row }">
                       <span class="clickable" @click="handleEdit(row)">{{ row.partCode }}</span>
                     </template>
                   </vxe-column>
-                  <vxe-column field="partName" title="备件名称" />
-                  <vxe-column field="originalPrice" title="原价" />
-                  <vxe-column field="purchasePrice" title="采购价" />
-                  <vxe-column field="purchaseAmount" title="采购金额" />
-                  <vxe-column field="cashUnitPrice" title="现金单价" />
-                  <vxe-column field="cashAmount" title="现金金额" />
-                  <vxe-column field="purchaseQty" title="采购数" />
-                  <vxe-column field="remark" title="备注" />
-                  <vxe-column field="originalPriceSource" title="原价来源">
+                  <vxe-column field="partName" title="备件名称" width="200" />
+                  <vxe-column field="originalPrice" title="原价" width="150" />
+                  <vxe-column field="purchasePrice" title="采购价" width="150" />
+                  <vxe-column field="purchaseAmount" title="采购金额" width="150" />
+                  <vxe-column field="cashUnitPrice" title="现金单价" width="150" />
+                  <vxe-column field="cashAmount" title="现金金额" width="150" />
+                  <vxe-column field="purchaseQty" title="采购数" width="150" />
+                  <vxe-column field="remark" title="备注" width="200" />
+                  <vxe-column field="originalPriceSource" title="原价来源" width="220">
                     <template v-slot="{ row }">
                       <el-link type="success" target="_blank"
                         :href="`/service/sparepart/basic/sparePartPurchasePrice/edit?id=${row.originalPriceSource}`">{{
                           row.originalPriceSource }}</el-link>
                     </template>
                   </vxe-column>
-                  <vxe-column title="操作" fixed="right" v-if="routeQueryType">
+                  <vxe-column title="操作" fixed="right" v-if="routeQueryType" width="100">
                     <template #default="{ row }">
                       <el-popconfirm title="确定删除此备件吗？" confirm-button-text="删除" confirm-button-type="danger"
                         @confirm="handleDel(row)">
