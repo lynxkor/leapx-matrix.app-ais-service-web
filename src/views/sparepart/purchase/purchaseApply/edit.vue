@@ -13,6 +13,7 @@
           <el-button v-if="showSubmit" plain size="small" :loading="actionLoading" @click="handleSubmit(form)">提交</el-button>
           <el-button v-if="showAgree" plain size="small" @click="handleAgree(form)">同意</el-button>
           <el-button v-if="showReject" plain size="small" :loading="actionLoading" @click="handleReject(form)">驳回</el-button>
+          <el-button v-if="showDelete" type="danger" size="small" @click="handleDelete(form)">删除</el-button>
           <el-button v-if="showCopy" type="primary" size="small" :loading="actionLoading" @click="handleCopy(form)">复制</el-button>
         </template>
         <el-main>
@@ -379,7 +380,10 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getPurchaseApplyPage, purchaseApplyDelete, purchaseApplyReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, purchaseApplyGetCoupon } from '@/api/sparepart/purchase/purchaseApply/index';
+import {
+  getDetail, addOrUpdate, getPurchaseApplyPage, purchaseApplyDelete, deleteItem,
+  purchaseApplyReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, purchaseApplyGetCoupon
+} from '@/api/sparepart/purchase/purchaseApply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -478,7 +482,7 @@ export default {
       return this.form.thirdPartyDeliveryIs === '0';
     },
     isThirdPartyDelivery () {
-      return this.isAllowedThirdDelivered === 1;
+      return !this.accountFlag || this.isAllowedThirdDelivered === 1;
     },
     showSubmit () { // 必须满足订单状态条件
       if (!this._id || (this.form.orderStatus !== '0' && this.form.orderStatus !== '3')) {
@@ -515,6 +519,12 @@ export default {
         return (this.form.purchaseOrderType === '0' || this.form.purchaseOrderType === '1') && this.permissions.has('AISPART-purchaseApply-copy');
       }
       return true; // 主机厂账号直接显示
+    },
+    showDelete () { // 必须满足订单状态条件和权限
+      if (!this._id || (this.form.orderStatus !== '0' && this.form.orderStatus !== '3')) {
+        return false;
+      }
+      return this.permissions.has('AISPART-purchaseApply-delete');
     }
   },
   watch: {
@@ -1005,6 +1015,19 @@ export default {
       } else {
         this.$message.error('操作失败：缺少采购单ID');
       }
+    },
+    // 删除
+    handleDelete (row) {
+      this.$confirm('此操作将删除此申请单, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteItem([row.id]).then(() => {
+          this.$message.success('删除成功');
+          this.$router.go(-1);
+        });
+      }).catch(() => {});
     },
     // 驳回
     async handleReject (val) {
