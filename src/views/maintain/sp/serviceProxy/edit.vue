@@ -671,6 +671,11 @@ export default {
     async handleCreatingOrder () {
       try {
         const entrustInfo = await this.$refs.entrustInfoRef.getFormData();
+        if (Number(entrustInfo.currentFault) === CurrentFaultEnum.HAS_FAULT && !entrustInfo.customerContent) {
+          this.$message.warning('请先填写故障描述和故障模块');
+          this.isEditing = true;
+          return;
+        }
         if (entrustInfo.expectFinishAt) {
           // 检查留车信息
           await this.checkVehicleRetention();

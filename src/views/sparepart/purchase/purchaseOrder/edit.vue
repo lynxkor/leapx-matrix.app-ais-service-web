@@ -496,82 +496,82 @@ export default {
         {
           field: 'sparePartCode',
           title: '备件编码',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'sparePartName',
           title: '备件名称',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'settlementQty',
           title: '结算数量',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'cancelQty',
           title: '取消数量',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'outboundQty',
           title: '已发运数',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'signedQty',
           title: '已签收数',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'inboundQty',
           title: '已入库数',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'cancelOperator',
           title: '取消人',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'cancelTime',
           title: '取消时间',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'cancelDescription',
           title: '取消说明',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'originalPrice',
           title: '原价',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'purchasePrice',
           title: '采购价',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'purchaseAmount',
           title: '采购金额',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'cashUnitPrice',
           title: '现金单价',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'cashAmount',
           title: '现金金额',
-          width: '6.25%',
+          width: '7%',
         },
         {
           field: 'detailRemark',
           title: '备注',
-          width: '6.25%',
+          width: '7%',
         }
       ],
       procurement: {

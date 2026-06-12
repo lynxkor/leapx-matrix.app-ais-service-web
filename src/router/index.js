@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import store from './../store';
+import { logout } from '@/libs/api/common';
 
 const routerPush = VueRouter.prototype.push;
 // 修改原型对象中的push方法
@@ -2935,6 +2936,7 @@ export function getRouter () {
     mode: 'history',
     routes
   });
+  let confirmInstance = null;
   router.beforeEach((to, from, next) => {
     if (to.matched?.some(record => record.meta.requiresAuth)) {
       // 需要登录
@@ -2943,19 +2945,28 @@ export function getRouter () {
         return;
       }
       // 开发阶段先跳过权限验证
-      if (localStorage.getItem('sourceUrl').includes(to.path) || to.meta.noResourceUrl) {
-      // if (true) {
+      const sourceUrl = localStorage.getItem('sourceUrl') || '';
+      if (sourceUrl.includes(to.path) || to.meta.noResourceUrl) {
         next();
       } else {
-        window.alert('你没有访问该页面的权限');
-        if (store.state.user.token) {
-          next({
-            path: '/404'
+        // 防止重复弹出
+        if (confirmInstance) return;
+        confirmInstance = Vue.prototype.$confirm('您没有访问该页面的权限，如已经添加权限，请退出重新登录', '提示', {
+          confirmButtonText: '确定',
+          closeOnClickModal: false,
+          closeOnPressEscape: false,
+          type: 'warning'
+        }).then(() => {
+          return logout().then(() => {
+            store.commit('USER_CLICK_MENU');
+            store.commit('USER_SIGN_OUT');
           });
-        } else {
-          toLoginPage(to, next);
-        }
+        }).finally(() => {
+          confirmInstance = null;
+        });
+        next(from.fullPath);
       }
+      return;
     }
     next();
   });

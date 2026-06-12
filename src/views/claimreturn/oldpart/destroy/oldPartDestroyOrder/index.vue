@@ -36,6 +36,20 @@
         />
       </el-form-item>
       <template v-if="show">
+        <el-form-item label="门店所属区域：">
+        <fetch-select
+          :key="regionSelectKey"
+          v-model="form.dealerRegionCodeList"
+          :remote-method="getScopeTypeOrg"
+          placeholder="请选择"
+          clearable
+          remote
+          multiple
+          filterable
+          value-key="code"
+          label-key="name"
+        />
+      </el-form-item>
         <el-form-item label="销毁日期：">
           <el-date-picker
             v-model="form.destroyDate"
@@ -94,7 +108,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/claimreturn/oldpart/destroy/oldPartDestroyOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getScopeTypeOrg } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -108,6 +122,7 @@ import { loginUserGet } from '@/libs/api/common';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   destroyOrderNo: '',
+  dealerRegionCodeList: [],
   dealerName: '',
   destroyStatus: '',
   destroyDate: '',
@@ -140,6 +155,7 @@ export default {
       isDealer: null,
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
+      regionSelectKey: 0,
       show: false,
       loading: false,
       exportLoading: false,
@@ -158,6 +174,15 @@ export default {
         dataList: this.tableDataList,
         form: this.tableForm,
         dataProp: [
+          {
+            props: 'serialNo',
+            label: '序号',
+            visible: true,
+            width: 60,
+            fixed: 'left',
+            align: 'center',
+            headerAlign: 'center'
+          },
           {
             props: 'destroyOrderNo',
             label: '门店销毁单号',
@@ -266,6 +291,8 @@ export default {
       this.form = { ...defaultForm };
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
+      this._scopeTypeOrgCache = null;
+      this.regionSelectKey++;
       this.getData();
     },
     exportExcel () {
@@ -302,9 +329,10 @@ export default {
 
       getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
         .then(res => {
-          this.tableDataList = res.records.map(item => {
+          this.tableDataList = res.records.map((item, idx) => {
             return {
               ...item,
+              serialNo: res.records.length - idx,
               deleteLoading: false
             };
           });
@@ -373,6 +401,17 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    async getScopeTypeOrg (query) {
+      if (!this._scopeTypeOrgCache) {
+        const res = await getScopeTypeOrg({ type: '1020' });
+        this._scopeTypeOrgCache = res?.data || res || [];
+      }
+      if (!query) {
+        return { data: this._scopeTypeOrgCache };
+      }
+      const filtered = this._scopeTypeOrgCache.filter(item => item.name && item.name.includes(query));
+      return { data: filtered };
     },
     // 批量删除
     handleBatchDelete () {

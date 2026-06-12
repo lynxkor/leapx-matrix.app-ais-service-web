@@ -10,25 +10,13 @@
       class="ais-search-form"
     >
       <el-form-item label="单据编号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.code"
-          clearable
-        />
+        <tag-input v-model="form.codes" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="车牌号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.carPlate"
-          clearable
-        />
+        <tag-input v-model="form.carPlateList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="VIN码" v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.vehProfileVin"
-          clearable
-        />
+        <tag-input v-model="form.vehProfileVinList" placeholder="请输入" />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="车主姓名">
@@ -53,11 +41,7 @@
           />
         </el-form-item>
         <el-form-item label="预约单号">
-          <el-input
-            placeholder="请输入"
-            v-model="form.appointmentNo"
-            clearable
-          />
+          <tag-input v-model="form.appointmentNoList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="门店">
           <fetch-select
@@ -205,6 +189,19 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <el-form-item label="销售日期">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.saleDate"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
         <el-form-item label="维修类型（汇总）">
           <!-- <fetch-select
             :remote-method="getRepairItemTypeList"
@@ -317,24 +314,27 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import FetchSelect from '@/libs/components/FetchSelect';
+import TagInput from '@/libs/components/TagInput';
 import EditPage from './edit.vue';
 import moment from 'moment';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  code: '',
+  codes: [],
   dataSource: '',
   orderStatus: '',
   repairItemTypeDetailCollectLike: '',
   customerName: '',
   custType: '',
   vehModelName: '',
-  carPlate: '',
+  carPlateList: [],
+  vehProfileVinList: [],
   dealerName: '',
-  appointmentNo: '',
+  appointmentNoList: [],
   mileage: '',
   lastMileage: '',
   startWarrantyDate: [],
+  saleDate: [],
   exclusiveServiceDealerName: '',
   expectFinishAt: [],
   createStatementInfoDate: '',
@@ -361,7 +361,8 @@ export default {
     LPVxeTable,
     EditPage,
     Upload,
-    FetchSelect
+    FetchSelect,
+    TagInput
   },
   data () {
     const defaultData = this.getDefautlForm();
@@ -408,6 +409,8 @@ export default {
           },
           { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '工单状态', visible: true, width: 120 },
+          { props: 'alarmLevelLabel', label: '三包预警', visible: true, width: 120 },
+          { props: 'businessTypeLabel', label: '业务类型', visible: true, width: 120 },
           {
             props: 'vehProfileVin',
             label: 'VIN',
@@ -424,6 +427,9 @@ export default {
           },
           { props: 'repairItemTypeDetailCollect', label: '维修类型（汇总）', visible: true, width: 200 },
           { props: 'customerName', label: '车主姓名', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'customerName') },
+          { props: 'customerPhone', label: '车主电话', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'customerPhone') },
+          { props: 'shuttleName', label: '送修人姓名', visible: true, width: 200 },
+          { props: 'shuttlePhone', label: '送修人电话', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'shuttlePhone') },
           { props: 'custTypeLabel', label: '客户类型', visible: true, width: 200 },
           {
             props: 'vehModelName',
@@ -454,6 +460,7 @@ export default {
           { props: 'mileage', label: '进店里程数(KM)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'lastMileage', label: '上次进店里程数(KM)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'startWarrantyDate', label: '保修开始日期', visible: true, width: 200 },
+          { props: 'saleDate', label: '销售日期', visible: true, width: 200 },
           {
             props: 'exclusiveServiceDealerName',
             label: '专属服务门店',
@@ -621,6 +628,24 @@ export default {
         }
       });
 
+      // 处理 tag-input 批量查询字段：单值时转为普通字段，多值时保留数组
+      const tagInputFields = {
+        codes: 'code',
+        carPlateList: 'carPlate',
+        vehProfileVinList: 'vehProfileVin',
+        appointmentNoList: 'appointmentNo'
+      };
+      Object.keys(tagInputFields).forEach(key => {
+        if (Array.isArray(this.form[key])) {
+          if (this.form[key].length === 0) {
+            delete data[key];
+          } else if (this.form[key].length === 1) {
+            delete data[key];
+            data[tagInputFields[key]] = this.form[key][0];
+          }
+        }
+      });
+
       if (this.form.createTime) {
         delete data.createTime;
         if (this.form.createTime.length > 1) {
@@ -658,6 +683,14 @@ export default {
         if (this.form.startWarrantyDate.length > 1) {
           data.startWarrantyDateStart = this.form.startWarrantyDate[0];
           data.startWarrantyDateEnd = this.form.startWarrantyDate[1];
+        }
+      }
+      // 处理销售日期
+      if (this.form.saleDate) {
+        delete data.saleDate;
+        if (this.form.saleDate.length > 1) {
+          data.saleDateStart = this.form.saleDate[0];
+          data.saleDateEnd = this.form.saleDate[1];
         }
       }
       // 转数字

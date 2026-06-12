@@ -70,7 +70,7 @@
             filterable
             />
         </el-form-item>
-        <el-form-item label="订单类型" v-if="activeName === 'homePage'">
+        <el-form-item label="订单类型" v-if="activeName === 'homePage'||activeName === 'allSpareParts'">
           <fetch-select
             :request="fetchOptions"
             enumCode="PurchaseOrderTypeEnum"
@@ -520,6 +520,7 @@ export default {
               type: 'primary'
             }]
           },
+          { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
           {
             props: 'dealerCode',

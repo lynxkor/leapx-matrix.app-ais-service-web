@@ -172,7 +172,11 @@
                   max-height="400px"
                 >
                   <vxe-column field="repairItemName" title="维修项目" width="14.3%" />
-                  <vxe-column field="repairItemCode" title="维修项目代码" width="14.3%" />
+                  <vxe-column field="repairItemCode" title="维修项目代码" width="14.3%" >
+                    <template #default="{ row }">
+                      <el-link type="primary" :href="`/service/maintain/basic/repairItem/edit?id=${row.repairItemId}`" target="_blank">{{row.repairItemCode}}</el-link>
+                    </template>
+                  </vxe-column>
                   <vxe-column field="repairItemTypeName" title="维修类型" width="14.3%" />
                   <vxe-column field="checkoutTypeName" title="结算类型" width="14.3%" />
                   <vxe-column field="workHour" title="工时" width="14.3%" />
@@ -213,9 +217,17 @@
                   max-height="400px"
                 >
                   <vxe-column field="repairItemName" title="维修项目" width="14.3%" />
-                  <vxe-column field="repairItemCode" title="维修项目代码" width="14.3%" />
+                  <vxe-column field="repairItemCode" title="维修项目代码" width="14.3%" >
+                    <template #default="{ row }">
+                      <el-link type="primary" :href="`/service/maintain/basic/repairItem/edit?id=${row.repairItemId}`" target="_blank">{{row.repairItemCode}}</el-link>
+                    </template>
+                  </vxe-column>
                   <vxe-column field="partsName" title="零件名称" width="14.3%" />
-                  <vxe-column field="partsCode" title="零件代码" width="14.3%" />
+                  <vxe-column field="partsCode" title="零件代码" width="14.3%" >
+                    <template #default="{ row }">
+                      <el-link type="primary" :href="`/service/sparepart/basic/sparePart/edit?id=${row.partsId}`" target="_blank">{{row.partsCode}}</el-link>
+                    </template>
+                  </vxe-column>
                   <vxe-column field="repairItemTypeName" title="维修类型" width="14.3%" />
                   <vxe-column field="checkoutTypeName" title="结算类型" width="14.3%" />
                   <vxe-column field="quantity" title="数量" width="14.3%" />

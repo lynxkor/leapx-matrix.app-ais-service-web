@@ -7,7 +7,6 @@
         :id="_id"
         :title="title"
         :isEditing.sync="isEditing"
-        :showEditBtn="false"
         :form.sync="form"
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
@@ -29,21 +28,20 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="商城订单编号：" prop="mallOrderNumber">
+                <el-form-item label="商城订单号：" prop="mallOrderNumber">
                   <el-input
                     placeholder="请输入"
                     v-model="form.mallOrderNumber"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="权益商品类型：" prop="goodInterestsType">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.goodInterestsType"
-                    placeholder="请选择"
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.goodInterestsTypeLabel"
                     clearable
-                    filterable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="权益商品代码：" prop="interestsGoodsCode">
@@ -51,6 +49,7 @@
                     placeholder="请输入"
                     v-model="form.interestsGoodsCode"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="权益商品名称：" prop="interestsGoodsName">
@@ -58,40 +57,31 @@
                     placeholder="请输入"
                     v-model="form.interestsGoodsName"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="订单状态：" prop="orderStatus">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.orderStatus"
-                    placeholder="请选择"
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.orderStatusLabel"
                     clearable
-                    filterable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="状态：" prop="status">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.status"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="门店编码：" prop="dealerCode">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.dealerCode"
+                    v-model="form.statusLabel"
                     clearable
+                    disabled
                   />
                 </el-form-item>
-                <el-form-item label="施工单号：" prop="serviceProxyCode">
+                <el-form-item label="服务门店：" prop="dealerCode">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.serviceProxyCode"
+                    v-model="form.dealerName"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
@@ -99,6 +89,7 @@
                     placeholder="请输入"
                     v-model="form.vehProfileVin"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="购买人：" prop="purchaser">
@@ -106,6 +97,7 @@
                     placeholder="请输入"
                     v-model="form.purchaser"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="购买人电话：" prop="purchaserPhone">
@@ -113,6 +105,7 @@
                     placeholder="请输入"
                     v-model="form.purchaserPhone"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="购买日期：" prop="saleDate">
@@ -120,6 +113,7 @@
                     placeholder="请输入"
                     v-model="form.saleDate"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="推荐码：" prop="referralCode">
@@ -127,6 +121,15 @@
                     placeholder="请输入"
                     v-model="form.referralCode"
                     clearable
+                    disabled
+                  />
+                </el-form-item>
+                <el-form-item label="有效截止时间：" prop="validUntil">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.validUntil"
+                    clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="物流商：" prop="logisticsCompanies">
@@ -143,32 +146,20 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="工时索赔合计：" prop="claimWorkHourAmount">
+                <el-form-item label="数据来源：" prop="dataSource">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.claimWorkHourAmount"
+                    v-model="form.dataSourceLabel"
                     clearable
+                    disabled
                   />
                 </el-form-item>
-                <el-form-item label="零件索赔合计：" prop="claimPartsAmount">
+                <el-form-item label="施工单号：" prop="serviceProxyCode">
                   <el-input
                     placeholder="请输入"
-                    v-model="form.claimPartsAmount"
+                    v-model="form.serviceProxyCode"
                     clearable
-                  />
-                </el-form-item>
-                <el-form-item label="索赔合计：" prop="claimAmount">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.claimAmount"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="核销人：" prop="writeOffUserName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.writeOffUserName"
-                    clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="核销时间：" prop="writeOffDate">
@@ -176,6 +167,7 @@
                     placeholder="请输入"
                     v-model="form.writeOffDate"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="退订日期：" prop="unsubscribeDate">
@@ -183,6 +175,7 @@
                     placeholder="请输入"
                     v-model="form.unsubscribeDate"
                     clearable
+                    disabled
                   />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
@@ -190,221 +183,7 @@
                     placeholder="请输入"
                     v-model="form.remark"
                     clearable
-                  />
-                </el-form-item>
-                <el-form-item label="失效时间：" prop="invalidDate">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.invalidDate"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者名称：" prop="modifierName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifierName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改时间：" prop="updateTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.updateTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="创建者名称：" prop="creatorName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creatorName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建时间：" prop="createTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.createTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="主键：" prop="id">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.id"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="创建者：" prop="creator">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.creator"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="修改者：" prop="modifier">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.modifier"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="状态变更描述：" prop="statusDesc">
-                  <fetch-select
-                    :request="fetchOptions"
-                    enumCode="xxx"
-                    v-model="form.statusDesc"
-                    placeholder="请选择"
-                    clearable
-                    filterable
-                  />
-                </el-form-item>
-                <el-form-item label="名称：" prop="name">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.name"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="权益订单编号：" prop="equityOrderNumber">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.equityOrderNumber"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="生效操作人：" prop="forceSystemUserId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.forceSystemUserId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="生效操作人：" prop="forceSystemUserName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.forceSystemUserName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="生效时间：" prop="forceTime">
-                  <el-date-picker
-                    :default-time="['00:00:00', '23:59:59']"
-                    v-model="form.forceTime"
-                    :picker-options="pickerOptions"
-                    value-format="yyyy-MM-dd HH:mm:ss"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  />
-                </el-form-item>
-                <el-form-item label="权益商品id：" prop="interestsGoodsId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.interestsGoodsId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="失效原因：" prop="invalidReason">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.invalidReason"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="失效操作人：" prop="invalidSystemUserId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.invalidSystemUserId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="失效操作人：" prop="invalidSystemUserName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.invalidSystemUserName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="是否生效：" prop="isEffect">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.isEffect"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="是否退订：" prop="isUnsubscribe">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.isUnsubscribe"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="是否已拆单：" prop="separateBill">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.separateBill"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="拆单时间：" prop="separateBillData">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.separateBillData"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="整车档案id：" prop="vehProfileId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vehProfileId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="退订原因：" prop="checkoutReason">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.checkoutReason"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="归属门店ID（组织ID），当数据权限归属到本组织以及本下级：" prop="ownerOrgId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.ownerOrgId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="门店名称：" prop="dealerName">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dealerName"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="施工单id：" prop="serviceProxyId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.serviceProxyId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="核销人：" prop="writeOffUserId">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.writeOffUserId"
-                    clearable
-                  />
-                </el-form-item>
-                <el-form-item label="数据来源：" prop="dataSource">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.dataSource"
-                    clearable
+                    disabled
                   />
                 </el-form-item>
               </el-form>
@@ -587,10 +366,8 @@
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/maintain/sp/ownersEquityOrder/index';
-import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -663,8 +440,7 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
-    EditBaseContainer,
-    FetchSelect
+    EditBaseContainer
   },
   computed: {
     _id () {
@@ -715,158 +491,11 @@ export default {
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
       ],
       rules: {
-        mallOrderNumber: [
-          { required: true, message: '请输入商城订单编号', trigger: 'change' }
-        ],
-        goodInterestsType: [
-          { required: true, message: '请选择权益商品类型', trigger: 'change' }
-        ],
-        interestsGoodsCode: [
-          { required: true, message: '请输入权益商品代码', trigger: 'change' }
-        ],
-        interestsGoodsName: [
-          { required: true, message: '请输入权益商品名称', trigger: 'change' }
-        ],
-        orderStatus: [
-          { required: true, message: '请选择订单状态', trigger: 'change' }
-        ],
-        status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
-        ],
-        dealerCode: [
-          { required: true, message: '请输入门店编码', trigger: 'change' }
-        ],
-        serviceProxyCode: [
-          { required: true, message: '请输入施工单号', trigger: 'change' }
-        ],
-        vehProfileVin: [
-          { required: true, message: '请输入VIN码', trigger: 'change' }
-        ],
-        purchaser: [
-          { required: true, message: '请输入购买人', trigger: 'change' }
-        ],
-        purchaserPhone: [
-          { required: true, message: '请输入购买人电话', trigger: 'change' }
-        ],
-        saleDate: [
-          { required: true, message: '请输入购买日期', trigger: 'change' }
-        ],
-        referralCode: [
-          { required: true, message: '请输入推荐码', trigger: 'change' }
-        ],
         logisticsCompanies: [
           { required: true, message: '请输入物流商', trigger: 'change' }
         ],
         logisticsOrder: [
           { required: true, message: '请输入物流单号', trigger: 'change' }
-        ],
-        claimWorkHourAmount: [
-          { required: true, message: '请输入工时索赔合计', trigger: 'change' }
-        ],
-        claimPartsAmount: [
-          { required: true, message: '请输入零件索赔合计', trigger: 'change' }
-        ],
-        claimAmount: [
-          { required: true, message: '请输入索赔合计', trigger: 'change' }
-        ],
-        writeOffUserName: [
-          { required: true, message: '请输入核销人', trigger: 'change' }
-        ],
-        writeOffDate: [
-          { required: true, message: '请输入核销时间', trigger: 'change' }
-        ],
-        unsubscribeDate: [
-          { required: true, message: '请输入退订日期', trigger: 'change' }
-        ],
-        remark: [
-          { required: true, message: '请输入备注', trigger: 'change' }
-        ],
-        invalidDate: [
-          { required: true, message: '请输入失效时间', trigger: 'change' }
-        ],
-        modifierName: [
-          { required: true, message: '请输入修改者名称', trigger: 'change' }
-        ],
-        updateTime: [
-          { required: true, message: '请选择修改时间', trigger: 'change' }
-        ],
-        creatorName: [
-          { required: true, message: '请输入创建者名称', trigger: 'change' }
-        ],
-        createTime: [
-          { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        id: [
-          { required: true, message: '请输入主键', trigger: 'change' }
-        ],
-        creator: [
-          { required: true, message: '请输入创建者', trigger: 'change' }
-        ],
-        modifier: [
-          { required: true, message: '请输入修改者', trigger: 'change' }
-        ],
-        statusDesc: [
-          { required: true, message: '请选择状态变更描述', trigger: 'change' }
-        ],
-        name: [
-          { required: true, message: '请输入名称', trigger: 'change' }
-        ],
-        equityOrderNumber: [
-          { required: true, message: '请输入权益订单编号', trigger: 'change' }
-        ],
-        forceSystemUserId: [
-          { required: true, message: '请输入生效操作人', trigger: 'change' }
-        ],
-        forceSystemUserName: [
-          { required: true, message: '请输入生效操作人', trigger: 'change' }
-        ],
-        forceTime: [
-          { required: true, message: '请选择生效时间', trigger: 'change' }
-        ],
-        interestsGoodsId: [
-          { required: true, message: '请输入权益商品id', trigger: 'change' }
-        ],
-        invalidReason: [
-          { required: true, message: '请输入失效原因', trigger: 'change' }
-        ],
-        invalidSystemUserId: [
-          { required: true, message: '请输入失效操作人', trigger: 'change' }
-        ],
-        invalidSystemUserName: [
-          { required: true, message: '请输入失效操作人', trigger: 'change' }
-        ],
-        isEffect: [
-          { required: true, message: '请输入是否生效', trigger: 'change' }
-        ],
-        isUnsubscribe: [
-          { required: true, message: '请输入是否退订', trigger: 'change' }
-        ],
-        separateBill: [
-          { required: true, message: '请输入是否已拆单', trigger: 'change' }
-        ],
-        separateBillData: [
-          { required: true, message: '请输入拆单时间', trigger: 'change' }
-        ],
-        vehProfileId: [
-          { required: true, message: '请输入整车档案id', trigger: 'change' }
-        ],
-        checkoutReason: [
-          { required: true, message: '请输入退订原因', trigger: 'change' }
-        ],
-        ownerOrgId: [
-          { required: true, message: '请输入归属门店ID（组织ID），当数据权限归属到本组织以及本下级', trigger: 'change' }
-        ],
-        dealerName: [
-          { required: true, message: '请输入门店名称', trigger: 'change' }
-        ],
-        serviceProxyId: [
-          { required: true, message: '请输入施工单id', trigger: 'change' }
-        ],
-        writeOffUserId: [
-          { required: true, message: '请输入核销人', trigger: 'change' }
-        ],
-        dataSource: [
-          { required: true, message: '请输入数据来源', trigger: 'change' }
         ],
       }
     };
@@ -947,12 +576,7 @@ export default {
     // handleJumpAuditLog () {
     //   this.$auditLog.show({ id: 123 });
     // },
-    async fetchOptions (code) {
-      if (code) {
-        return getEnum(code);
-      }
-      return [];
-    },
+
     // 切换明细展开状态
     toggleItem (index) {
       const currentIndex = this.expandedItems.indexOf(index);

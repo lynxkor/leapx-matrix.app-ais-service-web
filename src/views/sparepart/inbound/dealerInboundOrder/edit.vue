@@ -339,7 +339,7 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '外购入库单号，开头OPO：' + this.form.code;
+      return '外购件入库单号：' + this.form.code;
     },
     extraButtons () {
       const buttons = [

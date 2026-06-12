@@ -65,7 +65,7 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import BaseInput from '@/libs/components/BaseInput';
-import { vehicleListFull } from '@/api/datacenter/vehicle/vehicleProfile';
+import { vehicleListFullByVin } from '@/api/datacenter/vehicle/vehicleProfile';
 import { addDetail } from '@/api/datacenter/vehicle/serviceDealerChangeApply/index';
 import { listOrgStoreInfo } from '@/api/common';
 const defaultForm = {
@@ -104,7 +104,7 @@ export default {
   },
   methods: {
     vinSearch (query) {
-      return vehicleListFull({
+      return vehicleListFullByVin({
         searchVin: query,
         pageSize: 20,
         pageNum: 1,

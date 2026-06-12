@@ -112,6 +112,7 @@
                     />
                   <el-button class="search-btn" size="small" @click="handleImport('sparepartStockTakingDetail')" :disabled="form.stockStatus !== '0'">导入备件清单</el-button>
                   <el-button class="search-btn" size="small" @click="handleImport('sparepartStockTakingDetailRes')" :disabled="form.stockStatus !== '2'">盘点结果导入</el-button>
+                  <el-button class="search-btn" size="small" @click="handleExport">导出盘点结果</el-button>
                 </div>
               </div>
               <div class="common-section-table">
@@ -209,13 +210,13 @@ import FetchSelect from '@/libs/components/FetchSelect';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getPartDealer, getLoginUser, userQuery } from '@/api/common';
+import { getEnum, getPartDealer, getLoginUser, userQuery, exportTable } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import Upload from '@/libs/components/UploadDialog';
 import DifferenceDialog from './DifferenceDialog.vue';
-import { handleCommonAction } from '@/libs/utils';
+import { handleCommonAction, downloadExcel } from '@/libs/utils';
 import BaseSearch from '@/libs/components/BaseSearch';
 
 const defaultForm = {
@@ -358,6 +359,45 @@ export default {
     handleImport (type) {
       this.importType = type;
       this.uploadDialogVisible = true;
+    },
+    // 导出盘点结果
+    handleExport () {
+      this.exportLoading = true;
+      const reqParams = { stockTakingId: this._id };
+      exportTable({
+        businessType: '库存盘点',
+        dataFetchPath: 'sp/web/dealer/stockTakingDetail/page',
+        reqParams,
+        titleMap: {
+          sparePartCode: '备件编码',
+          sparePartName: '备件名称',
+          locationName: '库位',
+          totalQty: '库存总数',
+          actualQty: '实盘库存',
+          remark: '备注',
+          operatorName: '操作人',
+          createTime: '创建时间',
+        },
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '盘点结果.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;

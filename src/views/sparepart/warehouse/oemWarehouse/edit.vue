@@ -5,7 +5,7 @@
       <edit-base-container
         ref="containerRef"
         :id="_id"
-        :title="`${title} ${form.createTime}`"
+        :title="`${title}：${form.warehouseName}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
         :submitRequest="submitRequest"
@@ -201,7 +201,7 @@ export default {
       },
       pageTitle: '主机厂仓库设置',
       pageType: 'edit',
-      title: '创建时间：',
+      title: '仓库名称',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-oemWarehouse',
       loading: false,

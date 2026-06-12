@@ -59,6 +59,10 @@ export function signByIds (data) {
   return api.jsonPost(prefix + 'signByIds', data);
 }
 
+export function batchCheckByIds (data) {
+  return api.jsonPost(prefix + 'batchCheckFinished', data);
+}
+
 /**
  * 添加明细
  * @param {Object} data
