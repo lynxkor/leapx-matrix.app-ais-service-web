@@ -353,6 +353,7 @@ const defaultForm = {
   updateTime: '',
 };
 
+const SEARCH_PARAMS_KEY = 'WARRANTY_APPLY_SEARCH_PARAMS';
 const pageSize = 20;
 const mockConfig = {
   data: null
@@ -868,6 +869,7 @@ export default {
       });
     },
     onSubmit () {
+      sessionStorage.setItem(SEARCH_PARAMS_KEY, JSON.stringify(this.getFormData()));
       this.tableForm.page = 1;
       this.getData();
     },
