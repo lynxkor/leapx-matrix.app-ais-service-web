@@ -192,7 +192,7 @@
             </div>
           </section>
         </el-main>
-        <VehicleModelDialog :visible="modelDialogVisible" @confirm="handleVehicleModelSubmit" @close="handleCloseModel" />
+        <VehicleModelDialog :visible="modelDialogVisible" @confirm="handleVehicleModelSubmit" @close="handleCloseModel" :initialData="tableDataCx"/>
       </edit-base-container>
     </template>
     <template #right>
@@ -344,7 +344,16 @@ export default {
       if (id) {
         return getDetail(id).then(res => {
           // 加载适配车型和零件清单数据
-          this.tableDataCx = res.vehModelList || [];
+          this.tableDataCx = (res.vehModelList || []).map(item => {
+            return {
+              ...item,
+              vehicleModelId: item.vehModelId,
+              vehicleModelName: item.vehModelName,
+              vehicleModelCode: item.vehModelCode,
+              vehicleYearTypeId: item.vehYearTypeId,
+              vehicleYearTypeName: item.vehYearTypeName,
+            };
+          });
           this.tableDataPj = res.partsList || [];
           return res;
         });
