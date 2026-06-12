@@ -79,7 +79,9 @@ const responseInterceptors = (instance, forbidToast) => {
     // causing SyntaxError: Unexpected token '<' during axios auto-parsing.
     // Must check BEFORE response existence — gateway may return 200 with HTML body,
     // in which case response exists but transformResponse still throws SyntaxError.
-    if (error instanceof SyntaxError && error.message.includes('<')) {
+    // Also check response.data for HTML content when axios resolves but data is HTML string.
+    const isHtmlResponse = typeof response?.data === 'string' && response.data.trim().startsWith('<');
+    if ((error instanceof SyntaxError && error.message.includes('<')) || isHtmlResponse) {
       store.commit('USER_SIGN_OUT');
       Message({
         message: '登录已过期，请重新登录',
@@ -140,6 +142,7 @@ function buildRequestConfig (method, config, sign, url) {
   const contentType = contentTypeMap[method] || 'application/x-www-form-urlencoded';
   return {
     baseURL: resolveBaseURL(url, sign),
+    timeout: 30000,
     ...config,
     headers: { 'Content-Type': contentType, ...config?.headers }
   };
