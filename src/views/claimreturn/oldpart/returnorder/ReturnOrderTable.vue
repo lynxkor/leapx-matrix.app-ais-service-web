@@ -214,6 +214,7 @@ export default {
         returnOrderId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
+        sortColumns: [{ column: 'update_time', sort: 'DESC' }],
       }).then((res) => {
         this.tableData = res.records;
         this.total = res.total;

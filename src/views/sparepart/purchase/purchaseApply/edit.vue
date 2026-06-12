@@ -13,6 +13,7 @@
           <el-button v-if="showSubmit" plain size="small" :loading="actionLoading" @click="handleSubmit(form)">提交</el-button>
           <el-button v-if="showAgree" plain size="small" @click="handleAgree(form)">同意</el-button>
           <el-button v-if="showReject" plain size="small" :loading="actionLoading" @click="handleReject(form)">驳回</el-button>
+          <el-button v-if="showDelete" type="danger" size="small" @click="handleDelete(form)">删除</el-button>
           <el-button v-if="showCopy" type="primary" size="small" :loading="actionLoading" @click="handleCopy(form)">复制</el-button>
         </template>
         <el-main>
@@ -258,32 +259,33 @@
                   补货预测
                 </el-button>
                 <el-button size="small" @click="handleImport" :disabled="!routeQueryType">备件导入</el-button>
+                <el-button size="small" @click="handleLack" :disabled="!routeQueryType">缺料导入</el-button>
               </div>
               <div class="common-title">备件列表</div>
               <div class="common-section-table">
                 <vxe-table ref="editTableRight" :data="tableData" stripe show-overflow resizable border="inner"
                   size="medium">
-                  <vxe-column field="partCode" title="备件编码">
+                  <vxe-column field="partCode" title="备件编码" width="180">
                     <template v-slot="{ row }">
                       <span class="clickable" @click="handleEdit(row)">{{ row.partCode }}</span>
                     </template>
                   </vxe-column>
-                  <vxe-column field="partName" title="备件名称" />
-                  <vxe-column field="originalPrice" title="原价" />
-                  <vxe-column field="purchasePrice" title="采购价" />
-                  <vxe-column field="purchaseAmount" title="采购金额" />
-                  <vxe-column field="cashUnitPrice" title="现金单价" />
-                  <vxe-column field="cashAmount" title="现金金额" />
-                  <vxe-column field="purchaseQty" title="采购数" />
-                  <vxe-column field="remark" title="备注" />
-                  <vxe-column field="originalPriceSource" title="原价来源">
+                  <vxe-column field="partName" title="备件名称" width="200" />
+                  <vxe-column field="originalPrice" title="原价" width="150" />
+                  <vxe-column field="purchasePrice" title="采购价" width="150" />
+                  <vxe-column field="purchaseAmount" title="采购金额" width="150" />
+                  <vxe-column field="cashUnitPrice" title="现金单价" width="150" />
+                  <vxe-column field="cashAmount" title="现金金额" width="150" />
+                  <vxe-column field="purchaseQty" title="采购数" width="150" />
+                  <vxe-column field="remark" title="备注" width="200" />
+                  <vxe-column field="originalPriceSource" title="原价来源" width="220">
                     <template v-slot="{ row }">
                       <el-link type="success" target="_blank"
                         :href="`/service/sparepart/basic/sparePartPurchasePrice/edit?id=${row.originalPriceSource}`">{{
                           row.originalPriceSource }}</el-link>
                     </template>
                   </vxe-column>
-                  <vxe-column title="操作" fixed="right" v-if="routeQueryType">
+                  <vxe-column title="操作" fixed="right" v-if="routeQueryType" width="100">
                     <template #default="{ row }">
                       <el-popconfirm title="确定删除此备件吗？" confirm-button-text="删除" confirm-button-type="danger"
                         @confirm="handleDel(row)">
@@ -345,6 +347,9 @@
     <!-- 补货预测 弹窗 -->
     <RestockDialog :visible.sync="restockDialog" :id="_id" @update:visible="val => restockDialog = val"
     @submit="handleRefresh" />
+    <!-- 缺料导入 弹窗 -->
+    <LackImportDialog :visible.sync="lackImportDialog" :id="_id" @update:visible="val => lackImportDialog = val"
+    @submit="handleRefresh" />
     <!-- 提交弹窗 -->
     <SubmitDialog
       ref="submitDialogRef"
@@ -375,7 +380,10 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getPurchaseApplyPage, purchaseApplyDelete, purchaseApplyReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, purchaseApplyGetCoupon } from '@/api/sparepart/purchase/purchaseApply/index';
+import {
+  getDetail, addOrUpdate, getPurchaseApplyPage, purchaseApplyDelete, deleteItem,
+  purchaseApplyReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, purchaseApplyGetCoupon
+} from '@/api/sparepart/purchase/purchaseApply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -392,6 +400,7 @@ import RestockDialog from './RestockDialog.vue';
 import SubmitDialog from './SubmitDialog.vue';
 import AgreeDialog from './AgreeDialog.vue';
 import ApprovalDialog from './ApprovalDialog.vue';
+import LackImportDialog from './LackImportDialog.vue';
 import AisAttachment from '@/libs/components/AisAttachment';
 
 const defaultForm = {
@@ -462,6 +471,7 @@ export default {
     SubmitDialog,
     AgreeDialog,
     ApprovalDialog,
+    LackImportDialog,
     AisAttachment
   },
   computed: {
@@ -472,7 +482,7 @@ export default {
       return this.form.thirdPartyDeliveryIs === '0';
     },
     isThirdPartyDelivery () {
-      return this.isAllowedThirdDelivered === 1;
+      return !this.accountFlag || this.isAllowedThirdDelivered === 1;
     },
     showSubmit () { // 必须满足订单状态条件
       if (!this._id || (this.form.orderStatus !== '0' && this.form.orderStatus !== '3')) {
@@ -509,6 +519,12 @@ export default {
         return (this.form.purchaseOrderType === '0' || this.form.purchaseOrderType === '1') && this.permissions.has('AISPART-purchaseApply-copy');
       }
       return true; // 主机厂账号直接显示
+    },
+    showDelete () { // 必须满足订单状态条件和权限
+      if (!this._id || (this.form.orderStatus !== '0' && this.form.orderStatus !== '3')) {
+        return false;
+      }
+      return this.permissions.has('AISPART-purchaseApply-delete');
     }
   },
   watch: {
@@ -608,6 +624,7 @@ export default {
       purchaseOrderTypeOptions: [], // 采购申请单 订单类型
       orderTypeDisabled: true,
       restockDialog: false, // 补货预测 弹窗控制
+      lackImportDialog: false, // 缺料导入 弹窗控制
       submitDialogVisible: false, // 提交按钮弹窗
       agreeDialogVisible: false, // 同意按钮弹窗.
       approvalDialogVisible: false, // 审批按钮弹窗.
@@ -893,6 +910,10 @@ export default {
     handleRestock () {
       this.restockDialog = true;
     },
+    // 缺料导入
+    handleLack () {
+      this.lackImportDialog = true;
+    },
     // 提交
     async handleSubmit (val) {
       this.actionLoading = true;
@@ -994,6 +1015,19 @@ export default {
       } else {
         this.$message.error('操作失败：缺少采购单ID');
       }
+    },
+    // 删除
+    handleDelete (row) {
+      this.$confirm('此操作将删除此申请单, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteItem([row.id]).then(() => {
+          this.$message.success('删除成功');
+          this.$router.go(-1);
+        });
+      }).catch(() => {});
     },
     // 驳回
     async handleReject (val) {

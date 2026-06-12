@@ -26,14 +26,28 @@
           filterable
         />
       </el-form-item>
-      <el-form-item label="物流单号:"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.logisticsTrackingNo"
+
+      <el-form-item label="收货供应商："  v-show="this.visibleCount === 3 || show">
+        <list-select
+          listUrl="/sp/web/basic/supplierInfo/list"
+          placeholder="请选择"
+          v-model="form.supplierId"
+          query-key="supplierCodeOrNameLike"
+          auto-load-options
+          no-param-load
           clearable
-        />
+          filterable
+          :params="{}" />
       </el-form-item>
+
       <template v-if="show">
+        <el-form-item label="物流单号:">
+          <el-input
+            placeholder="请输入"
+            v-model="form.logisticsTrackingNo"
+            clearable
+          />
+        </el-form-item>
         <el-form-item label="物流商">
           <el-input
             placeholder="请输入"
@@ -114,6 +128,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel, getEndOfDayString, formatDateTime } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import ListSelect from '@/libs/components/list-select/index.vue';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -132,6 +147,7 @@ const mockConfig = {
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
+    ListSelect,
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
@@ -162,6 +178,15 @@ export default {
           size: pageSize
         },
         dataProp: [
+          {
+            props: 'serialNo',
+            label: '序号',
+            visible: true,
+            width: 60,
+            fixed: 'left',
+            align: 'center',
+            headerAlign: 'center'
+          },
           {
             props: 'outboundOrderNo',
             label: '主机厂出库单号',
@@ -302,13 +327,15 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          const records = res?.records || [];
+          this.optionObj.dataList = records.map((item, idx) => {
             return {
               ...item,
+              serialNo: records.length - idx,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });

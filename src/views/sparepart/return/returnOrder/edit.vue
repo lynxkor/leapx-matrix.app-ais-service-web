@@ -294,7 +294,7 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>出库明细信息 <el-button size="mini" class="search-btn" v-if="isEditable" @click="handleImport">导入备件</el-button> <el-button class="search-btn" size="mini" v-if="isEditable" @click="addPart">添加备件</el-button></h2>
+              <h2>出库明细信息 <el-button size="mini" class="search-btn" v-if="_id && permissions.has('AISPART-returnOrder-exportDetail')" :loading="exportLoading" @click="exportDetailExcel">导出</el-button> <el-button size="mini" class="search-btn" v-if="isEditable" @click="handleImport">导入备件</el-button> <el-button class="search-btn" size="mini" v-if="isEditable" @click="addPart">添加备件</el-button></h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
@@ -413,14 +413,14 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, listOrgStoreInfoByParam, listWarehouse, listOemWarehouse, getLoginUser, getPartDealer, listOemFull } from '@/api/common';
+import { getEnum, listOrgStoreInfoByParam, listWarehouse, listOemWarehouse, getLoginUser, getPartDealer, listOemFull, exportTable } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import AddSpareParts from './AddSpareParts.vue';
 import Upload from '@/libs/components/UploadDialog';
-import { handleCommonAction, handleCommonPrompt } from '@/libs/utils/index';
+import { handleCommonAction, handleCommonPrompt, downloadExcel } from '@/libs/utils/index';
 import ShipmentDialog from './ShipmentDialog.vue';
 
 const defaultForm = {
@@ -476,6 +476,26 @@ const ACTION_CONFIG = { // 按钮配置
   agree: { title: '是否同意退货申请?', success: '同意成功' },
   revoke: { title: '是否撤回退货申请?', success: '撤回成功' },
   commit: { title: '是否提交退货申请?', success: '提交成功' },
+};
+
+const returnOrderDetailTitleMap = {
+  partCode: '备件编码',
+  partName: '备件名称',
+  returnQty: '退货数量',
+  qualifiedQty: '合格数量',
+  deliveryOrderNo: '交货单号',
+  salesVoucher: '销售凭证',
+  inboundOrderCode: '入库单号',
+  purchaseOrderCode: '采购订单号',
+  purchaseCashUnitPrice: '采购现金单价',
+  purchaseRebateUnitPrice: '采购返利单价',
+  returnCashUnitPrice: '退货现金单价',
+  estimatedReturnCashAmount: '预计退货现金金额',
+  actualReturnCashAmount: '实际退货现金金额',
+  returnRebateUnitPrice: '退货返利单价',
+  estimatedReturnRebateAmount: '预计退货返利金额',
+  actualReturnRebateAmount: '实际退货返利金额',
+  remark: '备注'
 };
 
 export default {
@@ -573,6 +593,7 @@ export default {
       loading: false,
       submitLoading: false,
       actionLoading: false,
+      exportLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -853,6 +874,36 @@ export default {
       });
       this.tableData = res.records || [];
       this.total = res.total || 0;
+    },
+    exportDetailExcel () {
+      this.exportLoading = true;
+      exportTable({
+        businessType: '备件退货单出库明细',
+        dataFetchPath: 'sp/web/purchase/returnOrderDetail/page',
+        reqParams: {
+          returnOrderId: this._id
+        },
+        titleMap: returnOrderDetailTitleMap,
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '备件退货单出库明细.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$message({
+            type: 'info',
+            message: '请前往导出列表中查询导出结果'
+          });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
     },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;

@@ -12,7 +12,7 @@
       <el-form-item label="门店回运单号">
         <el-input
           placeholder="请输入"
-          v-model="form.returnOrderNo"
+          v-model="form.returnOrderNoLike"
           clearable
         />
       </el-form-item>
@@ -72,6 +72,7 @@
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button  v-if="canDelete"  size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button  v-if="canSign"  size="small" :loading="signLoading" @click="handleBatchSign" :disabled="selectionList.length === 0">批量签收</el-button>
+      <el-button  v-if="canBatchCheck"  size="small" :loading="signLoading" @click="handleBatchCheck" :disabled="selectionList.length === 0">批量验收</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -106,7 +107,14 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
-import { getList, deleteItem, enableItem, publish, signByIds } from '@/api/claimreturn/oldpart/returnorder';
+import {
+  getList,
+  deleteItem,
+  enableItem,
+  publish,
+  signByIds,
+  batchCheckByIds
+} from '@/api/claimreturn/oldpart/returnorder';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import Upload from '@/libs/components/UploadDialog/index.vue';
@@ -121,7 +129,7 @@ import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  returnOrderNo: '',
+  returnOrderNoLike: '',
   dealerName: '',
   dealerCode: '',
   returnStatus: '',
@@ -177,6 +185,15 @@ export default {
         dataList: [],
         form: { page: 1, size: pageSize },
         dataProp: [
+          {
+            props: 'serialNo',
+            label: '序号',
+            visible: true,
+            width: 60,
+            fixed: 'left',
+            align: 'center',
+            headerAlign: 'center'
+          },
           {
             props: 'returnOrderNo',
             label: '门店回运单号',
@@ -337,6 +354,10 @@ export default {
     },
     canSign () {
       return this.permissions.has(`${this.moduleKey}-sign`);
+    },
+    canBatchCheck () {
+      console.log('[DEBUG] canCheck', this.moduleKey, this.permissions.has(`${this.moduleKey}-batchCheck`));
+      return this.permissions.has(`${this.moduleKey}-batchCheck`);
     }
   },
   methods: {
@@ -398,13 +419,15 @@ export default {
 
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
-          this.optionObj.dataList = res.records.map(item => {
+          const records = res?.records || [];
+          this.optionObj.dataList = records.map((item, idx) => {
             return {
               ...item,
+              serialNo: records.length - idx,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });
@@ -532,6 +555,44 @@ export default {
         this.$message({
           type: 'error',
           message: `以下单号不是已回运状态，不允许签收：单号：${notReturnedOrderNos.join('，单号：')}`,
+          duration: 5000
+        });
+      }
+    },
+    handleBatchCheck () {
+      // 筛选出已验收或不等于已签收的回运单
+      const filteredItems = this.selectionList.filter(item => item.isChecked === '1' || item.returnStatus !== '40');
+      const filteredZero = filteredItems.length === 0;
+
+      if (filteredZero) {
+        this.$confirm('您确定要验收吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          const ids = this.selectionList.map(item => item.id) || [];
+          this.signLoading = true;
+          batchCheckByIds(ids).then(() => {
+            this.$message({
+              type: 'success',
+              message: '您已完成验收。'
+            });
+            this.getData();
+          }).catch(() => {
+            this.$message({
+              type: 'error',
+              message: '签收失败!'
+            });
+          }).finally(() => {
+            this.signLoading = false;
+          });
+        }).catch(() => {});
+      } else {
+        // 包含非已签收待验收状态
+        const notSignedUnCheckOrderNos = filteredItems.map(item => item.returnOrderNo);
+        this.$message({
+          type: 'error',
+          message: `以下单号不是已签收待验收状态，不允许验收：单号：${notSignedUnCheckOrderNos.join('，单号：')}`,
           duration: 5000
         });
       }

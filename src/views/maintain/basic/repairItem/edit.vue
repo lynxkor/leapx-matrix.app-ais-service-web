@@ -310,7 +310,16 @@
                   @save-row-edit="saveRowEdit"
                   @remove-row="removeRow"
                   :auth="{edit: canAddOrUpdate, delete: canDelete}"
-                />
+                >
+                  <template v-slot:default="{ row, column, col }">
+                    <div class="cell-content">
+                      <template v-if="col.click">
+                        <el-button class="link btn-text" @click="(e) => col.click(row, e)" type="text">{{ row[column.field] }}</el-button>
+                      </template>
+                      <span v-else class="cell-text">{{ row[column.field] }}</span>
+                    </div>
+                  </template>
+                </edit-table>
               </div>
             </div>
           </section>
@@ -548,7 +557,16 @@ export default {
               'suffix-icon': 'el-icon-search',
               placeholder: '请选择零件代码',
               'remote-method': this.querySpareParts,
-            }
+            },
+          },
+          click: (row, e) => {
+            e.stopPropagation();
+            this.navigateToRoute({
+              path: '/sparepart/basic/sparePart/edit',
+              query: {
+                id: row.partsId,
+              },
+            });
           },
           rules: [
             { required: true, message: '车型不能为空', trigger: 'blur' }
