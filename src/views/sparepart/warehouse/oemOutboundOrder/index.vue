@@ -949,7 +949,8 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null || data[key].length === 0) {
+        const value = data[key];
+        if (value === '' || value === null || value === undefined || (Array.isArray(value) && value.length === 0)) {
           delete data[key];
         }
       });
@@ -982,7 +983,8 @@ export default {
       const data = { ...this.sparePartForm };
 
       Object.keys(this.sparePartForm).forEach(key => {
-        if (data[key] === '' || data[key] === null || data[key].length === 0) {
+        const value = data[key];
+        if (value === '' || value === null || value === undefined || (Array.isArray(value) && value.length === 0)) {
           delete data[key];
         }
       });
