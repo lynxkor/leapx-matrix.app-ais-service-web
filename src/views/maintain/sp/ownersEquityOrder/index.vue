@@ -10,18 +10,10 @@
       class="ais-search-form"
     >
       <el-form-item label="商城订单号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.mallOrderNumberLike"
-          clearable
-        />
+        <tag-input v-model="form.mallOrderNumberList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="商品代码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.interestsGoodsCodeLike"
-          clearable
-        />
+        <tag-input v-model="form.interestsGoodsCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="商品名称" v-show="this.visibleCount === 3 || show">
           <el-input
@@ -50,11 +42,7 @@
           />
         </el-form-item>
         <el-form-item label="VIN码">
-          <el-input
-            placeholder="请输入"
-            v-model="form.vehProfileVinLike"
-            clearable
-          />
+          <tag-input v-model="form.vehProfileVinList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="购买人">
           <el-input
@@ -157,6 +145,7 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/sp/ownersEquityOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
+import TagInput from '@/libs/components/TagInput';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -168,15 +157,15 @@ import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  mallOrderNumber: '',
+  mallOrderNumberList: [],
   goodInterestsType: '',
-  interestsGoodsCode: '',
+  interestsGoodsCodeList: [],
   interestsGoodsName: '',
   orderStatus: '',
   status: '',
   dealerCode: '',
   serviceProxyCode: '',
-  vehProfileVin: '',
+  vehProfileVinList: [],
   purchaser: '',
   purchaserPhone: '',
   saleDate: '',
@@ -209,7 +198,8 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
-    Upload
+    Upload,
+    TagInput
   },
   data () {
     return {
@@ -307,7 +297,7 @@ export default {
           { props: 'modifierName', label: '更新人', visible: true, width: 200 },
           { props: 'updateTime', label: '更新时间', visible: true, width: 200 },
           { props: 'creatorName', label: '创建人', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200, sortable: true },
           {
             props: 'operate',
             label: '操作',
@@ -353,10 +343,10 @@ export default {
         total: 0
       },
       sortColumns: [
-        // {
-        // column: 'create_time',
-        // sort: 'DESC'
-        // }
+        {
+          column: 'create_time',
+          sort: 'DESC'
+        }
       ]
     };
   },
@@ -489,6 +479,23 @@ export default {
       Object.keys(this.form).forEach(key => {
         if (data[key] === '' || data[key] === null) {
           delete data[key];
+        }
+      });
+
+      // 处理 tag-input 批量查询字段：单值时转为普通字段，多值时保留数组
+      const tagInputFields = {
+        mallOrderNumberList: 'mallOrderNumber',
+        interestsGoodsCodeList: 'interestsGoodsCode',
+        vehProfileVinList: 'vehProfileVin'
+      };
+      Object.keys(tagInputFields).forEach(key => {
+        if (Array.isArray(this.form[key])) {
+          if (this.form[key].length === 0) {
+            delete data[key];
+          } else if (this.form[key].length === 1) {
+            delete data[key];
+            data[tagInputFields[key]] = this.form[key][0];
+          }
         }
       });
 
