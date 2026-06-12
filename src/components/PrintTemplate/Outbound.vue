@@ -45,7 +45,7 @@
             <th style="width:20%">唯一码</th>
             <th style="width:20%">零件代码</th>
             <th style="width:20%">零件名称</th>
-            <th style="width:7%;">数量</th>
+            <th style="width:15%;">车架号</th>
             <th style="width:8%;">工时费用总计</th>
             <th style="width:6%;">是否快返</th>
             <th style="width:100px;">备注</th>
@@ -57,7 +57,7 @@
             <td>{{ item.oldPartUniqueCode }}</td>
             <td>{{ item.partCode }}</td>
             <td>{{ item.partName }}</td>
-            <td>{{ isNaN(parseFloat(item.oldPartQuantity)) ? null : parseFloat(item.oldPartQuantity) }}</td>
+            <td>{{ item.vin }}</td>
             <td></td>
             <td>{{ item.returnType === '40' ? '是': '否'}}</td>
             <td style=" overflow: hidden; white-space: nowrap; text-overflow: ellipsis;max-width: 100px;">{{ item.remark }}</td>
