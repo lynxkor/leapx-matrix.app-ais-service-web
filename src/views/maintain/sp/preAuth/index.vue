@@ -221,7 +221,18 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'serviceProxyCode', label: '施工单号', visible: true, width: 200 },
+          {
+            props: 'serviceProxyCode',
+            label: '施工单号',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/maintain/sp/serviceProxy/edit?id=${row.serviceProxyId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'preAuthTypeLabel', label: '预授权类型', visible: true, width: 150 },
           {
             props: 'dealerName',
@@ -237,7 +248,18 @@ export default {
           },
           { props: 'dealerUnitName', label: '门店所属大区', visible: true, width: 150 },
           { props: 'carPlate', label: '车牌号', visible: true, width: 150 },
-          { props: 'vehProfileVin', label: 'VIN', visible: true, width: 200 },
+          {
+            props: 'vehProfileVin',
+            label: 'VIN',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'alarmInfo', label: '预警信息', visible: true, width: 200 },
           { props: 'approvedLaborClaimTotal', label: '工时索赔合计', visible: true, width: 150 },
           { props: 'approvedPartsClaimTotal', label: '零件索赔合计', visible: true, width: 150 },
