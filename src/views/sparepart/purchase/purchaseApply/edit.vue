@@ -259,7 +259,7 @@
                   补货预测
                 </el-button>
                 <el-button size="small" @click="handleImport" :disabled="!routeQueryType">备件导入</el-button>
-                <el-button size="small" @click="handleLack" :disabled="!routeQueryType">缺料导入</el-button>
+                <el-button v-if="permissions.has('AISPART-purchaseApply-importLack')" size="small" @click="handleLack" :disabled="!routeQueryType">缺料导入</el-button>
               </div>
               <div class="common-title">备件列表</div>
               <div class="common-section-table">

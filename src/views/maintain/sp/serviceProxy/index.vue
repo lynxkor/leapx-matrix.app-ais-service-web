@@ -10,7 +10,7 @@
       class="ais-search-form"
     >
       <el-form-item label="单据编号">
-        <tag-input v-model="form.codeList" placeholder="请输入" />
+        <tag-input v-model="form.codes" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="车牌号">
         <tag-input v-model="form.carPlateList" placeholder="请输入" />
@@ -307,7 +307,7 @@ import moment from 'moment';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  codeList: [],
+  codes: [],
   dataSource: '',
   orderStatus: '',
   repairItemTypeDetailCollectLike: '',
@@ -610,7 +610,7 @@ export default {
 
       // 处理 tag-input 批量查询字段：单值时转为普通字段，多值时保留数组
       const tagInputFields = {
-        codeList: 'code',
+        codes: 'code',
         carPlateList: 'carPlate',
         vehProfileVinList: 'vehProfileVin',
         appointmentNoList: 'appointmentNo'

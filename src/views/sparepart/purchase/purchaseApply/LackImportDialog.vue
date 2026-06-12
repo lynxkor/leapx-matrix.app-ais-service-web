@@ -26,7 +26,8 @@
       <vxe-table
         ref="lackTable"
         :data="tableData"
-        :checkbox-config="{ checkField: 'checked' }"
+        :checkbox-config="checkboxConfig"
+        :tree-config="{ children: 'children', expandAll: false, treeNodeKey: '_treeKey' }"
         stripe
         show-overflow
         resizable
@@ -36,30 +37,44 @@
         @checkbox-all="handleCheckboxChange"
       >
         <vxe-column type="checkbox" width="50" />
-        <vxe-column field="partCode" title="备件编码" width="150" />
+        <vxe-column field="partCode" title="备件编码" width="150" tree-node />
         <vxe-column field="partName" title="备件名称" width="180" />
         <vxe-column field="workOrderNo" title="施工单号" width="180" />
         <vxe-column field="vin" title="VIN" width="160">
           <template #default="{ row }">
-            <span class="vin-text" @click="handleDecryptVin(row)">
-              {{ row.vinMask || row.vin }}
-            </span>
+            <template v-if="row._isDetail && row.vin">
+              <span class="vin-text" @click="toggleVinDecrypt(row)">
+                {{ row._vinDecrypted ? row.vin : maskVin(row.vin) }}
+              </span>
+            </template>
           </template>
         </vxe-column>
         <vxe-column field="repairQty" title="维修数量" width="120" />
-        <vxe-column field="availableQty" title="可用数量" width="120" />
-        <vxe-column field="inTransitQty" title="在途数量" width="120" />
-        <vxe-column field="minOrderQty" title="最小订购量" width="130" />
-        <vxe-column field="suggestedPurchaseQty" title="建议采购数" width="130" />
-        <vxe-column field="unitPrice" title="单价" width="100" />
-        <vxe-column field="purchaseQty" title="采购量" width="120">
+        <vxe-column field="availableQty" title="可用数量" width="120">
+          <template #default="{ row }">{{ row._isDetail ? '' : row.availableQty }}</template>
+        </vxe-column>
+        <vxe-column field="inTransitQty" title="在途数量" width="120">
+          <template #default="{ row }">{{ row._isDetail ? '' : row.inTransitQty }}</template>
+        </vxe-column>
+        <vxe-column field="minOrderQty" title="最小订购量" width="130">
+          <template #default="{ row }">{{ row._isDetail ? '' : row.minOrderQty }}</template>
+        </vxe-column>
+        <vxe-column field="suggestedPurchaseQty" title="建议采购数" width="130">
+          <template #default="{ row }">{{ row._isDetail ? '' : row.suggestedPurchaseQty }}</template>
+        </vxe-column>
+        <vxe-column field="unitPrice" title="单价" width="100">
+          <template #default="{ row }">{{ row._isDetail ? '' : row.unitPrice }}</template>
+        </vxe-column>
+        <vxe-column field="purchaseQty" title="采购量" fixed="right" width="160">
           <template #default="{ row }">
             <el-input-number
+              v-if="!row._isDetail"
               v-model="row.purchaseQty"
               :min="0"
+              :step="Number(row.minOrderQty) || 1"
               size="small"
               placeholder="请输入"
-              disabled
+              @change="handlePurchaseQtyChange(row)"
             />
           </template>
         </vxe-column>
@@ -89,7 +104,7 @@
 <script>
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import TagInput from '@/libs/components/TagInput';
-// import { getDetailDecryptField } from '@/api/claimreturn/claim/warrantyapply';
+import { getRepairShortagePage, addDetail } from '@/api/sparepart/purchase/purchaseApply/index';
 
 const defaultSearchForm = {
   partCodeList: [],
@@ -126,11 +141,18 @@ export default {
       pageSize: 10,
       total: 0,
       selectedRows: [],
+      checkboxConfig: {
+        checkField: 'checked',
+        checkMethod: ({ row }) => !row._isDetail
+      }
     };
   },
   watch: {
     visible (val) {
       this.dialogVisible = val;
+      if (val) {
+        this.getData();
+      }
     },
   },
   methods: {
@@ -147,12 +169,64 @@ export default {
       this.pageSize = 10;
       this.getData();
     },
-    handleCheckboxChange ({ records }) {
-      this.selectedRows = records;
+    getFormData () {
+      const data = {};
+      if (this.searchForm.partCodeList && this.searchForm.partCodeList.length > 0) {
+        data.sparePartCodeList = this.searchForm.partCodeList;
+      }
+      if (this.searchForm.partNameLike) {
+        data.sparePartNameLike = this.searchForm.partNameLike;
+      }
+      if (this.searchForm.workOrderNo) {
+        data.serviceProxyCode = this.searchForm.workOrderNo;
+      }
+      if (this.searchForm.vin) {
+        data.vin = this.searchForm.vin;
+      }
+      return data;
     },
     getData () {
-      // TODO: 接口先不管
-      this.loading = false;
+      if (!this.id) {
+        return;
+      }
+      this.loading = true;
+      getRepairShortagePage({
+        ...this.getFormData(),
+        purchaseApplyId: this.id,
+        pageNum: this.current,
+        pageSize: this.pageSize
+      }).then(res => {
+        const records = res.records || [];
+        this.tableData = records.map((item, index) => ({
+          partCode: item.sparePartCode,
+          partName: item.sparePartName,
+          sparePartId: item.sparePartId,
+          repairQty: item.maintenanceQty,
+          availableQty: item.availableQty,
+          inTransitQty: item.inTransitQty,
+          minOrderQty: item.minOrderQty,
+          suggestedPurchaseQty: item.suggestedPurchaseQty,
+          unitPrice: item.purchasePrice,
+          purchaseQty: item.purchaseQty,
+          checked: true,
+          _treeKey: `g-${index}`,
+          children: (item.details || []).map((detail, dIdx) => ({
+            partCode: detail.sparePartCode,
+            partName: detail.sparePartName,
+            workOrderNo: detail.serviceProxyCode,
+            vin: detail.vin,
+            repairQty: detail.maintenanceQty,
+            checked: false,
+            _isDetail: true,
+            _vinDecrypted: false,
+            _treeKey: `g-${index}-d-${dIdx}`
+          }))
+        }));
+        this.total = res.total || 0;
+        this.selectedRows = [...this.tableData];
+      }).finally(() => {
+        this.loading = false;
+      });
     },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;
@@ -163,17 +237,57 @@ export default {
       this.current = current;
       this.getData();
     },
-    handleDecryptVin (row) {
-      // TODO: VIN 解密
+    handleCheckboxChange ({ records }) {
+      this.selectedRows = (records || []).filter(row => !row._isDetail);
+    },
+    handlePurchaseQtyChange (row) {
+      const purchaseQty = Number(row.purchaseQty);
+      const minOrderQty = Number(row.minOrderQty) || 1;
+      if (purchaseQty > 0 && purchaseQty % minOrderQty !== 0) {
+        this.$message.warning(`采购量必须是最小订购量（${minOrderQty}）的倍数`);
+      }
+    },
+    maskVin (vin) {
+      if (!vin || vin.length <= 8) {
+        return vin;
+      }
+      return `${vin.slice(0, 4)}${'*'.repeat(vin.length - 8)}${vin.slice(-4)}`;
+    },
+    toggleVinDecrypt (row) {
+      row._vinDecrypted = !row._vinDecrypted;
     },
     async submit () {
       if (!this.selectedRows || this.selectedRows.length === 0) {
         this.$message.warning('请选择要导入的备件');
         return;
       }
-      // TODO: 接口先不管
-      this.$emit('submit');
-      this.close();
+      for (const row of this.selectedRows) {
+        const purchaseQty = Number(row.purchaseQty);
+        const minOrderQty = Number(row.minOrderQty) || 1;
+        if (!purchaseQty || purchaseQty <= 0) {
+          this.$message.warning('采购量必须大于0');
+          return;
+        }
+        if (purchaseQty % minOrderQty !== 0) {
+          this.$message.warning(`采购量必须是最小订购量（${minOrderQty}）的倍数`);
+          return;
+        }
+      }
+      this.submitLoading = true;
+      try {
+        for (const row of this.selectedRows) {
+          await addDetail({
+            purchaseApplyId: this.id,
+            sparePartId: row.sparePartId,
+            purchaseQty: row.purchaseQty
+          });
+        }
+        this.close();
+        this.$emit('submit');
+        this.$message.success('导入成功');
+      } finally {
+        this.submitLoading = false;
+      }
     },
   }
 };
