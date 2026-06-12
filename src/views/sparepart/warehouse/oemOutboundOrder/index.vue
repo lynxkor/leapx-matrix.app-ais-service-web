@@ -1,7 +1,9 @@
 <template>
   <div class="page-common m-oem-outbound-order-list">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
+    <!-- 订单列表搜索条件 -->
     <el-form
+      v-if="activeName === 'orderList'"
       :inline="true"
       :model="form"
       size="small"
@@ -52,7 +54,7 @@
           <fetch-select
             :request="fetchOptions"
             enumCode="PurchaseOrderTypeEnum"
-            v-model="form.purchaseOrderType"
+            v-model="form.purchaseOrderTypeList"
             placeholder="请选择"
             clearable
             multiple
@@ -67,10 +69,36 @@
           />
         </el-form-item>
         <el-form-item label="订单同步是否成功">
-          <el-input
-            placeholder="请输入"
-            v-model="form.orderSyncSuccessIs"
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="YesOrNoEnum"
+            v-model="form.orderSyncSuccessIsList"
+            placeholder="请选择"
             clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="出库同步是否成功">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="YesOrNoEnum"
+            v-model="form.outboundSyncSuccessIsList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="开票同步是否成功">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="YesOrNoEnum"
+            v-model="form.invoiceSyncSuccessIsList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
           />
         </el-form-item>
         <el-form-item label="SAP返回信息">
@@ -138,18 +166,210 @@
         @reset="onReset"
       />
     </el-form>
+    <!-- 备件列表搜索条件 -->
+    <el-form
+      v-if="activeName === 'sparePartList'"
+      :inline="true"
+      :model="sparePartForm"
+      size="small"
+      label-position="right"
+      label-width="150px"
+      class="ais-search-form"
+    >
+      <el-form-item label="出库单号">
+        <tag-input v-model="sparePartForm.codeList" placeholder="请输入" />
+      </el-form-item>
+      <el-form-item label="采购订单号">
+        <tag-input v-model="sparePartForm.purchaseOrderCodeList" placeholder="请输入" />
+      </el-form-item>
+      <el-form-item label="采购申请单" v-show="this.visibleCount === 3 || show">
+        <tag-input v-model="sparePartForm.purchaseApplyCodeList" placeholder="请输入" />
+      </el-form-item>
+      <template v-if="show">
+        <el-form-item label="发货仓库">
+          <fetch-select
+            :remote-method="getOemWarehouse"
+            remote
+            v-model="sparePartForm.deliveryWarehouse"
+            placeholder="请选择"
+            labelKey="name"
+            valueKey="id"
+            subLabelKey="code"
+            clearable
+            collapseTags
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="门店编码">
+          <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="sparePartForm.dealerCodeList"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgCode"
+            subLabelKey="orgCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="门店名称">
+          <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="sparePartForm.dealerNameList"
+            placeholder="请输入门店编码或名称"
+            labelKey="orgName"
+            valueKey="orgName"
+            clearable
+            multiple
+            collapseTags
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="订单类型">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="PurchaseOrderTypeEnum"
+            v-model="sparePartForm.purchaseOrderTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="发运单">
+          <el-input
+            placeholder="请输入"
+            v-model="sparePartForm.logisticsOrderNo"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="订单同步是否成功">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="YesOrNoEnum"
+            v-model="sparePartForm.orderSyncSuccessIsList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="出库同步是否成功">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="YesOrNoEnum"
+            v-model="sparePartForm.outboundSyncSuccessIsList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="开票同步是否成功">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="YesOrNoEnum"
+            v-model="sparePartForm.invoiceSyncSuccessIsList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="SAP返回信息">
+          <el-input
+            placeholder="请输入"
+            v-model="sparePartForm.sapReturnInfoLike"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="销售凭证">
+          <tag-input v-model="sparePartForm.salesVoucherList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="交货凭证">
+          <tag-input v-model="sparePartForm.deliveryVoucherList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="发票号">
+          <tag-input v-model="sparePartForm.invoiceNoList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="开票日期">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="sparePartForm.invoiceDate"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="sparePartForm.createTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="修改时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="sparePartForm.updateTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="备件编码">
+          <tag-input v-model="sparePartForm.sparePartCodeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="备件名称">
+          <el-input
+            placeholder="请输入"
+            v-model="sparePartForm.sparePartNameLike"
+            clearable
+          />
+        </el-form-item>
+      </template>
+      <page-search-action
+        v-if="canList"
+        v-model="show"
+        is-expandable
+        :loading="loading"
+        @submit="onSubmit"
+        @reset="onReset"
+      />
+    </el-form>
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
-      <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchSync" :disabled="selectionList.length === 0" v-permission="'AISPART-oemOutboundOrder-async'">同步</el-button>
+      <el-button v-if="canEnableOrDisable && activeName === 'orderList'" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
+      <el-button v-if="canEnableOrDisable && activeName === 'orderList'" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
+      <el-button v-if="canEnableOrDisable && activeName === 'orderList'" size="small" @click="handleBatchSync" :disabled="selectionList.length === 0" v-permission="'AISPART-oemOutboundOrder-async'">同步</el-button>
     </div>
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="订单列表" name="orderList"></el-tab-pane>
+      <el-tab-pane label="备件列表" name="sparePartList"></el-tab-pane>
+    </el-tabs>
+    <!-- 订单列表表格 -->
     <div
       class="ais-table-c"
+      v-if="activeName === 'orderList'"
     >
       <LPVxeTable
         ref="tableRef"
@@ -166,6 +386,25 @@
         @listSelect="handleListSelect"
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
+    </div>
+    <!-- 备件列表表格 -->
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'sparePartList'"
+    >
+      <LPVxeTable
+        :key="'sparePart'"
+        ref="tableRefSparePart"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        :option-obj="optionObjSparePart"
+        :get-config="getConfigSparePart"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+      >
       </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
@@ -188,11 +427,10 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, getAsync } from '@/api/sparepart/warehouse/oemOutboundOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse, listOemWarehouse } from '@/api/common';
+import { getList, deleteItem, enableItem, getAsync, getSparePartPage } from '@/api/sparepart/warehouse/oemOutboundOrder/index';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listOemWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
-import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
@@ -201,22 +439,46 @@ import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
 import LogisticsDrawer from '@/libs/components/LogisticsDrawer';
 const defaultForm = {
-  // TIPS:多选时字段名称会有变化，自行校对
-  code: '',
-  purchaseOrderCode: '',
-  purchaseApplyCode: '',
-  dealerCode: '',
-  purchaseOrderType: '',
+  codeList: [],
+  purchaseOrderCodeList: [],
+  purchaseApplyCodeList: [],
+  deliveryWarehouse: '',
+  dealerCodeList: [],
+  purchaseOrderTypeList: [],
   logisticsOrderNo: '',
-  orderSyncSuccessIs: '',
-  sapReturnInfo: '',
-  salesVoucher: '',
-  deliveryVoucher: '',
-  invoiceNo: '',
+  orderSyncSuccessIsList: [],
+  outboundSyncSuccessIsList: [],
+  invoiceSyncSuccessIsList: [],
+  sapReturnInfoLike: '',
+  salesVoucherList: [],
+  deliveryVoucherList: [],
+  invoiceNoList: [],
   invoiceDate: '',
-  taxInvoiceNo: '',
   createTime: '',
   updateTime: '',
+};
+
+const defaultSparePartForm = {
+  codeList: [],
+  purchaseOrderCodeList: [],
+  purchaseApplyCodeList: [],
+  deliveryWarehouse: '',
+  dealerCodeList: [],
+  dealerNameList: [],
+  purchaseOrderTypeList: [],
+  logisticsOrderNo: '',
+  orderSyncSuccessIsList: [],
+  outboundSyncSuccessIsList: [],
+  invoiceSyncSuccessIsList: [],
+  sapReturnInfoLike: '',
+  salesVoucherList: [],
+  deliveryVoucherList: [],
+  invoiceNoList: [],
+  invoiceDate: '',
+  createTime: '',
+  updateTime: '',
+  sparePartCodeList: [],
+  sparePartNameLike: '',
 };
 
 const pageSize = 20;
@@ -241,11 +503,14 @@ export default {
       pageType: 'list',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-oemOutboundOrder',
+      activeName: 'orderList',
       form: {
         ...defaultForm
       },
+      sparePartForm: {
+        ...defaultSparePartForm
+      },
       selectionList: [],
-      yes_no_enum: YES_NO_ENUM,
       show: false,
       loading: false,
       exportLoading: false,
@@ -343,6 +608,8 @@ export default {
             }]
           },
           { props: 'orderSyncSuccessIsLabel', label: '订单同步是否成功', visible: true, width: 160 },
+          { props: 'outboundSyncSuccessIsLabel', label: '出库同步是否成功', visible: true, width: 160 },
+          { props: 'invoiceSyncSuccessIsLabel', label: '开票同步是否成功', visible: true, width: 160 },
           { props: 'sapReturnInfo', label: 'SAP返回信息', visible: true, width: 200 },
           { props: 'salesVoucher', label: '销售凭证', visible: true, width: 160 },
           { props: 'deliveryVoucher', label: '交货凭证', visible: true, width: 160 },
@@ -374,6 +641,137 @@ export default {
           }
         ],
         total: 0
+      },
+      optionObjSparePart: {
+        id: 'oemOutboundOrderSparePartTable',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
+          {
+            props: 'oemOutboundOrderCode',
+            label: '出库单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/warehouse/oemOutboundOrder/edit',
+                  query: {
+                    id: row.oemOutboundOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'purchaseOrderCode',
+            label: '采购订单号',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseOrder/edit',
+                  query: {
+                    id: row.purchaseOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'purchaseApplyCode',
+            label: '采购申请单',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseApply/edit',
+                  query: {
+                    id: row.purchaseApplyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'deliveryWarehouseName', label: '发货仓库', visible: true, width: 180 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
+          { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
+          {
+            props: 'logisticsOrderNo',
+            label: '发运单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.getLogisticsInfo(row);
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'orderSyncSuccessIsLabel', label: '订单同步是否成功', visible: true, width: 160 },
+          { props: 'outboundSyncSuccessIsLabel', label: '出库同步是否成功', visible: true, width: 160 },
+          { props: 'invoiceSyncSuccessIsLabel', label: '开票同步是否成功', visible: true, width: 160 },
+          { props: 'sapReturnInfo', label: 'SAP返回信息', visible: true, width: 200 },
+          { props: 'salesVoucher', label: '销售凭证', visible: true, width: 160 },
+          { props: 'deliveryVoucher', label: '交货凭证', visible: true, width: 160 },
+          { props: 'invoiceNo', label: '发票号', visible: true, width: 200 },
+          { props: 'invoiceDate', label: '开票日期', visible: true, width: 200 },
+          { props: 'taxInvoiceNo', label: '税务发票号', visible: true, width: 200 },
+          { props: 'orderPurchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
+          { props: 'orderCashAmount', label: '使用金额', visible: true, align: 'right', width: 120 },
+          { props: 'orderRemark', label: '备注', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          {
+            props: 'sparePartCode',
+            label: '备件编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/sparePart/edit',
+                  query: {
+                    id: row.sparePartId,
+                    isEditing: false
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 180 },
+          { props: 'outboundQty', label: '出库数量', visible: true, align: 'right', width: 120 },
+          { props: 'purchasePrice', label: '采购价', visible: true, align: 'right', width: 120 },
+          { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
+          { props: 'cashUnitPrice', label: '现金单价', visible: true, align: 'right', width: 120 },
+          { props: 'cashAmount', label: '现金金额', visible: true, align: 'right', width: 120 },
+          { props: 'rebateUnitPrice', label: '返利单价', visible: true, align: 'right', width: 120 },
+          { props: 'rebateAmount', label: '返利金额', visible: true, align: 'right', width: 120 },
+          { props: 'remark', label: '备注', visible: true, width: 200 },
+        ],
+        total: 0
       }
     };
   },
@@ -398,14 +796,6 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
-    async getWarehouse (query) {
-      try {
-        const res = await listWarehouse({ codeOrName: query });
-        return res;
-      } catch (error) {
-        console.error('Error fetching series list:', error);
-      }
-    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
@@ -420,28 +810,44 @@ export default {
         path: '/sparepart/warehouse/oemOutboundOrder/edit'
       });
     },
+    // 点击tabs栏切换
+    handleClick (item) {
+      this.activeName = item.name;
+      this.show = false;
+      this.onReset();
+    },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      this.getCurrentOptionObj().form.page = 1;
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      if (this.activeName === 'orderList') {
+        this.form = { ...defaultForm };
+      } else {
+        this.sparePartForm = { ...defaultSparePartForm };
+      }
+      this.getCurrentOptionObj().form.page = 1;
+      this.getCurrentOptionObj().form.size = pageSize;
       this.getData();
+    },
+    getCurrentOptionObj () {
+      return this.activeName === 'orderList' ? this.optionObj : this.optionObjSparePart;
     },
     exportExcel () {
       this.exportLoading = true;
-      const reqParams = this.getFormData() || {};
+      const reqParams = this.activeName === 'orderList' ? this.getFormData() : this.getSparePartFormData();
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       };
+      const fetchPath = this.activeName === 'orderList'
+        ? 'sp/web/purchase/oemOutboundOrder/page'
+        : 'sp/web/purchase/oemOutboundOrder/sparePartPage';
       exportTable({
         businessType: 'OEM出库单',
-        dataFetchPath: 'sp/web/purchase/oemOutboundOrder/page',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: Object.fromEntries(this.getCurrentTableRef().getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -463,23 +869,40 @@ export default {
         this.exportLoading = false;
       });
     },
+    getCurrentTableRef () {
+      return this.activeName === 'orderList' ? this.$refs.tableRef : this.$refs.tableRefSparePart;
+    },
     getData () {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
-        .then(res => {
-          console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
-            return {
-              ...item,
-              deleteLoading: false
-            };
+      if (this.activeName === 'orderList') {
+        getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+          .then(res => {
+            this.optionObj.dataList = res.records.map(item => {
+              return {
+                ...item,
+                deleteLoading: false
+              };
+            });
+            this.optionObj.total = res.total;
+          }).finally(() => {
+            this.loading = false;
           });
-          this.optionObj.total = res.total;
-        }).finally(() => {
-          this.loading = false;
-        });
+      } else {
+        getSparePartPage({ ...this.getSparePartFormData(), pageNum: this.optionObjSparePart.form.page, pageSize: this.optionObjSparePart.form.size })
+          .then(res => {
+            this.optionObjSparePart.dataList = res.records.map(item => {
+              return {
+                ...item,
+                deleteLoading: false
+              };
+            });
+            this.optionObjSparePart.total = res.total;
+          }).finally(() => {
+            this.loading = false;
+          });
+      }
     },
     // 需要防抖场景时使用
     debouncedGetData: debounce(function () {
@@ -496,14 +919,25 @@ export default {
         });
       });
     },
+    getConfigSparePart () {
+      return new Promise((resolve, reject) => {
+        getTableConfig(this.optionObjSparePart.id).then(data => {
+          resolve({ data });
+        }).catch(err => {
+          console.error(err);
+          resolve(mockConfig);
+        });
+      });
+    },
     saveOrUpdate (data) {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
+      const optionObj = this.getCurrentOptionObj();
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        optionObj.form.page = num;
       } else {
-        this.optionObj.form.size = num;
+        optionObj.form.size = num;
       }
       this.debouncedGetData();
     },
@@ -539,6 +973,39 @@ export default {
         if (this.form.invoiceDate.length > 1) {
           data.invoiceDateStart = this.form.invoiceDate[0];
           data.invoiceDateEnd = this.form.invoiceDate[1];
+        }
+      }
+
+      return data;
+    },
+    getSparePartFormData () {
+      const data = { ...this.sparePartForm };
+
+      Object.keys(this.sparePartForm).forEach(key => {
+        if (data[key] === '' || data[key] === null || data[key].length === 0) {
+          delete data[key];
+        }
+      });
+
+      if (this.sparePartForm.createTime) {
+        delete data.createTime;
+        if (this.sparePartForm.createTime.length > 1) {
+          data.createTimeStart = this.sparePartForm.createTime[0];
+          data.createTimeEnd = this.sparePartForm.createTime[1];
+        }
+      }
+      if (this.sparePartForm.updateTime) {
+        delete data.updateTime;
+        if (this.sparePartForm.updateTime.length > 1) {
+          data.updateTimeStart = this.sparePartForm.updateTime[0];
+          data.updateTimeEnd = this.sparePartForm.updateTime[1];
+        }
+      }
+      if (this.sparePartForm.invoiceDate) {
+        delete data.invoiceDate;
+        if (this.sparePartForm.invoiceDate.length > 1) {
+          data.invoiceDateStart = this.sparePartForm.invoiceDate[0];
+          data.invoiceDateEnd = this.sparePartForm.invoiceDate[1];
         }
       }
 
