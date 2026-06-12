@@ -397,7 +397,6 @@
         :key="'sparePart'"
         ref="tableRefSparePart"
         v-loading="loading"
-        is-checkbox
         is-page
         :option-obj="optionObjSparePart"
         :get-config="getConfigSparePart"
@@ -434,6 +433,7 @@ import Upload from '@/libs/components/UploadDialog';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
+import { YES_NO_ENUM } from '@/libs/constants';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
@@ -1014,6 +1014,9 @@ export default {
       return data;
     },
     async fetchOptions (code) {
+      if (code === 'YesOrNoEnum') {
+        return YES_NO_ENUM;
+      }
       if (code) {
         return getEnum(code);
       }
