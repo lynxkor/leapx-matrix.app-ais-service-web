@@ -258,6 +258,7 @@
                   补货预测
                 </el-button>
                 <el-button size="small" @click="handleImport" :disabled="!routeQueryType">备件导入</el-button>
+                <el-button size="small" @click="handleLack" :disabled="!routeQueryType">缺料导入</el-button>
               </div>
               <div class="common-title">备件列表</div>
               <div class="common-section-table">
@@ -345,6 +346,9 @@
     <!-- 补货预测 弹窗 -->
     <RestockDialog :visible.sync="restockDialog" :id="_id" @update:visible="val => restockDialog = val"
     @submit="handleRefresh" />
+    <!-- 缺料导入 弹窗 -->
+    <LackImportDialog :visible.sync="lackImportDialog" :id="_id" @update:visible="val => lackImportDialog = val"
+    @submit="handleRefresh" />
     <!-- 提交弹窗 -->
     <SubmitDialog
       ref="submitDialogRef"
@@ -392,6 +396,7 @@ import RestockDialog from './RestockDialog.vue';
 import SubmitDialog from './SubmitDialog.vue';
 import AgreeDialog from './AgreeDialog.vue';
 import ApprovalDialog from './ApprovalDialog.vue';
+import LackImportDialog from './LackImportDialog.vue';
 import AisAttachment from '@/libs/components/AisAttachment';
 
 const defaultForm = {
@@ -462,6 +467,7 @@ export default {
     SubmitDialog,
     AgreeDialog,
     ApprovalDialog,
+    LackImportDialog,
     AisAttachment
   },
   computed: {
@@ -608,6 +614,7 @@ export default {
       purchaseOrderTypeOptions: [], // 采购申请单 订单类型
       orderTypeDisabled: true,
       restockDialog: false, // 补货预测 弹窗控制
+      lackImportDialog: false, // 缺料导入 弹窗控制
       submitDialogVisible: false, // 提交按钮弹窗
       agreeDialogVisible: false, // 同意按钮弹窗.
       approvalDialogVisible: false, // 审批按钮弹窗.
@@ -892,6 +899,10 @@ export default {
     // 补货预测
     handleRestock () {
       this.restockDialog = true;
+    },
+    // 缺料导入
+    handleLack () {
+      this.lackImportDialog = true;
     },
     // 提交
     async handleSubmit (val) {
