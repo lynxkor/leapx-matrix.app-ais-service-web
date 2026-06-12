@@ -65,7 +65,7 @@
           <tr>
             <td></td>
             <td colspan="3">合计</td>
-            <td>{{ total_oldPartQuantity }}</td>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>
