@@ -10,25 +10,13 @@
       class="ais-search-form"
     >
       <el-form-item label="结算单编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.statementCode"
-          clearable
-        />
+        <tag-input v-model="form.statementCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="接车施工单" >
-        <el-input
-          placeholder="请输入"
-          v-model="form.serviceProxyCode"
-          clearable
-        />
+        <tag-input v-model="form.serviceProxyCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="反结算申请编号"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.code"
-          clearable
-        />
+        <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="门店名称">
@@ -111,6 +99,7 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getEnum } from '@/api/maintain/sp/restatement/index';
 import { getTableConfig, tableAddOrUpdate, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
+import TagInput from '@/libs/components/TagInput';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -121,9 +110,9 @@ import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  statementCode: '',
-  serviceProxyCode: '',
-  code: '',
+  statementCodeList: [],
+  serviceProxyCodeList: [],
+  codeList: [],
   approvalStatusList: '',
   dealerCodeList: '',
   totalAmount: '',
@@ -146,7 +135,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    DealerSelect
+    DealerSelect,
+    TagInput
   },
   data () {
     return {
@@ -395,6 +385,23 @@ export default {
       Object.keys(this.form).forEach(key => {
         if (data[key] === '' || data[key] === null) {
           delete data[key];
+        }
+      });
+
+      // 处理 tag-input 批量查询字段：单值时转为普通字段，多值时保留数组
+      const tagInputFields = {
+        statementCodeList: 'statementCode',
+        serviceProxyCodeList: 'serviceProxyCode',
+        codeList: 'code'
+      };
+      Object.keys(tagInputFields).forEach(key => {
+        if (Array.isArray(this.form[key])) {
+          if (this.form[key].length === 0) {
+            delete data[key];
+          } else if (this.form[key].length === 1) {
+            delete data[key];
+            data[tagInputFields[key]] = this.form[key][0];
+          }
         }
       });
 
