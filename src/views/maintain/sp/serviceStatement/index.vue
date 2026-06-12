@@ -10,21 +10,17 @@
       class="ais-search-form"
     >
       <el-form-item label="接车施工单号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.serviceProxyCode"
-          clearable
-        />
+        <tag-input v-model="form.serviceProxyCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="结算单号">
-        <el-input placeholder="请输入" v-model="form.code" clearable />
+        <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="VIN码" v-show="this.visibleCount === 3 || show">
-        <el-input placeholder="请输入" v-model="form.vehProfileVin" clearable />
+        <tag-input v-model="form.vehProfileVinList" placeholder="请输入" />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="车牌号">
-          <el-input placeholder="请输入" v-model="form.carPlate" clearable />
+          <tag-input v-model="form.carPlateList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="门店">
           <dealer-select v-model="form.dealerCodes" multiple />
@@ -331,13 +327,15 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select';
 import FetchSelect from '@/libs/components/FetchSelect';
+import TagInput from '@/libs/components/TagInput';
 import moment from 'moment';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  code: '',
-  serviceProxyCode: '',
-  vehProfileVin: '',
+  codeList: [],
+  serviceProxyCodeList: [],
+  vehProfileVinList: [],
+  carPlateList: [],
   createReStatement: '',
   statementStatus: '',
   statementStatusList: [],
@@ -367,7 +365,8 @@ export default {
     EditPage,
     Upload,
     DealerSelect,
-    FetchSelect
+    FetchSelect,
+    TagInput
   },
   data () {
     const defaultData = this.getDefautlForm();
@@ -826,6 +825,24 @@ export default {
       Object.keys(this.form).forEach((key) => {
         if (data[key] === '' || data[key] === null) {
           delete data[key];
+        }
+      });
+
+      // 处理 tag-input 批量查询字段：单值时转为普通字段，多值时保留数组
+      const tagInputFields = {
+        codeList: 'code',
+        serviceProxyCodeList: 'serviceProxyCode',
+        vehProfileVinList: 'vehProfileVin',
+        carPlateList: 'carPlate'
+      };
+      Object.keys(tagInputFields).forEach(key => {
+        if (Array.isArray(this.form[key])) {
+          if (this.form[key].length === 0) {
+            delete data[key];
+          } else if (this.form[key].length === 1) {
+            delete data[key];
+            data[tagInputFields[key]] = this.form[key][0];
+          }
         }
       });
 

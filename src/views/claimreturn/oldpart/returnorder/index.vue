@@ -186,6 +186,15 @@ export default {
         form: { page: 1, size: pageSize },
         dataProp: [
           {
+            props: 'serialNo',
+            label: '序号',
+            visible: true,
+            width: 60,
+            fixed: 'left',
+            align: 'center',
+            headerAlign: 'center'
+          },
+          {
             props: 'returnOrderNo',
             label: '门店回运单号',
             visible: true,
@@ -410,13 +419,15 @@ export default {
 
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
-          this.optionObj.dataList = res.records.map(item => {
+          const records = res?.records || [];
+          this.optionObj.dataList = records.map((item, idx) => {
             return {
               ...item,
+              serialNo: records.length - idx,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });

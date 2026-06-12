@@ -10,25 +10,13 @@
       class="ais-search-form"
     >
       <el-form-item label="单据编号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.code"
-          clearable
-        />
+        <tag-input v-model="form.codes" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="车牌号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.carPlate"
-          clearable
-        />
+        <tag-input v-model="form.carPlateList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="VIN码" v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.vehProfileVin"
-          clearable
-        />
+        <tag-input v-model="form.vehProfileVinList" placeholder="请输入" />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="车主姓名">
@@ -53,11 +41,7 @@
           />
         </el-form-item>
         <el-form-item label="预约单号">
-          <el-input
-            placeholder="请输入"
-            v-model="form.appointmentNo"
-            clearable
-          />
+          <tag-input v-model="form.appointmentNoList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="门店">
           <fetch-select
@@ -317,21 +301,23 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import FetchSelect from '@/libs/components/FetchSelect';
+import TagInput from '@/libs/components/TagInput';
 import EditPage from './edit.vue';
 import moment from 'moment';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  code: '',
+  codes: [],
   dataSource: '',
   orderStatus: '',
   repairItemTypeDetailCollectLike: '',
   customerName: '',
   custType: '',
   vehModelName: '',
-  carPlate: '',
+  carPlateList: [],
+  vehProfileVinList: [],
   dealerName: '',
-  appointmentNo: '',
+  appointmentNoList: [],
   mileage: '',
   lastMileage: '',
   startWarrantyDate: [],
@@ -361,7 +347,8 @@ export default {
     LPVxeTable,
     EditPage,
     Upload,
-    FetchSelect
+    FetchSelect,
+    TagInput
   },
   data () {
     const defaultData = this.getDefautlForm();
@@ -618,6 +605,24 @@ export default {
       Object.keys(this.form).forEach(key => {
         if (data[key] === '' || data[key] === null) {
           delete data[key];
+        }
+      });
+
+      // 处理 tag-input 批量查询字段：单值时转为普通字段，多值时保留数组
+      const tagInputFields = {
+        codes: 'code',
+        carPlateList: 'carPlate',
+        vehProfileVinList: 'vehProfileVin',
+        appointmentNoList: 'appointmentNo'
+      };
+      Object.keys(tagInputFields).forEach(key => {
+        if (Array.isArray(this.form[key])) {
+          if (this.form[key].length === 0) {
+            delete data[key];
+          } else if (this.form[key].length === 1) {
+            delete data[key];
+            data[tagInputFields[key]] = this.form[key][0];
+          }
         }
       });
 

@@ -179,6 +179,15 @@ export default {
         },
         dataProp: [
           {
+            props: 'serialNo',
+            label: '序号',
+            visible: true,
+            width: 60,
+            fixed: 'left',
+            align: 'center',
+            headerAlign: 'center'
+          },
+          {
             props: 'outboundOrderNo',
             label: '主机厂出库单号',
             visible: true,
@@ -318,13 +327,15 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          const records = res?.records || [];
+          this.optionObj.dataList = records.map((item, idx) => {
             return {
               ...item,
+              serialNo: records.length - idx,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });

@@ -617,7 +617,7 @@
   <ApproveDialog
     :visible.sync="approveDialogVisible"
     :approveIds="approveIds"
-    @success="handleDialogSuccess"
+    @success="handleApproveSuccess"
   />
   <CancelDialog
     :visible.sync="cancelDialogVisible"
@@ -647,6 +647,7 @@ import {
   approve,
   batchCancel,
   print,
+  getNextId
 } from '@/api/claimreturn/claim/warrantyapply/index';
 import {
   APPLY_STATUS,
@@ -680,6 +681,8 @@ import WithdrawDialog from './WithdrawDialog/index.vue';
 // 旧件供应商
 import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
 import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
+
+const SEARCH_PARAMS_KEY = 'WARRANTY_APPLY_SEARCH_PARAMS';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -1184,6 +1187,28 @@ export default {
     // 对话框成功回调
     handleDialogSuccess () {
       this.$refs.containerRef.loadDetail();
+    },
+    // 同意成功后跳转下一条
+    handleApproveSuccess () {
+      const searchParams = JSON.parse(sessionStorage.getItem(SEARCH_PARAMS_KEY) || '{}');
+      getNextId({
+        ...searchParams
+      }).then(nextId => {
+        if (nextId) {
+          if (nextId !== this._id) {
+            this.$message.info('已自动跳转到下一条记录');
+            this.$router.replace({
+              path: '/claimreturn/claim/warrantyApply/edit',
+              query: { id: nextId }
+            });
+          }
+        } else {
+          this.$message.info('没有更多待审批记录');
+          this.$refs.containerRef.loadDetail();
+        }
+      }).catch(() => {
+        this.$refs.containerRef.loadDetail();
+      });
     }
   }
 };

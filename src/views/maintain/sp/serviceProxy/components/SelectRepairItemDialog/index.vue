@@ -1115,7 +1115,7 @@ export default {
     // 处理维修项目表格删除行
     async handleRemoveItemRow (index, row) {
       const packageTypeLabelMap = {
-        [PackageTypeEnum.REPAIR]: '维修套餐',
+        // [PackageTypeEnum.REPAIR]: '维修套餐',
         [PackageTypeEnum.EQUITY]: '权益套餐',
         [PackageTypeEnum.STORE]: '商城订单',
         [PackageTypeEnum.FREE]: '免保项目',
@@ -1123,7 +1123,7 @@ export default {
         [PackageTypeEnum.CARE_ACTIVITY]: '关爱服务活动'
       };
       const packageLabel = packageTypeLabelMap[row.packageType];
-      if (row.packageId) {
+      if (row.packageId && packageLabel) {
         // 分支1: 删除权益套餐
         const confirmed = await this.showMsg(`本操作视为您取消核销本次${packageLabel}，请确认`);
         if (!confirmed) return;
@@ -1156,7 +1156,7 @@ export default {
     // 处理维修配件表格删除行
     async handleRemovePartRow (index, row) {
       const packageTypeLabelMap = {
-        [PackageTypeEnum.REPAIR]: '维修套餐',
+        // [PackageTypeEnum.REPAIR]: '维修套餐',
         [PackageTypeEnum.EQUITY]: '权益套餐',
         [PackageTypeEnum.STORE]: '商城订单',
         [PackageTypeEnum.FREE]: '免保项目',
@@ -1164,7 +1164,7 @@ export default {
         [PackageTypeEnum.CARE_ACTIVITY]: '关爱服务活动'
       };
       const packageLabel = packageTypeLabelMap[row.packageType];
-      if (row.packageId) {
+      if (row.packageId && packageLabel) {
         // 分支1: 删除权益套餐
         const confirmed = await this.showMsg(`本操作视为您取消核销本次${packageLabel}，请确认`);
         if (!confirmed) return;

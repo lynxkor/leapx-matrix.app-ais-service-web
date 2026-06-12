@@ -247,7 +247,11 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, purchaseApplyReject, purchaseApplyBatchReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, batchAgree, purchaseApplyGetCoupon, purchaseApplyBatchSubmit } from '@/api/sparepart/purchase/purchaseApply/index';
+import {
+  getList, deleteItem, enableItem, purchaseApplyReject,
+  purchaseApplyBatchReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy,
+  batchAgree, purchaseApplyGetCoupon, purchaseApplyBatchSubmit
+} from '@/api/sparepart/purchase/purchaseApply/index';
 import { getUserByNameOrNo, getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -419,6 +423,24 @@ export default {
                 });
               },
               type: 'info'
+            }, {
+              name: '删除',
+              show: (row) => {
+                return (row.orderStatus === '0' || row.orderStatus === '3') && this.permissions.has('AISPART-purchaseApply-delete');
+              },
+              popconfirmTitle: '此操作将删除此申请单, 是否继续?',
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '删除',
+              click: (rowIndex, row) => {
+                deleteItem([row.id]).then(() => {
+                  this.$message({
+                    message: '删除成功',
+                    type: 'success'
+                  });
+                  this.getData();
+                });
+              },
+              type: 'danger'
             }, {
               name: '提交',
               show: (row) => {

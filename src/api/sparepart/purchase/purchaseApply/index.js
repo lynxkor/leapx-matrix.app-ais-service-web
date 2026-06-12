@@ -54,6 +54,14 @@ export function addDetail (data) {
 }
 
 /**
+ * 采购申请缺料导入分页查询
+ * @param {Object} data
+ */
+export function getRepairShortagePage (data) {
+  return api.jsonPost(prefixDetail + 'repairShortagePage', data);
+}
+
+/**
  * 获取添加备件采购申请明细信息
  * @param {Object} data
  */

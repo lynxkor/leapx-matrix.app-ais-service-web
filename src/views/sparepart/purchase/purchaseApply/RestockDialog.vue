@@ -25,7 +25,7 @@
             <page-search-action v-model="show" :isExpandable="false" :loading="loading" @submit="onSubmit"
             @reset="onReset" />
             <el-form-item>
-                <el-button size="small" :loading="exportLoading" @click="exportExcel">导出</el-button>
+                <el-button size="small" :loading="exportLoading" v-if="permissions.has('AISPART-purchaseApply-exportPredict')" @click="exportExcel">导出</el-button>
             </el-form-item>
         </el-form>
         <!-- 数据表格 -->
@@ -94,6 +94,7 @@
 
 <script>
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
+import permissions from '@/libs/mixins/permissions';
 import { purchaseApplyGetCouponPage, addDetail } from '@/api/sparepart/purchase/purchaseApply/index';
 import { exportTable } from '@/api/common';
 import { downloadExcel } from '@/libs/utils';
@@ -120,6 +121,7 @@ export default {
       default: ''
     },
   },
+  mixins: [permissions],
   components: {
     PageSearchAction,
     TagInput

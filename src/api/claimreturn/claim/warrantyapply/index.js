@@ -120,3 +120,8 @@ export function getDetailDecryptField (id, field) {
 export function getServiceActivityFileConfigPage (data) {
   return api.jsonPost('claimreturn/claim/web/basic/serviceActivityFileConfig/pageForUpload', data);
 }
+
+// 查看下一条数据
+export function getNextId (data) {
+  return api.jsonPost(prefix + '/nextId', data);
+}
