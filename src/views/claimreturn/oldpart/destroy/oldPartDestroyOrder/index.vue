@@ -329,14 +329,15 @@ export default {
 
       getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
         .then(res => {
-          this.tableDataList = res.records.map((item, idx) => {
+          const records = res?.records || [];
+          this.tableDataList = records.map((item, idx) => {
             return {
               ...item,
-              serialNo: res.records.length - idx,
+              serialNo: records.length - idx,
               deleteLoading: false
             };
           });
-          this.tableTotal = res.total;
+          this.tableTotal = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });
