@@ -639,10 +639,11 @@ export default {
     async handleFlowJump (row) {
       let path = '';
       let type = '';
+      console.log(row.businessNoType);
       if (row.businessType === 'SPARE_PART_RETURN') {
         path = '/sparepart/return/returnOrder/edit';
         type = 'returnOrder';
-      } else if (row.businessType === 'SPARE_PART_PURCHASE') {
+      } else if (row.businessType === 'SPARE_PART_PURCHASE' && row.businessNoType !== 'so') {
         path = '/sparepart/warehouse/oemOutboundOrder/edit';
         type = 'oemOutboundOrder';
       } else {
