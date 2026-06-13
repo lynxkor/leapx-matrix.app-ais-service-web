@@ -22,7 +22,6 @@
                 <el-form-item label="仓库名称：" prop="warehouseNameExt">
                   <el-input
                     placeholder="请输入"
-                    :disabled="isEditing"
                     v-model="form.warehouseNameExt"
                     clearable
                   />
