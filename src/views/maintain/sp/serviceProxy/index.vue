@@ -189,6 +189,19 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <el-form-item label="销售日期">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.saleDate"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
         <el-form-item label="维修类型（汇总）">
           <!-- <fetch-select
             :remote-method="getRepairItemTypeList"
@@ -321,6 +334,7 @@ const defaultForm = {
   mileage: '',
   lastMileage: '',
   startWarrantyDate: [],
+  saleDate: [],
   exclusiveServiceDealerName: '',
   expectFinishAt: [],
   createStatementInfoDate: '',
@@ -395,6 +409,8 @@ export default {
           },
           { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '工单状态', visible: true, width: 120 },
+          { props: 'alarmLevelLabel', label: '三包预警', visible: true, width: 120 },
+          { props: 'businessTypeLabel', label: '业务类型', visible: true, width: 120 },
           {
             props: 'vehProfileVin',
             label: 'VIN',
@@ -411,6 +427,9 @@ export default {
           },
           { props: 'repairItemTypeDetailCollect', label: '维修类型（汇总）', visible: true, width: 200 },
           { props: 'customerName', label: '车主姓名', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'customerName') },
+          { props: 'customerPhone', label: '车主电话', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'customerPhone') },
+          { props: 'shuttleName', label: '送修人姓名', visible: true, width: 200 },
+          { props: 'shuttlePhone', label: '送修人电话', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'shuttlePhone') },
           { props: 'custTypeLabel', label: '客户类型', visible: true, width: 200 },
           {
             props: 'vehModelName',
@@ -441,6 +460,7 @@ export default {
           { props: 'mileage', label: '进店里程数(KM)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'lastMileage', label: '上次进店里程数(KM)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'startWarrantyDate', label: '保修开始日期', visible: true, width: 200 },
+          { props: 'saleDate', label: '销售日期', visible: true, width: 200 },
           {
             props: 'exclusiveServiceDealerName',
             label: '专属服务门店',
@@ -663,6 +683,14 @@ export default {
         if (this.form.startWarrantyDate.length > 1) {
           data.startWarrantyDateStart = this.form.startWarrantyDate[0];
           data.startWarrantyDateEnd = this.form.startWarrantyDate[1];
+        }
+      }
+      // 处理销售日期
+      if (this.form.saleDate) {
+        delete data.saleDate;
+        if (this.form.saleDate.length > 1) {
+          data.saleDateStart = this.form.saleDate[0];
+          data.saleDateEnd = this.form.saleDate[1];
         }
       }
       // 转数字

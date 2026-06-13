@@ -4,7 +4,7 @@
       <template v-else>
         <section class="common-title">
           <h2>主键：{{ info.id }}</h2>
-          <el-button size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
+<!--          <el-button size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>-->
         </section>
         <section class="common-section">
           <div class="common-section-header">
@@ -27,18 +27,24 @@
               <el-form-item label="每批n条数据：" prop="batchSize">
                 {{ info.batchSize  }}
               </el-form-item>
+              <el-form-item label="表头起始行：" prop="titleStartRow">
+                {{ info.titleStartRow  }}
+              </el-form-item>
+              <el-form-item label="数据起始行：" prop="dataStartRow">
+                {{ info.dataStartRow  }}
+              </el-form-item>
+              <el-form-item label="导入数据的第三方接口信息：" prop="postInterface" class="header-map-item" style="width: 100%;">
+                  {{ info.postInterface }}
+              </el-form-item>
+              <el-form-item label="excel导入模板下载地址：" prop="excelModelUrl" class="header-map-item" style="width: 100%;">
+                  <span v-if="!info.excelModelUrl"></span>
+                  <span v-else>{{ info.excelModelUrl }}</span>
+              </el-form-item>
               <el-form-item label="创建时间：" prop="createTime">
                 {{ info.createTime  }}
               </el-form-item>
               <el-form-item label="修改时间：" prop="updateTime">
                 {{ info.updateTime  }}
-              </el-form-item>
-            <el-form-item label="导入数据的第三方接口信息：" prop="postInterface" class="header-map-item" style="width: 100%;">
-                {{ info.postInterface }}
-              </el-form-item>
-                <el-form-item label="excel导入模板下载地址：" prop="excelModelUrl" class="header-map-item" style="width: 100%;">
-                  <span v-if="!info.excelModelUrl"></span>
-                  <span v-else>{{ info.excelModelUrl }}</span>
               </el-form-item>
             </el-form>
           </div>

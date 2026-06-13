@@ -1088,10 +1088,11 @@ export default {
     }
   },
   watch: {
-    id: {
+    _id: {
       handler (val) {
-        if (val && this.$refs.containerRef) {
-          this.$refs.containerRef.loadDetail();
+        if (val) {
+          this.$refs.containerRef?.loadDetail();
+          this.getData();
         }
       },
       immediate: true
