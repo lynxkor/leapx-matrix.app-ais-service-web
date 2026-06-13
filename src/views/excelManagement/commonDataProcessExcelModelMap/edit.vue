@@ -88,6 +88,7 @@
                   <el-input
                     type="number"
                     min="1"
+                    max="10"
                     placeholder="请输入"
                     v-model="form.titleStartRow"
                     clearable
@@ -97,6 +98,7 @@
                   <el-input
                     type="number"
                     min="2"
+                    max="999999"
                     placeholder="请输入"
                     v-model="form.dataStartRow"
                     clearable
@@ -132,6 +134,8 @@ const defaultForm = {
   postInterface: '',
   postParamDto: '',
   batchSize: '',
+  titleStartRow: '',
+  dataStartRow: ''
 };
 
 export default {

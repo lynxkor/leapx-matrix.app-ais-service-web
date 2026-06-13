@@ -50,6 +50,9 @@
             <el-form-item label="需要转发的请求头：" label-width="220px" prop="headerMap" class="header-map-item" style="width: 100%;">
               {{ info.headerMap }}
             </el-form-item>
+            <el-form-item label="导入表头：" label-width="220px" prop="importExcelHeaderTitle" class="header-map-item" style="width: 100%;">
+              {{ info.importExcelHeaderTitle }}
+            </el-form-item>
             <el-form-item label="导入失败的数据excel下载地址：" prop="importFailUrl" class="header-map-item" style="width: 100%;">
               <span v-if="!info.fileId"></span>
               <span v-else class="url-link" @click="handleDownload"> 点击下载 </span>

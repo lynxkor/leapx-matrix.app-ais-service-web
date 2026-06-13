@@ -44,8 +44,8 @@
             <th style="width:5%">序号</th>
             <th style="width:20%">唯一码</th>
             <th style="width:20%">零件代码</th>
-            <th style="width:20%">零件名称</th>
-            <th style="width:15%;">车架号</th>
+            <th style="width:15%">零件名称</th>
+            <th style="width:18%;">车架号</th>
             <th style="width:8%;">工时费用总计</th>
             <th style="width:6%;">是否快返</th>
             <th style="width:100px;">备注</th>
@@ -65,7 +65,7 @@
           <tr>
             <td></td>
             <td colspan="3">合计</td>
-            <td>{{ total_oldPartQuantity }}</td>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>
@@ -102,7 +102,7 @@
 
 import { getDetail } from '@/api/claimreturn/oldpart/outbound/index';
 import {
-  getList, // 旧件库存
+  getPrintDetail, // 旧件库存
 } from '@/api/claimreturn/oldpart/inventory/oem/index';
 export default {
   components: {
@@ -111,9 +111,6 @@ export default {
     id: {
       type: String,
       default: ''
-    },
-    data: {
-      type: String,
     }
   },
   data () {
@@ -137,11 +134,11 @@ export default {
     init () {
       this.form = {};
       this.tableData = [];
-      getDetail(this.data).then((res) => {
+      getDetail(this.id).then((res) => {
         this.form = res;
       });
-      getList({
-        oemOutboundOrderId: this.data, // 主机厂出库单ID
+      getPrintDetail({
+        oemOutboundOrderId: this.id, // 主机厂出库单ID
         pageSize: 5000,
         pageNum: 1,
       }).then((res) => {
