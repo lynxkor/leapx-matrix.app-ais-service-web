@@ -323,6 +323,12 @@ export default {
     // 备件信息 点击添加table行
     handleAddTableData (val) {
       const selectedVal = this.sparePartOptions.find(option => option.value === val);
+      // 根据id判断是否重复添加
+      const isDuplicate = this.tableData.some(row => row.partsId === selectedVal.id);
+      if (isDuplicate) {
+        this.$message.warning('请勿重复添加！');
+        return;
+      }
       const newRow = {
         partsCode: selectedVal.partCode,
         partsName: selectedVal.partName,

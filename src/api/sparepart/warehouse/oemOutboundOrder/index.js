@@ -59,3 +59,11 @@ export function oemOutboundOrderDetail (data) {
 export function getAsync (data) {
   return api.jsonPost(prefix + 'async', data);
 }
+
+/**
+ * 备件列表分页查询
+ * @param {Object} data
+ */
+export function getSparePartPage (data) {
+  return api.jsonPost(prefix + 'sparePartPage', data);
+}

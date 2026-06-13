@@ -45,7 +45,7 @@
                   <el-form-item label="VIN：" prop="vehicleProfileId">
                     <list-select
                       v-if="!Boolean(_id)"
-                      listUrl="/datacenter/web/vehicle/vehicleProfile/listFull"
+                      listUrl="/datacenter/web/vehicle/vehicleProfile/listFullByVin"
                       placeholder="请选择"
                       v-model="form.vehicleProfileId"
                       query-key="searchVin"

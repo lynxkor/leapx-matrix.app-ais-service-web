@@ -217,7 +217,7 @@
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
       >
-        <LackEditPage slot="centralizedViewSlot" :id="clickItemId"/>
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
@@ -271,8 +271,7 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput,
-    LackEditPage
+    TagInput
   },
   data () {
     return {
@@ -479,7 +478,11 @@ export default {
   },
   methods: {
     handleListSelect (row) {
-      this.clickItemId = row.id;
+      if (this.activeName === 'homePage') {
+        this.clickItemId = row.id;
+      } else {
+        this.clickItemId = row.backOrderId;
+      }
     },
     handleImport () {
       this.uploadDialogVisible = true;

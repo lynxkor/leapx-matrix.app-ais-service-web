@@ -445,11 +445,10 @@ export default {
     },
     printOutbound () {
       this.$print.show({
-        id: new Date().getTime() + '',
+        id: this._id,
         template: 'Outbound',
         title: `旧件出库单(中心库): ${this.form.outboundOrderNo}`,
-        width: 1122,
-        data: this._id,
+        width: 1122
       });
     }
   }
