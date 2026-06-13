@@ -273,6 +273,11 @@ export default {
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
         {
+          field: 'serialNo',
+          title: '序号',
+          width: '60',
+        },
+        {
           field: 'warrantyMonth',
           title: '保修月份',
           width: '160'
@@ -648,7 +653,11 @@ export default {
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
-        this.tableData = res.records || [];
+        const records = res.records || [];
+        this.tableData = records.map((item, idx) => ({
+          ...item,
+          serialNo: records.length - idx,
+        }));
         this.total = res.total;
       });
     },

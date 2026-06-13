@@ -113,6 +113,11 @@ export default {
       selectedRows: [],
       columns: [
         {
+          field: 'serialNo',
+          title: '序号',
+          width: '60',
+        },
+        {
           field: 'serviceProxyNo',
           title: '接车施工单',
           width: '160',
@@ -216,7 +221,11 @@ export default {
         pageNum: this.current,
         sortColumns: [{ column: 'update_time', sort: 'DESC' }],
       }).then((res) => {
-        this.tableData = res.records;
+        const records = res.records || [];
+        this.tableData = records.map((item, idx) => ({
+          ...item,
+          serialNo: records.length - idx,
+        }));
         this.total = res.total;
         this.selectedRows = [];
         this.$emit('getTableData', this.tableData);
