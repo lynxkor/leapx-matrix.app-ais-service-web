@@ -45,6 +45,14 @@ const routes = [
       },
       component: () => import('@/views/home.vue')
     }, {
+      path: '/docs',
+      name: 'docs',
+      meta: {
+        name: '使用文档',
+        noResourceUrl: true
+      },
+      component: () => import('@/views/docs/index.vue')
+    }, {
       path: '/',
       redirect: '/home',
       name: 'index',
