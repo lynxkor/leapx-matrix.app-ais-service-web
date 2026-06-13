@@ -123,8 +123,8 @@
                   <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
                   <vxe-column field="locationName" title="库位" min-width="10%" />
                   <vxe-column field="availableQty" title="可用库存" min-width="10%" />
-                  <vxe-column field="purchasePriceTax" title="采购价格(含税)" min-width="10%" />
-                  <vxe-column field="purchasePriceNotax" title="采购价格(不含税)" min-width="10%" />
+                  <vxe-column field="purchasePriceTax" title="调拨价格(含税)" min-width="10%" />
+                  <vxe-column field="purchasePriceNotax" title="调拨价格(不含税)" min-width="10%" />
                   <vxe-column field="purchaseAmountTax" title="金额（含税）" min-width="10%" />
                   <vxe-column field="transferQty" title="调拨数量" min-width="10%"/>
                   <vxe-column field="remark" title="备注" min-width="10%"/>

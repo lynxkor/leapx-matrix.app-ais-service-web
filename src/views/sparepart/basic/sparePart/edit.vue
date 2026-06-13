@@ -572,6 +572,9 @@
                 <el-form-item label="物料来源：">
                   {{ form.materialSourceTypeLabel }}
                 </el-form-item>
+                <el-form-item label="供应商交货周期">
+                  {{ form.supplierDeliveryPeriod }}
+                </el-form-item>
               </el-form>
             </div>
           </section>
