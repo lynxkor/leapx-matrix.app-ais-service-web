@@ -12,7 +12,7 @@
       <el-form-item label="仓库名称">
         <el-input
           placeholder="请输入"
-          v-model="form.warehouseNameLike"
+          v-model="form.warehouseNameExtLike"
           clearable
         />
       </el-form-item>
@@ -144,7 +144,7 @@ const defaultForm = {
   warehouseCodeLike: '',
   contactNameLike: '',
   contactPhoneLike: '',
-  warehouseNameLike: '',
+  warehouseNameExtLike: '',
   statusIncludeList: null,
   createTime: '',
   updateTime: '',
@@ -190,7 +190,7 @@ export default {
         },
         dataProp: [
           {
-            props: 'warehouseName',
+            props: 'warehouseNameExt',
             label: '仓库名称',
             visible: true,
             width: 180,
