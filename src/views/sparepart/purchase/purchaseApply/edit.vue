@@ -185,6 +185,9 @@
                 <el-form-item label="市：" prop="cityName">
                   {{ form.cityName }}
                 </el-form-item>
+                <el-form-item label="区：" prop="cityName">
+                  {{ form.districtName }}
+                </el-form-item>
                 <el-form-item label="收货地址：" prop="address">
                   {{ form.address }}
                 </el-form-item>

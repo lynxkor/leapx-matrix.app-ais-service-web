@@ -108,6 +108,26 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <el-form-item label="备注">
+          <el-input
+            placeholder="请输入"
+            v-model="form.remarkLike"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="销售物料分类：" prop="categorySpareSalesId">
+          <fetch-select
+            filterable
+            clearable
+            remote
+            reserve-keyword
+            multiple
+            v-model="form.categorySpareSalesIdList"
+            :remote-method="getSalesList"
+            value-key="id"
+            label-key="name"
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -188,6 +208,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import TagInput from '@/libs/components/TagInput';
 import ButtonGroup from '@/libs/components/ButtonGroup';
 import EditPage from './edit.vue';
+import { getSalesList } from '@/api/sparepart/basic/spareSalesCategory';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -284,6 +305,14 @@ export default {
           { props: 'retailIsLabel', label: '备附件销售', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 120 },
+          { props: 'baseUnitLabel', label: '基本计量单位', visible: true, width: 200 },
+          { props: 'marketingTypeLabel', label: '营销分类', visible: true, width: 200 },
+          { props: 'categorySpareSalesName', label: '销售物料分类', visible: true, width: 200 },
+          { props: 'categorySpareSupplyName', label: '供应物料分类', visible: true, width: 200 },
+          { props: 'supplierMinOrderQuantity', label: '供应商起订量', visible: true, width: 200 },
+          { props: 'supplierDeliveryPeriod', label: '供应商交货周期', visible: true, width: 200 },
+          { props: 'purchaseTypeLabel', label: '采购状态', visible: true, width: 200 },
+          { props: 'categorySpareSupplyName', label: '供应物料分类', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -474,6 +503,11 @@ export default {
       }).finally(() => {
         this.exportLoading = false;
       });
+    },
+
+    async getSalesList (query) {
+      const res = await getSalesList({ categoryNameLike: query });
+      return res;
     },
     getData () {
       this.loading = true;
