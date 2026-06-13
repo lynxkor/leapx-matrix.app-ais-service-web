@@ -506,6 +506,7 @@
                   :key="type"
                   :businessId="_id"
                   :attachType="type"
+                  configCode="mcs_vehownerchange"
                   type="card"
                   :title="type"
                   @ocr-success="ocrSuccess"
@@ -518,6 +519,7 @@
                   :key="type"
                   :businessId="_id"
                   :attachType="type"
+                  configCode="mcs_vehownerchange"
                   type="card"
                   :title="type"
                   @ocr-success="ocrSuccess"
@@ -657,9 +659,6 @@ export default {
       return !(this.form.applyStatus === APPLY_STATUS.DRAFT || this.form.applyStatus === APPLY_STATUS.REJECTED);
     },
     displayAttachTypes () {
-      if (String(this.form.dataSource) === '30') {
-        return this.allFileTypes;
-      }
       const types = new Set();
       if (this.form.businessType === BUSINESS_TYPE.SECOND_HAND) {
         if (PERSONAL_ID_TYPES.includes(this.idType)) {
@@ -685,9 +684,9 @@ export default {
     },
     idType () {
       if (this.form.businessType === BUSINESS_TYPE.SECOND_HAND) {
-        return this.form.targetIdType;
+        return String(this.form.targetIdType);
       }
-      return this.form.oldIdType;
+      return String(this.form.oldIdType);
     }
   },
   watch: {
