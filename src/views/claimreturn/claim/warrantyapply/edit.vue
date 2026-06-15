@@ -521,6 +521,7 @@
                 valueKey="partAndSupplierId"
                 clearable
                 filterable
+                :disabled="isFactoryAccount"
               >
                 <template #option="{ item }">
                   <span v-if="item.disabled">{{ item.placeholder }}</span>
@@ -856,7 +857,7 @@ export default {
     canEdit () {
       return EDITABLE_STATUSES.includes(this.form.applyStatus) && this.canAddOrUpdate;
     },
-    isFactoryAccount () {
+    isFactoryAccount () { // 是否为主机厂还是门店账号 false为主机厂  true为门店
       return this.accountFlag === false;
     },
     canEditMainPart () {
