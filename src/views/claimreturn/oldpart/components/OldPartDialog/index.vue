@@ -116,6 +116,8 @@
           <vxe-column field="oldPartUniqueCode" title="旧件唯一码" width="200" />
           <vxe-column field="dealerName" title="门店名称" width="200" />
           <vxe-column field="isMainPartLabel" title="是否主因零部件" width="160" />
+          <vxe-column field="repairItemTypeName" title="保修类型" width="160" />
+          <vxe-column field="mileage" title="进店里程KM" width="140" />
           <vxe-column field="vin" title="VIN" width="140" />
           <vxe-column field="oldPartSupplierName" title="零件供应商" width="200" />
           <vxe-column field="mainPartSupplierName" title="主因件供应商" width="150" />
@@ -354,6 +356,8 @@ export default {
         oldPartUniqueCode: '旧件唯一码',
         dealerName: '门店名称',
         isMainPartLabel: '是否主因零部件',
+        repairItemTypeName: '保修类型',
+        mileage: '进店里程KM',
         vin: 'VIN',
         oldPartSupplierName: '零件供应商',
         mainPartSupplierName: '主因件供应商',

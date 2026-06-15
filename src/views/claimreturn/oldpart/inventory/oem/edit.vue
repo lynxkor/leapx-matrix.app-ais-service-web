@@ -57,6 +57,18 @@
                 <el-form-item label="主因件供应商：" prop="mainPartSupplierName">
                   <el-input placeholder="请输入" v-model="form.mainPartSupplierName" disabled />
                 </el-form-item>
+                <el-form-item label="车型：" prop="vehicleModelName">
+                  <el-input placeholder="请输入" v-model="form.vehicleModelName" disabled />
+                </el-form-item>
+                <el-form-item label="进店里程KM：" prop="mileage">
+                  <el-input placeholder="请输入" v-model="form.mileage" disabled />
+                </el-form-item>
+                <el-form-item label="维修开始日期：" prop="repairStartTime">
+                  <el-input placeholder="请输入" v-model="form.repairStartTime" disabled />
+                </el-form-item>
+                <el-form-item label="活动编号：" prop="serviceActivityCode">
+                  <el-input placeholder="请输入" v-model="form.serviceActivityCode" disabled />
+                </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
                   <el-input placeholder="请输入" v-model="form.vin" disabled />
                 </el-form-item>
@@ -66,17 +78,8 @@
                 <el-form-item label="接车施工单：" prop="serviceProxyNo">
                   <el-input placeholder="请输入" v-model="form.serviceProxyNo" disabled />
                 </el-form-item>
-                <el-form-item label="保修申请单：" prop="warrantyNo">
-                  <el-input placeholder="请输入" v-model="form.warrantyNo" disabled />
-                </el-form-item>
-                <el-form-item label="保修零件明细：" prop="warrantyPartId">
-                  <el-input placeholder="请输入" v-model="form.warrantyPartId" disabled />
-                </el-form-item>
                 <el-form-item label="二次索赔明细：" prop="dutySupplierId">
                   <el-input placeholder="请输入" v-model="form.dutySupplierId" disabled />
-                </el-form-item>
-                <el-form-item label="索赔追溯单号：" prop="claimTrackNo">
-                  <el-input placeholder="请输入" v-model="form.claimTrackNo" disabled />
                 </el-form-item>
                 <el-form-item class="form-item-full" label="备注：" prop="remark">
                   <base-input
@@ -123,6 +126,18 @@
                 <el-form-item label="主因件供应商：" prop="mainPartSupplierName">
                   <el-button class="link" @click="$router.push('/sparepart/basic/supplierInfo/edit?id=' + form.mainPartSupplierId)" type="text">{{form.mainPartSupplierName}}</el-button>
                 </el-form-item>
+                <el-form-item label="车型：" prop="vehicleModelName">
+                  {{form.vehicleModelName}}
+                </el-form-item>
+                <el-form-item label="进店里程KM：" prop="mileage">
+                  {{form.mileage}}
+                </el-form-item>
+                <el-form-item label="维修开始日期：" prop="repairStartTime">
+                  {{form.repairStartTime}}
+                </el-form-item>
+                <el-form-item label="活动编号：" prop="serviceActivityCode">
+                  {{form.serviceActivityCode}}
+                </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
                   <template v-if="vinDecrypted">
                     <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehOwnerId}`" target="_blank">{{ form.vin }}</el-link>
@@ -146,7 +161,50 @@
                 <el-form-item label="接车施工单：" prop="serviceProxyNo">
                   <el-button class="link" @click="$router.push(`/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`)" type="text">{{form.serviceProxyNo}}</el-button>
                 </el-form-item>
-                <!-- TODO 这里需要跳转 -->
+                <el-form-item class="form-item-full" label="备注：" prop="remark">
+                  {{ form.remark }}
+                </el-form-item>
+              </el-form>
+            </div>
+          </section>
+          <section class="common-section">
+            <div class="common-section-header">
+              <h2>保修信息</h2>
+            </div>
+            <div class="common-section-body">
+              <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm" class="form-edit" v-show="isEditing || !_id">
+                <el-form-item label="保修申请单：" prop="warrantyNo">
+                  <el-input placeholder="请输入" v-model="form.warrantyNo" disabled />
+                </el-form-item>
+                <el-form-item label="保修零件明细：" prop="warrantyPartId">
+                  <el-input placeholder="请输入" v-model="form.warrantyPartId" disabled />
+                </el-form-item>
+                <el-form-item label="索赔追溯单号：" prop="claimTrackNo">
+                  <el-input placeholder="请输入" v-model="form.claimTrackNo" disabled />
+                </el-form-item>
+                <el-form-item label="保修类型：" prop="repairItemTypeName">
+                  <el-input placeholder="请输入" v-model="form.repairItemTypeName" disabled />
+                </el-form-item>
+                <el-form-item label="审批通过时间：" prop="warrantyApproveTime">
+                  <el-input placeholder="请输入" v-model="form.warrantyApproveTime" disabled />
+                </el-form-item>
+                <el-form-item label="VRT：" prop="vrtName">
+                  <el-input placeholder="请输入" v-model="form.vrtName" disabled />
+                </el-form-item>
+                <el-form-item label="VFG：" prop="vfgName">
+                  <el-input placeholder="请输入" v-model="form.vfgName" disabled />
+                </el-form-item>
+                <el-form-item label="CCC：" prop="cccName">
+                  <el-input placeholder="请输入" v-model="form.cccName" disabled />
+                </el-form-item>
+                <el-form-item class="form-item-full" label="故障信息描述：" prop="faultPhenomenon">
+                  <el-input placeholder="请输入" v-model="form.faultPhenomenon" disabled />
+                </el-form-item>
+                <el-form-item class="form-item-full" label="故障排除流程：" prop="troubleshootingFlow">
+                  <el-input placeholder="请输入" v-model="form.troubleshootingFlow" disabled />
+                </el-form-item>
+              </el-form>
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="保修申请单：" prop="warrantyNo">
                   <el-button class="link" @click="$router.push(`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyId}`)" type="text">{{ form.warrantyNo }}</el-button>
                 </el-form-item>
@@ -156,8 +214,26 @@
                 <el-form-item label="索赔追溯单号：" prop="claimTrackNo">
                   <el-button class="link" @click="$router.push(`/claimreturn/claim/claimtrace/claimtraceorder/edit?id=${form.claimTrackId}`)" type="text">{{ form.claimTrackNo }}</el-button>
                 </el-form-item>
-                <el-form-item class="form-item-full" label="备注：" prop="claimTrackNo">
-                  {{ form.remark }}
+                <el-form-item label="保修类型：" prop="repairItemTypeName">
+                  {{form.repairItemTypeName}}
+                </el-form-item>
+                <el-form-item label="审批通过时间：" prop="warrantyApproveTime">
+                  {{form.warrantyApproveTime}}
+                </el-form-item>
+                <el-form-item label="VRT：" prop="vrtName">
+                  {{form.vrtName}}
+                </el-form-item>
+                <el-form-item label="VFG：" prop="vfgName">
+                  {{form.vfgName}}
+                </el-form-item>
+                <el-form-item label="CCC：" prop="cccName">
+                  {{form.cccName}}
+                </el-form-item>
+                <el-form-item class="form-item-full" label="故障信息描述：" prop="faultPhenomenon">
+                  {{form.faultPhenomenon}}
+                </el-form-item>
+                <el-form-item class="form-item-full" label="故障排除流程：" prop="troubleshootingFlow">
+                  {{form.troubleshootingFlow}}
                 </el-form-item>
               </el-form>
             </div>
@@ -353,6 +429,16 @@ const defaultForm = {
   ownerUserId: '',
   ownerOrgId: '',
   vehicleProfileId: '',
+  vehicleModelName: '',
+  mileage: '',
+  repairStartTime: '',
+  serviceActivityCode: '',
+  repairItemTypeName: '',
+  faultPhenomenon: '',
+  troubleshootingFlow: '',
+  vrtName: '',
+  vfgName: '',
+  cccName: '',
 };
 
 export default {
