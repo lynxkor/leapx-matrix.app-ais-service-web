@@ -355,6 +355,10 @@ export function getScopeTypeOrg (data) {
   return api.jsonPost('/users/scope/type/org', data);
 }
 
+export function getAllRegion () {
+  return api.get('/claimreturn/claim/web/basic/organization/listAllRegion');
+}
+
 /**
  * 门店备件仓库表列表查询
  * @export

@@ -108,7 +108,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/claimreturn/oldpart/destroy/oldPartDestroyOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getScopeTypeOrg } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getScopeTypeOrg, getAllRegion } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -395,7 +395,7 @@ export default {
     },
     async getScopeTypeOrg (query) {
       if (!this._scopeTypeOrgCache) {
-        const res = await getScopeTypeOrg({ type: '1020' });
+        const res = await getAllRegion();
         this._scopeTypeOrgCache = res?.data || res || [];
       }
       if (!query) {
