@@ -142,7 +142,7 @@
         <el-form-item label="三包预警">
           <fetch-select
             :request="fetchOptions"
-            enumCode="AlarmLevelEnum"
+            enumCode="alarm_level"
             v-model="form.alarmLevelList"
             placeholder="请选择"
             clearable
