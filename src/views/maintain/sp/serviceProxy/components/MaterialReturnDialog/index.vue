@@ -200,7 +200,9 @@ export default {
         this.$message.warning(`退料数量不能超过${maxQuantity}`);
         return;
       }
-
+      if (this.submittingRow) {
+        return;
+      }
       try {
         this.submittingRow = row;
         row.refundNumber = row.returnQuantity;
