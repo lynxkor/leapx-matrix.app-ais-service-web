@@ -429,7 +429,7 @@ export default {
           { props: 'customerName', label: '车主姓名', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'customerName') },
           { props: 'customerPhone', label: '车主电话', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'customerPhone') },
           { props: 'shuttleName', label: '送修人姓名', visible: true, width: 200 },
-          { props: 'shuttlePhone', label: '送修人电话', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'shuttlePhone') },
+          { props: 'shuttlePhone', label: '送修人电话', visible: true, width: 200 },
           { props: 'custTypeLabel', label: '客户类型', visible: true, width: 200 },
           {
             props: 'vehModelName',
