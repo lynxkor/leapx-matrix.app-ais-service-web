@@ -510,6 +510,9 @@
                     filterable
                   />
                 </el-form-item>
+                <el-form-item label="供应商交货周期">
+                  {{ form.supplierDeliveryPeriod }}
+                </el-form-item>
               </el-form>
               <el-form :inline="true" :model="form" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="是否启用：">
