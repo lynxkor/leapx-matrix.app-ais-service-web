@@ -5,7 +5,7 @@
       <edit-base-container
         ref="containerRef"
         :id="_id"
-        :title="`${title}：${form.warehouseName}`"
+        :title="`${title}：${form.warehouseNameExt}`"
         :isEditing.sync="isEditing"
         :form.sync="form"
         :submitRequest="submitRequest"
@@ -19,11 +19,10 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整label-width="150px"，使得label不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="仓库名称：" prop="warehouseName">
+                <el-form-item label="仓库名称：" prop="warehouseNameExt">
                   <el-input
                     placeholder="请输入"
-                    :disabled="isEditing"
-                    v-model="form.warehouseName"
+                    v-model="form.warehouseNameExt"
                     clearable
                   />
                 </el-form-item>
@@ -67,8 +66,8 @@
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="仓库名称：" prop="warehouseName">
-                  {{ form.warehouseName }}
+                <el-form-item label="仓库名称：" prop="warehouseNameExt">
+                  {{ form.warehouseNameExt }}
                 </el-form-item>
                 <el-form-item label="仓库编码：" prop="warehouseCode">
                   {{ form.warehouseCode }}
@@ -147,7 +146,7 @@ const defaultForm = {
   address: '',
   dataSource: '',
   warehouseCode: '',
-  warehouseName: '',
+  warehouseNameExt: '',
   dealerCode: '',
   dealerName: '',
   disableReason: '',
@@ -259,7 +258,7 @@ export default {
         warehouseCode: [
           { required: true, message: '请输入仓库编码', trigger: 'change' }
         ],
-        warehouseName: [
+        warehouseNameExt: [
           { required: true, message: '请输入仓库名称', trigger: 'change' }
         ],
         contactName: [

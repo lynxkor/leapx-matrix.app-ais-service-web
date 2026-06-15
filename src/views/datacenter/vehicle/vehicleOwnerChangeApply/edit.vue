@@ -12,10 +12,12 @@
     :showEditBtn="showEditBtn"
   >
     <template #extraButtons>
-      <el-button v-if="canCancel && (form.applyStatus === APPLY_STATUS.DRAFT || form.applyStatus === APPLY_STATUS.REJECTED)" type="danger" size="small" @click="handleCancel">作废</el-button>
-      <el-button v-if="canSubmit && (form.applyStatus === APPLY_STATUS.DRAFT || form.applyStatus === APPLY_STATUS.REJECTED)" type="primary" size="small" @click="handleSubmit">提交</el-button>
-      <el-button v-if="canReject && form.applyStatus === APPLY_STATUS.PENDING" type="danger" size="small" @click="handleReject">审批驳回</el-button>
-      <el-button v-if="canApprove && form.applyStatus === APPLY_STATUS.PENDING" type="primary" size="small" @click="handleApprove">审批通过</el-button>
+      <template v-if="!fromLxpApp">
+        <el-button v-if="canCancel && (form.applyStatus === APPLY_STATUS.DRAFT || form.applyStatus === APPLY_STATUS.REJECTED)" type="danger" size="small" @click="handleCancel">作废</el-button>
+        <el-button v-if="canSubmit && (form.applyStatus === APPLY_STATUS.DRAFT || form.applyStatus === APPLY_STATUS.REJECTED)" type="primary" size="small" @click="handleSubmit">提交</el-button>
+        <el-button v-if="canReject && form.applyStatus === APPLY_STATUS.PENDING" type="danger" size="small" @click="handleReject">审批驳回</el-button>
+        <el-button v-if="canApprove && form.applyStatus === APPLY_STATUS.PENDING" type="primary" size="small" @click="handleApprove">审批通过</el-button>
+      </template>
     </template>
     <el-main>
       <section class="common-section">
@@ -506,6 +508,7 @@
                   :key="type"
                   :businessId="_id"
                   :attachType="type"
+                  configCode="mcs_vehownerchange"
                   type="card"
                   :title="type"
                   @ocr-success="ocrSuccess"
@@ -518,6 +521,7 @@
                   :key="type"
                   :businessId="_id"
                   :attachType="type"
+                  configCode="mcs_vehownerchange"
                   type="card"
                   :title="type"
                   @ocr-success="ocrSuccess"
@@ -575,6 +579,7 @@ import {
   PERSONAL_ID_TYPES,
   ENTERPRISE_ID_TYPES,
   VEHICLE_PROPERTY,
+  DATA_SOURCE,
 } from './constant';
 
 const defaultForm = {
@@ -651,15 +656,14 @@ export default {
       return JSON.stringify(data);
     },
     showEditBtn () {
+      if (this.fromLxpApp) { return false; }
       return this.form.applyStatus === APPLY_STATUS.DRAFT || this.form.applyStatus === APPLY_STATUS.REJECTED;
     },
     attachmentDisabled () {
+      if (this.fromLxpApp) { return true; }
       return !(this.form.applyStatus === APPLY_STATUS.DRAFT || this.form.applyStatus === APPLY_STATUS.REJECTED);
     },
     displayAttachTypes () {
-      if (String(this.form.dataSource) === '30') {
-        return this.allFileTypes;
-      }
       const types = new Set();
       if (this.form.businessType === BUSINESS_TYPE.SECOND_HAND) {
         if (PERSONAL_ID_TYPES.includes(this.idType)) {
@@ -685,9 +689,12 @@ export default {
     },
     idType () {
       if (this.form.businessType === BUSINESS_TYPE.SECOND_HAND) {
-        return this.form.targetIdType;
+        return String(this.form.targetIdType);
       }
-      return this.form.oldIdType;
+      return String(this.form.oldIdType);
+    },
+    fromLxpApp () {
+      return String(this.form.dataSource) === DATA_SOURCE.LXP_APP; // 订单是否来源于LXP APP
     }
   },
   watch: {

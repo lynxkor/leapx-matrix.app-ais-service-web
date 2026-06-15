@@ -210,3 +210,6 @@ export const ConfirmFaultEnum = {
   /** 不准确 */
   INACCURATE: 2
 };
+
+// 一般整车保修
+export const GENERAL_REPAIR_ID = '5EA3066F-82AC-E911-B0BB-FC82BA5F9EDF';

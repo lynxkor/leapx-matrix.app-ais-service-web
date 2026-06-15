@@ -179,15 +179,6 @@ export default {
         },
         dataProp: [
           {
-            props: 'serialNo',
-            label: '序号',
-            visible: true,
-            width: 60,
-            fixed: 'left',
-            align: 'center',
-            headerAlign: 'center'
-          },
-          {
             props: 'outboundOrderNo',
             label: '主机厂出库单号',
             visible: true,
@@ -328,10 +319,9 @@ export default {
         .then(res => {
           console.log(res);
           const records = res?.records || [];
-          this.optionObj.dataList = records.map((item, idx) => {
+          this.optionObj.dataList = records.map(item => {
             return {
               ...item,
-              serialNo: records.length - idx,
               deleteLoading: false
             };
           });

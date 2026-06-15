@@ -177,7 +177,12 @@ export default {
     },
     async fetchOptions (code) {
       getEnum('PaymentMethodEnum').then((res) => {
-        this.payTypeOptions = res || [];
+        this.payTypeOptions = (res || []).map(item => {
+          return {
+            ...item,
+            disabled: Number(item.code) === 50, // 手动添加不能选择权益抵扣
+          };
+        });
       });
       getEnum('InvoiceTypeEnum').then((res) => {
         this.invoiceTypeOptions = res || [];

@@ -479,7 +479,7 @@
 // import EditTable from '@/libs/components/EditTable';
 import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
 import UpdateActivityDialog from '../UpdateActivityDialog';
-import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID, MaintenanceTypeEnum, PackageTypeEnum, PackageTypeOptions, WorkRecordStatusEnum } from '../../constant';
+import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID, MaintenanceTypeEnum, PackageTypeEnum, PackageTypeOptions, WorkRecordStatusEnum, GENERAL_REPAIR_ID } from '../../constant';
 
 export default {
   name: 'SelectRepairItemDialog',
@@ -525,6 +525,7 @@ export default {
       universalLaborHourItemId: UNIVERSAL_LABOR_HOUR_ITEM_ID,
       PackageTypeEnum,
       WorkRecordStatusEnum,
+      GENERAL_REPAIR_ID,
 
       // 维修项目表格配置
       itemData: [],
@@ -1197,13 +1198,20 @@ export default {
         row.checkoutTypeName = target.checkoutTypeName;
         if (row.partsId) {
           this.restorePartDiscountAmount(row);
+          this.handlePartCheckoutTypeChange(row);
         } else {
           this.restoreItemDiscountAmount(row);
+          this.handleCheckoutTypeChange(row);
         }
       } else {
         const target = this.itemOptions.checkoutTypeName?.[0];
         row.checkoutTypeId = target.checkoutTypeId;
         row.checkoutTypeName = target.checkoutTypeName;
+        if (row.partsId) {
+          this.handlePartCheckoutTypeChange(row);
+        } else {
+          this.handleCheckoutTypeChange(row);
+        }
       }
     },
     // ==================== 维修项目表格事件处理 ====================
@@ -1418,7 +1426,11 @@ export default {
             warrantyTypeName: c.name
           };
           if (p[c.checkoutTypeName]) {
-            p[c.checkoutTypeName].push(item);
+            if (c.id === GENERAL_REPAIR_ID) {
+              p[c.checkoutTypeName].unshift(item);
+            } else {
+              p[c.checkoutTypeName].push(item);
+            }
           } else {
             p[c.checkoutTypeName] = [item];
           }
