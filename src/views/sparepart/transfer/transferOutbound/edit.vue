@@ -718,8 +718,10 @@ export default {
     // 采购价格(含税)输入框失去焦点时触发
     handlePriceBlur (row) {
       const price = Number(row.purchasePriceTax);
-      if (isNaN(price) || price < 0) {
-        this.$message.warning('请输入大于等于 0 的值');
+      const originalPrice = Number(row.originalPurchasePriceTax);
+      if (isNaN(price) || price <= 0 || price > originalPrice) {
+        this.$message.warning('请输入大于0且小于等于原值的值');
+        row.purchasePriceTax = row.originalPurchasePriceTax;
         return;
       }
       const params = {
@@ -778,7 +780,10 @@ export default {
       };
       const res = await transferOutboundPage(params);
       this.total = res.total || 0;
-      this.tableData = res.records || [];
+      this.tableData = (res.records || []).map(item => ({
+        ...item,
+        originalPurchasePriceTax: item.purchasePriceTax
+      }));
     },
     handleCurrentChange (pageNum) {
       this.pageNum = pageNum;
