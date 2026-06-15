@@ -128,6 +128,7 @@ export default {
   },
   data () {
     return {
+      moduleKey: 'AISPART-purchaseApply',
       dialogVisible: false,
       loading: false,
       exportLoading: false,
