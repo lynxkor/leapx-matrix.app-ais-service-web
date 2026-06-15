@@ -12,7 +12,7 @@
       <el-form-item label="仓库名称">
         <el-input
           placeholder="请输入"
-          v-model="form.warehouseNameLike"
+          v-model="form.warehouseNameExtLike"
           clearable
         />
       </el-form-item>
@@ -144,7 +144,7 @@ const defaultForm = {
   warehouseCodeLike: '',
   contactNameLike: '',
   contactPhoneLike: '',
-  warehouseNameLike: '',
+  warehouseNameExtLike: '',
   statusIncludeList: null,
   createTime: '',
   updateTime: '',
@@ -190,7 +190,7 @@ export default {
         },
         dataProp: [
           {
-            props: 'warehouseName',
+            props: 'warehouseNameExt',
             label: '仓库名称',
             visible: true,
             width: 180,
@@ -313,13 +313,13 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          this.optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });

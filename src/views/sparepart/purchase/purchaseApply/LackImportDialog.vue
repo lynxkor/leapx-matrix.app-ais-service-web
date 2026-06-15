@@ -26,7 +26,7 @@
       <vxe-table
         ref="lackTable"
         :data="tableData"
-        :checkbox-config="checkboxConfig"
+        :checkbox-config="{ checkField: 'checked', highlight: true, visibleMethod: ({ row }) => !row._isDetail }"
         :tree-config="{ children: 'children', expandAll: false, treeNodeKey: '_treeKey' }"
         stripe
         show-overflow
@@ -140,11 +140,7 @@ export default {
       current: 1,
       pageSize: 10,
       total: 0,
-      selectedRows: [],
-      checkboxConfig: {
-        checkField: 'checked',
-        checkMethod: ({ row }) => !row._isDetail
-      }
+      selectedRows: []
     };
   },
   watch: {

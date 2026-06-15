@@ -347,12 +347,12 @@
                   <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
                   <vxe-column field="locationName" title="库位" min-width="10%" />
                   <vxe-column field="availableQty" title="可用库存" min-width="10%" />
-                  <vxe-column field="purchasePriceTax" title="采购价格(含税)" min-width="10%">
+                  <vxe-column field="purchasePriceTax" title="调拨价格(含税)" min-width="10%">
                     <template #default="{ row }">
                       <el-input v-model="row.purchasePriceTax" :disabled="!orderStatusType" type="number" @change="handlePriceBlur(row)"/>
                     </template>
                   </vxe-column>
-                  <vxe-column field="purchasePriceNotax" title="采购价格(不含税)" min-width="10%" />
+                  <vxe-column field="purchasePriceNotax" title="调拨价格(不含税)" min-width="10%" />
                   <vxe-column field="purchaseAmountTax" title="金额（含税）" min-width="10%" />
                   <vxe-column field="transferQty" title="调拨数量" min-width="10%">
                     <template #default="{ row }">

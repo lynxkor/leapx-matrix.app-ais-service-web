@@ -175,15 +175,6 @@ export default {
         form: this.tableForm,
         dataProp: [
           {
-            props: 'serialNo',
-            label: '序号',
-            visible: true,
-            width: 60,
-            fixed: 'left',
-            align: 'center',
-            headerAlign: 'center'
-          },
-          {
             props: 'destroyOrderNo',
             label: '门店销毁单号',
             visible: true,
@@ -329,14 +320,14 @@ export default {
 
       getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
         .then(res => {
-          this.tableDataList = res.records.map((item, idx) => {
+          const records = res?.records || [];
+          this.tableDataList = records.map((item, idx) => {
             return {
               ...item,
-              serialNo: res.records.length - idx,
               deleteLoading: false
             };
           });
-          this.tableTotal = res.total;
+          this.tableTotal = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });
