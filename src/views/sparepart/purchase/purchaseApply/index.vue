@@ -847,6 +847,11 @@ export default {
     },
     // 批量同意
     handleBatchAgree () {
+      const invalidRows = this.selectionList.filter(item => item.orderStatus !== '1');
+      if (invalidRows.length > 0) {
+        this.$message.warning('只能同意状态为已提交的数据！');
+        return;
+      }
       const idList = this.selectionList.map(item => item.id);
       this.$prompt('请输入审批说明', '提示', {
         confirmButtonText: '确定',
@@ -883,6 +888,11 @@ export default {
     },
     // 批量驳回
     handleBatchReject () {
+      const invalidRows = this.selectionList.filter(item => item.orderStatus !== '1');
+      if (invalidRows.length > 0) {
+        this.$message.warning('只能驳回状态为已提交的数据！');
+        return;
+      }
       this.allHandleReject(true);
     },
     // 统一驳回方法

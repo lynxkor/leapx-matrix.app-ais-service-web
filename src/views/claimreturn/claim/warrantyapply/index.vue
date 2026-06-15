@@ -303,8 +303,8 @@ import {
   validateBatchStatus,
 } from './constants';
 import {
-  getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel, getScopeTypeOrg,
-  sparePartList, exportTable
+  getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel,
+  sparePartList, exportTable, getAllRegion
 } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -1029,7 +1029,7 @@ export default {
     },
     async getScopeTypeOrg (query) {
       if (!this._scopeTypeOrgCache) {
-        const res = await getScopeTypeOrg({ type: '1020' });
+        const res = await getAllRegion();
         this._scopeTypeOrgCache = res?.data || res || [];
       }
       if (!query) {

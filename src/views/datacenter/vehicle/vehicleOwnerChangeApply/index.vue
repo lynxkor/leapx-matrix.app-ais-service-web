@@ -41,6 +41,31 @@
         <el-form-item label="门店：">
           <dealer-select v-model="form.dealerCodeList" placeholder="请输入门店编码或名称" multiple/>
         </el-form-item>
+        <el-form-item label="车型">
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleModel/list"
+            placeholder="请选择"
+            v-model="form.vehicleModelIdList"
+            query-key="modelNameLike"
+            clearable
+            auto-load-options
+            collapseTags
+            multiple
+            filterable
+            :params="{seriesIdList: form.vehicleSeriesIdList}"
+            />
+        </el-form-item>
+        <el-form-item label="数据来源">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="dataSource"
+            v-model="form.dataSourceList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
         <el-form-item label="申请时间">
           <el-date-picker
           :default-time="['00:00:00', '23:59:59']"
@@ -161,8 +186,9 @@ import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
 import FormCancelDialog from './FormCancelDialog';
 import FormRejectDialog from './FormRejectDialog';
-import { APPLY_STATUS } from './constant';
+import { APPLY_STATUS, DATA_SOURCE } from './constant';
 import DealerSelect from '@/components/dealer-select';
+import ListSelect from '@/libs/components/list-select';
 
 const defaultForm = {
   applyNo: '',
@@ -175,6 +201,8 @@ const defaultForm = {
   auditTime: '',
   createTime: '',
   updateTime: '',
+  vehicleModelIdList: [],
+  dataSourceList: []
 };
 
 const pageSize = 20;
@@ -192,7 +220,8 @@ export default {
     TagInput,
     FormCancelDialog,
     FormRejectDialog,
-    DealerSelect
+    DealerSelect,
+    ListSelect
   },
   data () {
     return {
@@ -271,6 +300,8 @@ export default {
               type: 'primary'
             }]
           },
+          { props: 'vehicleModelName', label: '车型', visible: true, width: 200 },
+          { props: 'dataSourceLabel', label: '数据来源', visible: true, width: 160 },
           {
             props: 'dealerCode',
             label: '门店编码',
@@ -327,6 +358,7 @@ export default {
                 type: 'info',
                 show: (row) => {
                   if (!this.canSubmit) { return false; }
+                  if (String(row.dataSource) === DATA_SOURCE.LXP_APP) { return false; }
                   return row.applyStatus === APPLY_STATUS.DRAFT || row.applyStatus === APPLY_STATUS.REJECTED;
                 },
               },
@@ -339,6 +371,7 @@ export default {
                 type: 'danger',
                 show: (row) => {
                   if (!this.canCancel) { return false; }
+                  if (String(row.dataSource) === DATA_SOURCE.LXP_APP) { return false; }
                   return row.applyStatus === APPLY_STATUS.DRAFT || row.applyStatus === APPLY_STATUS.REJECTED;
                 },
               },
@@ -355,6 +388,7 @@ export default {
                 type: 'info',
                 show: (row) => {
                   if (!this.canApprove) { return false; }
+                  if (String(row.dataSource) === DATA_SOURCE.LXP_APP) { return false; }
                   return row.applyStatus === APPLY_STATUS.PENDING;
                 }
               },
@@ -367,6 +401,7 @@ export default {
                 type: 'danger',
                 show: (row) => {
                   if (!this.canReject) { return false; }
+                  if (String(row.dataSource) === DATA_SOURCE.LXP_APP) { return false; }
                   return row.applyStatus === APPLY_STATUS.PENDING;
                 }
               }

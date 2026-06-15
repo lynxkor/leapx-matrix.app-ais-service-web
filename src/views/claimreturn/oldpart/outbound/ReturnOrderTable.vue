@@ -68,7 +68,6 @@ import {
 import {
   removeDetail,
   addAssociatedParts,
-  addDetail,
   scanCodeAddDetail,
 } from '@/api/claimreturn/oldpart/outbound/index';// 出库
 import EditTable from '@/libs/components/EditTable/index.vue';
@@ -158,6 +157,16 @@ export default {
           field: 'isMainPartLabel',
           title: '是否主因零部件',
           width: '160',
+        },
+        {
+          field: 'repairItemTypeName',
+          title: '保修类型',
+          width: '160',
+        },
+        {
+          field: 'mileage',
+          title: '进店里程KM',
+          width: '140',
         },
         {
           field: 'vin',

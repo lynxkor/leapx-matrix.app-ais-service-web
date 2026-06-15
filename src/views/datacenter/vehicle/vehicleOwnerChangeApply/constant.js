@@ -37,6 +37,11 @@ export const PERSONAL_ID_TYPES = ['1', '2', '3', '4', '5', '20'];
 // 证件类型 - 企业
 export const ENTERPRISE_ID_TYPES = ['6', '7'];
 
+// 数据来源
+export const DATA_SOURCE = {
+  LXP_APP: '30', // LXP APP
+};
+
 // 车辆属性
 export const VEHICLE_PROPERTY = {
   HOUSEHOLD: '1', // 家用

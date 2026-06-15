@@ -296,7 +296,7 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     title () {
-      return '外购退货单号，开头ORO：' + this.form.code;
+      return '外购件退货单号：' + this.form.code;
     }
   },
   watch: {
