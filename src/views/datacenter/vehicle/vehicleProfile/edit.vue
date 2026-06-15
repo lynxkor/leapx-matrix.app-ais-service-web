@@ -5,13 +5,21 @@
       <edit-base-container
         ref="containerRef"
         :id="_id"
-        :title="`VIN码：${form.vin}`"
+        title=""
         :isEditing.sync="isEditing"
         :form.sync="form"
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
       >
+        <template #status>
+          <LPEncrypted
+            :value.sync="form.vin"
+            :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
+          >
+            <span style="overflow: visible;">VIN码：{{ form.vin }}</span>
+          </LPEncrypted>
+        </template>
         <template #extraButtons>
           <el-button v-if="canReturn" size="small" type="primary" @click="onReturn">退车</el-button>
         </template>

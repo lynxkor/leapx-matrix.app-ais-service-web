@@ -131,7 +131,7 @@
                 :value.sync="form.vin"
                 :decryptMethod="() => getDecryptField(form.id, 'vin')"
                 >
-                <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?vin=${form.vin}`" target="_blank">{{ form.vin }}</el-link>
+                <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfileId}`" target="_blank">{{ form.vin }}</el-link>
               </LPEncrypted>
             </el-form-item>
             <el-form-item label="门店编码：" prop="dealerCode">
