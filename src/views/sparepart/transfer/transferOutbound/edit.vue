@@ -719,6 +719,11 @@ export default {
     handlePriceBlur (row) {
       const price = Number(row.purchasePriceTax);
       const originalPrice = Number(row.originalPurchasePriceTax);
+      if (!/^\d+(\.\d{1,2})?$/.test(row.purchasePriceTax)) {
+        this.$message.warning('最多只能输入两位小数');
+        row.purchasePriceTax = row.originalPurchasePriceTax;
+        return;
+      }
       if (isNaN(price) || price <= 0 || price > originalPrice) {
         this.$message.warning('请输入大于0且小于等于原值的值');
         row.purchasePriceTax = row.originalPurchasePriceTax;
