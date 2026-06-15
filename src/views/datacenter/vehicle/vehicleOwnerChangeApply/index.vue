@@ -161,7 +161,7 @@ import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
 import FormCancelDialog from './FormCancelDialog';
 import FormRejectDialog from './FormRejectDialog';
-import { APPLY_STATUS } from './constant';
+import { APPLY_STATUS, DATA_SOURCE } from './constant';
 import DealerSelect from '@/components/dealer-select';
 
 const defaultForm = {
@@ -327,6 +327,7 @@ export default {
                 type: 'info',
                 show: (row) => {
                   if (!this.canSubmit) { return false; }
+                  if (String(row.dataSource) === DATA_SOURCE.LXP_APP) { return false; }
                   return row.applyStatus === APPLY_STATUS.DRAFT || row.applyStatus === APPLY_STATUS.REJECTED;
                 },
               },
@@ -339,6 +340,7 @@ export default {
                 type: 'danger',
                 show: (row) => {
                   if (!this.canCancel) { return false; }
+                  if (String(row.dataSource) === DATA_SOURCE.LXP_APP) { return false; }
                   return row.applyStatus === APPLY_STATUS.DRAFT || row.applyStatus === APPLY_STATUS.REJECTED;
                 },
               },
@@ -355,6 +357,7 @@ export default {
                 type: 'info',
                 show: (row) => {
                   if (!this.canApprove) { return false; }
+                  if (String(row.dataSource) === DATA_SOURCE.LXP_APP) { return false; }
                   return row.applyStatus === APPLY_STATUS.PENDING;
                 }
               },
@@ -367,6 +370,7 @@ export default {
                 type: 'danger',
                 show: (row) => {
                   if (!this.canReject) { return false; }
+                  if (String(row.dataSource) === DATA_SOURCE.LXP_APP) { return false; }
                   return row.applyStatus === APPLY_STATUS.PENDING;
                 }
               }

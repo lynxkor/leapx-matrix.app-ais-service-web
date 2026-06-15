@@ -1,0 +1,94 @@
+{
+  "modules": [
+    {
+      "key": "afterSaleMaintain",
+      "title": "维修保养（售后）",
+      "demo": [
+        {
+          "title": "【销服改造项目】满意度UAT验收",
+          "url": "https://meeting.tencent.com/wework/cloud-record/share?id=15a533c4-80f4-4770-90db-2e432477e955&hide_more_btn=true",
+          "owner": "李梦莹",
+          "date": "2026-06-03"
+        },
+        {
+          "title": "【销服改造项目】售后维保PC&移动端【特殊开单】UAT验收",
+          "url": "https://meeting.tencent.com/wework/cloud-record/share?id=7d13509e-6c25-4d4d-a622-26a13d1fb838&hide_more_btn=true",
+          "owner": "李梦莹",
+          "date": "2026-06-02"
+        },
+        {
+          "title": "【销服改造项目】售后维保PC&移动端【主流程】UAT验收",
+          "url": "https://meeting.tencent.com/wework/cloud-record/share?id=97b7a168-8fd7-4d00-91fb-03d3612afb06&hide_more_btn=true",
+          "owner": "李梦莹",
+          "date": "2026-06-01"
+        }
+      ],
+      "manual": []
+    },
+    {
+      "key": "afterSaleSparepart",
+      "title": "备件进销存（售后）",
+      "demo": [
+        {
+          "title": "【销服改造项目】售后备件UAT验收",
+          "url": "https://meeting.tencent.com/wework/cloud-record/share?id=21114729-5d69-4c2e-845e-2a484e718f0b&hide_more_btn=true",
+          "owner": "陈建国",
+          "date": "2026-06-01"
+        }
+      ],
+      "manual": []
+    },
+    {
+      "key": "afterSaleClaimReturn",
+      "title": "索赔与旧件（售后）",
+      "demo": [
+        {
+          "title": "【销服改造项目】售后旧件UAT验收",
+          "url": "https://meeting.tencent.com/wework/cloud-record/share?id=15a533c4-80f4-4770-90db-2e432477e955&hide_more_btn=true",
+          "owner": "李春莲",
+          "date": "2026-06-03"
+        },
+        {
+          "title": "【销服改造项目】售后维保【索赔相关】&索赔UAT验收",
+          "url": "https://meeting.tencent.com/wework/cloud-record/share?id=27a7d4b4-9758-4e94-84d1-b80f3e436658&hide_more_btn=true",
+          "owner": "陈建国",
+          "date": "2026-06-02"
+        }
+      ],
+      "manual": []
+    },
+    {
+      "key": "vehicleRetail",
+      "title": "整车零售（售中）",
+      "demo": [{
+          "title": "【销服改造项目】售中零售其他UAT验收",
+          "url": "https://meeting.tencent.com/wework/cloud-record/share?id=e4c0112e-9a20-4489-9259-d984cf9a5947&hide_more_btn=true",
+          "owner": "郭功鼎、雷日强、陈雷、李春莲",
+          "date": "2026-06-04"
+        }],
+      "manual": []
+    },
+    {
+      "key": "vehicleWholesale",
+      "title": "整车批售（售中）",
+      "demo": [{
+          "title": "【销服改造项目】售中批售其他及财务相关业务UAT验收",
+          "url": "https://meeting.tencent.com/wework/cloud-record/share?id=c0c98ec3-667d-4f5d-856f-a093235f5025&hide_more_btn=true",
+          "owner": "郭功鼎、雷日强",
+          "date": "2026-06-05"
+        }],
+      "manual": []
+    },
+    {
+      "key": "vehicleStock",
+      "title": "整车库存（售中）",
+      "demo": [{
+          "title": "【销服改造项目】售中零售&批售&交付【主流程】UAT验收",
+          "url": "https://meeting.tencent.com/wework/cloud-record/share?id=ccefc693-faf6-41d1-9e0a-49294e78d7fc&hide_more_btn=true ",
+          "owner": "陈雷",
+          "date": "2026-06-03"
+        }],
+      "manual": []
+    }
+  ]
+}
