@@ -74,7 +74,7 @@
                 </el-form-item>
                 <el-form-item label="收货主机厂仓库：" prop="receiveWarehouseId">
                   <fetch-select :remote-method="getReceiveWarehouse" remote v-model="form.receiveWarehouseId"
-                    placeholder="请选择" labelKey="warehouseNameExt" valueKey="id" subLabelKey="warehouseCode" clearable
+                    placeholder="请选择" labelKey="warehouseCode" valueKey="id" subLabelKey="warehouseNameExt" clearable
                     filterable @change="handleReceiveWarehouseChange" :disabled="isReceiveWarehouseDisabled" :params="form.receiveWarehouseName" />
                 </el-form-item>
                 <el-form-item label="收货人：" prop="receiver">
