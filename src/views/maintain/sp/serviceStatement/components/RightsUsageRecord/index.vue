@@ -23,7 +23,7 @@
 
           <vxe-column
             field="rightsTypeLabel"
-            title="权益类型"
+            title="卡券类型"
             min-width="150"
           />
           <vxe-column
