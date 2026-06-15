@@ -347,7 +347,11 @@
                   <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
                   <vxe-column field="locationName" title="库位" min-width="10%" />
                   <vxe-column field="availableQty" title="可用库存" min-width="10%" />
-                  <vxe-column field="purchasePriceTax" title="调拨价格(含税)" min-width="10%" />
+                  <vxe-column field="purchasePriceTax" title="调拨价格(含税)" min-width="10%">
+                    <template #default="{ row }">
+                      <el-input v-model="row.purchasePriceTax" :disabled="!orderStatusType" type="number" @change="handlePriceBlur(row)"/>
+                    </template>
+                  </vxe-column>
                   <vxe-column field="purchasePriceNotax" title="调拨价格(不含税)" min-width="10%" />
                   <vxe-column field="purchaseAmountTax" title="金额（含税）" min-width="10%" />
                   <vxe-column field="transferQty" title="调拨数量" min-width="10%">
@@ -711,6 +715,22 @@ export default {
       };
       this.handleAddOrUpdate(params);
     },
+    // 采购价格(含税)输入框失去焦点时触发
+    handlePriceBlur (row) {
+      const price = Number(row.purchasePriceTax);
+      const originalPrice = Number(row.originalPurchasePriceTax);
+      if (isNaN(price) || price <= 0 || price > originalPrice) {
+        this.$message.warning('请输入大于0且小于等于原值的值');
+        row.purchasePriceTax = row.originalPurchasePriceTax;
+        return;
+      }
+      const params = {
+        transferOutboundId: this._id,
+        id: row.id,
+        purchasePriceTax: row.purchasePriceTax
+      };
+      this.handleAddOrUpdate(params);
+    },
     // 备注输入框失去焦点时触发
     handleRemarkBlur (row) {
       const params = {
@@ -725,6 +745,7 @@ export default {
       try {
         await transferOutboundAddOrUpdate(params);
         this.$message.success('操作成功');
+        this.$refs.containerRef.loadDetail();
         this.getData();
       } catch (error) {
       }
@@ -734,6 +755,7 @@ export default {
       try {
         await transferOutboundDelete([id]);
         this.$message.success('删除成功');
+        this.$refs.containerRef.loadDetail();
         this.getData();
       } catch (error) {
       }
@@ -758,7 +780,10 @@ export default {
       };
       const res = await transferOutboundPage(params);
       this.total = res.total || 0;
-      this.tableData = res.records || [];
+      this.tableData = (res.records || []).map(item => ({
+        ...item,
+        originalPurchasePriceTax: item.purchasePriceTax
+      }));
     },
     handleCurrentChange (pageNum) {
       this.pageNum = pageNum;

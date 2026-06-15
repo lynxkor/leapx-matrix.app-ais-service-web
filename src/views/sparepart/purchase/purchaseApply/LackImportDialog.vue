@@ -140,7 +140,8 @@ export default {
       current: 1,
       pageSize: 10,
       total: 0,
-      selectedRows: []    };
+      selectedRows: []
+    };
   },
   watch: {
     visible (val) {

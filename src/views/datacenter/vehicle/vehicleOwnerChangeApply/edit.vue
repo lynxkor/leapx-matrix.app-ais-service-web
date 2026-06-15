@@ -508,7 +508,7 @@
                   :key="type"
                   :businessId="_id"
                   :attachType="type"
-                  configCode="mcs_vehownerchange"
+                  :uploadConfig="attachmentConfigs[type]"
                   type="card"
                   :title="type"
                   @ocr-success="ocrSuccess"
@@ -521,7 +521,7 @@
                   :key="type"
                   :businessId="_id"
                   :attachType="type"
-                  configCode="mcs_vehownerchange"
+                  :uploadConfig="attachmentConfigs[type]"
                   type="card"
                   :title="type"
                   @ocr-success="ocrSuccess"
@@ -758,7 +758,7 @@ export default {
       // 驳回弹窗
       rejectDialogVisible: false,
       rejectId: '',
-      attachmentConfigs: [],
+      attachmentConfigs: {},
       allFileTypes: [],
     };
   },
@@ -814,7 +814,10 @@ export default {
           businessData: JSON.stringify(config),
         });
         if (data && data.detailList) {
-          this.attachmentConfigs = data.detailList;
+          this.attachmentConfigs = data.detailList.reduce((acc, cur) => {
+            acc[cur.attachType] = cur;
+            return acc;
+          }, {});
         }
       } catch (e) {
         console.error('获取附件配置失败:', e);

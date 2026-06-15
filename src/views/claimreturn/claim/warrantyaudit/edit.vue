@@ -274,7 +274,7 @@
           <!-- 总结报告 -->
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>总结报告
+              <h2>整改报告
                 <el-button type="text" class="download-link" @click="handleDownloadUnsignedSummary" v-if="form.summarySignTime">下载未签署总结报告</el-button>
               </h2>
             </div>
@@ -287,7 +287,6 @@
                     configCode="warrantyAudit"
                     attachType="已签署总结报告"
                     :show-pagination="false"
-                    :uploadConfig="uploadConfig"
                     title="已签署总结报告"
                     type="card"
                     readonly
@@ -320,7 +319,6 @@
                     configCode="warrantyAudit"
                     attachType="已签署整改报告"
                     :show-pagination="false"
-                    :uploadConfig="uploadConfig"
                     title="已签署整改报告"
                     type="card"
                     readonly
