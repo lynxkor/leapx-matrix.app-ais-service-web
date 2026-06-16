@@ -523,7 +523,7 @@
           </h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isEditing || !_id || canEditMainPart">
+          <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="mainPartEditable">
             <el-form-item label="主因零件编码：" prop="mainPartId">
               <fetch-select
                 ref="mainPartSelectRef"
@@ -537,7 +537,7 @@
                 valueKey="partAndSupplierId"
                 clearable
                 filterable
-                :disabled="isFactoryAccount"
+                :disabled="!mainPartEditable"
               >
                 <template #option="{ item }">
                   <span v-if="item.disabled">{{ item.placeholder }}</span>
@@ -555,7 +555,7 @@
               <el-input placeholder="" v-model="form.mainPartSupplierName" clearable disabled />
             </el-form-item>
           </el-form>
-          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id) && !canEditMainPart">
+          <el-form :inline="true" class="form-detail" v-show="!mainPartEditable">
             <el-form-item label="主因零件编码：" prop="mainPartCode">
               <el-link type="primary" :href="`/service/sparepart/basic/sparePart/edit?id=${form.mainPartId}`" target="_blank">{{ form.mainPartCode }}</el-link>
             </el-form-item>
@@ -624,12 +624,12 @@
     :visible.sync="rejectDialogVisible"
     :rejectIds="rejectIds"
     :isApplyReject="isApplyReject"
-    @success="handleDialogSuccess"
+    @success="handleApproveSuccess"
   />
   <DenyDialog
     :visible.sync="denyDialogVisible"
     :denyIds="denyIds"
-    @success="handleDialogSuccess"
+    @success="handleApproveSuccess"
   />
   <ApproveDialog
     :visible.sync="approveDialogVisible"
@@ -644,7 +644,7 @@
   <WithdrawDialog
     :visible.sync="withdrawDialogVisible"
     :withdrawIds="withdrawIds"
-    @success="handleDialogSuccess"
+    @success="handleApproveSuccess"
   />
   <RightsDialog
     :visible.sync="rightsDialogVisible"
@@ -878,6 +878,12 @@ export default {
     },
     canEditMainPart () {
       return this.isFactoryAccount && this.isPendingCurrentUserReview;
+    },
+    mainPartEditable () {
+      if (this.isFactoryAccount) {
+        return this.canEditMainPart;
+      }
+      return this.isEditing || !this._id;
     },
     isPendingCurrentUserReview () {
       if (!this.form.isInApproval) return false;

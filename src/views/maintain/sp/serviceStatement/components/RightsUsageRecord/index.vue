@@ -22,7 +22,7 @@
           <vxe-column field="useId" title="权益ID" min-width="150" />
 
           <vxe-column
-            field="rightsTypeLabel"
+            field="cardTypeLabel"
             title="卡券类型"
             min-width="150"
           />
