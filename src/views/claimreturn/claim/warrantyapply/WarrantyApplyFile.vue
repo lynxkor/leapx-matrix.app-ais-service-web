@@ -197,7 +197,7 @@ export default {
             maxNum: item.quantity || 9,
             acceptSuffix: '.jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx',
             maxSize: 50,
-            required: '0',
+            required: item.required || '0',
           },
         }));
       } catch (e) {
