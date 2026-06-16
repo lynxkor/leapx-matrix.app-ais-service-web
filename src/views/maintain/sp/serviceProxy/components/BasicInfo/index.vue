@@ -705,7 +705,7 @@ export default {
         ],
         shuttlePhone: [
           { required: true, message: '请输入送修人手机', trigger: 'blur' },
-          { pattern: /^1\d{10}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+          { pattern: /^1[\d*]{10}$/, message: '请输入正确的手机号码', trigger: 'blur' }
         ],
         carPlate: [
           { validator: this.validateCarPlate, trigger: ['blur', 'change'] }
