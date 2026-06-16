@@ -16,6 +16,7 @@
         <el-form-item label="业务类型：" prop="businessType">
           <fetch-select
             :request="fetchOptions"
+            :disabled="!!form.appointmentNo"
             enumCode="BusinessTypeEnum"
             v-model="form.businessType"
             placeholder="请选择"
