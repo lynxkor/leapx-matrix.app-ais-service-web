@@ -133,7 +133,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, cancelItem, revokeItem, auditItem, regenerate, getEnum } from '@/api/maintain/sp/preAuth/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getPartDealer, getScopeTypeOrg } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getPartDealer, getAllRegion } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -576,8 +576,16 @@ export default {
       }
       return [];
     },
-    getScopeTypeOrg () {
-      return getScopeTypeOrg({ type: '1020' });
+    async getScopeTypeOrg (query) {
+      if (!this._scopeTypeOrgCache) {
+        const res = await getAllRegion();
+        this._scopeTypeOrgCache = res?.data || res || [];
+      }
+      if (!query) {
+        return { data: this._scopeTypeOrgCache };
+      }
+      const filtered = this._scopeTypeOrgCache.filter(item => item.name && item.name.includes(query));
+      return { data: filtered };
     },
     // 门店搜索相关方法
     async fetchDealerOptions (query) {
