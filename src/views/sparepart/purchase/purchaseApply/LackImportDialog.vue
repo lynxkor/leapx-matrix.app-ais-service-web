@@ -43,9 +43,11 @@
         <vxe-column field="vin" title="VIN" width="160">
           <template #default="{ row }">
             <template v-if="row._isDetail && row.vin">
-              <span class="vin-text" @click="toggleVinDecrypt(row)">
-                {{ row._vinDecrypted ? row.vin : maskVin(row.vin) }}
-              </span>
+              <span>{{ row._vinDecrypted ? row.vin : maskVin(row.vin) }}</span>
+              <i
+                :class="['iconfont', row._vinDecrypted ? 'icon-lxppc-eye-off' : 'icon-lxppc-eye']"
+                @click="toggleVinDecrypt(row)"
+              />
             </template>
           </template>
         </vxe-column>
@@ -307,9 +309,10 @@ export default {
     gap: 10px;
   }
 
-  .vin-text {
+  .iconfont {
     color: var(--leap-color-primary);
     cursor: pointer;
+    margin-left: 4px;
   }
 }
 
