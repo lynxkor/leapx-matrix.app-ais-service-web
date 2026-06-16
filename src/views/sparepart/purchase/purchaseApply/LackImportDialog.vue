@@ -40,7 +40,7 @@
         <vxe-column field="partCode" title="备件编码" width="150" tree-node />
         <vxe-column field="partName" title="备件名称" width="180" />
         <vxe-column field="workOrderNo" title="施工单号" width="180" />
-        <vxe-column field="vin" title="VIN" width="160">
+        <vxe-column field="vin" title="VIN" width="200">
           <template #default="{ row }">
             <template v-if="row._isDetail && row.vin">
               <span>{{ row._vinDecrypted ? row.vin : maskVin(row.vin) }}</span>
