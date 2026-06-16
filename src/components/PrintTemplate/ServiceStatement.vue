@@ -240,7 +240,7 @@
                     <td style="width:120px; height:40px">客户经理确认</td>
                     <td style="width:120px;"></td>
                     <td style="width:120px;">收款人确认</td>
-                    <td style="width:120px;">{{ info.payeeName }}</td>
+                    <td style="width:120px;"></td>
                     <td style="width:120px;">客户签字</td>
                     <td style="width:120px;">
                       <img v-if="signUrl" :src="signUrl"  style="width: 120px; height: 32px" />
@@ -250,7 +250,7 @@
                     <td style="border-bottom-width:0px">日期</td>
                     <td style="border-bottom-width:0px"></td>
                     <td style="border-bottom-width:0px">日期</td>
-                    <td style="border-bottom-width:0px">{{ info.receiveTime }}</td>
+                    <td style="border-bottom-width:0px"></td>
                     <td style="border-bottom-width:0px">日期</td>
                     <td style="border-bottom-width:0px">{{ info.signCompletedOn }}</td>
                   </tr>
