@@ -71,7 +71,18 @@
               size="medium"
               :data="module.manual"
             >
-              <vxe-column field="title" title="标题" min-width="400" />
+              <vxe-column field="title" title="标题" min-width="400">
+                <template #default="{ row }">
+                  <el-link
+                    type="primary"
+                    v-if="row.url"
+                    :href="row.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >{{ row.title }}</el-link>
+                  <span v-else>{{ row.title }}</span>
+                </template>
+              </vxe-column>
               <vxe-column field="owner" title="责任人" width="300" />
               <vxe-column field="date" title="更新日期" width="200" />
               <vxe-column title="操作" width="160">
