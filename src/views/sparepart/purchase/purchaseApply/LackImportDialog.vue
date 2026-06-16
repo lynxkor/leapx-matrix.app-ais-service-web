@@ -40,12 +40,14 @@
         <vxe-column field="partCode" title="备件编码" width="150" tree-node />
         <vxe-column field="partName" title="备件名称" width="180" />
         <vxe-column field="workOrderNo" title="施工单号" width="180" />
-        <vxe-column field="vin" title="VIN" width="160">
+        <vxe-column field="vin" title="VIN" width="200">
           <template #default="{ row }">
             <template v-if="row._isDetail && row.vin">
-              <span class="vin-text" @click="toggleVinDecrypt(row)">
-                {{ row._vinDecrypted ? row.vin : maskVin(row.vin) }}
-              </span>
+              <span>{{ row._vinDecrypted ? row.vin : maskVin(row.vin) }}</span>
+              <i
+                :class="['iconfont', row._vinDecrypted ? 'icon-lxppc-eye-off' : 'icon-lxppc-eye']"
+                @click="toggleVinDecrypt(row)"
+              />
             </template>
           </template>
         </vxe-column>
@@ -307,9 +309,10 @@ export default {
     gap: 10px;
   }
 
-  .vin-text {
+  .iconfont {
     color: var(--leap-color-primary);
     cursor: pointer;
+    margin-left: 4px;
   }
 }
 

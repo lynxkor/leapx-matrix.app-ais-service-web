@@ -587,6 +587,12 @@ export default {
         } else {
           this.rules.address[0].required = false;
           this.$refs.ruleForm?.clearValidate('address');
+          if (this.originalReceiving.recipientName !== undefined) {
+            this.form.recipientName = this.originalReceiving.recipientName;
+            this.form.recipientPhone = this.originalReceiving.recipientPhone;
+            this.form.provinceCityCountyCode = this.originalReceiving.provinceCityCountyCode;
+            this.form.address = this.originalReceiving.address;
+          }
         }
       }
     },
@@ -643,6 +649,7 @@ export default {
       currentDealerCode: '', // 当前门店code
       currentDealerName: '', // 当前门店名称
       isPartOrder: null, // 是否有备附件订购能力,
+      originalReceiving: {},
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       rules: {
         purchaseOrderType: [
@@ -731,8 +738,16 @@ export default {
         this.form.recipientName = res.sparePartReceiving.partRecipient;
         this.form.recipientPhone = res.sparePartReceiving.partPhone;
         this.form.provinceCityCountyCode = res.sparePartReceiving.provinceCityCountyCode;
-        this.form.thirdPartyDeliveryIs = String(res.sparePartReceiving.isAllowedThirdDelivered);
+        if (this._id) {
+          this.form.thirdPartyDeliveryIs = String(res.sparePartReceiving.isAllowedThirdDelivered);
+        }
         this.form.address = res.sparePartReceiving.partAddress;
+        this.originalReceiving = {
+          recipientName: res.sparePartReceiving.partRecipient,
+          recipientPhone: res.sparePartReceiving.partPhone,
+          provinceCityCountyCode: res.sparePartReceiving.provinceCityCountyCode,
+          address: res.sparePartReceiving.partAddress
+        };
         this.isAllowedThirdDelivered = Number(res.sparePartReceiving.isAllowedThirdDelivered);
         return res;
       } catch (error) {
