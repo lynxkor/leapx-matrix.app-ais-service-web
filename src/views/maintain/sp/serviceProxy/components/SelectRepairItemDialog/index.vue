@@ -911,22 +911,24 @@ export default {
       });
     },
     checkRepairTypeChange (callback) {
-      // 检查原来的维修项目是否包含"一般维修"或"三电维修"
+      // 检查原来的维修项目是否包含"一般维修"或"三电维修"或"保修"
       const originalRepairItems = this.vehicleInfo.costCountResp?.repairItemRespList || [];
       const originalHasTargetRepair = originalRepairItems.some(item =>
         item.repairItemTypeId === MaintenanceTypeEnum.GENERAL_REPAIR ||
-        item.repairItemTypeId === MaintenanceTypeEnum.BATTERY_REPAIR
+        item.repairItemTypeId === MaintenanceTypeEnum.BATTERY_REPAIR ||
+        item.repairItemTypeId === MaintenanceTypeEnum.WARRANTY
       );
 
-      // 检查当前保存的维修项目中是否包含"一般维修"或"三电维修"（通过ID判断）
+      // 检查当前保存的维修项目中是否包含"一般维修"或"三电维修"（通过ID判断）或"保修"
       const currentHasTargetRepair = this.itemData.some(item =>
         item.repairItemTypeId === MaintenanceTypeEnum.GENERAL_REPAIR ||
-        item.repairItemTypeId === MaintenanceTypeEnum.BATTERY_REPAIR
+        item.repairItemTypeId === MaintenanceTypeEnum.BATTERY_REPAIR ||
+        item.repairItemTypeId === MaintenanceTypeEnum.WARRANTY
       );
 
       // 如果原来不包含，但现在包含，则显示提示
-      if (!originalHasTargetRepair && currentHasTargetRepair) {
-        this.$confirm('维修类型为："一般维修"或"三电维修"，系统默认调整 【本次是否因故障进店】为：是，存在故障，请填写故障模块信息！', '提醒', {
+      if (!originalHasTargetRepair && currentHasTargetRepair && !this.vehicleInfo.currentFault) {
+        this.$confirm('维修类型为："一般维修"或"三电维修"或"保修"，系统默认调整 【本次是否因故障进店】为：是，存在故障，请填写故障模块信息！', '提醒', {
           confirmButtonText: '确定',
           type: 'warning'
         }).then(() => {

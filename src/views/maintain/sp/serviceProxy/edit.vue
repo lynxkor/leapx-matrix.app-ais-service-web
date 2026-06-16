@@ -487,6 +487,8 @@ export default {
       this.$refs.editLayout.openPane();
     },
     handleCancel () {
+      this.$refs.basicInfoRef.clearValidate();
+      this.$refs.entrustInfoRef.clearValidate();
       // 检查表单是否有修改
       if (JSON.stringify(this.originalForm) !== JSON.stringify(this.form)) {
         const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>确定要取消？</div><div class="ais-leave-tips-sub">取消后，当前填写的数据会被清空。</div>';
@@ -497,8 +499,6 @@ export default {
           customClass: 'ais-leave-tips',
           showClose: false
         }).then(() => {
-          this.$refs.basicInfoRef.clearValidate();
-          this.$refs.entrustInfoRef.clearValidate();
           this.isEditing = false;
           this.form = JSON.parse(JSON.stringify(this.originalForm));
         }).catch(() => {
