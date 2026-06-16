@@ -330,16 +330,32 @@
               {{ form.mileage }}
             </el-form-item>
             <el-form-item label="车主姓名：" prop="ownerName">
-              {{ form.ownerName }}
+              <LPEncrypted
+                :value.sync="form.ownerName"
+                :decryptMethod="() => getDetailDecryptField(form.id, 'ownerName')"
+                >
+              </LPEncrypted>
             </el-form-item>
             <el-form-item label="车主电话：" prop="ownerPhone">
-              {{ form.ownerPhone }}
+              <LPEncrypted
+                :value.sync="form.ownerPhone"
+                :decryptMethod="() => getDetailDecryptField(form.id, 'ownerPhone')"
+                >
+              </LPEncrypted>
             </el-form-item>
             <el-form-item label="送修人姓名：" prop="shuttleName">
-              {{ form.shuttleName }}
+              <LPEncrypted
+                :value.sync="form.shuttleName"
+                :decryptMethod="() => getDetailDecryptField(form.id, 'shuttleName')"
+                >
+              </LPEncrypted>
             </el-form-item>
             <el-form-item label="送修人电话：" prop="shuttlePhone">
-              {{ form.shuttlePhone }}
+              <LPEncrypted
+                :value.sync="form.shuttlePhone"
+                :decryptMethod="() => getDetailDecryptField(form.id, 'shuttlePhone')"
+                >
+              </LPEncrypted>
             </el-form-item>
             <el-form-item label="是否终身免保：" prop="isLifetimeWarrantyLabel">
               {{ form.isLifetimeWarrantyLabel }}
