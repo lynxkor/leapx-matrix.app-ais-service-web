@@ -6,7 +6,7 @@
           <h2>基础信息</h2>
         </div>
         <div class="common-section-body">
-          <el-form label-width="120px" :rules="rules" :form="repairDetail" :inline="true" class="form-edit">
+          <el-form ref="ruleForm" label-width="120px" :rules="rules" :model="repairDetail" :inline="true" class="form-edit">
             <el-form-item label="项目名称：" prop="name">
               {{ repairDetail.repairItemName }}
             </el-form-item>
@@ -137,14 +137,8 @@ export default {
       sparePartOptions: [], // 零件信息选项
       tableData: [], // 零件信息列表
       rules: {
-        code: [
-          { required: true, message: '请输入套餐代码', trigger: 'blur' }
-        ],
         repairItemTypeId: [
-          { required: true, message: '请选择维修类型', trigger: 'blur' },
-        ],
-        checkoutTypeName: [
-          { required: true, message: '请输入结算类型', trigger: 'blur' },
+          { required: true, message: '请选择维修类型', trigger: 'change' },
         ],
       }
     };
@@ -217,6 +211,11 @@ export default {
         this.repairDetail.repairItemTypeName = res.repairItemTypeName;
         // this.repairDetail.checkoutTypeId = res.checkoutTypeId;
         this.repairDetail.checkoutTypeName = '自费';
+        // 兜底：接口未返回维修类型时默认选中第一项
+        if (!this.repairDetail.repairItemTypeId && this.repairItemOptions.length > 0) {
+          this.repairDetail.repairItemTypeId = this.repairItemOptions[0].value;
+          this.repairDetail.repairItemTypeName = this.repairItemOptions[0].label;
+        }
         if (res.partsRespList && Array.isArray(res.partsRespList)) {
           for (let item of res.partsRespList) {
             this.tableData.push({
@@ -238,7 +237,7 @@ export default {
       } else {
         this.repairDetail = res || {};
         this.tableData = res.partRespList || [];
-        // 计算零件金额
+        // 计算零件金额，并为缺失维修类型的行补充默认值
         this.tableData.forEach(item => {
           const number = Number(item.quantity) || 0;
           const unitPrice = Number(item.price) || 0;
@@ -246,6 +245,11 @@ export default {
           let receivable = number * unitPrice;
           receivable = receivable - discountAmount;
           item.actualAmount = Math.max(0, receivable.toFixed(2));
+          // 兜底：维修类型为空时默认选中第一项
+          if (!item.repairItemTypeId && this.repairItemOptions.length > 0) {
+            item.repairItemTypeId = this.repairItemOptions[0].value;
+            item.repairItemTypeName = this.repairItemOptions[0].label;
+          }
         });
       }
       if (this.repairDetail.discountAmount) { // 有优惠金额时，计算项目金额
@@ -358,7 +362,23 @@ export default {
       this.tableData.splice(index, 1);
     },
     // 处理保存按钮点击事件
-    handleSave () {
+    async handleSave () {
+      // 基础信息表单校验
+      try {
+        await this.$refs.ruleForm?.validate();
+      } catch (e) {
+        this.$message.warning('请完善基础信息');
+        return Promise.reject(e);
+      }
+      // 零件信息表格校验：维修类型必填
+      for (let i = 0; i < this.tableData.length; i++) {
+        const row = this.tableData[i];
+        const repairItemTypeId = row.repairItemTypeId?.value || row.repairItemTypeId;
+        if (!repairItemTypeId) {
+          this.$message.warning(`零件 ${row.partsCode} 维修类型不能为空`);
+          return Promise.reject(new Error('零件信息维修类型校验失败'));
+        }
+      }
       const cleanList = this.tableData.map(row => {
         return {
           ...row,

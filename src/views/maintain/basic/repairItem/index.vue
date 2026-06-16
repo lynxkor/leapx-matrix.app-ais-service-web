@@ -55,6 +55,38 @@
             multiple
           />
         </el-form-item>
+        <el-form-item label="是否预约专用">
+          <el-select v-model="form.isReservation" placeholder="请选择" clearable>
+            <el-option v-for="item in yes_no_enum" :key="item.code" :label="item.message" :value="item.code" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="是否电池维修专用">
+          <el-select v-model="form.isBatteryRepair" placeholder="请选择" clearable>
+            <el-option v-for="item in yes_no_enum" :key="item.code" :label="item.message" :value="item.code" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="是否活动专用">
+          <el-select v-model="form.isActivity" placeholder="请选择" clearable>
+            <el-option v-for="item in yes_no_enum" :key="item.code" :label="item.message" :value="item.code" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="是否保修专用">
+          <el-select v-model="form.isWarranty" placeholder="请选择" clearable>
+            <el-option v-for="item in yes_no_enum" :key="item.code" :label="item.message" :value="item.code" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="是否生产类专用">
+          <el-select v-model="form.isProdType" placeholder="请选择" clearable>
+            <el-option v-for="item in yes_no_enum" :key="item.code" :label="item.message" :value="item.code" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="预约项目名称">
+          <el-input
+            placeholder="请输入"
+            v-model="form.appointmentItemNameLike"
+            clearable
+          />
+        </el-form-item>
 
       </template>
       <page-search-action
@@ -121,6 +153,12 @@ const defaultForm = {
   statusIncludeList: '',
   maintenanceItemTypes: [],
   createTime: '',
+  isReservation: '',
+  isBatteryRepair: '',
+  isActivity: '',
+  isWarranty: '',
+  isProdType: '',
+  appointmentItemNameLike: '',
 };
 
 const pageSize = 20;
