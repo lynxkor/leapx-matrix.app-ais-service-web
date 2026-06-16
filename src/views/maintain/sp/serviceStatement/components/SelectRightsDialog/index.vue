@@ -92,6 +92,18 @@ export default {
     handleSelectionChange ({ checked, row }) {
       // 如果是选中操作，先进行校验
       if (checked) {
+        // 校验：剩余应付款金额为0时，只允许选择满减金额为(0,0)的券
+        if (this.isRemainAmountZero()) {
+          const amountInfo = this.parsePaymentAmount(row.paymentAmount);
+          if (!(amountInfo.threshold === 0 && amountInfo.discount === 0)) {
+            this.$nextTick(() => {
+              row.checked = false;
+              this.$message.warning('剩余应付款金额为0，不能再选择新的抵扣券');
+            });
+            return;
+          }
+        }
+
         const selectedRows = this.tableData.filter(r => r.checked && r.useId !== row.useId);
         const validationResult = this.canSelectCoupon(row, selectedRows);
 
@@ -108,8 +120,23 @@ export default {
     // 处理全选事件
     handleSelectAll ({ checked, records }) {
       if (checked) {
-        // 全选时，找出最优的优惠券组合
-        const optimalCombination = this.findOptimalCouponCombination(records);
+        // 全选时，剩余应付款金额为0时只允许满减金额为(0,0)的券
+        let availableRecords = records;
+        if (this.isRemainAmountZero()) {
+          availableRecords = records.filter(coupon => {
+            const amountInfo = this.parsePaymentAmount(coupon.paymentAmount);
+            return amountInfo.threshold === 0 && amountInfo.discount === 0;
+          });
+          if (availableRecords.length === 0) {
+            this.$nextTick(() => {
+              this.$message.warning('剩余应付款金额为0，不能再选择新的抵扣券');
+            });
+            return;
+          }
+        }
+
+        // 找出最优的优惠券组合
+        const optimalCombination = this.findOptimalCouponCombination(availableRecords);
 
         if (!optimalCombination.success) {
           // 如果无法全选，给出提示并阻止
@@ -375,8 +402,25 @@ export default {
       return totalAllocated > 0;
     },
 
+    // 判断结算单剩余应付款金额是否为0
+    isRemainAmountZero () {
+      return parseFloat(this.formData.remainAmount || 0) === 0;
+    },
+
     // 校验优惠券是否可以被选中（考虑全局最优分配）
     canSelectCoupon (coupon, selectedRows) {
+      // 剩余应付款金额为0时，只允许满减金额为(0,0)的券
+      if (this.isRemainAmountZero()) {
+        const amountInfo = this.parsePaymentAmount(coupon.paymentAmount);
+        if (!(amountInfo.threshold === 0 && amountInfo.discount === 0)) {
+          return {
+            valid: false,
+            reason: 'remain_amount_zero',
+            message: '剩余应付款金额为0，不能再选择新的抵扣券'
+          };
+        }
+      }
+
       // 基础校验
       const baseValidation = this.validateCoupon(coupon);
       if (!baseValidation.valid) {
