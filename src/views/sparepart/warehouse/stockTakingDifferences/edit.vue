@@ -5,7 +5,7 @@
         :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest"
         :showEditBtn="stockStatusType">
         <template #status>
-          <span v-if="form.status" class="status primary">{{ form.status }}</span>
+          <span v-if="form.status" class="status primary">{{ form.orderStatusLabel }}</span>
         </template>
         <template #extraButtons>
           <el-button v-if="showAgreeLoss" plain size="small" :loading="actionLoading" @click="handleAgreeLoss">盘亏同意</el-button>

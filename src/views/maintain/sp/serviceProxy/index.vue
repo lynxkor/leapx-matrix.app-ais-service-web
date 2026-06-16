@@ -120,7 +120,7 @@
         <el-form-item label="数据来源">
           <fetch-select
             :request="fetchOptions"
-            enumCode="dataSource"
+            enumCode="ServiceProxyDataSource"
             v-model="form.dataSourceList"
             placeholder="请选择"
             clearable
@@ -428,8 +428,8 @@ export default {
           { props: 'repairItemTypeDetailCollect', label: '维修类型（汇总）', visible: true, width: 200 },
           { props: 'customerName', label: '车主姓名', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'customerName') },
           { props: 'customerPhone', label: '车主电话', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'customerPhone') },
-          { props: 'shuttleName', label: '送修人姓名', visible: true, width: 200 },
-          { props: 'shuttlePhone', label: '送修人电话', visible: true, width: 200 },
+          { props: 'shuttleName', label: '送修人姓名', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'shuttleName') },
+          { props: 'shuttlePhone', label: '送修人电话', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'shuttlePhone') },
           { props: 'custTypeLabel', label: '客户类型', visible: true, width: 200 },
           {
             props: 'vehModelName',

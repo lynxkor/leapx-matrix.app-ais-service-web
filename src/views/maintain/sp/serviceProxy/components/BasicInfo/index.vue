@@ -249,10 +249,22 @@
         </el-form-item>
         <el-form-item label="送修人：" prop="shuttleName">
           <el-input
+            v-if="!_id"
             placeholder="请输入"
             v-model="form.shuttleName"
             clearable
           />
+          <LPEncrypted
+            v-else
+            :value.sync="form.shuttleName"
+            :decryptMethod="() => getDecryptField(form.id, 'shuttleName')"
+          >
+            <el-input
+              placeholder="请输入"
+              v-model="form.shuttleName"
+              clearable
+            />
+          </LPEncrypted>
         </el-form-item>
         <el-form-item label="离店里程数：" prop="departureMileage">
           <el-input
@@ -283,11 +295,24 @@
         </el-form-item>
         <el-form-item label="送修人手机：" prop="shuttlePhone">
           <el-input
+            v-if="!_id"
             placeholder="请输入"
             v-model="form.shuttlePhone"
             clearable
             maxlength="11"
           />
+          <LPEncrypted
+            v-else
+            :value.sync="form.shuttlePhone"
+            :decryptMethod="() => getDecryptField(form.id, 'shuttlePhone')"
+          >
+            <el-input
+              placeholder="请输入"
+              v-model="form.shuttlePhone"
+              clearable
+              maxlength="11"
+            />
+          </LPEncrypted>
         </el-form-item>
         <el-form-item label="进店电量%：" prop="inPower">
           <el-input
@@ -522,7 +547,10 @@
           <el-link type="success" :href="`/sales/datacenter/materials/vehicleRegisteredModel/edit?id=${form.vehRegisteredModelId}`" target="_blank">{{ form.vehRegisteredModelName }}</el-link>
         </el-form-item>
         <el-form-item label="送修人：" prop="shuttleName">
-          {{ form.shuttleName }}
+          <LPEncrypted
+            :value.sync="form.shuttleName"
+            :decryptMethod="() => getDecryptField(form.id, 'shuttleName')"
+          />
         </el-form-item>
         <el-form-item label="离店里程数：" prop="departureMileage">
           {{ form.departureMileage }}
@@ -534,7 +562,10 @@
           <el-link type="success" :href="`/sales/datacenter/materials/vehicleYearType/edit?id=${form.vehYearTypeId}`" target="_blank">{{ form.vehYearTypeName }}</el-link>
         </el-form-item>
         <el-form-item label="送修人手机：" prop="shuttlePhone">
-          {{ form.shuttlePhone }}
+          <LPEncrypted
+            :value.sync="form.shuttlePhone"
+            :decryptMethod="() => getDecryptField(form.id, 'shuttlePhone')"
+          />
         </el-form-item>
         <el-form-item label="进店电量%：" prop="inPower">
           {{ form.inPower }}
@@ -674,7 +705,7 @@ export default {
         ],
         shuttlePhone: [
           { required: true, message: '请输入送修人手机', trigger: 'blur' },
-          { pattern: /^1\d{10}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+          { pattern: /^1[\d*]{10}$/, message: '请输入正确的手机号码', trigger: 'blur' }
         ],
         carPlate: [
           { validator: this.validateCarPlate, trigger: ['blur', 'change'] }

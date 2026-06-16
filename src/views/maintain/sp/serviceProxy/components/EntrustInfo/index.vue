@@ -16,6 +16,7 @@
         <el-form-item label="业务类型：" prop="businessType">
           <fetch-select
             :request="fetchOptions"
+            :disabled="!!form.appointmentNo"
             enumCode="BusinessTypeEnum"
             v-model="form.businessType"
             placeholder="请选择"
@@ -569,14 +570,12 @@ export default {
     },
     'form.currentFault': {
       handler (val) {
-        if (val) {
-          this.rules.customerContent = [
-            { required: true, message: '请输入故障描述', trigger: 'change' }
-          ];
-        } else {
-          this.rules.customerContent = [
-            { required: false, message: '请输入故障描述', trigger: 'change' }
-          ];
+        if (this.rules.customerContent && this.rules.customerContent[0]) {
+          if (val) {
+            this.rules.customerContent[0].required = true;
+          } else {
+            this.rules.customerContent[0].required = false;
+          }
         }
       }
     },
@@ -596,7 +595,18 @@ export default {
           { required: true, message: '请输入异常描述', trigger: 'change' }
         ],
         customerContent: [
-          { required: true, message: '请输入故障描述', trigger: 'change' }
+          { required: true, message: '请输入故障描述', trigger: 'change' },
+          {
+            validator: (rule, value, callback) => {
+              if (!value) return callback();
+              if (value.trim().length < 4) {
+                callback(new Error('故障描述不能少于4个字'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'change'
+          }
         ]
       },
       RepairOrderStatusEnum,
@@ -730,6 +740,8 @@ export default {
               this.$set(this.form, 'currentFault', 1);
               this.form._prevCurrentFault = 1;
               this.form.customerContent = oldCustomerContent;
+            }).finally(() => {
+              this.clearValidate();
             });
           } else {
             this.form.customerContent = newCustomerContent;
