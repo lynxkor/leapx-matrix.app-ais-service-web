@@ -121,28 +121,28 @@
             <div class="common-section-body">
               <el-form :inline="true" class="form-detail">
                 <el-form-item label="车主姓名：">
-                  <span>{{ serviceProxyDetail?.customerName || form.serviceProxyResp.customerName || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.customerName || form.serviceProxyResp?.customerName || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="送修人：">
-                  <span>{{ serviceProxyDetail?.shuttleName || form.serviceProxyResp.shuttleName || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.shuttleName || form.serviceProxyResp?.shuttleName || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="送修人手机：">
-                  <span>{{ serviceProxyDetail?.shuttlePhone || form.serviceProxyResp.shuttlePhone || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.shuttlePhone || form.serviceProxyResp?.shuttlePhone || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="VIN：">
                   <span>{{ preAuthInfoDetail?.vehProfileVin || form.vehProfileVin  || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="车型：">
-                  <span>{{ serviceProxyDetail?.vehModelName || form.serviceProxyResp.vehModelName || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.vehModelName || form.serviceProxyResp?.vehModelName || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="车牌号：">
-                  <span>{{ serviceProxyDetail?.carPlate || form.serviceProxyResp.carPlate || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.carPlate || form.serviceProxyResp?.carPlate || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="车辆用途：">
                   <span>{{ preAuthInfoDetail.carPropertyLabel || form.carPropertyLabel || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="进店里程数：">
-                  <span>{{ serviceProxyDetail?.mileage || form.serviceProxyResp.mileage || '-' }}</span>
+                  <span>{{ serviceProxyDetail?.mileage || form.serviceProxyResp?.mileage || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="生产日期：">
                   <span>{{ formatDate(preAuthInfoDetail?.productionTime || form.productionTime) }}</span>
