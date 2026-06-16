@@ -29,7 +29,14 @@
           "date": "2026-06-01"
         }
       ],
-      "manual": []
+      "manual": [
+        {
+          "title": "新销服操作手册（维保&保修索赔）.pdf",
+          "url": " https://leapx-prod.oss-cn-hangzhou.aliyuncs.com/4f8ed26c-f718-4138-8f72-b375405e5f28/1781615432987_%E6%96%B0%E9%94%80%E6%9C%8D%E6%93%8D%E4%BD%9C%E6%89%8B%E5%86%8C%EF%BC%88%E7%BB%B4%E4%BF%9D%26%E4%BF%9D%E4%BF%AE%E7%B4%A2%E8%B5%94%EF%BC%89.pdf",
+          "owner": "李梦莹",
+          "date": "2026-06-16"
+        }
+      ]
     },
     {
       "key": "afterSaleSparepart",
@@ -61,39 +68,52 @@
           "date": "2026-06-02"
         }
       ],
-      "manual": []
+      "manual": [
+        {
+          "title": "新销服操作手册（维保&保修索赔）.pdf",
+          "url": "https://leapx-prod.oss-cn-hangzhou.aliyuncs.com/4f8ed26c-f718-4138-8f72-b375405e5f28/1781615432987_%E6%96%B0%E9%94%80%E6%9C%8D%E6%93%8D%E4%BD%9C%E6%89%8B%E5%86%8C%EF%BC%88%E7%BB%B4%E4%BF%9D%26%E4%BF%9D%E4%BF%AE%E7%B4%A2%E8%B5%94%EF%BC%89.pdf",
+          "owner": "陈建国",
+          "date": "2026-06-16"
+        }
+      ]
     },
     {
       "key": "vehicleRetail",
       "title": "整车零售（售中）",
-      "demo": [{
+      "demo": [
+        {
           "title": "【销服改造项目】售中零售其他UAT验收",
           "url": "https://meeting.tencent.com/wework/cloud-record/share?id=e4c0112e-9a20-4489-9259-d984cf9a5947&hide_more_btn=true",
           "owner": "郭功鼎、雷日强、陈雷、李春莲",
           "date": "2026-06-04"
-        }],
+        }
+      ],
       "manual": []
     },
     {
       "key": "vehicleWholesale",
       "title": "整车批售（售中）",
-      "demo": [{
+      "demo": [
+        {
           "title": "【销服改造项目】售中批售其他及财务相关业务UAT验收",
           "url": "https://meeting.tencent.com/wework/cloud-record/share?id=c0c98ec3-667d-4f5d-856f-a093235f5025&hide_more_btn=true",
           "owner": "郭功鼎、雷日强",
           "date": "2026-06-05"
-        }],
+        }
+      ],
       "manual": []
     },
     {
       "key": "vehicleStock",
       "title": "整车库存（售中）",
-      "demo": [{
+      "demo": [
+        {
           "title": "【销服改造项目】售中零售&批售&交付【主流程】UAT验收",
           "url": "https://meeting.tencent.com/wework/cloud-record/share?id=ccefc693-faf6-41d1-9e0a-49294e78d7fc&hide_more_btn=true ",
           "owner": "陈雷",
           "date": "2026-06-03"
-        }],
+        }
+      ],
       "manual": []
     }
   ]
