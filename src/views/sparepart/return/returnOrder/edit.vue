@@ -3,10 +3,10 @@
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :isEditing.sync="isEditing" :form.sync="form"
-        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest">
+        :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="showEditBtn">
         <template #extraButtons>
-          <el-button v-if="_id && permissions.has('AISPART-returnOrder-printReturn')" plain size="small" @click="handlePrint">打印退货单</el-button>
-          <el-button v-if="_id && permissions.has('AISPART-returnOrder-printTag')" plain size="small" @click="handlePrintLabel">打印退货标签</el-button>
+          <el-button v-if="_id && !['70', '80'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-printReturn')" plain size="small" @click="handlePrint">打印退货单</el-button>
+          <el-button v-if="_id && !['70', '80'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-printTag')" plain size="small" @click="handlePrintLabel">打印退货标签</el-button>
           <el-button v-if="_id && form.returnStatus === '20' && permissions.has('AISPART-returnOrder-agree')" plain size="small" :loading="actionLoading" @click="handleAgree">同意</el-button>
           <el-button v-if="_id && form.returnStatus === '40' && permissions.has('AISPART-returnOrder-revoke')" plain size="small" :loading="actionLoading" @click="handleRevoke">撤回</el-button>
           <el-button v-if="_id && ['10', '30'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-commit')" plain size="small" :loading="actionLoading" @click="handleCommit">提交</el-button>
@@ -524,6 +524,9 @@ export default {
     isEditable () {
       // 只有在状态为 10 或 30 时才允许编辑
       return this.form.returnStatus === '10' || this.form.returnStatus === '30';
+    },
+    showEditBtn () {
+      return !['50', '70', '80'].includes(this.form.returnStatus);
     },
     isReturnStatus () {
       // 只有在状态为 20 时才允许 修改
