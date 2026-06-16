@@ -58,13 +58,13 @@
             <template #default="{ row }">
               <el-popconfirm
                 title="确定要将该零配件退料吗？"
-                :disabled="!canReturn(row)"
+                :disabled="!canReturn(row) || !!submittingRow"
                 @confirm="handleMaterialReturn(row)"
               >
                 <span
                   class="action-button btn-back"
                   slot="reference"
-                  :class="{ 'is-disabled': !canReturn(row) }">
+                  :class="{ 'is-disabled': !canReturn(row) || !!submittingRow }">
                   退料
                 </span>
               </el-popconfirm>
@@ -97,6 +97,7 @@ export default {
     return {
       dialogVisible: this.visible,
       loading: false,
+      submittingRow: null,
       tableData: [],
     };
   },
@@ -199,9 +200,11 @@ export default {
         this.$message.warning(`退料数量不能超过${maxQuantity}`);
         return;
       }
-
+      if (this.submittingRow) {
+        return;
+      }
       try {
-        this.loading = true;
+        this.submittingRow = row;
         row.refundNumber = row.returnQuantity;
         const res = await refundPart({
           ...row
@@ -215,7 +218,7 @@ export default {
         console.error('退料异常:', error);
         this.$message.error('退料异常');
       } finally {
-        this.loading = false;
+        this.submittingRow = null;
       }
     },
 

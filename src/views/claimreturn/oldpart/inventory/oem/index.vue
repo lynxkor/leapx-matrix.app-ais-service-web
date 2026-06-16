@@ -117,6 +117,87 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="保修类型">
+          <fetch-select
+            filterable
+            clearable
+            remote
+            reserve-keyword
+            multiple
+            v-model="form.repairItemTypeIdList"
+            :remote-method="repairItemTypeRemote"
+            params=""
+            value-key="id"
+            label-key="name"
+            sub-label-key="code"
+          />
+        </el-form-item>
+        <el-form-item label="审批通过时间">
+          <el-date-picker
+            v-model="warrantyApproveTimeRange"
+            type="datetimerange"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="车型">
+          <fetch-select
+            filterable
+            clearable
+            remote
+            multiple
+            v-model="form.vehicleModelIdList"
+            :remote-method="modelSearch"
+            params=""
+            value-key="id"
+            label-key="name"
+          />
+        </el-form-item>
+        <el-form-item label="活动编号">
+          <el-input
+            placeholder="请输入"
+            v-model="form.serviceActivityCode"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="是否主因零部件">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="YesOrNoEnum"
+            v-model="form.isMainPart"
+            placeholder="请选择"
+            clearable
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="主因件供应商">
+          <el-input
+            v-model="form.mainPartSupplierNameLike"
+            placeholder="请输入供应商名称"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="维修开始时间">
+          <el-date-picker
+            v-model="repairStartTimeRange"
+            type="datetimerange"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="出库单号">
+          <el-input
+            placeholder="请输入"
+            v-model="form.oemOutboundOrderNo"
+            clearable
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -169,7 +250,8 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getDetailDecryptField } from '@/api/claimreturn/oldpart/inventory/oem';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listVehicleModel, getSupplierInfoOem } from '@/api/common';
+import { getList as repairGetList } from '@/api/maintain/basic/repairItemType';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -213,6 +295,10 @@ const defaultForm = {
   destroyRejectReason: '',
   checkRemark: '',
   createTime: '',
+  repairItemTypeIdList: [],
+  vehicleModelIdList: [],
+  serviceActivityCode: '',
+  mainPartSupplierNameLike: '',
 };
 
 const pageSize = 20;
@@ -241,6 +327,8 @@ export default {
       form: {
         ...defaultForm
       },
+      warrantyApproveTimeRange: '',
+      repairStartTimeRange: '',
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
@@ -404,23 +492,6 @@ export default {
             }]
           },
           {
-            props: 'dutySupplierName',
-            label: '责任供应商(二次索赔明细)',
-            visible: true,
-            width: 220,
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/basic/supplierInfo/edit',
-                  query: {
-                    id: row.dutySupplierId
-                  }
-                });
-              },
-              type: 'primary'
-            }]
-          },
-          {
             props: 'oldPartCode',
             label: '旧件编码',
             visible: true,
@@ -456,6 +527,17 @@ export default {
             }]
           },
           { props: 'partName', label: '换上零件名称', visible: true, width: 200 },
+          { props: 'vehicleModelName', label: '车型', visible: true, width: 200 },
+          { props: 'mileage', label: '进店里程KM', visible: true, width: 140 },
+          { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 200 },
+          { props: 'repairStartTime', label: '维修开始日期', visible: true, width: 180 },
+          { props: 'serviceActivityCode', label: '活动编号', visible: true, width: 200 },
+          { props: 'warrantyApproveTime', label: '审批通过时间', visible: true, width: 200 },
+          { props: 'vrtName', label: 'VRT', visible: true, width: 200 },
+          { props: 'vfgName', label: 'VFG', visible: true, width: 200 },
+          { props: 'cccName', label: 'CCC', visible: true, width: 200 },
+          { props: 'faultPhenomenon', label: '故障信息描述', visible: true, width: 300 },
+          { props: 'troubleshootingFlow', label: '故障排除流程', visible: true, width: 300 },
           { props: 'oemStatusLabel', label: '主机厂库存状态', visible: true, width: 200 },
           { props: 'dealerInTime', label: '门店入库时间', visible: true, width: 200 },
           { props: 'dealerOutTime', label: '门店出库时间', visible: true, width: 200 },
@@ -605,6 +687,8 @@ export default {
     },
     onReset () {
       this.form = { ...defaultForm };
+      this.warrantyApproveTimeRange = '';
+      this.repairStartTimeRange = '';
       this.optionObj.form.page = 1;
       this.optionObj.form.pageSize = pageSize;
       this.getData();
@@ -702,13 +786,39 @@ export default {
         }
       }
 
+      if (this.warrantyApproveTimeRange && this.warrantyApproveTimeRange.length > 1) {
+        data.warrantyApproveTimeStart = this.warrantyApproveTimeRange[0];
+        data.warrantyApproveTimeEnd = this.warrantyApproveTimeRange[1];
+      }
+
+      if (this.repairStartTimeRange && this.repairStartTimeRange.length > 1) {
+        data.repairStartTimeStart = this.repairStartTimeRange[0];
+        data.repairStartTimeEnd = this.repairStartTimeRange[1];
+      }
+
       return data;
     },
     async fetchOptions (code) {
+      if (code === 'YesOrNoEnum') {
+        return YES_NO_ENUM;
+      }
       if (code) {
         return getEnum(code);
       }
       return [];
+    },
+    async modelSearch (query) {
+      return listVehicleModel({ modelNameLike: query });
+    },
+    repairItemTypeRemote (query) {
+      return repairGetList({
+        nameLike: query,
+        pageSize: 20,
+        pageNum: 1,
+      });
+    },
+    async mainPartSupplierRemote (query) {
+      return getSupplierInfoOem({ nameLike: query });
     },
     // 批量删除
     handleBatchDelete () {
