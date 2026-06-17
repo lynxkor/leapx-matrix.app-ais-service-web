@@ -9,7 +9,7 @@
     :originalForm.sync="originalForm"
     :submitRequest="submitRequest"
     :detailRequest="detailRequest"
-    :showEditBtn="EDITABLE_STATUSES.includes(form.applyStatus) && canAddOrUpdate"
+    :showEditBtn="canEdit"
   >
     <template #extraButtons>
       <el-button :loading="printLoading" size="small" @click="handlePrint">打印标签</el-button>
@@ -28,7 +28,7 @@
           <h2>基础信息</h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="150px" class="form-edit" v-show="isFormEditing">
             <el-form-item label="保修申请单号：" prop="applyNo">
               <el-input placeholder="" v-model="form.applyNo" clearable disabled />
             </el-form-item>
@@ -132,7 +132,7 @@
               <el-input placeholder="" v-model="form.claimTrackNo" clearable disabled />
             </el-form-item>
           </el-form>
-          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+          <el-form :inline="true" class="form-detail" v-show="!isFormEditing">
             <el-form-item label="保修申请单号：" prop="applyNo">
               {{ form.applyNo }}
             </el-form-item>
@@ -207,7 +207,7 @@
           <h2>车辆&客户</h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isFormEditing">
             <el-form-item label="VIN：" prop="vin">
               <LPEncrypted
                 :value.sync="form.vin"
@@ -295,7 +295,7 @@
               <el-input placeholder="" v-model="form.alarmLevelLabel" clearable disabled />
             </el-form-item>
           </el-form>
-          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+          <el-form :inline="true" class="form-detail" v-show="!isFormEditing">
             <el-form-item label="VIN：" prop="vin">
               <LPEncrypted
                 :value.sync="form.vin"
@@ -383,7 +383,7 @@
           <h2>质量反馈信息</h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm3" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm3" label-width="150px" class="form-edit" v-show="isFormEditing">
             <el-form-item label="质量反馈报告：" prop="qualityOrderReportId">
               <fetch-select
                 remote
@@ -417,7 +417,7 @@
               <base-input type="textarea" v-model="form.troubleshootingFlow" clearable />
             </el-form-item>
           </el-form>
-          <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+          <el-form :inline="true" class="form-detail" v-show="!isFormEditing">
             <el-form-item label="质量反馈报告：" prop="qualityOrderReport">
               {{ form.qualityOrderReport }}
             </el-form-item>
@@ -444,7 +444,7 @@
           <h2>保修费用信息</h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm4" label-width="150px" class="form-edit" v-show="isEditing || !_id">
+          <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm4" label-width="150px" class="form-edit" v-show="isFormEditing">
             <el-form-item label="工时索赔小计：" prop="laborClaimTotal">
               <el-input v-model="form.laborClaimTotal" clearable disabled />
             </el-form-item>
@@ -485,7 +485,7 @@
           <el-form
             :inline="true"
             class="form-detail"
-            v-show="!(isEditing || !_id)"
+            v-show="!isFormEditing"
           >
             <el-form-item label="工时索赔小计：">{{ form.laborClaimTotal }}</el-form-item>
             <el-form-item label="备件索赔小计：">{{ form.partsClaimTotal }}</el-form-item>
@@ -523,7 +523,7 @@
           </h2>
         </div>
         <div class="common-section-body">
-          <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="mainPartEditable">
+          <el-form :inline="true" ref="ruleForm5" label-width="150px" class="form-edit" v-show="isFormEditing">
             <el-form-item label="主因零件编码：" prop="mainPartId">
               <fetch-select
                 ref="mainPartSelectRef"
@@ -537,7 +537,7 @@
                 valueKey="partAndSupplierId"
                 clearable
                 filterable
-                :disabled="!mainPartEditable"
+                :disabled="!isFormEditing"
               >
                 <template #option="{ item }">
                   <span v-if="item.disabled">{{ item.placeholder }}</span>
@@ -555,7 +555,7 @@
               <el-input placeholder="" v-model="form.mainPartSupplierName" clearable disabled />
             </el-form-item>
           </el-form>
-          <el-form :inline="true" class="form-detail" v-show="!mainPartEditable">
+          <el-form :inline="true" class="form-detail" v-show="!isFormEditing">
             <el-form-item label="主因零件编码：" prop="mainPartCode">
               <el-link type="primary" :href="`/service/sparepart/basic/sparePart/edit?id=${form.mainPartId}`" target="_blank">{{ form.mainPartCode }}</el-link>
             </el-form-item>
@@ -573,7 +573,6 @@
             ref="partTableRef"
             :id="_id"
             :canAddOrUpdate="canEdit"
-            :canEditMainPart="canEditMainPart"
             @update="handleTableUpdate"
           />
         </div>
@@ -871,19 +870,13 @@ export default {
       return '保修申请单号：' + (this.form.applyNo);
     },
     canEdit () {
-      return EDITABLE_STATUSES.includes(this.form.applyStatus) && this.canAddOrUpdate;
+      return EDITABLE_STATUSES.includes(this.form.applyStatus) && this.canAddOrUpdate && !this.isFactoryAccount;
     },
-    isFactoryAccount () { // 是否为主机厂还是门店账号 false为主机厂  true为门店
-      return this.accountFlag === false;
+    isFactoryAccount () {
+      return this.accountFlag === false; // 是否为主机厂还是门店账号 false为主机厂  true为门店
     },
-    canEditMainPart () {
-      return this.isFactoryAccount && this.isPendingCurrentUserReview;
-    },
-    mainPartEditable () {
-      if (this.isFactoryAccount) {
-        return this.canEditMainPart;
-      }
-      return this.isEditing || !this._id;
+    isFormEditing () {
+      return !this.isFactoryAccount && (this.isEditing || !this._id);
     },
     isPendingCurrentUserReview () {
       if (!this.form.isInApproval) return false;
@@ -1127,7 +1120,7 @@ export default {
         this.form.mainPartId = '';
         this.form.mainPartSupplierCode = '';
         this.form.mainPartSupplierName = '';
-        this.form.mainPartSupplierName = '';
+        this.form.mainPartSupplierId = '';
         this.form.partAndSupplierId = '';
         return;
       }
