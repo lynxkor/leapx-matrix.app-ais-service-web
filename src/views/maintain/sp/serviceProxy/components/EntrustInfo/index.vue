@@ -599,8 +599,8 @@ export default {
           {
             validator: (rule, value, callback) => {
               if (!value) return callback();
-              if (value.trim().length < 4) {
-                callback(new Error('故障描述不能少于4个字'));
+              if (value.trim().length <= 4) {
+                callback(new Error('故障描述字段需要大于4个字'));
               } else {
                 callback();
               }
