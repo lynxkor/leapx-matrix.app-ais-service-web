@@ -592,8 +592,7 @@ export default {
                 this.$router.push({
                   path: '/sparepart/purchase/purchaseOrder/edit',
                   query: {
-                    id: row.purchaseOrderId,
-                    type: 'sign'
+                    id: row.purchaseOrderId
                   }
                 });
               },
