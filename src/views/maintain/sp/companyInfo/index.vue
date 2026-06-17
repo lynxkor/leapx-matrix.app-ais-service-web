@@ -276,7 +276,7 @@ export default {
                 this.handleOpenApplyDialog(row.parentCompany);
               },
               type: 'info',
-              show: (row) => row.parentCompany && row.parentCompany.healthStatus === 10
+              show: (row) => row.parentCompany && row.parentCompany.healthStatus === 10 && this.permissions.has('AISMC-dealerHealthInfo-openUpload')
             }]
           }
         ],

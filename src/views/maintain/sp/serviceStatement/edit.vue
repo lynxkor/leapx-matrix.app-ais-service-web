@@ -460,22 +460,22 @@ export default {
       const { statementType, statementStatus, isCheck, signGeneratedOn, signStatus } = this.form;
       return {
         // 权益核销：结算类型为自费/保险/内部结算，状态为待结算，商城订单不显示
-        rights: baseType.includes(statementType) && statementStatus === 10 && !this.isStoreOrder,
+        rights: baseType.includes(statementType) && statementStatus === 10 && !this.isStoreOrder && this.permissions.has('AISMC-serviceStatement-execEquityWriteOff'),
 
         // 提交结算并签字：签字状态为未签字，且结算状态为待结算
-        sign: statementStatus === 10 && !isCheck,
+        sign: statementStatus === 10 && !isCheck && this.permissions.has('AISMC-serviceStatement-submitSettlementAndSign'),
 
         // 驳回：结算类型为自费/保险/内部结算，且状态为待收款
-        reject: baseType.includes(statementType) && statementStatus === 30,
+        reject: baseType.includes(statementType) && statementStatus === 30 && this.permissions.has('AISMC-serviceStatement-reject'),
 
         // 完成收款：结算类型为自费/保险/内部结算，状态为待收款
-        success: baseType.includes(statementType) && statementStatus === 30,
+        success: baseType.includes(statementType) && statementStatus === 30 && this.permissions.has('AISMC-serviceStatement-receiptCompletion'),
         // 1）【结算单类型】为自费、保险、内部结算 且 【结算单状态】为【已收款】 且 该结算单未创建反结算申请，展示该按钮支持创建反结算；商城订单已收款超30天不显示
-        reCreate: baseType.includes(statementType) && [40].includes(statementStatus),
+        reCreate: baseType.includes(statementType) && [40].includes(statementStatus) && this.permissions.has('AISMC-serviceStatement-createCounterSettlement'),
         // 2）【结算单类型】为保修、合同 且 【结算单状态】为【待收款】、【已收款】且 该结算单未创建反结算申请 ，展示该按钮支持创建反结算；商城订单已收款超30天不显示
-        reCreate1: baseType2.includes(statementType) && [40, 30].includes(statementStatus),
+        reCreate1: baseType2.includes(statementType) && [40, 30].includes(statementStatus) && this.permissions.has('AISMC-serviceStatement-createCounterSettlement'),
         // 添加收款记录：结算类型为自费/保险/内部结算，状态为待收款
-        addRecord: baseType.includes(statementType) && statementStatus === 30,
+        addRecord: baseType.includes(statementType) && statementStatus === 30 && this.permissions.has('AISMC-serviceStatement-addReceiptRecord'),
         // 重推签字短信
         canResendSignSms: signStatus === 10 && signGeneratedOn,
       };
@@ -483,7 +483,7 @@ export default {
 
     // 创建保修申请单 按钮权限
     canCreateWarrantyApply () {
-      return [StatementCheckoutTypeEnum.WARRANTY, StatementCheckoutTypeEnum.CONTRACT].includes(this.form.statementType) && this.form.statementStatus === 30;
+      return [StatementCheckoutTypeEnum.WARRANTY, StatementCheckoutTypeEnum.CONTRACT].includes(this.form.statementType) && this.form.statementStatus === 30 && this.permissions.has('AISMC-serviceStatement-createWarrantyApplication');
     },
   },
   watch: {

@@ -366,7 +366,7 @@
       <!-- 通知书明细 -->
       <section class="common-section">
         <div class="common-section-header">
-          <h2>通知书明细</h2>
+          <h2>通知书明细 <el-button style="margin-left: 8px;" v-if="permissions.has('AISCR-warrantySettle-detailExport')" plain size="small" :loading="exportLoading" @click="exportNoticeExcel">通知书明细导出</el-button></h2>
         </div>
         <div class="common-section-body">
           <NoticeDetailTable :_id="_id" />
@@ -376,7 +376,7 @@
       <!-- 追溯明细 -->
       <section class="common-section">
         <div class="common-section-header">
-          <h2>追溯明细</h2>
+          <h2>追溯明细 <el-button style="margin-left: 8px;" v-if="permissions.has('AISCR-warrantySettle-trackDetailExport')" plain size="small" :loading="exportLoading" @click="exportTraceExcel">追溯明细导出</el-button></h2>
         </div>
         <div class="common-section-body">
           <TraceDetailTable :_id="_id" />
@@ -426,6 +426,8 @@ import CompleteDialog from './components/CompleteDialog';
 import InvoiceAcceptDialog from './components/InvoiceAcceptDialog';
 import InvoiceReturnDialog from './components/InvoiceReturnDialog';
 import PayConfirmDialog from './components/PayConfirmDialog';
+import { exportTable } from '@/api/common';
+import { downloadExcel } from '@/libs/utils';
 
 const defaultForm = {
   id: '',
@@ -534,6 +536,25 @@ export default {
       invoiceAcceptDialogVisible: false,
       invoiceReturnDialogVisible: false,
       payConfirmDialogVisible: false,
+      exportLoading: false,
+      noticeTitleMap: {
+        warrantyApplyNo: '保修申请单',
+        warrantyTypeName: '保修类型',
+        vin: 'VIN',
+        workHourTotal: '工时总额',
+        partTotal: '零件总额',
+        otherTotal: '其他总额',
+        totalAmount: '总金额',
+        determineAmount: '判定金额'
+      },
+      traceTitleMap: {
+        traceDetailCode: '追溯明细',
+        traceTypeLabel: '追溯类型',
+        businessCode: '业务单据',
+        warrantyCode: '保修申请单',
+        vin: 'VIN',
+        currentTraceAmount: '本次追溯金额'
+      },
     };
   },
   created () {
@@ -544,6 +565,52 @@ export default {
     this.canPayConfirm = this.permissions.has(`${this.moduleKey}-confirmPay`);
   },
   methods: {
+    // 导出通知书明细
+    exportNoticeExcel () {
+      this.exportLoading = true;
+      exportTable({
+        businessType: '通知书明细',
+        dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantySettleClaimDetail/page',
+        reqParams: { settleId: this._id },
+        titleMap: this.noticeTitleMap,
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '通知书明细.xlsx');
+          } catch (error) {
+            this.$message({ type: 'error', message: '文件导出失败' });
+          }
+        } else {
+          this.$message({ type: 'info', message: '请前往导出列表中查询导出结果' });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
+    },
+    // 导出追溯明细
+    exportTraceExcel () {
+      this.exportLoading = true;
+      exportTable({
+        businessType: '追溯明细',
+        dataFetchPath: 'claimreturn/claim/web/claimtrace/claimTraceOrderDetail/page',
+        reqParams: { settleAccountId: this._id },
+        titleMap: this.traceTitleMap,
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '追溯明细.xlsx');
+          } catch (error) {
+            this.$message({ type: 'error', message: '文件导出失败' });
+          }
+        } else {
+          this.$message({ type: 'info', message: '请前往导出列表中查询导出结果' });
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
+    },
     detailRequest () {
       const id = this._id;
       if (id) {

@@ -592,8 +592,7 @@ export default {
                 this.$router.push({
                   path: '/sparepart/purchase/purchaseOrder/edit',
                   query: {
-                    id: row.purchaseOrderId,
-                    type: 'sign'
+                    id: row.purchaseOrderId
                   }
                 });
               },
@@ -821,13 +820,13 @@ export default {
       }
       fetchApi({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
-          optionObj.dataList = res.records.map(item => {
+          optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          optionObj.total = res.total;
+          optionObj.total = res?.total || 0;
           console.log('optionObj', optionObj.total);
         }).finally(() => {
           this.loading = false;
