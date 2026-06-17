@@ -65,18 +65,19 @@
               <fetch-select
                 ref="mainPartSelectRef"
                 remote
-                v-model="form.mainPartId"
+                v-model="selectedPartKey"
                 :remote-method="partRemote"
                 :params="form.mainPartName"
+                :format="formatPartOptions"
                 @change="partChange"
-                labelKey="partName"
-                valueKey="sparePartId"
+                labelKey="displayLabel"
+                valueKey="partAndSupplierId"
                 clearable
                 filterable
               >
                 <template #option="{ item }">
                   <span v-if="item.disabled">{{ item.placeholder }}</span>
-                  <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
+                  <span v-else>{{ item.displayLabel }}</span>
                 </template>
               </fetch-select>
             </el-form-item>
@@ -252,6 +253,7 @@ export default {
   data () {
     return {
       schemeId: '',
+      selectedPartKey: '',
       form: {
         id: '',
         activityId: '',
@@ -362,6 +364,11 @@ export default {
           this.form[key] = data[key];
         });
 
+        // 同步 selectedPartKey 用于 fetch-select v-model
+        this.selectedPartKey = data.mainPartId && data.mainSupplierId
+          ? String(data.mainPartId) + String(data.mainSupplierId)
+          : data.mainPartId || '';
+
         // 如果有主因零部件，获取零部件详情设置供应商选项
         if (data.mainPartId) {
           sparePartList({
@@ -410,6 +417,18 @@ export default {
       });
     },
     // 主因零部件下拉接口
+    formatPartOptions (list) {
+      return list.map(item => {
+        const code = item.partCode || '';
+        const name = item.partName || '';
+        const label = code || name ? `${code}/${name}` : (item.sparePartId || '');
+        const suffix = item.supplierCode ? `-${item.supplierName || ''}-${item.supplierCode}` : '';
+        return {
+          ...item,
+          displayLabel: label + suffix
+        };
+      });
+    },
     partRemote (query) {
       return new Promise((resolve, reject) => {
         sparePartList({
@@ -430,7 +449,7 @@ export default {
             const records = res.map(item => {
               return {
                 ...item,
-                partAndSupplierId: item.sparePartId + item.supplierInfoId,
+                partAndSupplierId: String(item.sparePartId) + String(item.supplierInfoId),
               };
             });
             resolve(records);
@@ -441,13 +460,14 @@ export default {
     // 主因供应商列表
     async partChange (val, record) {
       // 零部件id
-      if (val) {
+      if (val && record) {
         // 先清空所有 id，避免显示 id
         this.form.mainSupplierId = '';
         this.form.vrtId = '';
         this.form.vfgId = '';
 
         // fetch-select 只更新 id，需手动同步 name
+        this.form.mainPartId = record.sparePartId || '';
         this.form.mainPartName = record.partName || '';
 
         // 设置供应商选项
@@ -506,6 +526,18 @@ export default {
           // 更新
           this.updatePlan(this.form);
         });
+      } else {
+        // 清空选择
+        this.form.mainPartId = '';
+        this.form.mainPartName = '';
+        this.form.mainSupplierId = '';
+        this.form.mainSupplierName = '';
+        this.form.vrtId = '';
+        this.form.vrtName = '';
+        this.form.vfgId = '';
+        this.form.vfgName = '';
+        this.supplierOptions = [];
+        this.updatePlan(this.form);
       }
     },
     // vrt
