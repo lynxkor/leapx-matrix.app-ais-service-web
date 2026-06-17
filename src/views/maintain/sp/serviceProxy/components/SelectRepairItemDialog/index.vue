@@ -1141,7 +1141,9 @@ export default {
         if (removedRow.repairItemId) {
           const autoImportedPartIndices = [];
           this.partData.forEach((part, idx) => {
-            if (part.repairItemId === removedRow.repairItemId) {
+            // 只删除未出库
+            console.log(part.isOutstock);
+            if (part.repairItemId === removedRow.repairItemId && part.isOutstock === 0) {
               autoImportedPartIndices.push(idx);
             }
           });
