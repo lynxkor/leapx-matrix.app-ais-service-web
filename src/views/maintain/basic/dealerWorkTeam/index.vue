@@ -208,6 +208,7 @@ export default {
             fixed: 'right',
             buttons: [{
               name: '编辑',
+              show: () => this.canAddOrUpdate,
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/maintain/basic/dealerWorkTeam/edit',
@@ -220,6 +221,7 @@ export default {
               type: 'info'
             }, {
               name: '删除',
+              show: () => this.canDelete,
               popconfirmConfirmButtonType: 'danger',
               popconfirmConfirmButtonText: '删除',
               popconfirmTitle: '此操作将删除选中班组信息，您无法撤销此操作，是否继续？',
