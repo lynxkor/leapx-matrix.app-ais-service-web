@@ -49,7 +49,9 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
+            :picker-options="expectFinishAtPickerOptions"
             @focus="handleExpectFinishFocus"
+            @change="handleExpectFinishChange"
             :readonly="!isExpectFinishEditable"
             :disabled="!_id"
           />
@@ -533,6 +535,15 @@ export default {
       return Number(this.form.isLockLive) === 1 || !this.loginUser ||
       (!this.loginUser.admin && this.loginUser.accountFlag && this.loginUser.currentOrgCode !== this.formData.dealerCode) ||
       this.formData.orderStatus === RepairOrderStatusEnum.CANCEL || this.formData.isCreateStatementInfo === 1;
+    },
+    expectFinishAtPickerOptions () {
+      return {
+        disabledDate: (time) => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          return time.getTime() < today.getTime();
+        }
+      };
     }
   },
   watch: {
@@ -599,8 +610,8 @@ export default {
           {
             validator: (rule, value, callback) => {
               if (!value) return callback();
-              if (value.trim().length < 4) {
-                callback(new Error('故障描述不能少于4个字'));
+              if (value.trim().length <= 4) {
+                callback(new Error('故障描述字段需要大于4个字'));
               } else {
                 callback();
               }
@@ -656,6 +667,16 @@ export default {
             }, 100);
           }
         });
+      }
+    },
+    handleExpectFinishChange (val) {
+      if (!val) return;
+      // 兼容 iOS Safari:将 - 替换为 /
+      const selected = new Date(String(val).replace(/-/g, '/'));
+      const now = new Date();
+      if (selected.getTime() < now.getTime()) {
+        this.$message.warning('预计交车时间不能早于当前时间');
+        this.form.expectFinishAt = '';
       }
     },
     scrollToError (invalidFields) {

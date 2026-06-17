@@ -90,7 +90,7 @@
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新建</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <el-button size="small" @click="handleErrorCodeMaintain">错误代码维护</el-button>
+      <el-button v-if="permissions.has('AISMC-preAuth-errorCodeMaintain')" size="small" @click="handleErrorCodeMaintain">错误代码维护</el-button>
     </div>
     <div
       class="ais-table-c"

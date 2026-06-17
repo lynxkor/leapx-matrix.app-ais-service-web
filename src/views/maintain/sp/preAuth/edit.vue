@@ -92,13 +92,17 @@
                   <span>{{ form.code || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="施工单号：">
-                  <span>{{ form.serviceProxyCode || '-' }}</span>
+                  <el-link type="primary" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`" target="_blank">
+                    {{ form.serviceProxyCode }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="预授权类型：">
                   <span>{{ form.preAuthType === 1 ? '技术预授权' : form.preAuthType === 2 ? '保修预授权' : '-' }}</span>
                 </el-form-item>
                 <el-form-item label="门店名称：">
-                  <span>{{ form.dealerName || '-' }}</span>
+                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                    {{ form.dealerName }}
+                  </el-link>
                 </el-form-item>
                 <el-form-item label="门店编码：">
                   <span>{{ form.dealerCode || '-' }}</span>
@@ -130,7 +134,7 @@
                   <span>{{ serviceProxyDetail?.shuttlePhone || form.serviceProxyResp?.shuttlePhone || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="VIN：">
-                  <span>{{ preAuthInfoDetail?.vehProfileVin || form.vehProfileVin  || '-' }}</span>
+                  <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
                 </el-form-item>
                 <el-form-item label="车型：">
                   <span>{{ serviceProxyDetail?.vehModelName || form.serviceProxyResp?.vehModelName || '-' }}</span>
