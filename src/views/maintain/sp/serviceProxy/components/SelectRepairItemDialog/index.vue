@@ -949,7 +949,6 @@ export default {
           value: item.id
         }));
         this.repairType = res?.[0]?.id;
-        console.log('this.repairType:' + this.repairType);
         this.partRepairType = res?.[0]?.id;
       });
       getDiscountType().then(res => {

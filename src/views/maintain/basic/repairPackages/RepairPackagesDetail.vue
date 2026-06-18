@@ -253,9 +253,9 @@ export default {
         });
       }
       if (this.repairDetail.discountAmount) { // 有优惠金额时，计算项目金额
-        this.repairDetail.actualAmount = Number(this.repairDetail.price) * Number(this.repairDetail.workHour) - Number(this.repairDetail.discountAmount);
+        this.repairDetail.actualAmount = +(Number(this.repairDetail.price) * Number(this.repairDetail.workHour) - Number(this.repairDetail.discountAmount)).toFixed(2);
       } else {
-        this.repairDetail.actualAmount = Number(this.repairDetail.price) * Number(this.repairDetail.workHour);
+        this.repairDetail.actualAmount = +(Number(this.repairDetail.price) * Number(this.repairDetail.workHour)).toFixed(2);
       }
     },
     // 获取零件信息
@@ -284,7 +284,7 @@ export default {
       const hour = Number(this.repairDetail.workHour) || 0;
       const discount = Number(this.repairDetail.discountAmount) || 0;
 
-      const result = (price * hour) - discount;
+      const result = ((price * hour) - discount).toFixed(2);
       // 重新赋值
       this.repairDetail = {
         ...this.repairDetail,
@@ -355,6 +355,11 @@ export default {
       //   newRow.checkoutTypeId = this.checkoutTypeOptions[0].value;
       //   newRow.checkoutTypeName = this.checkoutTypeOptions[0].label;
       // }
+      // 计算备件金额
+      const qty = Number(newRow.quantity) || 0;
+      const unitPrice = Number(newRow.price) || 0;
+      const discount = Number(newRow.discountAmount) || 0;
+      newRow.actualAmount = Math.max(0, (qty * unitPrice - discount).toFixed(2));
       this.tableData.push(newRow);
     },
     // 删除零件表格列
