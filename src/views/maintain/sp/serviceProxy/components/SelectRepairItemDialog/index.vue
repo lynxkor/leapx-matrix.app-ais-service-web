@@ -941,15 +941,16 @@ export default {
       }
     },
     getEnumData () {
-      getEnum('MaintenanceTypeEnum').then(res => {
+      getRepairItemTypeList({ status: 1, category: 10 }).then(res => {
         this.itemOptions.repairItemTypeName = (res || []).map(item => ({
-          repairItemTypeId: item.code,
-          repairItemTypeName: item.message,
-          label: item.message,
-          value: item.code
+          repairItemTypeId: item.id,
+          repairItemTypeName: item.name,
+          label: item.name,
+          value: item.id
         }));
-        this.repairType = res?.[0].code;
-        this.partRepairType = res?.[0].code;
+        this.repairType = res?.[0]?.id;
+        console.log('this.repairType:' + this.repairType);
+        this.partRepairType = res?.[0]?.id;
       });
       getDiscountType().then(res => {
         this.discountType = (res || []);
