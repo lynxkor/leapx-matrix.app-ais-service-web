@@ -6,6 +6,7 @@ import store from './store';
 import ElementUI from 'element-ui';
 import Vuex from 'vuex';
 import '@/libs/directive/index.js';
+import { confirmExport } from '@/libs/utils';
 import '@/common/css/element-variables.scss';
 import '@/common/css/base.css';
 import '@/libs/assets/styles/index.scss';
@@ -83,6 +84,7 @@ window.addEventListener('resize', () => {
 });
 window.onresize = onResize;
 onResize();
+Vue.prototype.$confirmExport = confirmExport;
 
 const windowDevice = window.devicePixelRatio;
 if (windowDevice === 1.5) {
