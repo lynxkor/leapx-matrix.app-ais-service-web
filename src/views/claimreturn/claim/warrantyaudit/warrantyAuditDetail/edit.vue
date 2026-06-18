@@ -32,10 +32,10 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="保修申请单号：">
-                  <el-link type="primary" :href="`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyApply?.id}`" target="_blank">{{ form.warrantyApply?.applyNo }}</el-link>
+                  <el-link type="primary" :href="`/service/claimreturn/claim/warrantyApply/edit?id=${form.warrantyApply?.id}`" target="_blank">{{ form.warrantyApply?.applyNo }}</el-link>
                 </el-form-item>
                 <el-form-item label="接车施工单号：">
-                  <el-link type="primary" :href="`/maintain/sp/serviceProxy/edit?id=${form.warrantyApply?.serviceProxyId}`" target="_blank">{{ form.warrantyApply?.serviceProxyNo }}</el-link>
+                  <el-link type="primary" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.warrantyApply?.serviceProxyId}`" target="_blank">{{ form.warrantyApply?.serviceProxyNo }}</el-link>
                 </el-form-item>
                 <el-form-item label="首次提交时间：">
                   {{ form.warrantyApply?.firstSubmitTime }}
@@ -47,7 +47,7 @@
                   {{ form.warrantyApply?.checkoutTypeName }}
                 </el-form-item>
                 <el-form-item label="结算单号：">
-                  <el-link type="primary" :href="`/maintain/sp/serviceStatement/edit?id=${form.warrantyApply?.statementId}`" target="_blank">{{ form.warrantyApply?.statementCode }}</el-link>
+                  <el-link type="primary" :href="`/service/maintain/sp/serviceStatement/edit?id=${form.warrantyApply?.statementId}`" target="_blank">{{ form.warrantyApply?.statementCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="当前提交时间：" prop="currentSubmitTime">
                   {{ form.warrantyApply?.currentSubmitTime }}
@@ -65,7 +65,7 @@
                   {{ form.warrantyApply?.approvalTime }}
                 </el-form-item>
                 <el-form-item label="预授权单：">
-                  <el-link type="primary" :href="`/maintain/sp/preAuth/edit?id=${form.warrantyApply?.preAuthId}`" target="_blank">{{ form.warrantyApply?.preAuthCode }}</el-link>
+                  <el-link type="primary" :href="`/service/maintain/sp/preAuth/edit?id=${form.warrantyApply?.preAuthId}`" target="_blank">{{ form.warrantyApply?.preAuthCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="维修开始时间：">
                   {{ form.warrantyApply?.repairStartTime }}
@@ -86,7 +86,7 @@
                   {{ form.warrantyApply?.paymentTime }}
                 </el-form-item>
                 <el-form-item label="索赔追溯单：">
-                  <el-link type="primary" :href="`/claimreturn/claim/claimtrace/claimTraceOrder/edit?id=${form.warrantyApply?.claimTrackId}`" target="_blank">{{ form.warrantyApply?.claimTrackNo }}</el-link>
+                  <el-link type="primary" :href="`/service/claimreturn/claim/claimtrace/claimTraceOrder/edit?id=${form.warrantyApply?.claimTrackId}`" target="_blank">{{ form.warrantyApply?.claimTrackNo }}</el-link>
                 </el-form-item>
                 <el-form-item label="审批说明：" style="width: 100%;">
                   {{ form.warrantyApply?.approvalRemark }}
@@ -105,7 +105,7 @@
                     :value.sync="form.vehicleProfile.vin"
                     :decryptMethod="() => getDetailDecryptField()"
                   >
-                    <el-link type="primary" :href="`/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfile?.vin}`" target="_blank">{{ form.vehicleProfile?.vin }}</el-link>
+                    <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfile?.vin}`" target="_blank">{{ form.vehicleProfile?.vin }}</el-link>
                   </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车牌号：">
@@ -313,7 +313,7 @@
               <div class="common-title">基础信息</div>
               <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="保修审计单：">
-                  <el-link type="primary" :href="`/claimreturn/claim/warrantyAudit/edit?id=${form.warrantyAuditDetail?.auditId}`" target="_blank">{{ form.warrantyAuditDetail?.auditCode }}</el-link>
+                  <el-link type="primary" :href="`/service/claimreturn/claim/warrantyAudit/edit?id=${form.warrantyAuditDetail?.auditId}`" target="_blank">{{ form.warrantyAuditDetail?.auditCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="保修审计明细：">
                   {{ form.warrantyAuditDetail?.auditDetailCode }}
