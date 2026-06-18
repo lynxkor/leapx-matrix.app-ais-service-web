@@ -477,7 +477,7 @@
 
 <script>
 // import EditTable from '@/libs/components/EditTable';
-import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
+import { getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getCheckoutTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
 import UpdateActivityDialog from '../UpdateActivityDialog';
 import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID, MaintenanceTypeEnum, PackageTypeEnum, PackageTypeOptions, WorkRecordStatusEnum, GENERAL_REPAIR_ID } from '../../constant';
 
@@ -954,20 +954,20 @@ export default {
       getDiscountType().then(res => {
         this.discountType = (res || []);
       });
-      getEnum('StatementTypeEnum').then(res => {
+      getCheckoutTypeList({}).then(res => {
         this.itemOptions.checkoutTypeName = (res || []).map(item => ({
-          checkoutTypeId: item.code,
-          checkoutTypeName: item.message,
-          label: item.message,
-          value: item.code
+          checkoutTypeId: item.id,
+          checkoutTypeName: item.name,
+          label: item.name,
+          value: item.id
         }));
       });
-      getEnum('WarrantyTypeEnum').then(res => {
+      getRepairItemTypeList({ status: 1, category: 20 }).then(res => {
         this.itemOptions.warrantyTypeName = (res || []).map(item => ({
-          warrantyTypeId: item.code,
-          warrantyTypeName: item.message,
-          label: item.message,
-          value: item.code
+          warrantyTypeId: item.id,
+          warrantyTypeName: item.name,
+          label: item.name,
+          value: item.id
         }));
       });
       this.getPermissions();
@@ -1159,6 +1159,7 @@ export default {
     },
     // 处理维修配件表格删除行
     async handleRemovePartRow (index, row) {
+      if (row.isOutstock) return;
       const packageTypeLabelMap = {
         // [PackageTypeEnum.REPAIR]: '维修套餐',
         [PackageTypeEnum.EQUITY]: '权益套餐',
