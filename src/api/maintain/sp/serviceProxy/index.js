@@ -298,6 +298,14 @@ export function getRepairItemTypeList (data) {
 }
 
 /**
+ * 结算类型列表查询
+ * @param data
+ */
+export function getCheckoutTypeList (data) {
+  return api.jsonPost('maintain/web/basic/checkoutType/list', data);
+}
+
+/**
  * 搜索故障模块
  * @param {Object} data
  */
