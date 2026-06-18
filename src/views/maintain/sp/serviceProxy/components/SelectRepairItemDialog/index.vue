@@ -996,10 +996,18 @@ export default {
         }, 300);
 
         this.packageType = PackageTypeOptions.map(item => {
-          const el = this.info.packageRespList?.find(item2 => +item.code === item2.packageType);
+          const count = this.info.packageRespList?.reduce((acc, cur) => {
+            // 技术服务活动和关爱服务活动累加显示到服务活动
+            if (String(item.code) === PackageTypeEnum.TECH_ACTIVITY && (String(cur.packageType) === PackageTypeEnum.TECH_ACTIVITY || String(cur.packageType) === PackageTypeEnum.CARE_ACTIVITY)) {
+              acc += cur.packageCount;
+            } else if (cur.packageType === +item.code) {
+              acc += cur.packageCount;
+            }
+            return acc;
+          }, 0);
           return {
             ...item,
-            value: el?.packageCount || 0
+            value: count || 0
           };
         });
       });
