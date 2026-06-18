@@ -14,9 +14,9 @@
               style="padding-top: 5px;"
               ref="attachment"
               :business-id="form.auditId"
-              :uploadConfig="uploadConfig"
               :noEcho="true"
               attachType="待签署整改报告"
+              configCode="warrantyAudit"
               @upload-loading-change="handleUploadLoadingChange"
             />
           </el-form-item>
