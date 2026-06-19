@@ -1503,8 +1503,6 @@ export default {
         discountRate: this.selectedDiscount?.discountPartRate || 0,
         discountAmount: discountAmount,
         partsAmount: current.price - discountAmount,
-        repairItemName: current.repairItemName || '',
-        repairItemId: current.repairItemId || '',
         isBindltem: 0, // 手动添加的零件，标记为非自动导入
         packageCode: row.packageCode || '',
         packageId: row.packageId || '',
