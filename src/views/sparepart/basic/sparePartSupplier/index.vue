@@ -30,11 +30,33 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="是否启用">
+        <el-form-item label="关系是否启用">
           <fetch-select
             :request="fetchOptions"
             enumCode="BooleanEnum"
             v-model="form.statusIncludeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="备件是否启用">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.spareStatusIncludeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="供应商是否启用">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.supplyStatusIncludeList"
             placeholder="请选择"
             clearable
             multiple
@@ -143,6 +165,9 @@ const defaultForm = {
   createTime: '',
   updateTime: '',
   status: '',
+  statusIncludeList: ['1'],
+  spareStatusIncludeList: ['1'],
+  supplyStatusIncludeList: ['1'],
 };
 
 const pageSize = 20;
@@ -240,7 +265,9 @@ export default {
             }]
           },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
-          { props: 'statusLabel', label: '是否启用', visible: true, width: 120 },
+          { props: 'statusLabel', label: '关系是否启用', visible: true, width: 120 },
+          { props: 'sparePartStatusLabel', label: '备件是否启用', visible: true, width: 120 },
+          { props: 'supplierStatusLabel', label: '供应商是否启用', visible: true, width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
