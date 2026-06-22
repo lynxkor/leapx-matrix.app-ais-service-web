@@ -17,10 +17,10 @@
           <span>创建时间：{{ form.createTime || '-' }}</span>
         </div>
         <template #extraButtons>
-          <el-button size="small" @click="handleAudit" v-if="form.approvalStatus === 20">审核</el-button>
-          <el-button size="small" @click="handleFinalAudit" v-if="form.approvalStatus === 30">财务审核</el-button>
+          <el-button size="small" @click="handleAudit" v-if="form.approvalStatus === 20 && permissions.has('AISMC-restatement-audit')">审核</el-button>
+          <el-button size="small" @click="handleFinalAudit" v-if="form.approvalStatus === 30 && permissions.has('AISMC-restatement-financialReview')">财务审核</el-button>
           <el-button
-            v-if="form.approvalStatus === 10"
+            v-if="form.approvalStatus === 10 && permissions.has('AISMC-restatement-submitAudit')"
             size="small"
             type="primary"
             @click="handleAuditSubmit"

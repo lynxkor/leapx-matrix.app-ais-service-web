@@ -212,7 +212,7 @@
                   <el-button class="link" @click="$router.push(`/claimreturn/claim/warrantyApply/edit?id=${form.warrantyId}`)" type="text">{{ form.oldPartCode }}</el-button>
                 </el-form-item>
                 <el-form-item label="索赔追溯单号：" prop="claimTrackNo">
-                  <el-button class="link" @click="$router.push(`/claimreturn/claim/claimtrace/claimtraceorder/edit?id=${form.claimTrackId}`)" type="text">{{ form.claimTrackNo }}</el-button>
+                  <el-button class="link" @click="$router.push(`/claimreturn/claim/claimtrace/claimTraceOrder/edit?id=${form.claimTrackId}`)" type="text">{{ form.claimTrackNo }}</el-button>
                 </el-form-item>
                 <el-form-item label="保修类型：" prop="repairItemTypeName">
                   {{form.repairItemTypeName}}
