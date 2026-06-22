@@ -16,23 +16,23 @@
                     <el-button size="small" @click="handlePrint" v-if="!isCanceled">打印工单</el-button>
                     <el-button size="small" @click="couponsDialogVisible = true" v-if="!isCanceled">查询卡券&终身</el-button>
                     <el-button size="small" @click="handleResendSignSms" v-if="canResendSignSms">补推施工单短信签字</el-button>
-                    <el-button size="small" @click="handleImport" v-if="!isCanceled">上传附件</el-button>
-                    <el-button size="small" @click="handleShowLog">审核日志</el-button>
+                    <el-button size="small" @click="handleImport" v-if="!isCanceled && canImport">上传附件</el-button>
+                    <el-button size="small" @click="handleShowLog" v-if="canLog">审核日志</el-button>
                     <el-button size="small" @click="remindInfoDialogVisible = true">提醒信息</el-button>
                     <!-- 流程操作按钮 -->
-                    <el-button size="small" @click="discardDialogVisible = true" v-if="!isCompleted && !form.isCreateStatementInfo">作废</el-button>
+                    <el-button size="small" @click="discardDialogVisible = true" v-if="!isCompleted && !form.isCreateStatementInfo && permissions.has('AISMC-serviceProxy-cancel')">作废</el-button>
                     <el-button size="small" @click="materialReturnDialogVisible = true" v-if="!isCompleted && hasRepairItems">退料</el-button>
-                    <el-button size="small" @click="handlePreCheck" v-if="orderStatus === RepairOrderStatusEnum.RECEPTION_INSPECTION">预检确认</el-button>
-                    <el-button size="small" @click="handleCreatingOrder" v-if="canSign">制单确认并签字</el-button>
-                    <el-button size="small" @click="selectRepairItemDialogVisible = true" v-if="canEditOrder && form.isCreateStatementInfo === 0">选择维修项目</el-button>
-                    <el-button size="small" @click="dispatchWorkDialogVisible = true" v-if="isInConstruction && hasUndispatchedItems">派工</el-button>
-                    <el-button size="small" @click="deleteDispatchWorkDialogVisible = true" v-if="isInConstruction && hasDispatchedItems">删除派工</el-button>
-                    <el-button size="small" @click="startWorkDialogVisible = true" v-if="isInConstruction && hasDispatchedNotStartedItems">作业开始</el-button>
-                    <el-button size="small" @click="endWorkDialogVisible = true" v-if="isInConstruction && hasWorkingItems">作业结束</el-button>
-                    <el-button size="small" @click="finalCheckDialogVisible = true" v-if="orderStatus === RepairOrderStatusEnum.PENDING_FINAL_INSPECTION">终检</el-button>
+                    <el-button size="small" @click="handlePreCheck" v-if="orderStatus === RepairOrderStatusEnum.RECEPTION_INSPECTION && permissions.has('AISMC-serviceProxy-precheck')">预检确认</el-button>
+                    <el-button size="small" @click="handleCreatingOrder" v-if="canSign && permissions.has('AISMC-serviceProxy-confirmToSign')">制单确认并签字</el-button>
+                    <el-button size="small" @click="selectRepairItemDialogVisible = true" v-if="canEditOrder && form.isCreateStatementInfo === 0 && permissions.has('AISMC-serviceProxy-repairItem')">选择维修项目</el-button>
+                    <el-button size="small" @click="dispatchWorkDialogVisible = true" v-if="isInConstruction && hasUndispatchedItems && permissions.has('AISMC-serviceProxy-dispatchWorkers')">派工</el-button>
+                    <el-button size="small" @click="deleteDispatchWorkDialogVisible = true" v-if="isInConstruction && hasDispatchedItems && permissions.has('AISMC-serviceProxy-dispatchWorkers')">删除派工</el-button>
+                    <el-button size="small" @click="startWorkDialogVisible = true" v-if="isInConstruction && hasDispatchedNotStartedItems && permissions.has('AISMC-serviceProxy-startWork')">作业开始</el-button>
+                    <el-button size="small" @click="endWorkDialogVisible = true" v-if="isInConstruction && hasWorkingItems && permissions.has('AISMC-serviceProxy-endWork')">作业结束</el-button>
+                    <el-button size="small" @click="finalCheckDialogVisible = true" v-if="orderStatus === RepairOrderStatusEnum.PENDING_FINAL_INSPECTION && permissions.has('AISMC-serviceProxy-finalInspection')">终检</el-button>
                     <el-button size="small" @click="handleSettlement(1)" :loading="settlementLoading" v-if="canSettlement && !form.isCreateStatementInfo">结算</el-button>
                     <el-button size="small" @click="handleSettlement(0)" :loading="settlementLoading" v-if="canSettlement && form.isCreateStatementInfo">取消结算</el-button>
-                    <el-button size="small" @click="handleCancelFinal" v-if="orderStatus === RepairOrderStatusEnum.ANTI_SETTLEMENT">取消终检</el-button>
+                    <el-button size="small" @click="handleCancelFinal" v-if="orderStatus === RepairOrderStatusEnum.ANTI_SETTLEMENT && permissions.has('AISMC-serviceProxy-finalInspection')">取消终检</el-button>
 
                     <el-divider direction="vertical"></el-divider>
                     <el-button v-if="canAddOrUpdate" size="small" type="primary" plain @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
