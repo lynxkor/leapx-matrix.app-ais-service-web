@@ -118,11 +118,17 @@ export default {
         pageNum: 1,
         pageSize: 1000
       };
-      const res = await returnDetailPage(params);
-      this.tableData = res.records.map(item => ({
-        ...item,
-        qty: Math.min(item.availableQty, item.returnableQty)
-      }));
+      try {
+        const res = await returnDetailPage(params);
+        const records = res?.records || [];
+        this.tableData = records.map(item => ({
+          ...item,
+          qty: Math.min(item.availableQty, item.returnableQty)
+        }));
+      } catch (err) {
+        console.error('获取外购件入库退货明细失败:', err);
+        this.tableData = [];
+      }
     },
     async submit () {
       if (!this.selectedRows.length) {
