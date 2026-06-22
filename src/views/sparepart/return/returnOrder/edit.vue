@@ -5,8 +5,8 @@
       <edit-base-container ref="containerRef" :id="_id" :title="`${title}${form.code}`" :isEditing.sync="isEditing" :form.sync="form"
         :originalForm.sync="originalForm" :submitRequest="submitRequest" :detailRequest="detailRequest" :showEditBtn="showEditBtn">
         <template #extraButtons>
-          <el-button v-if="_id && !['70', '80'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-printReturn')" plain size="small" @click="handlePrint">打印退货单</el-button>
-          <el-button v-if="_id && !['70', '80'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-printTag')" plain size="small" @click="handlePrintLabel">打印退货标签</el-button>
+          <el-button v-if="_id && permissions.has('AISPART-returnOrder-printReturn')" plain size="small" @click="handlePrint">打印退货单</el-button>
+          <el-button v-if="_id && permissions.has('AISPART-returnOrder-printTag')" plain size="small" @click="handlePrintLabel">打印退货标签</el-button>
           <el-button v-if="_id && form.returnStatus === '20' && permissions.has('AISPART-returnOrder-agree')" plain size="small" :loading="actionLoading" @click="handleAgree">同意</el-button>
           <el-button v-if="_id && form.returnStatus === '40' && permissions.has('AISPART-returnOrder-revoke')" plain size="small" :loading="actionLoading" @click="handleRevoke">撤回</el-button>
           <el-button v-if="_id && ['10', '30'].includes(form.returnStatus) && permissions.has('AISPART-returnOrder-commit')" plain size="small" :loading="actionLoading" @click="handleCommit">提交</el-button>
@@ -526,13 +526,17 @@ export default {
       return this.form.returnStatus === '10' || this.form.returnStatus === '30';
     },
     showEditBtn () {
-      return !['50', '70', '80'].includes(this.form.returnStatus);
+      const editableStatus = ['10', '30'];
+      if (this.accountFlag) {
+        return editableStatus.includes(this.form.returnStatus);
+      }
+      return ['10', '20', '30', '40'].includes(this.form.returnStatus);
     },
     isReturnStatus () {
-      // 只有在状态为 20 时才允许 修改
-      return this.form.returnStatus === '20' || this.form.returnStatus === 20;
+      // 厂端：状态为 20 或 40 时允许修改
+      return this.form.returnStatus === '20' || this.form.returnStatus === '40';
     },
-    // 退货类型、备注 编辑权限：门店(10/30) 或 厂端(20)
+    // 退货类型、备注 编辑权限：门店(10/30) 或 厂端(20/40)
     canEditReturnType () {
       return (this.accountFlag && this.isEditable) || (!this.accountFlag && this.isReturnStatus);
     },
@@ -544,9 +548,9 @@ export default {
     isReceiveWarehouseDisabled () {
       const hasId = !!(this.id || this.$route.query.id || this.form.id);
       const isFactory = !this.accountFlag; // 厂端账号
-      const isStatus20 = this.form.returnStatus === '20' || this.form.returnStatus === 20;
-      // 编辑时：厂端+20可编辑(返回false)，其他禁用(返回true)
-      return hasId && !(isFactory && isStatus20);
+      const isFactoryEditable = this.form.returnStatus === '20' || this.form.returnStatus === '40';
+      // 编辑时：厂端+20/40可编辑(返回false)，其他禁用(返回true)
+      return hasId && !(isFactory && isFactoryEditable);
     },
     // 新增时 门店账号禁用  然后 看是否在编辑时 是直接禁用
     isDealerCode () {
