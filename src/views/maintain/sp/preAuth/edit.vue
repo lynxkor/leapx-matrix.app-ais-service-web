@@ -170,7 +170,7 @@
                   <span>{{ preAuthInfoDetail?.alarmLevelLabel ||form.alarmLevelLabel || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="预警信息：" class="alarm-info-item">
-                  <span>{{ preAuthInfoDetail?.alarmInfo || form.alarmInfo || '-' }}</span>
+                  <span v-safe-html.nl2br="preAuthInfoDetail?.alarmInfo || form.alarmInfo || '-'"></span>
                 </el-form-item>
               </el-form>
             </div>
