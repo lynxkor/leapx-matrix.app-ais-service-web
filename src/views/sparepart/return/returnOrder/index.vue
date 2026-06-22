@@ -160,7 +160,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderCommit, returnOrderReject } from '@/api/sparepart/return/returnOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse, getLoginUser } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -219,6 +219,7 @@ export default {
       shipmentDialogVisible: false, // 发运弹窗
       shipmentId: '', // 发运弹窗id
       clickItemId: '',
+      accountFlag: false, // 账号类型 true为门店 false为主机厂
       optionObj: {
         id: 'returnOrderTable',
         dataList: [],
@@ -274,6 +275,25 @@ export default {
             visible: true,
             fixed: 'right',
             buttons: [{
+              name: '编辑',
+              show: (row) => {
+                const editableStatus = ['10', '30'];
+                if (this.accountFlag) {
+                  return editableStatus.includes(row.returnStatus);
+                }
+                return ['10', '20', '30', '40'].includes(row.returnStatus);
+              },
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/return/returnOrder/edit',
+                  query: {
+                    id: row.id,
+                    isEditing: true
+                  }
+                });
+              },
+              type: 'info'
+            }, {
               name: '同意',
               show: (row) => {
                 return row.returnStatus === '20' && this.permissions.has('AISPART-returnOrder-agree');
@@ -312,18 +332,6 @@ export default {
                     type: 'error',
                     message: '撤回失败!'
                   });
-                });
-              },
-              type: 'info'
-            }, {
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/return/returnOrder/edit',
-                  query: {
-                    id: row.id,
-                    isEditing: true
-                  }
                 });
               },
               type: 'info'
@@ -423,8 +431,10 @@ export default {
       }
     };
   },
-  created () {
+  async created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    const res = await getLoginUser();
+    this.accountFlag = res.accountFlag;
     this.getData();
   },
   methods: {
