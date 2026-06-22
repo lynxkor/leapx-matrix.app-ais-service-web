@@ -275,18 +275,23 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column field="sparePartCode" title="备件编码" min-width="11%" />
-                  <vxe-column field="sparePartName" title="备件名称" min-width="11%" />
-                  <vxe-column field="locationName" title="库位编码" min-width="11%" />
-                  <vxe-column field="availableQty" title="可用库存" min-width="11%" />
-                  <vxe-column field="salesUnitPrice" title="销售单价" min-width="11%" />
-                  <vxe-column field="costUnitPrice" title="成本单价" min-width="11%" />
-                  <vxe-column field="qty" title="数量" min-width="11%">
+                  <vxe-column field="sparePartCode" title="备件编码" min-width="10%" />
+                  <vxe-column field="sparePartName" title="备件名称" min-width="10%" />
+                  <vxe-column field="locationName" title="库位编码" min-width="10%" />
+                  <vxe-column field="availableQty" title="可用库存" min-width="10%" />
+                  <vxe-column field="salesUnitPrice" title="销售单价" min-width="10%" />
+                  <vxe-column field="costUnitPrice" title="成本单价" min-width="10%" />
+                  <vxe-column field="qty" title="数量" min-width="10%">
                     <template #default="{ row }">
                       <el-input v-model="row.qty" @input="val => row.qty = formatNumberInput(val, { allowDecimal: false })" :disabled="!(isEditing || !_id || isOrderType)" @change="handleBlur(row)"/>
                     </template>
                   </vxe-column>
-                  <vxe-column field="createTime" title="创建时间" min-width="11%" />
+                  <vxe-column field="remark" title="备注" min-width="10%">
+                    <template #default="{ row }">
+                      <el-input v-model="row.remark" :disabled="!orderStatusType" @change="handleRemarkBlur(row)"/>
+                    </template>
+                  </vxe-column>
+                  <vxe-column field="createTime" title="创建时间" min-width="10%" />
                   <vxe-column title="操作" width="100" v-if="(canDelete && isEditing || !_id) || isOrderType">
                     <template #default="{ rowIndex }">
                       <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
@@ -657,6 +662,17 @@ export default {
         dealerOutboundOrderCode: this.form.code,
         sparePartId: val.id,
         qty: val.qty,
+      };
+      this.handleAddOrUpdate(params, 'update');
+    },
+    handleRemarkBlur (val) {
+      const params = {
+        id: val.id,
+        dealerOutboundOrderId: this._id,
+        dealerOutboundOrderCode: this.form.code,
+        sparePartId: val.id,
+        qty: val.qty,
+        remark: val.remark
       };
       this.handleAddOrUpdate(params, 'update');
     },
