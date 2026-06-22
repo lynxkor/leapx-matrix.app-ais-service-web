@@ -350,7 +350,7 @@ export default {
         } else {
           this.$confirmExport(
             () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
-            { message: '正在导入中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
           );
         }
       }).finally(() => {
