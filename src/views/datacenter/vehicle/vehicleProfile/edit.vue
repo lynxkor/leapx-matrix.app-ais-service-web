@@ -245,14 +245,6 @@
                 <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
                   {{ form.nextMaintainMileages }}
                 </el-form-item>
-              </el-form>
-              <el-form label-width="150px" :inline="true" :model="form" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="下次保养时间：" prop="nextMaintainDate">
-                  {{ form.nextMaintainDate }}
-                </el-form-item>
-                <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
-                  {{ form.nextMaintainMileages }}
-                </el-form-item>
                 <el-form-item class="form-item-full">
                   <next-table
                     v-if="isEditing || !_id"
