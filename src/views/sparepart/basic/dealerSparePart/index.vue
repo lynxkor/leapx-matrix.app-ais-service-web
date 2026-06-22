@@ -311,7 +311,7 @@ export default {
       }
       exportTable({
         businessType: '外购件主数据',
-        dataFetchPath: 'sp/web/basic/dealerSparePart/page',
+        dataFetchPath: '/sp/web/basic/sparePart/dealerPage',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

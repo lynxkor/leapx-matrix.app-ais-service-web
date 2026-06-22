@@ -616,9 +616,10 @@ export default {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
+      reqParams.isCancel = true;
       exportTable({
         businessType: '门店备件调拨撤销申请',
-        dataFetchPath: 'sp/web/transfer/transferOutbound/page',
+        dataFetchPath: 'sp/web/dealer/transferOutbound/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

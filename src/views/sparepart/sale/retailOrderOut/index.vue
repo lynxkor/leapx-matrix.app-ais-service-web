@@ -721,6 +721,7 @@ export default {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
+      reqParams.orderStatus = 20;
       exportTable({
         businessType: '备附件销售出库',
         dataFetchPath: 'sp/web/dealer/retailOrder/page',

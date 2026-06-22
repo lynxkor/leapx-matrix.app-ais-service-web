@@ -347,7 +347,7 @@ export default {
       };
       exportTable({
         businessType: '备件退货单',
-        dataFetchPath: 'sp/web/return/returnOrder/page',
+        dataFetchPath: 'sp/web/purchase/returnOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
