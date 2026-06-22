@@ -169,8 +169,8 @@
                 <el-form-item label="三包预警：">
                   <span>{{ preAuthInfoDetail?.alarmLevelLabel ||form.alarmLevelLabel || '-' }}</span>
                 </el-form-item>
-                <el-form-item label="预警信息：">
-                  <span>{{ preAuthInfoDetail?.alarmInfo || form.alarmInfo || '-' }}</span>
+                <el-form-item label="预警信息：" class="alarm-info-item">
+                  <span v-safe-html.nl2br="preAuthInfoDetail?.alarmInfo || form.alarmInfo || '-'"></span>
                 </el-form-item>
               </el-form>
             </div>
@@ -1051,6 +1051,16 @@ export default {
       color: var(--leap-color-link);
       cursor: pointer;
     }
+  }
+}
+
+// 预警信息独占一行，并支持多条预警换行展示（【提示1】\n【提示2】）
+.alarm-info-item {
+  width: 100%;
+
+  .el-form-item__content {
+    white-space: pre-line;
+    word-break: break-word;
   }
 }
 </style>
