@@ -139,10 +139,18 @@
                   {{ form.dealerName }}
                 </el-form-item>
                 <el-form-item label="收货人手机：" prop="recipientPhone">
-                  {{ form.recipientPhone }}
+                  <LPEncrypted
+                    :value.sync="form.recipientPhone"
+                    :decryptMethod="() => getDesensitize(form.id, 'shippingOrder', 'recipientPhone')"
+                  >
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="收货人姓名：" prop="recipientName">
-                  {{ form.recipientName }}
+                  <LPEncrypted
+                    :value.sync="form.recipientName"
+                    :decryptMethod="() => getDesensitize(form.id, 'shippingOrder', 'recipientName')"
+                  >
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="收货地址：" prop="receiveAddress">
                   {{ form.receiveAddress }}
@@ -215,9 +223,10 @@
 <script>
 import { getDetail, addOrUpdate, shippingOrderDetailPage } from '@/api/sparepart/purchase/shippingOrder/index';
 import FetchSelect from '@/libs/components/FetchSelect';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, getDesensitize } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -261,7 +270,8 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    FetchSelect
+    FetchSelect,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -424,3 +434,11 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.form-detail {
+  .lp-encrypted-container {
+    height: auto;
+  }
+}
+</style>
