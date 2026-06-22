@@ -149,7 +149,6 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel, getEndOfDayString } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-import { create } from 'lodash';
 import DealerSelect from '@/components/dealer-select/index.vue';
 
 const defaultForm = {

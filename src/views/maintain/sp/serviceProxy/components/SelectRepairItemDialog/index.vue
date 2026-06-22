@@ -1772,6 +1772,14 @@ export default {
 <style lang="scss">
 .repair-item-autocomplete-popper,
 .repair-part-autocomplete-popper {
-  width: 400px !important;
+  width: auto !important;
+  min-width: 200px;
+  max-width: 1000px;
+  .el-autocomplete-suggestion__list {
+    padding-bottom: 28px;
+  }
+  .el-autocomplete-suggestion__wrap {
+    overflow-x: auto;
+  }
 }
 </style>
