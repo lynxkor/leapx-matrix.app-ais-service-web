@@ -707,6 +707,12 @@ export default {
         return getDetail(id).then(res => {
           this.getLoginUser();
           this.getDetailData();
+          this.originalReceiving = {
+            recipientName: res.recipientName,
+            recipientPhone: res.recipientPhone,
+            provinceCityCountyCode: res.provinceCityCountyCode,
+            address: res.address
+          };
           return res;
         });
       }
@@ -753,12 +759,14 @@ export default {
           this.form.thirdPartyDeliveryIs = String(res.sparePartReceiving.isAllowedThirdDelivered);
         }
         this.form.address = res.sparePartReceiving.partAddress;
-        this.originalReceiving = {
-          recipientName: res.sparePartReceiving.partRecipient,
-          recipientPhone: res.sparePartReceiving.partPhone,
-          provinceCityCountyCode: res.sparePartReceiving.provinceCityCountyCode,
-          address: res.sparePartReceiving.partAddress
-        };
+        if (!this._id) {
+          this.originalReceiving = {
+            recipientName: res.sparePartReceiving.partRecipient,
+            recipientPhone: res.sparePartReceiving.partPhone,
+            provinceCityCountyCode: res.sparePartReceiving.provinceCityCountyCode,
+            address: res.sparePartReceiving.partAddress
+          };
+        }
         this.isAllowedThirdDelivered = Number(res.sparePartReceiving.isAllowedThirdDelivered);
         return res;
       } catch (error) {
