@@ -720,7 +720,7 @@ export default {
       }
       exportTable({
         businessType: '备附件销售',
-        dataFetchPath: 'sp/sparepart/web/sale/retailOrder/page',
+        dataFetchPath: 'sp/web/dealer/retailOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

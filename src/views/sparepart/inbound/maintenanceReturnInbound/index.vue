@@ -352,7 +352,7 @@ export default {
       }
       exportTable({
         businessType: '维修退料入库',
-        dataFetchPath: 'sp/web/outbound/maintenanceOutboundOrder/page',
+        dataFetchPath: 'sp/web/maintenance/maintenanceReturnInbound/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

@@ -401,7 +401,7 @@ export default {
       }
       exportTable({
         businessType: '备件索赔',
-        dataFetchPath: 'sp/web/claim/sparePartClaim/page',
+        dataFetchPath: 'sp/web/claim/claimOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

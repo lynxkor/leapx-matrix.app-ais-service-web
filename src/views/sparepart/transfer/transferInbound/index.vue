@@ -428,7 +428,7 @@ export default {
       }
       exportTable({
         businessType: '备件调拨入库',
-        dataFetchPath: 'sp/web/transfer/transferInbound/page',
+        dataFetchPath: 'sp/web/dealer/transferInbound/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
