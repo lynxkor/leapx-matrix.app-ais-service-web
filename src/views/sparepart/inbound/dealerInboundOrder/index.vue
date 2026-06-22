@@ -450,7 +450,7 @@ export default {
       }
       exportTable({
         businessType: '外购件入库单',
-        dataFetchPath: 'sp/web/inbound/dealerInboundOrder/page',
+        dataFetchPath: 'sp/web/dealer/dealerInboundOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
