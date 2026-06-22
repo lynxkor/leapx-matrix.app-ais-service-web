@@ -14,7 +14,7 @@
               {{ repairDetail.repairItemCode }}
             </el-form-item>
             <el-form-item label="维修类型：" prop="repairItemTypeId">
-              <fetch-select v-model="repairDetail.repairItemTypeId" :options="repairItemOptions"
+              <fetch-select v-model="repairDetail.repairItemTypeId" :options="repairItemOptions" :fallbackLabel="repairDetail.repairItemTypeName"
                 placeholder="请选择维修类型名称" labelKey="label" valueKey="value" filterable
                 @change="handleRepairItemChange" />
             </el-form-item>
@@ -29,7 +29,7 @@
               {{ repairDetail.price }}
             </el-form-item>
             <el-form-item label="工时数量：" prop="workHour">
-              <el-input-number type="number" @change="handleDiscountAmountBlur" clearable size="small" :min="0"
+              <el-input-number type="number" @change="handleDiscountAmountBlur" clearable size="small" :min="0" :precision="2"
                 v-model="repairDetail.workHour"></el-input-number>
             </el-form-item>
             <el-form-item label="项目金额：" prop="purchaseQty">
