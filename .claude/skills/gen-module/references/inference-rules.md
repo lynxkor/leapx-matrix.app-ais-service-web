@@ -57,6 +57,8 @@ This document details the rules for inferring field types from user input.
 
 **Post-Generation Reminder**: Always remind user to add enum codes
 
+**控件写法**：判断为 select 后，FetchSelect 具体写法参见 [fetch-select-patterns.md](fetch-select-patterns.md) 模式 B（enumCode + request）或模式 C（remote 搜索）。
+
 ### Boolean Fields
 
 **Type**: `boolean`
