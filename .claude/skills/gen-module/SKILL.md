@@ -179,6 +179,7 @@ export function enableItem (data) { return api.jsonPost(prefix + 'enableOrDisabl
 - Boolean → `el-radio-group`
 - Array → `EditTable`（子表）
 - Normal → `el-input`
+- Jump Link → 详情态(`form-detail`)命中常见跳转实体时渲染为 `<el-link>`，其余区（编辑/搜索/列表/子表）为 `el-input`（详见 [references/jump-link-patterns.md](references/jump-link-patterns.md)）
 
 #### 6.4 Insert Routes
 
@@ -230,4 +231,5 @@ export function enableItem (data) { return api.jsonPost(prefix + 'enableOrDisabl
 | [references/inference-rules.md](references/inference-rules.md) | Step 3 字段类型推断 |
 | [references/template-guide.md](references/template-guide.md) | Step 6.2/6.3 模板结构、Mustache 变量、三段式查询表单规则 |
 | [references/fetch-select-patterns.md](references/fetch-select-patterns.md) | Step 6.2/6.3 生成任何 `<fetch-select>` 前 |
+| [references/jump-link-patterns.md](references/jump-link-patterns.md) | Step 6.3 生成详情页 `form-detail` 前，判断字段是否为常见跳转实体 |
 | [references/project-conventions.md](references/project-conventions.md) | Step 6 生成文件前的命名/API 路径/代码风格约束 |
