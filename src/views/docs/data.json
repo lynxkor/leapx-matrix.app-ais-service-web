@@ -43,13 +43,26 @@
       "title": "备件进销存（售后）",
       "demo": [
         {
+          "title": "2026年6月18日 备件业务模块培训视频",
+          "url": "https://leapmotor.yunxuetang.cn/tlive-room/#/review?roomId=2065338930390243329&taskId=&trackId=&mg=1",
+          "owner": "陈建国",
+          "date": "2026-06-18"
+        },
+        {
           "title": "【销服改造项目】售后备件UAT验收",
           "url": "https://meeting.tencent.com/wework/cloud-record/share?id=21114729-5d69-4c2e-845e-2a484e718f0b&hide_more_btn=true",
           "owner": "陈建国",
           "date": "2026-06-01"
         }
       ],
-      "manual": []
+      "manual": [
+         {
+          "title": "新销服操作手册（备件&旧件）260618.pdf",
+          "url": "https://leapx-prod.oss-cn-hangzhou.aliyuncs.com/2d14863c-bc6f-4b99-9efb-4ba8e2c75c24/1782093899395_%E6%96%B0%E9%94%80%E6%9C%8D%E6%93%8D%E4%BD%9C%E6%89%8B%E5%86%8C%EF%BC%88%E5%A4%87%E4%BB%B6%26%E6%97%A7%E4%BB%B6%EF%BC%89260618.pdf",
+          "owner": "陈建国",
+          "date": "2026-06-16"
+        }
+      ]
     },
     {
       "key": "afterSaleClaimReturn",
