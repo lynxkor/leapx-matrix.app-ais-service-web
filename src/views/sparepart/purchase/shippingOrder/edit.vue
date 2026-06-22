@@ -324,6 +324,9 @@ export default {
   mounted () {
   },
   methods: {
+    getDesensitize (id, type, field) {
+      return getDesensitize(id, type, field);
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
