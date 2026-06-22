@@ -582,7 +582,10 @@ export default {
             this.$message({ type: 'error', message: '文件导出失败' });
           }
         } else {
-          this.$message({ type: 'info', message: '请前往导出列表中查询导出结果' });
+          this.$confirmExport(
+            () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+          );
         }
       }).finally(() => {
         this.exportLoading = false;
@@ -605,7 +608,10 @@ export default {
             this.$message({ type: 'error', message: '文件导出失败' });
           }
         } else {
-          this.$message({ type: 'info', message: '请前往导出列表中查询导出结果' });
+          this.$confirmExport(
+            () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+          );
         }
       }).finally(() => {
         this.exportLoading = false;
