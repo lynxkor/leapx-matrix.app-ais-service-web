@@ -274,12 +274,12 @@
                     </template>
                   </vxe-column>
                   <vxe-column field="partName" title="备件名称" width="200" />
+                  <vxe-column field="purchaseQty" title="采购数" width="150" />
                   <vxe-column field="originalPrice" title="原价" width="150" />
                   <vxe-column field="purchasePrice" title="采购价" width="150" />
                   <vxe-column field="purchaseAmount" title="采购金额" width="150" />
                   <vxe-column field="cashUnitPrice" title="现金单价" width="150" />
                   <vxe-column field="cashAmount" title="现金金额" width="150" />
-                  <vxe-column field="purchaseQty" title="采购数" width="150" />
                   <vxe-column field="remark" title="备注" width="200" />
                   <vxe-column field="originalPriceSource" title="原价来源" width="220">
                     <template v-slot="{ row }">
