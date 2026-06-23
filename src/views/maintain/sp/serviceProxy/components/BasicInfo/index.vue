@@ -82,6 +82,7 @@
         <el-form-item label="客户类型：" prop="custType">
           <fetch-select
             :request="fetchOptions"
+            :disabled="!!form.appointmentNo"
             enumCode="CustomerTypeEnum"
             v-model="form.custType"
             placeholder="请选择"
