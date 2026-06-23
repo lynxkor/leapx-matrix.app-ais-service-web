@@ -17,6 +17,7 @@
               :noEcho="true"
               attachType="待签署整改报告"
               configCode="warrantyAudit"
+              :isAttached="false"
               @upload-loading-change="handleUploadLoadingChange"
             />
           </el-form-item>
