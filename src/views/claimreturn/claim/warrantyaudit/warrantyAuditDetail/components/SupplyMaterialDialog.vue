@@ -3,6 +3,7 @@
     title="补充材料"
     :visible.sync="dialogVisible"
     width="60%"
+    class="supplyMaterialDialog"
     :close-on-click-modal="false"
     @close="handleClose"
   >
@@ -157,4 +158,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.supplyMaterialDialog{
+  ::v-deep .attachment-list {
+    .business-upload {
+      margin-right: 16px !important;
+    }
+  }
+}
 </style>
