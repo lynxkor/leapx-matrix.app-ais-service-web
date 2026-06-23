@@ -341,7 +341,7 @@ export default {
       }
       exportTable({
         businessType: '留车项配置导出',
-        dataFetchPath: 'maintain/web/sp/vehRetentionConfig/page',
+        dataFetchPath: 'maintain/web/basic/vehRetentionConfig/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
