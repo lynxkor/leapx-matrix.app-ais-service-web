@@ -42,6 +42,10 @@
                             size="small"
                         ></el-input-number>
                     </el-form-item>
+                    <el-form-item style="width: 100%;" label="采购备注：" prop="remark">
+                        <el-input type="textarea" @change="updateSparePartDetail" maxlength="500" show-word-limit
+                            v-model="sparePartDetail.remark" clearable placeholder="请输入采购备注" />
+                    </el-form-item>
                     <el-form-item label="OEM库存：" prop="oemInventoryIs">
                         {{ sparePartDetail.oemInventoryIs }}
                     </el-form-item>
@@ -62,10 +66,6 @@
                     </el-form-item>
                     <el-form-item label="建议采购量：" prop="suggestionQty">
                         {{ sparePartDetail.suggestionQty }}
-                    </el-form-item>
-                    <el-form-item style="width: 100%;" label="采购备注：" prop="remark">
-                        <el-input type="textarea" @change="updateSparePartDetail" maxlength="500" show-word-limit
-                            v-model="sparePartDetail.remark" clearable placeholder="请输入采购备注" />
                     </el-form-item>
                 </el-form>
                 <div class="common-title">共享库存(外)</div>

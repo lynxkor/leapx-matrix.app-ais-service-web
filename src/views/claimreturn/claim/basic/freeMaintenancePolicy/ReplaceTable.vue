@@ -161,13 +161,18 @@ export default {
         pageSize: this.pageSize,
         pageNum: this.current,
       }).then((res) => {
-        this.tableData = res.records.map(item => {
+        const records = res?.records || [];
+        this.tableData = records.map(item => {
           return {
             ...item,
             prevPartCode: this.replacePart.partCode,
           };
         });
-        this.total = res.total;
+        this.total = res?.total || 0;
+      }).catch((err) => {
+        console.error('获取免保零件替换明细失败:', err);
+        this.tableData = [];
+        this.total = 0;
       });
     },
     handleRemoveRow (row, index, defer) {
