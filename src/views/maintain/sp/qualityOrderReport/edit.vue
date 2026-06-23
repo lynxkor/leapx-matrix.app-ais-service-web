@@ -1327,10 +1327,6 @@ export default {
       this.$refs.attachmentRef?.loadAttachmentList();
     },
     handleSubmitApproval () {
-      if ((this.tableDataFault || []).length === 0 && (this.tableDataFault || []).length === 0) {
-        this.$message.error('请先添加故障代码');
-        return;
-      }
       this.$confirm('确定提交审批?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

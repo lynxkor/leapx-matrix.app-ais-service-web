@@ -154,9 +154,9 @@
                 />
                 <!-- 右侧：合计信息 -->
                 <div class="summary-box">
-                  <span class="summary-item">项目金额合计：￥{{ itemAmount }}</span>
-                  <span class="summary-item">零件金额合计：￥{{ partsAmount }}</span>
-                  <span class="summary-item">费用合计：￥{{ totalAmount }}</span>
+                  <span class="summary-item">项目金额合计：￥{{ itemAmount.toFixed(2) }}</span>
+                  <span class="summary-item">零件金额合计：￥{{ partsAmount.toFixed(2) }}</span>
+                  <span class="summary-item">费用合计：￥{{ totalAmount.toFixed(2) }}</span>
                 </div>
               </div>
               <div class="common-section-table">
@@ -574,10 +574,9 @@ export default {
         const number = Number(item.quantity) || 0;
         const unitPrice = Number(item.price) || 0;
         const discountAmount = Number(item.discountAmount) || 0;
-        let receivable = number * unitPrice;
-        receivable = receivable - discountAmount;
-        item.actualAmount = Math.max(0, receivable.toFixed(2));
-        this.partsAmount = this.partsAmount + item.actualAmount;
+        const receivable = number * unitPrice - discountAmount;
+        item.actualAmount = Math.round(Math.max(0, receivable) * 100) / 100;
+        this.partsAmount += item.actualAmount;
       });
       this.totalAmount = this.itemAmount + this.partsAmount;
     },
