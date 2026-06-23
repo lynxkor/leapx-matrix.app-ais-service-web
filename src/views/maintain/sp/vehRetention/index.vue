@@ -340,15 +340,15 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
-        dataFetchPath: 'maintain/web/sp/vehRetention/page',
+        businessType: '留车项配置导出',
+        dataFetchPath: 'maintain/web/sp/vehRetentionConfig/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '留车项配置.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
