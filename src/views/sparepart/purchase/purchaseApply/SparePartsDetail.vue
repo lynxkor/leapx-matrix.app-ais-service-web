@@ -166,7 +166,7 @@ export default {
     // 备件远程搜索
     async getSparePart (query) {
       try {
-        const res = await sparePartListShort({ partCodeLikeOrList: query });
+        const res = await sparePartListShort({ partCodeLikeOrList: query, saleableIs: '1' });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
