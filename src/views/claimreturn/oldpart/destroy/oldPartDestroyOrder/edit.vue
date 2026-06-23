@@ -652,6 +652,7 @@ export default {
         oldPartDestroyOrderId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
+        sortColumns: [{ column: 'update_time', sort: 'DESC' }]
       }).then((res) => {
         const records = res.records || [];
         this.tableData = records.map((item, idx) => ({
