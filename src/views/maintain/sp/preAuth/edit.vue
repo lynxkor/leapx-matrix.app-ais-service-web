@@ -131,10 +131,22 @@
                   <span>{{ serviceProxyDetail?.shuttleName || form.serviceProxyResp?.shuttleName || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="送修人手机：">
-                  <span>{{ serviceProxyDetail?.shuttlePhone || form.serviceProxyResp?.shuttlePhone || '-' }}</span>
+                  <LPEncrypted
+                    :value="serviceProxyPhone"
+                    :decryptMethod="() => getServiceProxyDecryptField('shuttlePhone')"
+                    @update:value="updateServiceProxyPhone"
+                  />
                 </el-form-item>
                 <el-form-item label="VIN：">
-                  <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
+                  <LPEncrypted
+                    :value.sync="form.vehProfileVin"
+                    :decryptMethod="() => getServiceProxyDecryptField('vehProfileVin')"
+                  >
+                    <template v-if="form.vehProfileId">
+                      <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
+                    </template>
+                    <span v-else>{{ form.vehProfileVin || '-' }}</span>
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车型：">
                   <span>{{ serviceProxyDetail?.vehModelName || form.serviceProxyResp?.vehModelName || '-' }}</span>
@@ -517,12 +529,13 @@
 <script>
 import { getDetail, addOrUpdate, getServiceProxyDetail, cancelItem, revokeItem, getPreAuthInfo, checkPreAuth } from '@/api/maintain/sp/preAuth/index';
 import { getList as getQualityReportList } from '@/api/maintain/sp/qualityOrderReport/index';
-import { selectServiceProxy as selectServiceProxyApi, getEnum } from '@/api/maintain/sp/serviceProxy/index';
+import { selectServiceProxy as selectServiceProxyApi, getEnum, getDecrypt } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Attachment from './components/FileUploadGrid';
 import PreAuthAuditDialog from './components/AuditDialog/index.vue';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -608,7 +621,8 @@ export default {
     EditBaseContainer,
     FetchSelect,
     Attachment,
-    PreAuthAuditDialog
+    PreAuthAuditDialog,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -616,6 +630,9 @@ export default {
     },
     title () {
       return '申请单号：' + (this.form.code || '新增');
+    },
+    serviceProxyPhone () {
+      return this.serviceProxyDetail?.shuttlePhone || this.form.serviceProxyResp?.shuttlePhone || '-';
     }
   },
   watch: {
@@ -669,6 +686,12 @@ export default {
     };
   },
   methods: {
+    getServiceProxyDecryptField (field) {
+      return getDecrypt(this.form.serviceProxyId, field);
+    },
+    updateServiceProxyPhone (value) {
+      this.$set(this.serviceProxyDetail, 'shuttlePhone', value);
+    },
     /**
      * 格式化日期为 yyyy-MM-dd 格式
      * @param {string|number|Date} date - 日期值

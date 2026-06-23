@@ -279,7 +279,12 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vehProfileVin', label: 'VIN', visible: true, width: 200 },
+          { props: 'vehProfileVin', label: 'VIN', visible: true, width: 200, buttons: [{
+            click: (rowIndex, row) => {
+              window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
+            },
+            type: 'primary'
+          }] },
           { props: 'purchaser', label: '购买人', visible: true, width: 200 },
           { props: 'purchaserPhone', label: '购买人电话', visible: true, width: 200 },
           { props: 'saleDate', label: '购买时间', visible: true, width: 200 },
