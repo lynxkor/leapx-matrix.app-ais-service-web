@@ -64,7 +64,7 @@ export function addPartItem (data) {
  * @param {Object} data
  */
 export function addPartVehModel (data) {
-  return api.jsonPost('maintain/web/basic/maintenancePartVehModel/addOrUpdate', data);
+  return api.jsonPost('http://localhost:8806/maintain/web/basic/maintenancePartVehModel/addOrUpdate', data);
 }
 
 /**
