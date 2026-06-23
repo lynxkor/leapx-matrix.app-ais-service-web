@@ -131,10 +131,23 @@
                   <span>{{ serviceProxyDetail?.shuttleName || form.serviceProxyResp?.shuttleName || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="送修人手机：">
-                  <span>{{ serviceProxyDetail?.shuttlePhone || form.serviceProxyResp?.shuttlePhone || '-' }}</span>
+                  <LPEncrypted
+                    :value.sync="serviceProxyDetail.shuttlePhone"
+                    :decryptMethod="() => getDecryptField(form.serviceProxyId, 'shuttlePhone')"
+                  >
+                    <span>{{ serviceProxyDetail.shuttlePhone || form.serviceProxyResp?.shuttlePhone || '-' }}</span>
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="VIN：">
-                  <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
+                  <LPEncrypted
+                    :value.sync="form.vehProfileVin"
+                    :decryptMethod="() => getDecryptField(form.serviceProxyId, 'vehProfileVin')"
+                  >
+                    <template v-if="form.vehProfileId">
+                      <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
+                    </template>
+                    <span v-else>{{ form.vehProfileVin || '-' }}</span>
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车型：">
                   <span>{{ serviceProxyDetail?.vehModelName || form.serviceProxyResp?.vehModelName || '-' }}</span>
@@ -517,7 +530,8 @@
 <script>
 import { getDetail, addOrUpdate, getServiceProxyDetail, cancelItem, revokeItem, getPreAuthInfo, checkPreAuth } from '@/api/maintain/sp/preAuth/index';
 import { getList as getQualityReportList } from '@/api/maintain/sp/qualityOrderReport/index';
-import { selectServiceProxy as selectServiceProxyApi, getEnum } from '@/api/maintain/sp/serviceProxy/index';
+import { selectServiceProxy as selectServiceProxyApi, getEnum, getDecrypt } from '@/api/maintain/sp/serviceProxy/index';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -639,7 +653,7 @@ export default {
       form: { ...defaultForm },
       originalForm: { ...defaultForm },
       emptyText: '暂无数据',
-      serviceProxyDetail: {}, // 施工单详情数据（仅用于展示）
+      serviceProxyDetail: { shuttlePhone: '' }, // 施工单详情数据（仅用于展示）
       preAuthInfoDetail: {},
       // 审批记录附件映射 Map<approvalId, files[]>
       approvalAttachmentsMap: {},
@@ -669,6 +683,12 @@ export default {
     };
   },
   methods: {
+    getDecryptField (id, field) {
+      if (!id) {
+        return Promise.resolve(this.serviceProxyDetail?.[field] || this.form[field] || '');
+      }
+      return getDecrypt(id, field);
+    },
     /**
      * 格式化日期为 yyyy-MM-dd 格式
      * @param {string|number|Date} date - 日期值

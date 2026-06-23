@@ -85,30 +85,37 @@
                   />
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
-                  <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank" v-if="form.vehProfileId">{{ form.vehProfileVin }}</el-link>
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.vehProfileVin"
-                    clearable
-                    disabled
-                    v-else
-                  />
+                  <LPEncrypted
+                    :value.sync="form.vehProfileVin"
+                    :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
+                  >
+                    <template v-if="form.vehProfileId">
+                      <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
+                    </template>
+                    <el-input
+                      v-else
+                      placeholder="请输入"
+                      v-model="form.vehProfileVin"
+                      clearable
+                      disabled
+                    />
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="购买人：" prop="purchaser">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.purchaser"
-                    clearable
-                    disabled
-                  />
+                  <LPEncrypted
+                    :value.sync="form.purchaser"
+                    :decryptMethod="() => getDecryptField(form.id, 'purchaser')"
+                  >
+                    <span>{{ form.purchaser || '-' }}</span>
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="购买人电话：" prop="purchaserPhone">
-                  <el-input
-                    placeholder="请输入"
-                    v-model="form.purchaserPhone"
-                    clearable
-                    disabled
-                  />
+                  <LPEncrypted
+                    :value.sync="form.purchaserPhone"
+                    :decryptMethod="() => getDecryptField(form.id, 'purchaserPhone')"
+                  >
+                    <span>{{ form.purchaserPhone || '-' }}</span>
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="购买日期：" prop="saleDate">
                   <el-input
@@ -214,14 +221,31 @@
                   {{ form.dealerName }}
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
-                  <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank" v-if="form.vehProfileId">{{ form.vehProfileVin }}</el-link>
-                  <span v-else>{{ form.vehProfileVin }}</span>
+                  <LPEncrypted
+                    :value.sync="form.vehProfileVin"
+                    :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
+                  >
+                    <template v-if="form.vehProfileId">
+                      <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
+                    </template>
+                    <span v-else>{{ form.vehProfileVin || '-' }}</span>
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="购买人：" prop="purchaser">
-                  {{ form.purchaser }}
+                  <LPEncrypted
+                    :value.sync="form.purchaser"
+                    :decryptMethod="() => getDecryptField(form.id, 'purchaser')"
+                  >
+                    <span>{{ form.purchaser || '-' }}</span>
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="购买人电话：" prop="purchaserPhone">
-                  {{ form.purchaserPhone }}
+                  <LPEncrypted
+                    :value.sync="form.purchaserPhone"
+                    :decryptMethod="() => getDecryptField(form.id, 'purchaserPhone')"
+                  >
+                    <span>{{ form.purchaserPhone || '-' }}</span>
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="购买日期：" prop="saleDate">
                   {{ form.saleDate }}
@@ -371,7 +395,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/maintain/sp/ownersEquityOrder/index';
+import { getDetail, addOrUpdate, getDecrypt } from '@/api/maintain/sp/ownersEquityOrder/index';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -446,7 +471,8 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
-    EditBaseContainer
+    EditBaseContainer,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -509,6 +535,9 @@ export default {
   mounted () {
   },
   methods: {
+    getDecryptField (id, field) {
+      return getDecrypt(id, field);
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
