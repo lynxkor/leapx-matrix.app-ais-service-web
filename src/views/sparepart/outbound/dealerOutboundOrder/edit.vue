@@ -283,7 +283,7 @@
                   <vxe-column field="costUnitPrice" title="成本单价" min-width="10%" />
                   <vxe-column field="qty" title="数量" min-width="10%">
                     <template #default="{ row }">
-                      <el-input v-model="row.qty" @input="val => row.qty = formatNumberInput(val, { allowDecimal: false })" :disabled="!(isEditing || !_id || isOrderType)" @change="handleBlur(row)"/>
+                      <el-input v-model="row.qty" @input="val => row.qty = formatNumberInput(val, { allowDecimal: false })" :disabled="!isOrderType" @change="handleBlur(row)"/>
                     </template>
                   </vxe-column>
                   <vxe-column field="remark" title="备注" min-width="10%">
