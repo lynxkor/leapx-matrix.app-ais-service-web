@@ -632,7 +632,7 @@ export default {
       return '申请单号：' + (this.form.code || '新增');
     },
     serviceProxyPhone () {
-      return this.serviceProxyDetail.shuttlePhone || this.form.serviceProxyResp?.shuttlePhone || '-';
+      return this.serviceProxyDetail?.shuttlePhone || this.form.serviceProxyResp?.shuttlePhone || '-';
     }
   },
   watch: {
