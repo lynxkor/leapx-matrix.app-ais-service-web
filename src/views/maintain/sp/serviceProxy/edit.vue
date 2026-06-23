@@ -18,7 +18,7 @@
                     <el-button size="small" @click="handleResendSignSms" v-if="canResendSignSms && permissions.has('AISMC-serviceProxy-confirmToSign')">补推施工单短信签字</el-button>
                     <el-button size="small" @click="handleImport" v-if="!isCanceled && canImport">上传附件</el-button>
                     <el-button size="small" @click="handleShowLog" v-if="canLog">审核日志</el-button>
-                    <el-button size="small" @click="remindInfoDialogVisible = true && permissions.has('AISMC-serviceProxy-getSpRemindInfo')">提醒信息</el-button>
+                    <el-button size="small" @click="remindInfoDialogVisible = true" v-if="permissions.has('AISMC-serviceProxy-getSpRemindInfo')">提醒信息</el-button>
                     <!-- 流程操作按钮 -->
                     <el-button size="small" @click="discardDialogVisible = true" v-if="!isCompleted && !form.isCreateStatementInfo && permissions.has('AISMC-serviceProxy-cancel')">作废</el-button>
                     <el-button size="small" @click="materialReturnDialogVisible = true" v-if="!isCompleted && hasRepairItems && permissions.has('AISMC-serviceStatement-refundPart')">退料</el-button>
