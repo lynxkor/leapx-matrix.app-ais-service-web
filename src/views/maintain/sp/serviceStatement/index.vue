@@ -16,11 +16,11 @@
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="VIN码" v-show="this.visibleCount === 3 || show">
-        <el-input placeholder="请输入" v-model="form.vehProfileVinLike" clearable />
+        <tag-input v-model="form.vehProfileVinList" placeholder="请输入" />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="车牌号">
-          <el-input placeholder="请输入" v-model="form.carPlateLike" clearable />
+          <tag-input v-model="form.carPlateList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="门店">
           <dealer-select v-model="form.dealerCodes" multiple />
@@ -334,8 +334,8 @@ const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   codeList: [],
   serviceProxyCodeList: [],
-  vehProfileVinLike: '',
-  carPlateLike: '',
+  vehProfileVinList: [],
+  carPlateList: [],
   createReStatement: '',
   statementStatus: '',
   statementStatusList: [],
@@ -828,10 +828,12 @@ export default {
         }
       });
 
-      // 处理 tag-input 批量查询字段：单值时转为普通字段，多值时保留数组
+      // 处理 tag-input 批量查询字段：单值时转为模糊字段，多值时保留数组走批量查询
       const tagInputFields = {
         codeList: 'code',
-        serviceProxyCodeList: 'serviceProxyCode'
+        serviceProxyCodeList: 'serviceProxyCode',
+        vehProfileVinList: 'vehProfileVinLike',
+        carPlateList: 'carPlateLike'
       };
       Object.keys(tagInputFields).forEach(key => {
         if (Array.isArray(this.form[key])) {
