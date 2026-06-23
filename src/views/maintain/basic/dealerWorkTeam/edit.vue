@@ -345,15 +345,16 @@ export default {
       });
     },
     handleUserSelect (val, record) {
-      this.tableData.push({
-        ...record,
-        id: null,
-      });
-      addOrUpdate({ ...this.form, teamUsers: this.tableData }).then(res => {
+      addOrUpdate({
+        ...this.form,
+        teamUsers: [...this.tableData, {
+          ...record,
+          id: null,
+        }]
+      }).then(res => {
         this.$message.success('添加成功');
+      }).finally(e => {
         this.$refs.containerRef.handleRefresh();
-      }).catch(e => {
-        this.tableData = this.tableData.filter(item => item !== record);
       });
     },
     async saveRowEdit (row, defer) {
