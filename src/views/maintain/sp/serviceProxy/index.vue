@@ -13,10 +13,10 @@
         <tag-input v-model="form.codes" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="车牌号">
-        <tag-input v-model="form.carPlateList" placeholder="请输入" />
+        <el-input placeholder="请输入" v-model="form.carPlateLike" clearable />
       </el-form-item>
       <el-form-item label="VIN码" v-show="this.visibleCount === 3 || show">
-        <tag-input v-model="form.vehProfileVinList" placeholder="请输入" />
+        <el-input placeholder="请输入" v-model="form.vehProfileVinLike" clearable />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="车主姓名">
@@ -327,8 +327,8 @@ const defaultForm = {
   customerName: '',
   custType: '',
   vehModelName: '',
-  carPlateList: [],
-  vehProfileVinList: [],
+  carPlateLike: '',
+  vehProfileVinLike: '',
   dealerName: '',
   appointmentNoList: [],
   mileage: '',
@@ -631,8 +631,6 @@ export default {
       // 处理 tag-input 批量查询字段：单值时转为普通字段，多值时保留数组
       const tagInputFields = {
         codes: 'code',
-        carPlateList: 'carPlate',
-        vehProfileVinList: 'vehProfileVin',
         appointmentNoList: 'appointmentNo'
       };
       Object.keys(tagInputFields).forEach(key => {

@@ -85,11 +85,13 @@
                   />
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
+                  <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank" v-if="form.vehProfileId">{{ form.vehProfileVin }}</el-link>
                   <el-input
                     placeholder="请输入"
                     v-model="form.vehProfileVin"
                     clearable
                     disabled
+                    v-else
                   />
                 </el-form-item>
                 <el-form-item label="购买人：" prop="purchaser">
@@ -155,11 +157,13 @@
                   />
                 </el-form-item>
                 <el-form-item label="施工单号：" prop="serviceProxyCode">
+                  <el-link type="primary" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`" target="_blank" v-if="form.serviceProxyId">{{ form.serviceProxyCode }}</el-link>
                   <el-input
                     placeholder="请输入"
                     v-model="form.serviceProxyCode"
                     clearable
                     disabled
+                    v-else
                   />
                 </el-form-item>
                 <el-form-item label="核销时间：" prop="writeOffDate">
@@ -210,7 +214,8 @@
                   {{ form.dealerName }}
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
-                  {{ form.vehProfileVin }}
+                  <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank" v-if="form.vehProfileId">{{ form.vehProfileVin }}</el-link>
+                  <span v-else>{{ form.vehProfileVin }}</span>
                 </el-form-item>
                 <el-form-item label="购买人：" prop="purchaser">
                   {{ form.purchaser }}
@@ -237,7 +242,8 @@
                   {{ form.dataSourceLabel }}
                 </el-form-item>
                 <el-form-item label="施工单号：" prop="serviceProxyCode">
-                  {{ form.serviceProxyCode }}
+                  <el-link type="primary" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`" target="_blank" v-if="form.serviceProxyId">{{ form.serviceProxyCode }}</el-link>
+                  <span v-else>{{ form.serviceProxyCode }}</span>
                 </el-form-item>
                 <el-form-item label="核销时间：" prop="writeOffDate">
                   {{ form.writeOffDate }}
