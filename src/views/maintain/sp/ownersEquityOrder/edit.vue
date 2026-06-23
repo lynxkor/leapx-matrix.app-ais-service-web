@@ -87,7 +87,7 @@
                 <el-form-item label="VIN码：" prop="vehProfileVin">
                   <LPEncrypted
                     :value.sync="form.vehProfileVin"
-                    :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
+                    :decryptMethod="() => getDecryptField('vehProfileVin')"
                   >
                     <template v-if="form.vehProfileId">
                       <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
@@ -104,18 +104,14 @@
                 <el-form-item label="购买人：" prop="purchaser">
                   <LPEncrypted
                     :value.sync="form.purchaser"
-                    :decryptMethod="() => getDecryptField(form.id, 'purchaser')"
-                  >
-                    <span>{{ form.purchaser || '-' }}</span>
-                  </LPEncrypted>
+                    :decryptMethod="() => getDecryptField('purchaser')"
+                  />
                 </el-form-item>
                 <el-form-item label="购买人电话：" prop="purchaserPhone">
                   <LPEncrypted
                     :value.sync="form.purchaserPhone"
-                    :decryptMethod="() => getDecryptField(form.id, 'purchaserPhone')"
-                  >
-                    <span>{{ form.purchaserPhone || '-' }}</span>
-                  </LPEncrypted>
+                    :decryptMethod="() => getDecryptField('purchaserPhone')"
+                  />
                 </el-form-item>
                 <el-form-item label="购买日期：" prop="saleDate">
                   <el-input
@@ -223,7 +219,7 @@
                 <el-form-item label="VIN码：" prop="vehProfileVin">
                   <LPEncrypted
                     :value.sync="form.vehProfileVin"
-                    :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
+                    :decryptMethod="() => getDecryptField('vehProfileVin')"
                   >
                     <template v-if="form.vehProfileId">
                       <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
@@ -234,18 +230,14 @@
                 <el-form-item label="购买人：" prop="purchaser">
                   <LPEncrypted
                     :value.sync="form.purchaser"
-                    :decryptMethod="() => getDecryptField(form.id, 'purchaser')"
-                  >
-                    <span>{{ form.purchaser || '-' }}</span>
-                  </LPEncrypted>
+                    :decryptMethod="() => getDecryptField('purchaser')"
+                  />
                 </el-form-item>
                 <el-form-item label="购买人电话：" prop="purchaserPhone">
                   <LPEncrypted
                     :value.sync="form.purchaserPhone"
-                    :decryptMethod="() => getDecryptField(form.id, 'purchaserPhone')"
-                  >
-                    <span>{{ form.purchaserPhone || '-' }}</span>
-                  </LPEncrypted>
+                    :decryptMethod="() => getDecryptField('purchaserPhone')"
+                  />
                 </el-form-item>
                 <el-form-item label="购买日期：" prop="saleDate">
                   {{ form.saleDate }}
@@ -396,13 +388,13 @@
 
 <script>
 import { getDetail, addOrUpdate, getDecrypt } from '@/api/maintain/sp/ownersEquityOrder/index';
-import LPEncrypted from '@/libs/components/LPEncrypted';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -535,8 +527,8 @@ export default {
   mounted () {
   },
   methods: {
-    getDecryptField (id, field) {
-      return getDecrypt(id, field);
+    getDecryptField (field) {
+      return getDecrypt(this.form.id, field);
     },
     detailRequest () {
       const id = this._id;

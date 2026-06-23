@@ -132,16 +132,15 @@
                 </el-form-item>
                 <el-form-item label="送修人手机：">
                   <LPEncrypted
-                    :value.sync="serviceProxyDetail.shuttlePhone"
-                    :decryptMethod="() => getDecryptField(form.serviceProxyId, 'shuttlePhone')"
-                  >
-                    <span>{{ serviceProxyDetail.shuttlePhone || form.serviceProxyResp?.shuttlePhone || '-' }}</span>
-                  </LPEncrypted>
+                    :value="serviceProxyPhone"
+                    :decryptMethod="() => getServiceProxyDecryptField('shuttlePhone')"
+                    @update:value="updateServiceProxyPhone"
+                  />
                 </el-form-item>
                 <el-form-item label="VIN：">
                   <LPEncrypted
                     :value.sync="form.vehProfileVin"
-                    :decryptMethod="() => getDecryptField(form.serviceProxyId, 'vehProfileVin')"
+                    :decryptMethod="() => getServiceProxyDecryptField('vehProfileVin')"
                   >
                     <template v-if="form.vehProfileId">
                       <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
@@ -531,12 +530,12 @@
 import { getDetail, addOrUpdate, getServiceProxyDetail, cancelItem, revokeItem, getPreAuthInfo, checkPreAuth } from '@/api/maintain/sp/preAuth/index';
 import { getList as getQualityReportList } from '@/api/maintain/sp/qualityOrderReport/index';
 import { selectServiceProxy as selectServiceProxyApi, getEnum, getDecrypt } from '@/api/maintain/sp/serviceProxy/index';
-import LPEncrypted from '@/libs/components/LPEncrypted';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Attachment from './components/FileUploadGrid';
 import PreAuthAuditDialog from './components/AuditDialog/index.vue';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -622,7 +621,8 @@ export default {
     EditBaseContainer,
     FetchSelect,
     Attachment,
-    PreAuthAuditDialog
+    PreAuthAuditDialog,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -630,6 +630,9 @@ export default {
     },
     title () {
       return '申请单号：' + (this.form.code || '新增');
+    },
+    serviceProxyPhone () {
+      return this.serviceProxyDetail.shuttlePhone || this.form.serviceProxyResp?.shuttlePhone || '-';
     }
   },
   watch: {
@@ -653,7 +656,7 @@ export default {
       form: { ...defaultForm },
       originalForm: { ...defaultForm },
       emptyText: '暂无数据',
-      serviceProxyDetail: { shuttlePhone: '' }, // 施工单详情数据（仅用于展示）
+      serviceProxyDetail: {}, // 施工单详情数据（仅用于展示）
       preAuthInfoDetail: {},
       // 审批记录附件映射 Map<approvalId, files[]>
       approvalAttachmentsMap: {},
@@ -683,11 +686,11 @@ export default {
     };
   },
   methods: {
-    getDecryptField (id, field) {
-      if (!id) {
-        return Promise.resolve(this.serviceProxyDetail?.[field] || this.form[field] || '');
-      }
-      return getDecrypt(id, field);
+    getServiceProxyDecryptField (field) {
+      return getDecrypt(this.form.serviceProxyId, field);
+    },
+    updateServiceProxyPhone (value) {
+      this.$set(this.serviceProxyDetail, 'shuttlePhone', value);
     },
     /**
      * 格式化日期为 yyyy-MM-dd 格式
