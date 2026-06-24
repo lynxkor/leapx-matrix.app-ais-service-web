@@ -478,6 +478,8 @@ export default {
         addRecord: baseType.includes(statementType) && statementStatus === 30 && this.permissions.has('AISMC-serviceStatement-addReceiptRecord'),
         // 重推签字短信
         canResendSignSms: signStatus === 10 && signGeneratedOn,
+        // 打印结算单
+        canPrint: this.permissions.has('AISMC-serviceStatement-print'),
       };
     },
 
