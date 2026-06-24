@@ -297,7 +297,7 @@ export default {
                 });
               },
               type: 'info',
-              show: (row) => row.approvalStatus === AUDIT_STATUS.TODO || row.approvalStatus === AUDIT_STATUS.REJECTED // 待提交或审批驳回
+              show: (row) => this.canAddOrUpdate && (row.approvalStatus === AUDIT_STATUS.TODO || row.approvalStatus === AUDIT_STATUS.REJECTED) // 待提交或审批驳回
             }, {
               name: '作废',
               popconfirmConfirmButtonType: 'danger',
@@ -335,7 +335,7 @@ export default {
                 });
               },
               type: 'danger',
-              show: (row) => row.approvalStatus === AUDIT_STATUS.TODO // 待提交
+              show: (row) => this.permissions.has('AISMC-preAuth-delete') && row.approvalStatus === AUDIT_STATUS.TODO // 待提交
             }, {
               name: '重新申请',
               click: (rowIndex, row) => {
@@ -349,7 +349,7 @@ export default {
                 });
               },
               type: 'info',
-              show: (row) => row.approvalStatus === AUDIT_STATUS.EXPIRED // 已过期
+              show: (row) => this.permissions.has('AISMC-preAuth-reGenerate') && row.approvalStatus === AUDIT_STATUS.EXPIRED // 已过期
             }, {
               name: '激活',
               click: (rowIndex, row) => {
