@@ -384,6 +384,7 @@ export default {
             }, {
               // eslint-disable-next-line no-warning-comments
               name: '完成',
+              show: () => this.permissions.has('AISCR-serviceActivityVehicle-finish'),
               disabled: row => row.finished === '1',
               click: (rowIndex, row) => {
                 this.finishActDialogInfo = row;
