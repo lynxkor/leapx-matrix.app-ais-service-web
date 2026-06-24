@@ -76,6 +76,18 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker
+            v-model="form.createTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -158,7 +170,8 @@ const defaultForm = {
   carPlate: '',
   licensePlateNo: '',
   vehProfileVin: '',
-  status: ''
+  status: '',
+  createTime: ''
 };
 
 const pageSize = 20;
@@ -565,6 +578,12 @@ export default {
           delete data[key];
         }
       });
+
+      if (Array.isArray(data.createTime) && data.createTime.length === 2) {
+        data.createTimeStart = data.createTime[0];
+        data.createTimeEnd = data.createTime[1];
+        delete data.createTime;
+      }
 
       // 排序字段
       data.sortColumns = this.sortColumns;
