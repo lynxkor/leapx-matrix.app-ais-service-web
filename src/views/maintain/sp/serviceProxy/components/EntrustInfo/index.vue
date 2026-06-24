@@ -16,6 +16,7 @@
         <el-form-item label="业务类型：" prop="businessType">
           <fetch-select
             :request="fetchOptions"
+            :format="formatBusinessTypeOptions"
             :disabled="!!form.appointmentNo"
             enumCode="BusinessTypeEnum"
             v-model="form.businessType"
@@ -487,7 +488,7 @@
 import FetchSelect from '@/libs/components/FetchSelect';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord, addFaultRecord, getDetail } from '@/api/maintain/sp/serviceProxy/index';
-import { RepairOrderStatusEnum } from '../../constant';
+import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../constant';
 import { getLoginUser } from '@/api/common';
 
 export default {
@@ -704,6 +705,14 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    formatBusinessTypeOptions (list) {
+      // 非预约到店（无预约单号）时，禁用"预约到店"业务类型选项
+      const isAppointment = !!this.form.appointmentNo;
+      return (list || []).map(item => ({
+        ...item,
+        disabled: !isAppointment && Number(item.code) === BusinessTypeEnum.APPOINTMENT_ARRIVAL
+      }));
     },
     getFormData () {
       return new Promise((resolve, reject) => {

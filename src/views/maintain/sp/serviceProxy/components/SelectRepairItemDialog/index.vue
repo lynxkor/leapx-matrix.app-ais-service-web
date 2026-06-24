@@ -911,23 +911,15 @@ export default {
       });
     },
     checkRepairTypeChange (callback) {
-      // 检查原来的维修项目是否包含"一般维修"或"三电维修"或"保修"
-      const originalRepairItems = this.vehicleInfo.costCountResp?.repairItemRespList || [];
-      const originalHasTargetRepair = originalRepairItems.some(item =>
-        item.repairItemTypeId === MaintenanceTypeEnum.GENERAL_REPAIR ||
-        item.repairItemTypeId === MaintenanceTypeEnum.BATTERY_REPAIR ||
-        item.repairItemTypeId === MaintenanceTypeEnum.WARRANTY
-      );
-
-      // 检查当前保存的维修项目中是否包含"一般维修"或"三电维修"（通过ID判断）或"保修"
+      // 检查当前保存的维修项目中是否包含"一般维修"或"三电维修"或"保修"（通过ID判断）
       const currentHasTargetRepair = this.itemData.some(item =>
         item.repairItemTypeId === MaintenanceTypeEnum.GENERAL_REPAIR ||
         item.repairItemTypeId === MaintenanceTypeEnum.BATTERY_REPAIR ||
         item.repairItemTypeId === MaintenanceTypeEnum.WARRANTY
       );
 
-      // 如果原来不包含，但现在包含，则显示提示
-      if (!originalHasTargetRepair && currentHasTargetRepair && !this.vehicleInfo.currentFault) {
+      // 当前保存数据包含目标维修类型，且订单未标记故障时，显示提示
+      if (currentHasTargetRepair && !this.vehicleInfo.currentFault) {
         this.$confirm('维修类型为："一般维修"或"三电维修"或"保修"，系统默认调整 【本次是否因故障进店】为：是，存在故障，请填写故障模块信息！', '提醒', {
           confirmButtonText: '确定',
           type: 'warning'
@@ -973,7 +965,7 @@ export default {
       this.getPermissions();
     },
     getRepairItemInfo () {
-      getRepairItemInfo(this.vehicleInfo.id).then(res => {
+      return getRepairItemInfo(this.vehicleInfo.id).then(res => {
         this.info = res || {};
         this.itemData = (res.repairItemRespList || []).map(item => ({
           ...item,
@@ -1479,9 +1471,13 @@ export default {
       this.repairType = v;
       this.partRepairType = v;
     },
-    handleRefresh () {
-      this.getRepairItemInfo();
+    async handleRefresh () {
+      await this.getRepairItemInfo();
       this.$emit('refresh');
+      // 检查维修类型变化（逻辑同手动保存，覆盖5种套餐导入入口）
+      this.checkRepairTypeChange(() => {
+        this.$emit('check');
+      });
     },
     // ----------替换件逻辑-----------------
     handlePartReplaceChange (current, row) {
