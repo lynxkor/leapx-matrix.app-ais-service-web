@@ -477,7 +477,7 @@
 
 <script>
 // import EditTable from '@/libs/components/EditTable';
-import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
+import { getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getCheckoutTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
 import UpdateActivityDialog from '../UpdateActivityDialog';
 import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID, MaintenanceTypeEnum, PackageTypeEnum, PackageTypeOptions, WorkRecordStatusEnum, GENERAL_REPAIR_ID } from '../../constant';
 
@@ -941,33 +941,33 @@ export default {
       }
     },
     getEnumData () {
-      getEnum('MaintenanceTypeEnum').then(res => {
+      getRepairItemTypeList({ status: 1, category: 10 }).then(res => {
         this.itemOptions.repairItemTypeName = (res || []).map(item => ({
-          repairItemTypeId: item.code,
-          repairItemTypeName: item.message,
-          label: item.message,
-          value: item.code
+          repairItemTypeId: item.id,
+          repairItemTypeName: item.name,
+          label: item.name,
+          value: item.id
         }));
-        this.repairType = res?.[0].code;
-        this.partRepairType = res?.[0].code;
+        this.repairType = res?.[0]?.id;
+        this.partRepairType = res?.[0]?.id;
       });
       getDiscountType().then(res => {
         this.discountType = (res || []);
       });
-      getEnum('StatementTypeEnum').then(res => {
+      getCheckoutTypeList({}).then(res => {
         this.itemOptions.checkoutTypeName = (res || []).map(item => ({
-          checkoutTypeId: item.code,
-          checkoutTypeName: item.message,
-          label: item.message,
-          value: item.code
+          checkoutTypeId: item.id,
+          checkoutTypeName: item.name,
+          label: item.name,
+          value: item.id
         }));
       });
-      getEnum('WarrantyTypeEnum').then(res => {
+      getRepairItemTypeList({ status: 1, category: 20 }).then(res => {
         this.itemOptions.warrantyTypeName = (res || []).map(item => ({
-          warrantyTypeId: item.code,
-          warrantyTypeName: item.message,
-          label: item.message,
-          value: item.code
+          warrantyTypeId: item.id,
+          warrantyTypeName: item.name,
+          label: item.name,
+          value: item.id
         }));
       });
       this.getPermissions();
@@ -996,10 +996,18 @@ export default {
         }, 300);
 
         this.packageType = PackageTypeOptions.map(item => {
-          const el = this.info.packageRespList?.find(item2 => +item.code === item2.packageType);
+          const count = this.info.packageRespList?.reduce((acc, cur) => {
+            // 技术服务活动和关爱服务活动累加显示到服务活动
+            if (String(item.code) === PackageTypeEnum.TECH_ACTIVITY && (String(cur.packageType) === PackageTypeEnum.TECH_ACTIVITY || String(cur.packageType) === PackageTypeEnum.CARE_ACTIVITY)) {
+              acc += cur.packageCount;
+            } else if (cur.packageType === +item.code) {
+              acc += cur.packageCount;
+            }
+            return acc;
+          }, 0);
           return {
             ...item,
-            value: el?.packageCount || 0
+            value: count || 0
           };
         });
       });
@@ -1159,6 +1167,7 @@ export default {
     },
     // 处理维修配件表格删除行
     async handleRemovePartRow (index, row) {
+      if (row.isOutstock) return;
       const packageTypeLabelMap = {
         // [PackageTypeEnum.REPAIR]: '维修套餐',
         [PackageTypeEnum.EQUITY]: '权益套餐',
@@ -1494,8 +1503,8 @@ export default {
         discountRate: this.selectedDiscount?.discountPartRate || 0,
         discountAmount: discountAmount,
         partsAmount: current.price - discountAmount,
-        repairItemName: current.repairItemName || '',
-        repairItemId: current.repairItemId || '',
+        repairItemName: current.repairItemName,
+        repairItemId: current.repairItemId,
         isBindltem: 0, // 手动添加的零件，标记为非自动导入
         packageCode: row.packageCode || '',
         packageId: row.packageId || '',
@@ -1763,6 +1772,14 @@ export default {
 <style lang="scss">
 .repair-item-autocomplete-popper,
 .repair-part-autocomplete-popper {
-  width: 400px !important;
+  width: auto !important;
+  min-width: 200px;
+  max-width: 1000px;
+  .el-autocomplete-suggestion__list {
+    padding-bottom: 28px;
+  }
+  .el-autocomplete-suggestion__wrap {
+    overflow-x: auto;
+  }
 }
 </style>

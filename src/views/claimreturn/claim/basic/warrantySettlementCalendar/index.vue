@@ -149,7 +149,6 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel, getEndOfDayString } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-import { create } from 'lodash';
 import DealerSelect from '@/components/dealer-select/index.vue';
 
 const defaultForm = {
@@ -328,10 +327,10 @@ export default {
             });
           }
         } else {
-          this.$message({
-            type: 'info',
-            message: '请前往导出列表中查询导出结果'
-          });
+          this.$confirmExport(
+            () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+          );
         }
       }).finally(() => {
         this.exportLoading = false;

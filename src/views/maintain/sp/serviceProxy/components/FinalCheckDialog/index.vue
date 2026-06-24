@@ -164,10 +164,10 @@
                 <el-popconfirm
                   title="确定质检吗？"
                   @confirm="handleQualityCheck(row)"
-                  :disabled="row.isDispatch === 0"
+                  :disabled="row.isDispatch === 0 || row.qualityCheckStatus === 30"
                 >
                   <span
-                    :class="['action-button', 'btn-back', { disabled: row.isDispatch === 0 }]"
+                    :class="['action-button', 'btn-back', { disabled: row.isDispatch === 0 || row.qualityCheckStatus === 30 }]"
                     slot="reference"
                     type="text">
                     质检

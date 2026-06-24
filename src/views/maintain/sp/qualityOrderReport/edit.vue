@@ -254,13 +254,13 @@
                 </el-form>
                 <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="接车施工单：" prop="serviceProxyCode">
-                    {{ form.serviceProxyCode }}
+                    <el-link type="success" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`" target="_blank">{{ form.serviceProxyCode }}</el-link>
                   </el-form-item>
                   <el-form-item label="VIN码：" prop="vehProfileVin">
-                    {{ form.vehProfileVin }}
+                    <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
                   </el-form-item>
                   <el-form-item label="基本车型：" prop="vehModelName">
-                    {{ form.vehModelName }}
+                    <el-link type="success" :href="`/sales/datacenter/materials/vehicleModel/edit?id=${form.vehModelId}`" target="_blank">{{ form.vehModelName }}</el-link>
                   </el-form-item>
                   <el-form-item label="里程数（KM)：" prop="mileage">
                     {{ form.mileage }}
@@ -316,7 +316,7 @@
                 </el-form>
                 <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="零件编码：" prop="causePartCode">
-                    {{ form.causePartCode }}
+                    <el-link type="success" :href="`/service/sparepart/basic/sparePart/edit?id=${form.causePartId}`" target="_blank">{{ form.causePartCode }}</el-link>
                   </el-form-item>
                   <el-form-item label="零件名称：" prop="causePartName">
                     {{ form.causePartName }}
@@ -367,7 +367,7 @@
                 </el-form>
                 <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="服务中心名称：" prop="serviceCenterName">
-                    {{ form.serviceCenterName }}
+                    <el-link type="success" :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.serviceCenterCode}`" target="_blank">{{ form.serviceCenterName }}</el-link>
                   </el-form-item>
                   <el-form-item label="服务中心代码：" prop="serviceCenterCode">
                     {{ form.serviceCenterCode }}
@@ -1327,10 +1327,6 @@ export default {
       this.$refs.attachmentRef?.loadAttachmentList();
     },
     handleSubmitApproval () {
-      if ((this.tableDataFault || []).length === 0 && (this.tableDataFault || []).length === 0) {
-        this.$message.error('请先添加故障代码');
-        return;
-      }
       this.$confirm('确定提交审批?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

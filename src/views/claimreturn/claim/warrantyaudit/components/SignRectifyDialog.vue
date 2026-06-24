@@ -15,9 +15,9 @@
           <el-form-item class="form-item-full" label="未签署整改报告：">
             <AisAttachment
               :business-id="form.auditId"
-              :uploadConfig="uploadConfig"
               :readonly="true"
               attachType="待签署整改报告"
+              configCode="warrantyAudit"
             />
           </el-form-item>
           <el-form-item prop="fileId" class="form-item-full" label="已签署整改报告：">
@@ -25,9 +25,10 @@
               style="padding-top: 5px;"
               ref="attachment"
               :business-id="form.auditId"
-              :uploadConfig="uploadConfig"
               :noEcho="true"
               attachType="已签署整改报告"
+              configCode="warrantyAudit"
+              :isAttached="false"
               @upload-loading-change="handleUploadLoadingChange"
             />
           </el-form-item>

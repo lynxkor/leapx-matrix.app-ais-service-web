@@ -122,7 +122,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/purchase/shippingOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser, getDesensitize } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -216,8 +216,22 @@ export default {
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'totalPieces', label: '总件数', visible: true, width: 140, align: 'right' },
           { props: 'totalBoxes', label: '总箱数', visible: true, width: 140, align: 'right' },
-          { props: 'recipientName', label: '收货人姓名', visible: true, width: 180 },
-          { props: 'recipientPhone', label: '收货人手机', visible: true, width: 180 },
+          {
+            props: 'recipientName',
+            label: '收货人姓名',
+            visible: true,
+            width: 160,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'shippingOrder', 'recipientName')
+          },
+          {
+            props: 'recipientPhone',
+            label: '收货人手机',
+            visible: true,
+            width: 180,
+            mask: true,
+            getValue: (row) => getDesensitize(row.id, 'shippingOrder', 'recipientPhone')
+          },
           { props: 'receiveAddress', label: '收货地址', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -360,10 +374,10 @@ export default {
             });
           }
         } else {
-          this.$message({
-            type: 'info',
-            message: '请前往导出列表中查询导出结果'
-          });
+          this.$confirmExport(
+            () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+          );
         }
       }).finally(() => {
         this.exportLoading = false;

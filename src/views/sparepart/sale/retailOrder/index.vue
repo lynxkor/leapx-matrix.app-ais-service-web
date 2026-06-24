@@ -720,7 +720,7 @@ export default {
       }
       exportTable({
         businessType: '备附件销售',
-        dataFetchPath: 'sp/sparepart/web/sale/retailOrder/page',
+        dataFetchPath: 'sp/web/dealer/retailOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
@@ -735,10 +735,10 @@ export default {
             });
           }
         } else {
-          this.$message({
-            type: 'info',
-            message: '请前往导出列表中查询导出结果'
-          });
+          this.$confirmExport(
+            () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+          );
         }
       }).finally(() => {
         this.exportLoading = false;

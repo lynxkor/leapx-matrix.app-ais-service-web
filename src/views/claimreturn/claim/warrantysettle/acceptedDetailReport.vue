@@ -252,13 +252,15 @@ export default {
 
       getAcceptedDetailReport({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
         .then(res => {
-          this.tableDataList = res.records.map(item => {
+          this.tableDataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.tableTotal = res.total;
+          this.tableTotal = res?.total || 0;
+        }).catch(err => {
+          console.error('获取列表失败:', err);
         }).finally(() => {
           this.loading = false;
         });
@@ -322,10 +324,10 @@ export default {
             });
           }
         } else {
-          this.$message({
-            type: 'info',
-            message: '请前往导出列表中查询导出结果'
-          });
+          this.$confirmExport(
+            () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+          );
         }
       }).finally(() => {
         this.exportLoading = false;

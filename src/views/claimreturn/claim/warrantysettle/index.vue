@@ -111,11 +111,13 @@
       :visible.sync="completeDialogVisible"
       :id="completeRowId"
       :detailData="completeDetailData"
+      :payment-method="completeDetailData.paymentMethod"
       @success="getData"
     />
     <InvoiceAcceptDialog
       :visible.sync="invoiceAcceptDialogVisible"
       :id="invoiceAcceptRowId"
+      :payment-method="invoiceAcceptRow.paymentMethod"
       @success="getData"
     />
     <InvoiceReturnDialog
@@ -126,6 +128,7 @@
     <PayConfirmDialog
       :visible.sync="payConfirmDialogVisible"
       :ids="payConfirmRowIds"
+      :payment-method="payConfirmRow.paymentMethod"
       @success="getData"
     />
   </div>
@@ -217,10 +220,12 @@ export default {
       completeDetailData: {},
       invoiceAcceptDialogVisible: false,
       invoiceAcceptRowId: '',
+      invoiceAcceptRow: {},
       invoiceReturnDialogVisible: false,
       invoiceReturnRowId: '',
       payConfirmDialogVisible: false,
       payConfirmRowIds: [],
+      payConfirmRow: {},
     };
   },
   computed: {
@@ -445,6 +450,7 @@ export default {
     // 发票验收
     handleInvoiceAccept (row) {
       this.invoiceAcceptRowId = row.id;
+      this.invoiceAcceptRow = row;
       this.invoiceAcceptDialogVisible = true;
     },
     // 发票退回
@@ -455,6 +461,7 @@ export default {
     // 确认付款
     handlePayConfirm (row) {
       this.payConfirmRowIds = [row.id];
+      this.payConfirmRow = row;
       this.payConfirmDialogVisible = true;
     },
     // 批量付款
@@ -469,6 +476,7 @@ export default {
         return;
       }
       this.payConfirmRowIds = this.selectionList.map(item => item.id);
+      this.payConfirmRow = {};
       this.payConfirmDialogVisible = true;
     },
     onSubmit () {
@@ -505,10 +513,10 @@ export default {
             });
           }
         } else {
-          this.$message({
-            type: 'info',
-            message: '请前往导出列表中查询导出结果'
-          });
+          this.$confirmExport(
+            () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+          );
         }
       }).finally(() => {
         this.exportLoadingTable = false;

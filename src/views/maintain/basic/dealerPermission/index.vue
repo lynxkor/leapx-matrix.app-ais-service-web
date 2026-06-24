@@ -322,10 +322,10 @@ export default {
             });
           }
         } else {
-          this.$message({
-            type: 'info',
-            message: '请前往导出列表中查询导出结果'
-          });
+          this.$confirmExport(
+            () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+          );
         }
       }).finally(() => {
         this.exportLoading = false;
@@ -338,13 +338,18 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          const records = res?.records || [];
+          this.optionObj.dataList = records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
+        }).catch(err => {
+          console.error('经销商权限列表加载失败:', err);
+          this.optionObj.dataList = [];
+          this.optionObj.total = 0;
         }).finally(() => {
           this.loading = false;
         });

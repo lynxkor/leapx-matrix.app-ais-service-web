@@ -197,7 +197,7 @@
               {{ form.paymentTime }}
             </el-form-item>
             <el-form-item label="索赔追溯单：" prop="claimTrackNo">
-              <el-link type="success" :href="`/claimreturn/claim/claimtrace/claimTraceOrder/edit?id=${form.claimTrackId}`" target="_blank">{{ form.claimTrackNo }}</el-link>
+              <el-link type="success" :href="`/service/claimreturn/claim/claimtrace/claimTraceOrder/edit?id=${form.claimTrackId}`" target="_blank">{{ form.claimTrackNo }}</el-link>
             </el-form-item>
           </el-form>
         </div>
@@ -623,7 +623,7 @@
     :visible.sync="rejectDialogVisible"
     :rejectIds="rejectIds"
     :isApplyReject="isApplyReject"
-    @success="handleApproveSuccess"
+    @success="handleRejectSuccess"
   />
   <DenyDialog
     :visible.sync="denyDialogVisible"
@@ -1203,6 +1203,14 @@ export default {
     // 对话框成功回调
     handleDialogSuccess () {
       this.$refs.containerRef.loadDetail();
+    },
+    // 驳回跳转下一条，申请驳回仅刷新当前单
+    handleRejectSuccess () {
+      if (this.isApplyReject) {
+        this.handleDialogSuccess();
+      } else {
+        this.handleApproveSuccess();
+      }
     },
     // 同意成功后跳转下一条
     handleApproveSuccess () {
