@@ -466,13 +466,13 @@ export default {
         { field: 'transactionTypeLabel', title: '交易类型', width: 100 },
         { field: 'accountBalance', title: '账户余额', width: 100 },
         { field: 'remark', title: '备注', width: 200 },
-        { field: 'sapFlowNo', title: 'SAP流水号', width: 200 },
+        // { field: 'sapFlowNo', title: 'SAP流水号', width: 200 },
         { field: 'dealerCode', title: '门店编码', width: 150 },
         { field: 'dealerName', title: '门店名称', width: 200 },
         { field: 'businessTypeLabel', title: '业务类型', width: 150 },
         { field: 'businessNo', title: '业务单号', width: 200 },
-        { field: 'taxInvoiceNo', title: '税务发票号', width: 200 },
-        { field: 'invoiceDate', title: '开票日期', width: 150 },
+        // { field: 'taxInvoiceNo', title: '税务发票号', width: 200 },
+        // { field: 'invoiceDate', title: '开票日期', width: 150 },
         { field: 'postingTime', title: '入账时间', width: 180 }
       ],
       columnConfigsDj: [

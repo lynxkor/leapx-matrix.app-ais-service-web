@@ -36,7 +36,7 @@
             filterable
             />
         </el-form-item>
-        <el-form-item label="营销分类名称">
+        <el-form-item label="营销分类名称" v-if="activeName === 'outOfStock'">
           <fetch-select
             :request="fetchOptions"
             enumCode="SparePartMarketingTypeEnum"
