@@ -258,7 +258,7 @@
               <div style="margin-bottom: 10px;">
                 <el-button size="small" @click="handleAdd" type="primary" plain :disabled="!['0', '3'].includes(form.orderStatus)"><i
                     class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
-                <el-button class="ais-button" size="small" :disabled="!['0', '3'].includes(form.orderStatus)" @click="handleRestock">
+                <el-button class="ais-button" size="small" v-if="permissions.has('AISPART-purchaseApply-predict')" :disabled="!['0', '3'].includes(form.orderStatus)" @click="handleRestock">
                   补货预测
                 </el-button>
                 <el-button size="small" @click="handleImport" :disabled="!routeQueryType">备件导入</el-button>
