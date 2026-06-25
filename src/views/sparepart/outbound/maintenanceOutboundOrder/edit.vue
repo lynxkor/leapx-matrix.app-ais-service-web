@@ -384,7 +384,7 @@ export default {
         },
         {
           field: 'returnApplicationReason',
-          title: '退料原申请因',
+          title: '申请退料原因',
           width: '9%',
         },
         {
