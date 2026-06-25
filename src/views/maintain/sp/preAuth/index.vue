@@ -145,6 +145,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, cancelItem, revokeItem, auditItem, regenerate, getEnum } from '@/api/maintain/sp/preAuth/index';
+import { getDecrypt as getServiceProxyDecrypt } from '@/api/maintain/sp/serviceProxy/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getPartDealer, getAllRegion } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -260,12 +261,21 @@ export default {
             }]
           },
           { props: 'dealerUnitName', label: '门店所属区域', visible: true, width: 150 },
-          { props: 'carPlate', label: '车牌号', visible: true, width: 150 },
+          {
+            props: 'carPlate',
+            label: '车牌号',
+            visible: true,
+            width: 150,
+            mask: true,
+            getValue: (row) => getServiceProxyDecrypt(row.serviceProxyId, 'carPlate')
+          },
           {
             props: 'vehProfileVin',
             label: 'VIN',
             visible: true,
             width: 200,
+            mask: true,
+            getValue: (row) => getServiceProxyDecrypt(row.serviceProxyId, 'vehProfileVin'),
             buttons: [{
               click: (rowIndex, row) => {
                 window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
