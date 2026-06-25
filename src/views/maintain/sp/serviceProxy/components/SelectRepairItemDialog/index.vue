@@ -911,8 +911,8 @@ export default {
       });
     },
     checkRepairTypeChange (callback) {
-      // 检查当前保存的维修项目中是否包含"一般维修"或"三电维修"或"保修"（通过ID判断）
-      const currentHasTargetRepair = this.itemData.some(item =>
+      // 检查当前保存的维修项目或者配件中是否包含"一般维修"或"三电维修"或"保修"（通过ID判断）
+      const currentHasTargetRepair = [...this.itemData, ...this.partData].some(item =>
         item.repairItemTypeId === MaintenanceTypeEnum.GENERAL_REPAIR ||
         item.repairItemTypeId === MaintenanceTypeEnum.BATTERY_REPAIR ||
         item.repairItemTypeId === MaintenanceTypeEnum.WARRANTY

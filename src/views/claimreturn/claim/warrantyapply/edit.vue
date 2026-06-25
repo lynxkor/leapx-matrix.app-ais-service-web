@@ -980,25 +980,28 @@ export default {
     handleTableUpdate () {
       this.refreshAll();
     },
-    detailRequest () {
+    // 取详情并补齐 partAndSupplierId（不含弹窗副作用）
+    fetchDetail () {
       const id = this._id;
-      if (id) {
-        return getDetail(id).then(res => {
-          const warningMsg = res.warrantyWarningMsg;
-          if (warningMsg) {
-            this.$nextTick(() => {
-              this.$alert(warningMsg, '保修预警提醒', {
-                closeOnClickModal: false,
-                type: 'warning',
-              });
+      if (!id) return Promise.resolve();
+      return getDetail(id).then(res => ({
+        ...res,
+        partAndSupplierId: res.mainPartId ? res.mainPartId + res.mainPartSupplierId : '',
+      }));
+    },
+    detailRequest () {
+      return this.fetchDetail().then(res => {
+        const warningMsg = res?.warrantyWarningMsg;
+        if (warningMsg) {
+          this.$nextTick(() => {
+            this.$alert(warningMsg, '保修预警提醒', {
+              closeOnClickModal: false,
+              type: 'warning',
             });
-          }
-          return {
-            ...res,
-            partAndSupplierId: res.mainPartId ? res.mainPartId + res.mainPartSupplierId : '',
-          };
-        });
-      }
+          });
+        }
+        return res;
+      });
     },
     async submitRequest () {
       const res = await addOrUpdate({ ...this.form });
@@ -1131,10 +1134,31 @@ export default {
       this.form.mainPartSupplierName = row?.supplierName || '';
       this.form.mainPartSupplierId = row?.supplierInfoId || '';
     },
-    // 刷新页面所有接口
+    // 刷新页面所有接口（保留用户未提交的表单修改，避免静默丢失）
     async refreshAll () {
-      await this.$refs.containerRef.loadDetail();
-      this.$refs.partTableRef.getDetailPageApi();
+      if (!this._id) return;
+      // 1. 快照用户已修改但未提交的字段（对照 originalForm 基线）
+      const editedEntries = Object.keys(this.form)
+        .filter(k => JSON.stringify(this.form[k]) !== JSON.stringify(this.originalForm[k]))
+        .map(k => [k, this.form[k]]);
+      // 2. 拉取服务端最新数据（不重复弹保修预警）
+      const res = await this.fetchDetail();
+      if (!res) return;
+      // 3. 以服务端数据为基础，叠加用户未提交的修改
+      const merged = { ...res };
+      editedEntries.forEach(([k, v]) => { merged[k] = v; });
+      this.form = merged;
+      // 4. 同步脏状态基线：未改字段=服务端最新值（干净），改过字段=旧基线值（仍为脏）
+      const newBaseline = { ...res };
+      editedEntries.forEach(([k]) => { newBaseline[k] = this.originalForm[k]; });
+      this.originalForm = { ...newBaseline };
+      // 容器内部基线（取消编辑/还原使用）同步刷新，避免还原出陈旧的派生数据
+      if (this.$refs.containerRef) {
+        this.$refs.containerRef.innerOriginalForm = { ...newBaseline };
+      }
+      if (this.$refs.partTableRef) {
+        this.$refs.partTableRef.getDetailPageApi();
+      }
     },
     // 提交
     handleSubmit () {
