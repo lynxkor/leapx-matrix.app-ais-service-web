@@ -515,13 +515,17 @@ export default {
       console.log(this.permissions.has('AISPART-sparePart-transportImport'));
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
-          this.optionObj.dataList = res.records.map(item => {
+          const records = (res && res.records) || [];
+          this.optionObj.dataList = records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = (res && res.total) || 0;
+        }).catch(err => {
+          console.error('获取备件列表失败:', err);
+          this.$message.error('获取列表数据失败，请重试');
         }).finally(() => {
           this.loading = false;
         });
