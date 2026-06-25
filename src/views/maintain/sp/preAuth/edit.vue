@@ -715,15 +715,28 @@ export default {
       return getDecrypt(this.form.serviceProxyId, field);
     },
     updateServiceProxyPhone (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
       this.$set(this.serviceProxyDetail, 'shuttlePhone', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'shuttlePhone', value);
+      }
     },
     updateServiceProxyCustomerName (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
       this.$set(this.serviceProxyDetail, 'customerName', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'customerName', value);
+      }
     },
     updateServiceProxyShuttleName (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
       this.$set(this.serviceProxyDetail, 'shuttleName', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'shuttleName', value);
+      }
     },
     updateServiceProxyVin (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
       this.$set(this.serviceProxyDetail, 'vehProfileVin', value);
       this.$set(this.form, 'vehProfileVin', value);
       if (this.form.serviceProxyResp) {
@@ -731,7 +744,11 @@ export default {
       }
     },
     updateServiceProxyCarPlate (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
       this.$set(this.serviceProxyDetail, 'carPlate', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'carPlate', value);
+      }
     },
     /**
      * 格式化日期为 yyyy-MM-dd 格式
