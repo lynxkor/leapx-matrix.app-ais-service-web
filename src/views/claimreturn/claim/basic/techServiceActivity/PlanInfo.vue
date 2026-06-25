@@ -72,7 +72,6 @@
                 @change="partChange"
                 labelKey="displayLabel"
                 valueKey="partAndSupplierId"
-                clearable
                 filterable
               >
                 <template #option="{ item }">
