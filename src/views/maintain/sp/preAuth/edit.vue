@@ -125,10 +125,18 @@
             <div class="common-section-body">
               <el-form :inline="true" class="form-detail">
                 <el-form-item label="车主姓名：">
-                  <span>{{ serviceProxyDetail?.customerName || form.serviceProxyResp?.customerName || '-' }}</span>
+                  <LPEncrypted
+                    :value="serviceProxyCustomerName"
+                    :decryptMethod="() => getServiceProxyDecryptField('customerName')"
+                    @update:value="updateServiceProxyCustomerName"
+                  />
                 </el-form-item>
                 <el-form-item label="送修人：">
-                  <span>{{ serviceProxyDetail?.shuttleName || form.serviceProxyResp?.shuttleName || '-' }}</span>
+                  <LPEncrypted
+                    :value="serviceProxyShuttleName"
+                    :decryptMethod="() => getServiceProxyDecryptField('shuttleName')"
+                    @update:value="updateServiceProxyShuttleName"
+                  />
                 </el-form-item>
                 <el-form-item label="送修人手机：">
                   <LPEncrypted
@@ -139,20 +147,25 @@
                 </el-form-item>
                 <el-form-item label="VIN：">
                   <LPEncrypted
-                    :value.sync="form.vehProfileVin"
+                    :value="serviceProxyVin"
                     :decryptMethod="() => getServiceProxyDecryptField('vehProfileVin')"
+                    @update:value="updateServiceProxyVin"
                   >
                     <template v-if="form.vehProfileId">
-                      <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
+                      <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ serviceProxyVin }}</el-link>
                     </template>
-                    <span v-else>{{ form.vehProfileVin || '-' }}</span>
+                    <span v-else>{{ serviceProxyVin || '-' }}</span>
                   </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车型：">
                   <span>{{ serviceProxyDetail?.vehModelName || form.serviceProxyResp?.vehModelName || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="车牌号：">
-                  <span>{{ serviceProxyDetail?.carPlate || form.serviceProxyResp?.carPlate || '-' }}</span>
+                  <LPEncrypted
+                    :value="serviceProxyCarPlate"
+                    :decryptMethod="() => getServiceProxyDecryptField('carPlate')"
+                    @update:value="updateServiceProxyCarPlate"
+                  />
                 </el-form-item>
                 <el-form-item label="车辆用途：">
                   <span>{{ preAuthInfoDetail.carPropertyLabel || form.carPropertyLabel || '-' }}</span>
@@ -631,8 +644,20 @@ export default {
     title () {
       return '申请单号：' + (this.form.code || '新增');
     },
+    serviceProxyCustomerName () {
+      return this.serviceProxyDetail?.customerName || this.form.serviceProxyResp?.customerName || '-';
+    },
+    serviceProxyShuttleName () {
+      return this.serviceProxyDetail?.shuttleName || this.form.serviceProxyResp?.shuttleName || '-';
+    },
     serviceProxyPhone () {
       return this.serviceProxyDetail?.shuttlePhone || this.form.serviceProxyResp?.shuttlePhone || '-';
+    },
+    serviceProxyVin () {
+      return this.serviceProxyDetail?.vehProfileVin || this.form.serviceProxyResp?.vehProfileVin || this.form.vehProfileVin || '-';
+    },
+    serviceProxyCarPlate () {
+      return this.serviceProxyDetail?.carPlate || this.form.serviceProxyResp?.carPlate || '-';
     }
   },
   watch: {
@@ -690,7 +715,40 @@ export default {
       return getDecrypt(this.form.serviceProxyId, field);
     },
     updateServiceProxyPhone (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
       this.$set(this.serviceProxyDetail, 'shuttlePhone', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'shuttlePhone', value);
+      }
+    },
+    updateServiceProxyCustomerName (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
+      this.$set(this.serviceProxyDetail, 'customerName', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'customerName', value);
+      }
+    },
+    updateServiceProxyShuttleName (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
+      this.$set(this.serviceProxyDetail, 'shuttleName', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'shuttleName', value);
+      }
+    },
+    updateServiceProxyVin (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
+      this.$set(this.serviceProxyDetail, 'vehProfileVin', value);
+      this.$set(this.form, 'vehProfileVin', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'vehProfileVin', value);
+      }
+    },
+    updateServiceProxyCarPlate (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
+      this.$set(this.serviceProxyDetail, 'carPlate', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'carPlate', value);
+      }
     },
     /**
      * 格式化日期为 yyyy-MM-dd 格式
