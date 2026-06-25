@@ -284,9 +284,9 @@ export default {
             }]
           },
           { props: 'alarmInfo', label: '预警信息', visible: true, width: 200 },
-          { props: 'approvedLaborClaimTotal', label: '工时索赔合计', visible: true, width: 150 },
-          { props: 'approvedPartsClaimTotal', label: '零件索赔合计', visible: true, width: 150 },
-          { props: 'approvedOtherClaimTotal', label: '其他索赔费用', visible: true, width: 150 },
+          { props: 'claimItemAmount', label: '工时索赔合计', visible: true, width: 150 },
+          { props: 'claimPartsAmount', label: '零件索赔合计', visible: true, width: 150 },
+          { props: 'claimOtherAmount', label: '其他索赔费用', visible: true, width: 150 },
           { props: 'approvalStatusLabel', label: '单据状态', visible: true, width: 150 },
           { props: 'approver', label: '审批人', visible: true, width: 150 },
           { props: 'approvalOn', label: '审批时间', visible: true, width: 180 },
