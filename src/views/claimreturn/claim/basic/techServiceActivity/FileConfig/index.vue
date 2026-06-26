@@ -25,6 +25,7 @@
           :moduleKey="moduleKey"
           ref="table"
           :id="id"
+          v-if="canDetail"
           >
         </Table>
       </section>

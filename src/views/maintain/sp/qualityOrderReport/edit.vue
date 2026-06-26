@@ -902,7 +902,7 @@ export default {
           editable: this.isEditing || !this.id,
           editRender: { name: 'ElInput' },
           rules: [
-            { required: true, message: '车型不能为空', trigger: 'blur' }
+            { required: true, message: '控制器不能为空', trigger: 'blur' }
           ]
         },
         {
