@@ -330,35 +330,14 @@ export default {
                 this.handleCancel(row);
               },
               type: 'info',
-              show: (row) => this.permissions.has('AISMC-preAuth-cancel') && row.approvalStatus === AUDIT_STATUS.REJECTED // 审批驳回
+              show: (row) => this.permissions.has('AISMC-preAuth-cancel') && (row.approvalStatus === AUDIT_STATUS.REJECTED || row.approvalStatus === AUDIT_STATUS.TODO) // 审批驳回
             }, {
               name: '撤回',
               click: (rowIndex, row) => {
                 this.handleRevoke(row);
               },
               type: 'info',
-              show: (row) => this.permissions.has('AISMC-preAuth-audit') && row.approvalStatus === AUDIT_STATUS.APPROVED
-            }, {
-              name: '删除',
-              popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger',
-              show: (row) => this.permissions.has('AISMC-preAuth-delete') && row.approvalStatus === AUDIT_STATUS.TODO // 待提交
+              show: (row) => this.permissions.has('AISMC-preAuth-revoke') && row.approvalStatus === AUDIT_STATUS.APPROVED
             }, {
               name: '重新申请',
               click: (rowIndex, row) => {
@@ -379,7 +358,7 @@ export default {
                 this.handleApprove(row, 'pass');
               },
               type: 'info',
-              show: (row) => row.approvalStatus === AUDIT_STATUS.REFUSED // 已拒绝
+              show: (row) => this.permissions.has('AISMC-preAuth-activate') && row.approvalStatus === AUDIT_STATUS.REFUSED // 已拒绝
             }]
           }
         ],
