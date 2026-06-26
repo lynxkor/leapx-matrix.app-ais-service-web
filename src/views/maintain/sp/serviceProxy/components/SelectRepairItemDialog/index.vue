@@ -684,6 +684,7 @@ export default {
     },
     close () {
       this.dialogVisible = false;
+      this.$emit('check');
     },
     closed () {
       // 重置数据
@@ -898,7 +899,6 @@ export default {
       if (JSON.stringify(data) === this.originalDataJson) {
         this.$emit('update:visible', false);
         this.submitLoading = false;
-        this.$emit('check');
         return;
       }
 
@@ -909,9 +909,7 @@ export default {
         this.$emit('update:visible', false);
         this.$emit('refresh');
         // 检查维修类型变化
-        this.checkRepairTypeChange(() => {
-          this.$emit('check');
-        });
+        this.checkRepairTypeChange();
       }).catch(e => {
         this.submitLoading = false;
       });
@@ -1491,9 +1489,7 @@ export default {
       await this.getRepairItemInfo();
       this.$emit('refresh');
       // 检查维修类型变化（逻辑同手动保存，覆盖5种套餐导入入口）
-      this.checkRepairTypeChange(() => {
-        this.$emit('check');
-      });
+      this.checkRepairTypeChange();
     },
     // ----------替换件逻辑-----------------
     handlePartReplaceChange (current, row) {
