@@ -98,7 +98,7 @@
         <el-form-item label="数据来源">
           <fetch-select
             :request="fetchOptions"
-            enumCode="dataSource"
+            enumCode="ServiceProxyDataSource"
             v-model="form.dataSourceList"
             placeholder="请选择"
             clearable
