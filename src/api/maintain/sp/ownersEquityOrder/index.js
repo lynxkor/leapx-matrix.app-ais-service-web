@@ -36,6 +36,23 @@ export function getDetail (data) {
 }
 
 /**
+ * 查询加密字段
+ * @param {String|Number} id
+ * @param {String} field
+ */
+export function getDecrypt (id, field) {
+  const param = {
+    id,
+    decryptFields: [field]
+  };
+  return new Promise(resolve => {
+    api.jsonPost(prefix + 'getDecrypt', param).then(res => {
+      resolve(res?.[field]);
+    });
+  });
+}
+
+/**
  * 启用停用
  * @param {Object} data
  */

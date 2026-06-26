@@ -454,6 +454,7 @@ export default {
           { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
           { props: 'cashAmount', label: '使用现金', visible: true, align: 'right', width: 120 },
           { props: 'rebateAmount', label: '使用返利', visible: true, align: 'right', width: 120 },
+          { props: 'originalPriceCouponId', label: '原价券', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
         ],
@@ -551,6 +552,7 @@ export default {
           { props: 'cashUnitPrice', label: '现金单价', visible: true, align: 'right', width: 120 },
           { props: 'cashAmount', label: '现金金额', visible: true, align: 'right', width: 120 },
           { props: 'detailRemark', label: '备注', visible: true, width: 200 },
+          { props: 'originalPriceCouponId', label: '原价券', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {

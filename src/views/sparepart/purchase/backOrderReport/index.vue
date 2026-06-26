@@ -473,10 +473,7 @@ export default {
       this.activeName = 'spareParts';
       this.show = true;
       this.form = { ...defaultForm };
-      const res = await this.getCategory(row.categoryName);
-      if (res.records && res.records.length > 0) {
-        this.form.categoryIdList = [res.records[0].id];
-      }
+      this.form.categoryIdList = [row.categoryId];
       this.onSubmit();
     },
   }

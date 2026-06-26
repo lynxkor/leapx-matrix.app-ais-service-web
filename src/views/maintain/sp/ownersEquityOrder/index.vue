@@ -142,7 +142,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/maintain/sp/ownersEquityOrder/index';
+import { getList, deleteItem, enableItem, getDecrypt } from '@/api/maintain/sp/ownersEquityOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import TagInput from '@/libs/components/TagInput';
@@ -279,9 +279,36 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vehProfileVin', label: 'VIN', visible: true, width: 200 },
-          { props: 'purchaser', label: '购买人', visible: true, width: 200 },
-          { props: 'purchaserPhone', label: '购买人电话', visible: true, width: 200 },
+          {
+            props: 'vehProfileVin',
+            label: 'VIN',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDecrypt(row.id, 'vehProfileVin'),
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'purchaser',
+            label: '购买人',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDecrypt(row.id, 'purchaser')
+          },
+          {
+            props: 'purchaserPhone',
+            label: '购买人电话',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDecrypt(row.id, 'purchaserPhone')
+          },
           { props: 'saleDate', label: '购买时间', visible: true, width: 200 },
           { props: 'referralCode', label: '推荐码', visible: true, width: 200 },
           { props: 'logisticsCompanies', label: '物流商', visible: true, width: 200 },

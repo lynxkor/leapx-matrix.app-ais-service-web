@@ -628,11 +628,11 @@ export default {
         }
       });
 
-      // 处理 tag-input 批量查询字段：单值时转为普通字段，多值时保留数组
+      // 处理 tag-input 批量查询字段：单值时转为模糊字段，多值时保留数组走批量查询
       const tagInputFields = {
         codes: 'code',
-        carPlateList: 'carPlate',
-        vehProfileVinList: 'vehProfileVin',
+        carPlateList: 'carPlateLike',
+        vehProfileVinList: 'vehProfileVinLike',
         appointmentNoList: 'appointmentNo'
       };
       Object.keys(tagInputFields).forEach(key => {

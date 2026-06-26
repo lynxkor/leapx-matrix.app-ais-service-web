@@ -414,7 +414,7 @@ export default {
           vehYearTypeName: item.vehicleYearTypeName,
         };
       });
-      addPartVehModel(submitData).then(res => {
+      addPartVehModel({ maintenancePartId: this.id, maintenancePartVehModelList: submitData }).then(res => {
         this.$message.success('保存成功');
         this.$refs.containerRef.loadDetail();
       });

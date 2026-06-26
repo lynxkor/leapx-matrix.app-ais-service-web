@@ -329,10 +329,10 @@
                   :businessId="_id"
                   configCode="mcs_partsclaimorder"
                   attachType="索赔申请附件"
-                  readonly
+                  :readonly="form.orderStatus !== '0' && form.orderStatus !== '3'"
                 />
               </div>
-              <h2 class="common-title">审批附件</h2>
+              <!-- <h2 class="common-title">审批附件</h2>
               <div class="common-section-table">
                 <AisAttachment
                   :businessId="_id"
@@ -340,7 +340,7 @@
                   attachType="索赔审批附件"
                   readonly
                 />
-              </div>
+              </div> -->
             </div>
           </section>
         </el-main>

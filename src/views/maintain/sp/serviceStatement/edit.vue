@@ -15,7 +15,7 @@
           <el-button size="small" @click="createRefund" v-if="buttonPermissions.reCreate || buttonPermissions.reCreate1" :style="{'opacity': isStoreOrder && isOverSettlement30Days ? '0.5': 1}">创建反结算单</el-button>
           <el-button size="small" @click="createWarrantyApply"
             v-if="canCreateWarrantyApply">创建保修申请单</el-button>
-          <el-button size="small" @click="handlePrint">打印结算单</el-button>
+          <el-button size="small" @click="handlePrint" v-if="buttonPermissions.canPrint">打印结算单</el-button>
         </template>
         <div class="common-sub-title">
           <span>结算单号：{{ form.code || '-' }}</span>
@@ -478,6 +478,8 @@ export default {
         addRecord: baseType.includes(statementType) && statementStatus === 30 && this.permissions.has('AISMC-serviceStatement-addReceiptRecord'),
         // 重推签字短信
         canResendSignSms: signStatus === 10 && signGeneratedOn,
+        // 打印结算单
+        canPrint: this.permissions.has('AISMC-serviceStatement-print'),
       };
     },
 
