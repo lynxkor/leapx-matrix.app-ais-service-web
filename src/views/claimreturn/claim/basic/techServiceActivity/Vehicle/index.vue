@@ -21,7 +21,7 @@
         />
         <el-button size="small" @click="handleImport">导入车辆</el-button>
       </section>
-      <section class="common-section"  v-if="canAddOrUpdate">
+      <section class="common-section"  v-if="canDetail">
         <vehicle-table
           :moduleKey="moduleKey"
           ref="vehicleTable"
