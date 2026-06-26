@@ -307,7 +307,7 @@ export default {
                 this.handleCancel(row);
               },
               type: 'info',
-              show: (row) => this.permissions.has('AISMC-preAuth-cancel') && row.approvalStatus === AUDIT_STATUS.REJECTED // 审批驳回
+              show: (row) => this.permissions.has('AISMC-preAuth-cancel') && (row.approvalStatus === AUDIT_STATUS.TODO || row.approvalStatus === AUDIT_STATUS.REJECTED) // 审批驳回
             }, {
               name: '撤回',
               click: (rowIndex, row) => {
