@@ -191,21 +191,9 @@ export default {
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
-      pickerMinDate: null,
       pickerOptions: {
-        onPick: ({ minDate }) => {
-          this.pickerMinDate = minDate;
-        },
         disabledDate: (time) => {
-          if (time.getTime() > Date.now()) {
-            return true;
-          }
-          if (this.pickerMinDate) {
-            const min = new Date(this.pickerMinDate).getTime();
-            const range = 90 * 24 * 3600 * 1000;
-            return Math.abs(time.getTime() - min) > range;
-          }
-          return false;
+          return time.getTime() > Date.now();
         },
       },
       loading: false,
