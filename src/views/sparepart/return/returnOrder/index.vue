@@ -433,8 +433,12 @@ export default {
   },
   async created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
-    const res = await getLoginUser();
-    this.accountFlag = res.accountFlag;
+    try {
+      const res = await getLoginUser();
+      this.accountFlag = res.accountFlag;
+    } catch (error) {
+      console.error('获取用户信息失败:', error);
+    }
     this.getData();
   },
   methods: {

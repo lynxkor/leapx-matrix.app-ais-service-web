@@ -76,6 +76,18 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker
+            v-model="form.createTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -133,6 +145,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, cancelItem, revokeItem, auditItem, regenerate, getEnum } from '@/api/maintain/sp/preAuth/index';
+import { getDecrypt as getServiceProxyDecrypt } from '@/api/maintain/sp/serviceProxy/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getPartDealer, getAllRegion } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -158,7 +171,8 @@ const defaultForm = {
   carPlate: '',
   licensePlateNo: '',
   vehProfileVin: '',
-  status: ''
+  status: '',
+  createTime: ''
 };
 
 const pageSize = 20;
@@ -247,12 +261,21 @@ export default {
             }]
           },
           { props: 'dealerUnitName', label: '门店所属区域', visible: true, width: 150 },
-          { props: 'carPlate', label: '车牌号', visible: true, width: 150 },
+          {
+            props: 'carPlate',
+            label: '车牌号',
+            visible: true,
+            width: 150,
+            mask: true,
+            getValue: (row) => getServiceProxyDecrypt(row.serviceProxyId, 'carPlate')
+          },
           {
             props: 'vehProfileVin',
             label: 'VIN',
             visible: true,
             width: 200,
+            mask: true,
+            getValue: (row) => getServiceProxyDecrypt(row.serviceProxyId, 'vehProfileVin'),
             buttons: [{
               click: (rowIndex, row) => {
                 window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
@@ -307,35 +330,14 @@ export default {
                 this.handleCancel(row);
               },
               type: 'info',
-              show: (row) => this.permissions.has('AISMC-preAuth-cancel') && (row.approvalStatus === AUDIT_STATUS.TODO || row.approvalStatus === AUDIT_STATUS.REJECTED) // 审批驳回
+              show: (row) => this.permissions.has('AISMC-preAuth-cancel') && (row.approvalStatus === AUDIT_STATUS.REJECTED || row.approvalStatus === AUDIT_STATUS.TODO) // 审批驳回
             }, {
               name: '撤回',
               click: (rowIndex, row) => {
                 this.handleRevoke(row);
               },
               type: 'info',
-              show: (row) => this.permissions.has('AISMC-preAuth-audit') && row.approvalStatus === AUDIT_STATUS.APPROVED
-            }, {
-              name: '删除',
-              popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger',
-              show: (row) => this.permissions.has('AISMC-preAuth-delete') && row.approvalStatus === AUDIT_STATUS.TODO // 待提交
+              show: (row) => this.permissions.has('AISMC-preAuth-revoke') && row.approvalStatus === AUDIT_STATUS.APPROVED
             }, {
               name: '重新申请',
               click: (rowIndex, row) => {
@@ -356,7 +358,7 @@ export default {
                 this.handleApprove(row, 'pass');
               },
               type: 'info',
-              show: (row) => row.approvalStatus === AUDIT_STATUS.REFUSED // 已拒绝
+              show: (row) => this.permissions.has('AISMC-preAuth-activate') && row.approvalStatus === AUDIT_STATUS.REFUSED // 已拒绝
             }]
           }
         ],
@@ -565,6 +567,12 @@ export default {
           delete data[key];
         }
       });
+
+      if (Array.isArray(data.createTime) && data.createTime.length === 2) {
+        data.createTimeStart = data.createTime[0];
+        data.createTimeEnd = data.createTime[1];
+        delete data.createTime;
+      }
 
       // 排序字段
       data.sortColumns = this.sortColumns;

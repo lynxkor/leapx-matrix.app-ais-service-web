@@ -42,7 +42,7 @@
                 <el-form-item label="工位类型：" prop="stationType">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="mc_station_type"
+                    enumCode="DealerStationTypeEnum"
                     v-model="form.stationType"
                     placeholder="请选择"
                     clearable
