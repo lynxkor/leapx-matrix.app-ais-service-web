@@ -284,9 +284,9 @@ export default {
             }]
           },
           { props: 'alarmInfo', label: '预警信息', visible: true, width: 200 },
-          { props: 'approvedLaborClaimTotal', label: '工时索赔合计', visible: true, width: 150 },
-          { props: 'approvedPartsClaimTotal', label: '零件索赔合计', visible: true, width: 150 },
-          { props: 'approvedOtherClaimTotal', label: '其他索赔费用', visible: true, width: 150 },
+          { props: 'claimItemAmount', label: '工时索赔合计', visible: true, width: 150 },
+          { props: 'claimPartsAmount', label: '零件索赔合计', visible: true, width: 150 },
+          { props: 'claimOtherAmount', label: '其他索赔费用', visible: true, width: 150 },
           { props: 'approvalStatusLabel', label: '单据状态', visible: true, width: 150 },
           { props: 'approver', label: '审批人', visible: true, width: 150 },
           { props: 'approvalOn', label: '审批时间', visible: true, width: 180 },
@@ -320,7 +320,7 @@ export default {
                 });
               },
               type: 'info',
-              show: (row) => row.approvalStatus === AUDIT_STATUS.TODO || row.approvalStatus === AUDIT_STATUS.REJECTED // 待提交或审批驳回
+              show: (row) => this.canAddOrUpdate && (row.approvalStatus === AUDIT_STATUS.TODO || row.approvalStatus === AUDIT_STATUS.REJECTED) // 待提交或审批驳回
             }, {
               name: '作废',
               popconfirmConfirmButtonType: 'danger',
@@ -351,7 +351,7 @@ export default {
                 });
               },
               type: 'info',
-              show: (row) => row.approvalStatus === AUDIT_STATUS.EXPIRED // 已过期
+              show: (row) => this.permissions.has('AISMC-preAuth-reGenerate') && row.approvalStatus === AUDIT_STATUS.EXPIRED // 已过期
             }, {
               name: '激活',
               click: (rowIndex, row) => {

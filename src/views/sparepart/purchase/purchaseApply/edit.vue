@@ -258,7 +258,7 @@
               <div style="margin-bottom: 10px;">
                 <el-button size="small" @click="handleAdd" type="primary" plain :disabled="!['0', '3'].includes(form.orderStatus)"><i
                     class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
-                <el-button class="ais-button" size="small" :disabled="!['0', '3'].includes(form.orderStatus)" @click="handleRestock">
+                <el-button class="ais-button" size="small" v-if="permissions.has('AISPART-purchaseApply-predict')" :disabled="!['0', '3'].includes(form.orderStatus)" @click="handleRestock">
                   补货预测
                 </el-button>
                 <el-button size="small" @click="handleImport" :disabled="!routeQueryType">备件导入</el-button>
@@ -329,10 +329,10 @@
                   :businessId="_id"
                   configCode="mcs_partsclaimorder"
                   attachType="索赔申请附件"
-                  readonly
+                  :readonly="form.orderStatus !== '0' && form.orderStatus !== '3'"
                 />
               </div>
-              <h2 class="common-title">审批附件</h2>
+              <!-- <h2 class="common-title">审批附件</h2>
               <div class="common-section-table">
                 <AisAttachment
                   :businessId="_id"
@@ -340,7 +340,7 @@
                   attachType="索赔审批附件"
                   readonly
                 />
-              </div>
+              </div> -->
             </div>
           </section>
         </el-main>
