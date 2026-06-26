@@ -157,7 +157,7 @@
             </div>
             <div
               class="common-section"
-              v-if="canAddOrUpdate && id"
+              v-if="canDetail && id"
             >
               <base-search
                 filterable

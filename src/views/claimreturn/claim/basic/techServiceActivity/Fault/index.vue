@@ -10,7 +10,7 @@
           :isAdd="true"
         />
       </section>
-      <section class="common-section"  v-if="canAddOrUpdate">
+      <section class="common-section"  v-if="canDetail">
         <fault-table
           :moduleKey="moduleKey"
           ref="faultTable"

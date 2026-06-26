@@ -569,7 +569,7 @@ export default {
             });
           },
           rules: [
-            { required: true, message: '车型不能为空', trigger: 'blur' }
+            { required: true, message: '零件代码不能为空', trigger: 'blur' }
           ]
         },
         {
