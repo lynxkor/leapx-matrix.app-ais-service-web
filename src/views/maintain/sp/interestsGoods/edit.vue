@@ -394,9 +394,9 @@ export default {
             this.tablePartData = this.tablePartData.concat(item.goodsPartsList);
           }
         });
-        this.claimItemAmount = itemClaimTotal;
-        this.claimPartsAmount = partsClaimTotal;
-        this.totalClaimAmount = itemClaimTotal + partsClaimTotal;
+        this.claimItemAmount = (itemClaimTotal).toFixed(2);
+        this.claimPartsAmount = (partsClaimTotal).toFixed(2);
+        this.totalClaimAmount = (itemClaimTotal + partsClaimTotal).toFixed(2);
       } else {
         this.repairItemTableData = [];
         this.tablePartData = [];
