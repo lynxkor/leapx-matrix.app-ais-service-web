@@ -435,7 +435,7 @@ export default {
       },
       rules: {
         batteryUnitId: [
-          { required: true, message: '请选择', trigger: 'change' }
+          { required: false, message: '请选择', trigger: 'change' }
         ],
         beforeChangeCode: [
           { required: true, message: '请填写电池更换前编号', trigger: 'change' }
