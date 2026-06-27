@@ -372,7 +372,7 @@ import { getListData } from '@/api/maintain/basic/batteryUnit/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import moment from 'moment';
 import BaseSearch from '@/libs/components/BaseSearch';
-import { page } from '@/api/maintain/basic/monitoringEquipmentConfig';
+import { ConfirmFaultEnum } from '../../constant';
 
 const allTabs = ['质检', '故障模块确认', '电池信息确认', '追溯信息确认', '终检'];
 const allSubTabs = [
@@ -435,7 +435,7 @@ export default {
       },
       rules: {
         batteryUnitId: [
-          { required: true, message: '请选择', trigger: 'change' }
+          { required: false, message: '请选择', trigger: 'change' }
         ],
         beforeChangeCode: [
           { required: true, message: '请填写电池更换前编号', trigger: 'change' }
@@ -704,7 +704,7 @@ export default {
           customClass: 'ais-leave-tips',
           showClose: false
         }).then(() => {
-          const newCustomerContent = this.vehicleInfo.confirmFault === 1 ? this.vehicleInfo.customerContent : '本次进店车辆无故障'; // 1 为准确 2 为不准确
+          const newCustomerContent = this.vehicleInfo.confirmFault === ConfirmFaultEnum.ACCURATE ? this.vehicleInfo.customerContent : '本次进店车辆无故障'; // 1 为准确 2 为不准确
           addFaultRecord({ id: this.vehicleInfo.id, currentFault: 0, customerContent: newCustomerContent }).then(() => {
             this.faultTableData = [];
             this.$message.success('故障模块信息已清空');
