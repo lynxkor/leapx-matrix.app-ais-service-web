@@ -50,44 +50,44 @@
       <vxe-table
         ref="xTable"
         :data="tableData"
-        :tree-config="{ children: 'children', expandAll: false, treeNodeKey: '_treeKey' }"
-        :row-class-name="rowClassName"
         :loading="loading"
         :auto-resize="true"
+        :show-footer="tableData.length > 0"
+        :footer-method="footerMethod"
         max-height="800"
+        size="small"
         resizable
-        border
+        stripe
+        border="inner"
         show-overflow
         highlight-hover-row
       >
-        <vxe-column type="seq" width="60" tree-node />
+        <vxe-column type="expand" width="60" :show-overflow="false">
+          <template #content="{ row }">
+            <work-hour-detail-sub-table
+              :group-key="row.groupKey"
+              :search-params="searchParams"
+              :fetch-detail="fetchDetail"
+              :columns="detailColumns"
+              @loaded="onDetailLoaded"
+            />
+          </template>
+        </vxe-column>
+        <vxe-column type="seq" width="60" />
         <vxe-column field="groupName" title="技师姓名" width="200" />
-
-        <vxe-column title="工时数" width="140">
-          <template #default="{ row }">
-            {{ row._isSummary ? formatDecimal(row.totalWorkHour) : (isLeaf(row) ? formatDecimal(row.workHour) : '-') }}
-          </template>
+        <vxe-column field="totalWorkHour" title="工时数" width="200">
+          <template #default="{ row }">{{ formatDecimal(row.totalWorkHour) }}</template>
         </vxe-column>
-
-        <vxe-column title="工时单价(元)" width="140">
-          <template #default="{ row }">
-            {{ row._isSummary ? '-' : (isLeaf(row) ? formatDecimal(row.price) : '-') }}
-          </template>
+        <vxe-column title="工时单价(元)" width="200">
+          <template #default>-</template>
         </vxe-column>
-
-        <vxe-column title="工时金额(元)" width="140">
-          <template #default="{ row }">
-            {{ formatDecimal(row._isSummary ? row.totalAmount : (isLeaf(row) ? row.repairAmount : row.totalAmount)) }}
-          </template>
+        <vxe-column field="totalAmount" title="工时金额(元)" width="200">
+          <template #default="{ row }">{{ formatDecimal(row.totalAmount) }}</template>
         </vxe-column>
-
-        <vxe-column title="工时优惠(元)" width="140">
-          <template #default="{ row }">
-            {{ formatDecimal(row._isSummary ? row.totalDiscount : (isLeaf(row) ? row.discountAmount : row.totalDiscount)) }}
-          </template>
+        <vxe-column field="totalDiscount" title="工时优惠(元)">
+          <template #default="{ row }">{{ formatDecimal(row.totalDiscount) }}</template>
         </vxe-column>
-
-        <vxe-column field="repairItemCode" title="维修项目代码" width="150" />
+        <!-- <vxe-column field="repairItemCode" title="维修项目代码" width="150" />
         <vxe-column field="repairItemName" title="维修项目名称" width="180" />
         <vxe-column field="serviceProxyCode" title="接车施工单" width="180" />
         <vxe-column field="finishAt" title="完工时间" width="180" />
@@ -96,7 +96,7 @@
         <vxe-column field="dealerName" title="门店名称" width="180" />
         <vxe-column field="carPlate" title="车牌" width="150" />
         <vxe-column field="vehProfileVin" title="VIN" width="200" />
-        <vxe-column field="serviceAdvisorName" title="客户经理" width="120" />
+        <vxe-column field="serviceAdvisorName" title="客户经理" width="120" /> -->
       </vxe-table>
       <el-pagination
         v-if="total > 0"
@@ -115,15 +115,15 @@
 </template>
 
 <script>
-import debounce from 'lodash.debounce';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { pageWorkHourSummaryByTechnician } from '@/api/maintain/sp/workHourSummary/index';
+import { pageWorkHourSummaryGroupByTechnician, pageWorkHourSummaryDetailByTechnician } from '@/api/maintain/sp/workHourSummary/index';
 import { exportTable, listOrgStoreInfo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
+import WorkHourDetailSubTable from './components/WorkHourDetailSubTable.vue';
 
 function getDefaultFinishDate () {
   const end = new Date();
@@ -138,11 +138,26 @@ const defaultForm = {
   finishDate: ''
 };
 
+// 明细子表列定义（按技师）
+const detailColumns = [
+  { field: 'repairItemCode', title: '维修项目代码', width: 150 },
+  { field: 'repairItemName', title: '维修项目名称', width: 180 },
+  { field: 'serviceProxyCode', title: '接车施工单', width: 180 },
+  { field: 'finishAt', title: '完工时间', width: 180 },
+  { field: 'orderStatusLabel', title: '工单状态', width: 120 },
+  { field: 'checkoutTypeName', title: '结算类型', width: 120 },
+  { field: 'dealerName', title: '门店名称', width: 180 },
+  { field: 'carPlate', title: '车牌', width: 150 },
+  { field: 'vehProfileVin', title: 'VIN', width: 200 },
+  { field: 'serviceAdvisorName', title: '客户经理', width: 120 }
+];
+
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: {
     PageSearchAction,
-    FetchSelect
+    FetchSelect,
+    WorkHourDetailSubTable
   },
   data () {
     return {
@@ -156,8 +171,25 @@ export default {
       tableData: [],
       pageNum: 1,
       pageSize: 20,
-      total: 0
+      total: 0,
+      detailColumns
     };
+  },
+  computed: {
+    // 供展开行子表复用的搜索条件（已清洗，无分页）
+    searchParams () {
+      return this.getFormData();
+    },
+    // 本页各分组合计之和，用于底部合计行
+    pageTotals () {
+      const toNum = v => (v === null || isNaN(v)) ? 0 : Number(v);
+      return this.tableData.reduce((acc, g) => {
+        acc.workHour += toNum(g.totalWorkHour);
+        acc.amount += toNum(g.totalAmount);
+        acc.discount += toNum(g.totalDiscount);
+        return acc;
+      }, { workHour: 0, amount: 0, discount: 0 });
+    }
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
@@ -168,11 +200,17 @@ export default {
     async getDealerListByName (params) {
       return listOrgStoreInfo({ name: params });
     },
-    rowClassName ({ row }) {
-      return row._isSummary ? 'summary-row' : '';
+    // 展开行懒加载：拉取某技师的工时明细（带分页）
+    fetchDetail (params) {
+      return pageWorkHourSummaryDetailByTechnician({ ...params, groupBy: 'technician' });
     },
-    isLeaf (row) {
-      return row._isSummary || !row.children || row.children.length === 0;
+    // 明细异步加载完成后触发表格重算，修正展开行高度（vxe 在展开瞬间已重算，此时高度尚未撑开）
+    onDetailLoaded () {
+      this.$nextTick(() => {
+        if (this.$refs.xTable) {
+          this.$refs.xTable.recalculate();
+        }
+      });
     },
     formatDecimal (val) {
       if (val === null || val === '' || isNaN(val)) return '-';
@@ -197,6 +235,17 @@ export default {
       this.pageNum = page;
       this.getData();
     },
+    footerMethod ({ columns }) {
+      return [
+        columns.map(col => {
+          if (col.field === 'groupName') return '本页合计';
+          if (col.field === 'totalWorkHour') return this.formatDecimal(this.pageTotals.workHour);
+          if (col.field === 'totalAmount') return this.formatDecimal(this.pageTotals.amount);
+          if (col.field === 'totalDiscount') return this.formatDecimal(this.pageTotals.discount);
+          return '';
+        })
+      ];
+    },
     exportExcel () {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
@@ -204,7 +253,19 @@ export default {
         businessType: '技师工时统计（按技师）',
         dataFetchPath: 'maintain/web/sp/spRepairWorkRecord/pageWorkHourSummaryByTechnician',
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.xTable.getColumns().filter(c => c.field).map(c => [c.field, c.title])),
+        titleMap: {
+          groupName: '技师姓名',
+          repairItemCode: '维修项目代码',
+          repairItemName: '维修项目名称',
+          serviceProxyCode: '接车施工单',
+          finishAt: '完工时间',
+          orderStatusLabel: '工单状态',
+          checkoutTypeName: '结算类型',
+          dealerName: '门店名称',
+          carPlate: '车牌',
+          vehProfileVin: 'VIN',
+          serviceAdvisorName: '客户经理'
+        },
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -225,24 +286,9 @@ export default {
     },
     getData () {
       this.loading = true;
-      pageWorkHourSummaryByTechnician({ ...this.getFormData(), pageNum: this.pageNum, pageSize: this.pageSize }).then(res => {
-        const records = res.records || [];
-        this.total = res.total || 0;
-        let keyIdx = 0;
-        const rows = records.map(group => ({
-          ...group,
-          _treeKey: keyIdx++,
-          children: (group.detailList || []).map(d => ({ ...d, _treeKey: keyIdx++ }))
-        }));
-        // 计算本页合计行
-        const toNum = v => (v === null || isNaN(v)) ? 0 : Number(v);
-        const pageTotalWorkHour = records.reduce((sum, g) => sum + toNum(g.totalWorkHour), 0);
-        const pageTotalAmount = records.reduce((sum, g) => sum + toNum(g.totalAmount), 0);
-        const pageTotalDiscount = records.reduce((sum, g) => sum + toNum(g.totalDiscount), 0);
-        this.tableData = [
-          { groupName: '本页合计', totalWorkHour: pageTotalWorkHour, totalAmount: pageTotalAmount, totalDiscount: pageTotalDiscount, children: [], _isSummary: true, _treeKey: 'summary' },
-          ...rows
-        ];
+      pageWorkHourSummaryGroupByTechnician({ ...this.getFormData(), groupBy: 'technician', pageNum: this.pageNum, pageSize: this.pageSize }).then(res => {
+        this.tableData = (res && res.records) || [];
+        this.total = (res && res.total) || 0;
       }).finally(() => {
         this.loading = false;
       });
@@ -266,14 +312,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.m-work-hour-summary-list {
-}
 .ais-pagination {
   margin-top: 16px;
   text-align: right;
 }
-::v-deep .summary-row {
-  font-weight: bold;
-  background-color: #f5f7fa;
-}
+// 展开区内边距清零：明细子表列与主表列对齐、宽度撑满展开区，从而随主表横向滚动
+// ::v-deep .vxe-body--expanded-cell {
+//   padding: 0;
+// }
 </style>
