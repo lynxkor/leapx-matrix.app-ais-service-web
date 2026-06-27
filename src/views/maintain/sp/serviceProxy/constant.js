@@ -206,9 +206,9 @@ export const CurrentFaultEnum = {
 /** 故障确认结果 */
 export const ConfirmFaultEnum = {
   /** 准确 */
-  ACCURATE: 1,
+  ACCURATE: 10,
   /** 不准确 */
-  INACCURATE: 2
+  INACCURATE: 20
 };
 
 // 一般整车保修

@@ -294,7 +294,7 @@
             placeholder="请输入"
             v-model="form.customerContent"
             clearable
-            :disabled="!form.currentFault || form.confirmFault === 1"
+            :disabled="!form.currentFault || form.confirmFault === ConfirmFaultEnum.ACCURATE"
           />
         </el-form-item>
         <el-form-item label="作废描述：" prop="invaildDesc" class="form-item-full" v-if="form.orderStatus === RepairOrderStatusEnum.CANCEL">
@@ -488,7 +488,7 @@
 import FetchSelect from '@/libs/components/FetchSelect';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum, getCCCList, updateSpFaultAlertRecord, deleteSpFaultAlertRecord, addFaultRecord, getDetail } from '@/api/maintain/sp/serviceProxy/index';
-import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../constant';
+import { RepairOrderStatusEnum, BusinessTypeEnum, ConfirmFaultEnum } from '../../constant';
 import { getLoginUser } from '@/api/common';
 
 export default {
@@ -596,6 +596,7 @@ export default {
     return {
       form: {},
       loginUser: null,
+      ConfirmFaultEnum,
       rules: {
         businessType: [
           { required: true, message: '请选择业务类型', trigger: 'change' }
@@ -739,7 +740,7 @@ export default {
         const oldVal = this.form._prevCurrentFault;
         const oldCustomerContent = this.form.customerContent;
         // 签字弹框确认：用户点击【准确】后，门店修改本次是否因故障进店，由是修改成否，不用清空【客户故障描述】字段内容
-        const newCustomerContent = this.form.confirmFault === 1 ? oldCustomerContent : '本次进店车辆无故障'; // 1 为准确 2 为不准确
+        const newCustomerContent = this.form.confirmFault === ConfirmFaultEnum.ACCURATE ? oldCustomerContent : '本次进店车辆无故障'; // 1 为准确 2 为不准确
         this.form._prevCurrentFault = val;
         if (oldVal === 1) {
           if (this._id) {
@@ -780,7 +781,7 @@ export default {
         }
       } else {
         // 不准确时，从否切到是，需要清空故障模块描述
-        if (this.form.confirmFault !== 1) {
+        if (this.form.confirmFault !== ConfirmFaultEnum.ACCURATE) {
           this.form.customerContent = '';
         }
       }
