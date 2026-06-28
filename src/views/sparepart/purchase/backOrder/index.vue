@@ -574,13 +574,15 @@ export default {
       fetchApi({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
-          optionObj.dataList = res.records.map(item => {
+          optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          optionObj.total = res.total;
+          optionObj.total = res?.total || 0;
+        }).catch(err => {
+          console.error('列表数据加载失败:', err);
         }).finally(() => {
           this.loading = false;
         });
