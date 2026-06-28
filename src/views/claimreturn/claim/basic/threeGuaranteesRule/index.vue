@@ -379,13 +379,16 @@ export default {
       })
         .then((res) => {
           console.log(res);
-          this.optionObj.dataList = res.records.map((item) => {
+          this.optionObj.dataList = (res?.records || []).map((item) => {
             return {
               ...item,
               deleteLoading: false,
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
+        })
+        .catch((err) => {
+          console.error('列表数据加载失败:', err);
         })
         .finally(() => {
           this.loading = false;
