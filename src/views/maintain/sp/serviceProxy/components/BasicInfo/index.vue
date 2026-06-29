@@ -515,7 +515,8 @@
           {{ form.startWarrantyDate }}
         </el-form-item>
         <el-form-item label="登记人：" prop="creatorName">
-          <el-link type="success" :href="`/partner/user/list/detail?&userId=${form.creator}`" target="_blank">{{ form.creatorName }}</el-link>
+          {{ form.creatorName }}
+          <!-- <el-link type="success" :href="`/partner/user/list/detail?&userId=${form.creator}`" target="_blank">{{ form.creatorName }}</el-link> -->
         </el-form-item>
         <el-form-item label="车主姓名：" prop="customerName">
           <LPEncrypted
