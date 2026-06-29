@@ -239,12 +239,12 @@ export default {
             label: '修改者',
             visible: true,
             width: 200,
-            buttons: [{
-              click: (rowIndex, row) => {
-                window.open(`/partner/user/list/detail?userId=${row.modifier}`, '_blank');
-              },
-              type: 'primary'
-            }]
+            // buttons: [{
+            //   click: (rowIndex, row) => {
+            //     window.open(`/partner/user/list/detail?userId=${row.modifier}`, '_blank');
+            //   },
+            //   type: 'primary'
+            // }]
           },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -252,12 +252,12 @@ export default {
             label: '创建者',
             visible: true,
             width: 200,
-            buttons: [{
-              click: (rowIndex, row) => {
-                window.open(`/partner/user/list/detail?userId=${row.creator}`, '_blank');
-              },
-              type: 'primary'
-            }]
+            // buttons: [{
+            //   click: (rowIndex, row) => {
+            //     window.open(`/partner/user/list/detail?userId=${row.creator}`, '_blank');
+            //   },
+            //   type: 'primary'
+            // }]
           },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },

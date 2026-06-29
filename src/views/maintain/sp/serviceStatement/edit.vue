@@ -244,7 +244,8 @@
                   {{ form.repairItemAmount }}
                 </el-form-item>
                 <el-form-item label="结算人员：" prop="statementPersonName">
-                  <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.statementPersonId}`">{{ form.statementPersonName }}</el-link>
+                  {{ form.statementPersonName }}
+                  <!-- <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.statementPersonId}`">{{ form.statementPersonName }}</el-link> -->
                 </el-form-item>
                 <el-form-item label="去零金额：" prop="noFractionAmount">
                   {{ form.noFractionAmount }}
@@ -262,7 +263,8 @@
                   {{ form.repairItemPayableAmount }}
                 </el-form-item>
                 <el-form-item label="收款人：" prop="payeeName">
-                  <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.payeeId}`">{{ form.payeeName }}</el-link>
+                  {{ form.payeeName }}
+                  <!-- <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.payeeId}`">{{ form.payeeName }}</el-link> -->
                 </el-form-item>
                 <el-form-item label="优惠总金额：" prop="discountAmount">
                   {{ form.discountAmount }}
