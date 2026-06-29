@@ -697,7 +697,7 @@ export default {
       // 审核对话框
       auditDialogVisible: false,
       rules: {
-        serviceProxyId: [
+        serviceProxyCode: [
           { required: true, message: '请选择施工单', trigger: 'change' }
         ],
         preAuthType: [
@@ -881,7 +881,15 @@ export default {
         qualityOrderReport: this.form.qualityOrderReport,
       });
     },
-    handleSubmit (v = 0) {
+    async handleSubmit (v = 0) {
+      // 表单校验：commonMixins 已注入 formRefs（包含所有 ruleForm* 表单）
+      try {
+        for (const formRef of this.formRefs) {
+          if (formRef) await formRef.validate();
+        }
+      } catch (e) {
+        return; // 校验失败时 el-form 会自动展示错误信息
+      }
       this.loading = true;
       addOrUpdate({
         id: this._id,
@@ -964,6 +972,9 @@ export default {
         checkPreAuth(record.id).then(res => {
           if (!res.needPreAuth) {
             this.$message.error('该施工单无需预授权');
+            Object.assign(this.form, defaultForm, { serviceProxyResp: {} });
+            this.preAuthInfoDetail = {};
+            this.serviceProxyDetail = {};
           } else {
             this.form.preAuthType = res.preAuthType;
             getServiceProxyDetail(record.id).then(detailRes => {

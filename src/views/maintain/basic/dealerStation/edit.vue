@@ -57,12 +57,17 @@
                   />
                 </el-form-item>
                 <el-form-item label="负责人：" prop="ownerUserName">
-                  <InputLink
+                   <el-input
+                    placeholder="请输入"
+                    v-model="form.ownerUserName"
+                    disabled
+                  />
+                  <!-- <InputLink
                     v-model="form.ownerUserName"
                     :link="`/partner/user/list/detail?&userId=${form.ownerId}`"
                     placeholder="请输入"
                     readonly
-                  />
+                  /> -->
                 </el-form-item>
                 <el-form-item label="说明：" prop="remark" class="form-item-full">
                   <el-input

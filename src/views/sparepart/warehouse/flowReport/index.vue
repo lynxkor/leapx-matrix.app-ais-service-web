@@ -191,11 +191,7 @@ export default {
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
-      pickerOptions: {
-        disabledDate: (time) => {
-          return time.getTime() > Date.now();
-        },
-      },
+      pickerOptions: {},
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
