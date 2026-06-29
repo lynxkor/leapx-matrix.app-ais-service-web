@@ -156,7 +156,7 @@ export default {
         };
         const res = await addOrUpdate(params);
         this.hasGeneratedPreAuth = true;
-        this.$message.success(res.data || '生成预授权成功');
+        this.$message.success(res || '生成预授权成功');
         this.$emit('refresh');
         // 刷新提醒信息列表
         await this.loadData();
