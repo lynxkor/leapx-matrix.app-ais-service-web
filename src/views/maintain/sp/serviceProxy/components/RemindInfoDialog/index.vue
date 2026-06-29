@@ -154,9 +154,9 @@ export default {
           reason: '预授权申请',
           // preAuthType: 1, // 1-技术预授权，2-保修预授权
         };
-        await addOrUpdate(params);
+        const res = await addOrUpdate(params);
         this.hasGeneratedPreAuth = true;
-        this.$message.success('生成预授权成功');
+        this.$message.success(res.data || '生成预授权成功');
         this.$emit('refresh');
         // 刷新提醒信息列表
         await this.loadData();

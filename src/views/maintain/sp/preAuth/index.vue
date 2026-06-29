@@ -40,6 +40,15 @@
         <el-form-item label="门店名称">
           <dealer-select v-model="form.dealerCode"/>
         </el-form-item>
+        <el-form-item label="是否善意保修">
+          <fetch-select
+            :options="yes_no_enum"
+            v-model="form.isGoodWarranty"
+            placeholder="请选择"
+            clearable
+            filterable
+          />
+        </el-form-item>
         <el-form-item label="车牌号">
           <el-input
             placeholder="请输入"
@@ -78,6 +87,7 @@
         </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
             type="daterange"
             unlink-panels
@@ -288,6 +298,7 @@ export default {
           { props: 'claimPartsAmount', label: '零件索赔合计', visible: true, width: 150 },
           { props: 'claimOtherAmount', label: '其他索赔费用', visible: true, width: 150 },
           { props: 'approvalStatusLabel', label: '单据状态', visible: true, width: 150 },
+          { props: 'isGoodWarrantyLabel', label: '是否善意保修', visible: true, width: 150 },
           { props: 'approver', label: '审批人', visible: true, width: 150 },
           { props: 'approvalOn', label: '审批时间', visible: true, width: 180 },
           { props: 'modifierName', label: '更新人', visible: true, width: 150 },
@@ -337,7 +348,7 @@ export default {
                 this.handleRevoke(row);
               },
               type: 'info',
-              show: (row) => this.permissions.has('AISMC-preAuth-revoke') && row.approvalStatus === AUDIT_STATUS.APPROVED
+              show: (row) => this.permissions.has('AISMC-preAuth-revoke') && row.approvalStatus === AUDIT_STATUS.APPROVED && !row.isGoodWarranty
             }, {
               name: '重新申请',
               click: (rowIndex, row) => {
@@ -358,7 +369,7 @@ export default {
                 this.handleApprove(row, 'pass');
               },
               type: 'info',
-              show: (row) => this.permissions.has('AISMC-preAuth-activate') && row.approvalStatus === AUDIT_STATUS.REFUSED // 已拒绝
+              show: (row) => this.permissions.has('AISMC-preAuth-activate') && row.approvalStatus === AUDIT_STATUS.REFUSED && !row.isGoodWarranty // 已拒绝
             }]
           }
         ],
