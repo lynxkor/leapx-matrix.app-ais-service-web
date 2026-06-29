@@ -740,6 +740,13 @@ export default {
         this.submitLoading = false;
         return;
       }
+
+      if (!this.formInline.batteryUnitId) {
+        this.$message.warning('请填写电池去向单位');
+        this.submitLoading = false;
+        return;
+      }
+
       try {
         // 组装提交数据
         const submitData = {
