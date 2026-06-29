@@ -972,7 +972,7 @@ export default {
         checkPreAuth(record.id).then(res => {
           if (!res.needPreAuth) {
             this.$message.error('该施工单无需预授权');
-            Object.assign(this.form, defaultForm);
+            Object.assign(this.form, defaultForm, { serviceProxyResp: {} });
             this.preAuthInfoDetail = {};
             this.serviceProxyDetail = {};
           } else {
