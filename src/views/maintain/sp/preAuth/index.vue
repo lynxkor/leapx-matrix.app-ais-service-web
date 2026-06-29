@@ -46,7 +46,6 @@
             v-model="form.isGoodWarranty"
             placeholder="请选择"
             clearable
-            multiple
             filterable
           />
         </el-form-item>
