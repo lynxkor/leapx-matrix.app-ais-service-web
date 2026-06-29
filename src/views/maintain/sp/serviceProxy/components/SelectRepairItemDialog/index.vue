@@ -864,6 +864,12 @@ export default {
     },
     submit () {
       // 验证数据
+      // 备件数量必须大于0
+      const invalidPart = this.partData.find(part => !part.isOutstock && !part.packageId && Number(part.quantity) <= 0);
+      if (invalidPart) {
+        this.$message.warning('备件数量必须大于0');
+        return;
+      }
       // if (this.itemData.length === 0 && this.partData.length === 0) {
       //   this.$message.warning('请至少添加一个维修项目或维修配件');
       //   return;
@@ -1315,6 +1321,11 @@ export default {
     // 数量变化
     handlePartQuantityChange (row) {
       const quantity = Number(row.quantity) || 0;
+      // 数量必须大于0，允许小数，故min保持0，此处拦截0值
+      if (quantity <= 0) {
+        this.$message.warning('备件数量必须大于0');
+        return;
+      }
       const originalAmount = quantity * row.price;
       row.discountAmount = originalAmount * row.discountRate;
       row.partsAmount = originalAmount - row.discountAmount;
