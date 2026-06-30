@@ -9,9 +9,9 @@
       <div v-if="!disabled" class="btns" style="margin-bottom: 15px;">
         <el-button plain type="primary" v-if="canAddOrUpdate" size="small" @click.stop="openAdd"><i class="iconfont icon-lxppc-plus"></i>添加</el-button>
         <el-button v-if="canAddOrUpdate" :disabled="!isSelect" size="small" @click.stop="handleRemoveRows">删除</el-button>
-        <el-button size="small" @click.stop="handleImport">旧件出库明细导入</el-button>
-        <el-button :loading="attachLoading" size="small" @click="addAttach">添加连带件</el-button>
-        <el-input placeholder="扫描条码" class="input-inline" size="small" v-model="oldPartUniqueCode" @keyup.enter.native="scanAdd" clearable/>
+        <el-button v-if="canAddOrUpdate" size="small" @click.stop="handleImport">旧件出库明细导入</el-button>
+        <el-button v-if="canAddOrUpdate" :loading="attachLoading" size="small" @click="addAttach">添加连带件</el-button>
+        <el-input v-if="canAddOrUpdate" placeholder="扫描条码" class="input-inline" size="small" v-model="oldPartUniqueCode" @keyup.enter.native="scanAdd" clearable/>
       </div>
       <div class="common-section-table">
         <!-- 旧件明细表格 -->
