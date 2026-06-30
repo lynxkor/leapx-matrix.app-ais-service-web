@@ -324,8 +324,8 @@ import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
 
-// 审批时间默认值：最近 3 个月
-function getDefaultApprovalTime () {
+// 创建时间默认值：最近 3 个月
+function getDefaultCreateTime () {
   const { startTime, endTime } = getTimeRangeByTypeFormat('最近三个月');
   return [startTime, endTime];
 }
@@ -390,7 +390,7 @@ export default {
       moduleKey: 'AISCR-warrantyApply',
       form: {
         ...defaultForm,
-        approvalTime: getDefaultApprovalTime()
+        createTime: getDefaultCreateTime()
       },
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
@@ -882,7 +882,7 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm, approvalTime: getDefaultApprovalTime() };
+      this.form = { ...defaultForm, createTime: getDefaultCreateTime() };
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
       this._scopeTypeOrgCache = null;
