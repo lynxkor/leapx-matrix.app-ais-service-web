@@ -299,7 +299,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '门店仓库设置.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

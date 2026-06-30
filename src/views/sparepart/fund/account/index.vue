@@ -290,7 +290,7 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: this.$route.query.name,
+        businessType: '备件现金账户',
         dataFetchPath: 'sp/web/fund/account/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -298,7 +298,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, this.$route.query.name + '.xlsx');
+            await downloadExcel(res.excelUrl, '备件现金账户.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
