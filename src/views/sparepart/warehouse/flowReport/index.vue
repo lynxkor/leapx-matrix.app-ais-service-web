@@ -255,7 +255,7 @@ export default {
             visible: true,
             width: 160,
             mask: true,
-            getValue: (row) => getDesensitize(row.sparePartId, 'flowReport', 'carPlate')
+            getValue: (row) => getDesensitize(row.extraInfo, 'inventoryReport', 'carPlate')
           },
           {
             props: 'vehProfileVin',
@@ -263,7 +263,7 @@ export default {
             visible: true,
             width: 200,
             mask: true,
-            getValue: (row) => getDesensitize(row.sparePartId, 'flowReport', 'vehProfileVin')
+            getValue: (row) => getDesensitize(row.extraInfo, 'inventoryReport', 'vehProfileVin')
           },
           {
             props: 'customerName',
@@ -271,7 +271,7 @@ export default {
             visible: true,
             width: 160,
             mask: true,
-            getValue: (row) => getDesensitize(row.sparePartId, 'flowReport', 'customerName')
+            getValue: (row) => getDesensitize(row.extraInfo, 'inventoryReport', 'customerName')
           }
         ],
         total: 0
