@@ -487,7 +487,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '模板.xlsx');
+            await downloadExcel(res.excelUrl, '备件主数据.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

@@ -229,7 +229,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: this.accountName,
+      pageTitle: '备件返利充值管理',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-accountOperateApply',
@@ -405,7 +405,7 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
-      const reqParams = { ...this.getFormData(), businessType: this.$route.query.type } || {};
+      const reqParams = { ...this.getFormData(), businessType: '备件返利充值管理' } || {};
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
@@ -418,7 +418,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, this.$route.query.name + '.xlsx');
+            await downloadExcel(res.excelUrl, '备件返利充值管理.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

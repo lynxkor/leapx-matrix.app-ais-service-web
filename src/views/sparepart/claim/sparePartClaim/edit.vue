@@ -710,6 +710,12 @@ export default {
         claimQty: this.form.claimQty,
         claimType: this.form.claimType,
         statusDesc: this.form.statusDesc,
+        receiverName: this.form.receiverName,
+        receiverPhone: this.form.receiverPhone,
+        provinceCode: this.form.provinceCode,
+        cityCode: this.form.cityCode,
+        address: this.form.address,
+        remark: this.form.remark,
       };
       return addOrUpdate({ ...params });
     },
