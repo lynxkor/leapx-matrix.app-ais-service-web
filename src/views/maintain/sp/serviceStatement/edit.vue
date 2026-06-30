@@ -633,12 +633,12 @@ export default {
     },
 
     paySuccess () {
-      // 1. 验证金额一致性
+      // 1. 验证金额一致性（toFixed 规避 reduce 累加产生的浮点数精度误差）
       const invoiceRecords = this.form.invoiceRecordResps || [];
-      const totalPayAmount = invoiceRecords.reduce((sum, record) => {
+      const totalPayAmount = parseFloat(invoiceRecords.reduce((sum, record) => {
         return sum + (+record.payAmount || 0);
-      }, 0);
-      const payableAmount = +this.form.payableAmount || 0;
+      }, 0).toFixed(2));
+      const payableAmount = parseFloat((+this.form.payableAmount || 0).toFixed(2));
       if (totalPayAmount === 0 && payableAmount === 0) {
         // 直接执行收款完成
         this.confirmPaySuccess();
