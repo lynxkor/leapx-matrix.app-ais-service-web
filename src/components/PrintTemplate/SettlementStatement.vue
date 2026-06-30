@@ -116,7 +116,7 @@
                                         <td>{{item.qty}}</td>
                                         <td>¥{{item.unitPrice}}</td>
                                         <td>¥{{item.discountAmount}}</td>
-                                        <td>¥{{item.qty*item.unitPrice}}</td>
+                                        <td>¥{{item.payableAmount}}</td>
                                     </tr>
                                 </tbody>
                             </table>
