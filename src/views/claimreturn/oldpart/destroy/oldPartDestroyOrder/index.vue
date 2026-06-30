@@ -288,16 +288,21 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
       exportTable({
-        businessType: '新页面',
+        businessType: '旧件销毁单',
         dataFetchPath: 'claimreturn/web/oldpart/destroy/oldPartDestroyOrder/page',
-        reqParams: this.getFormData(),
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '旧件销毁单.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
