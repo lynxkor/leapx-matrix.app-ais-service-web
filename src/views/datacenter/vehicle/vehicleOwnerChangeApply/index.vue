@@ -455,7 +455,7 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
+        businessType: '车主变更申请',
         dataFetchPath: 'datacenter/web/vehicle/vehicleOwnerChangeApply/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -463,7 +463,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '车主变更申请.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
