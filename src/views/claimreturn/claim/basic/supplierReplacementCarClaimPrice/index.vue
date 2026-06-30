@@ -23,7 +23,21 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="维修项目代码">
+        <el-input
+          placeholder="请输入"
+          v-model="form.repairItemCodeLike"
+          clearable
+        />
+      </el-form-item>
       <template v-if="show">
+        <el-form-item label="维修项目名称">
+        <el-input
+          placeholder="请输入"
+          v-model="form.repairItemNameLike"
+          clearable
+        />
+      </el-form-item>
         <el-form-item label="生效开始日期">
         <el-date-picker
          :default-time="['00:00:00', '23:59:59']"
@@ -142,6 +156,8 @@ const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   priceSerialNo: '',
   vehicleSeriesName: '',
+  repairItemCodeLike: '',
+  repairItemNameLike: '',
   effectiveStartTime: '',
   status: '',
   createTime: '',
@@ -206,6 +222,8 @@ export default {
             }]
           },
           { props: 'vehicleSeriesName', label: '车系名称', visible: true, width: 140 },
+          { props: 'repairItemCode', label: '维修项目代码', visible: true, width: 200 },
+          { props: 'repairItemName', label: '维修项目名称', visible: true, width: 200 },
           { props: 'supplierClaimPrice', label: '供应商索赔价格', visible: true, width: 140, align: 'right' },
           { props: 'claimDaysAdjustment', label: '索赔天数调整', visible: true, width: 120, align: 'right' },
           { props: 'effectiveStartTime', label: '生效开始日期', visible: true, width: 200 },
