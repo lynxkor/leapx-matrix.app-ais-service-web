@@ -760,8 +760,7 @@ export default {
                 }).then(() => {
                   this.$message.success('本次故障信息清除成功');
                   this.form.customerContent = newCustomerContent;
-                  this.$emit('refresh', false);
-                  this.$emit('update:isEditing', false);
+                  this.refreshFaultList();
                 });
               } else {
                 this.$set(this.form, 'faultAlertRecordParams', []);
@@ -910,6 +909,8 @@ export default {
           this.$set(this.form, 'faultAlert', res.faultAlert);
           this.$set(this.form, 'recentlyfaultServiceProxyCode', res.recentlyfaultServiceProxyCode);
           this.$set(this.form, 'earliestfaultServiceProxyCode', res.earliestfaultServiceProxyCode);
+          this.$set(this.form, 'currentFault', res.currentFault);
+          this.$set(this.form, 'currentFaultLabel', res.currentFaultLabel);
         }
       }).catch(err => {
         console.error('刷新故障列表失败:', err);
