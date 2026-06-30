@@ -231,6 +231,8 @@ import { getList as partList } from '@/api/sparepart/basic/sparePart';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { cloneDeep } from 'lodash';
 
+const FAST_RETURN = '40'; // 快速返件类型
+
 export default {
   props: {
     schemeId: {
@@ -540,7 +542,8 @@ export default {
     // 旧件返回类型接口
     returnTypeRemote () {
       getEnum('old_part_return_type').then(res => {
-        const list = res?.map(item => {
+        // 无旧件，不返件，正常返件，过滤40=快速返件
+        const list = res?.filter(item => item.code !== FAST_RETURN).map(item => {
           return {
             returnType: item.code,
             returnTypeLabel: item.message,

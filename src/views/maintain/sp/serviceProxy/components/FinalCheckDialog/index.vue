@@ -164,10 +164,10 @@
                 <el-popconfirm
                   title="确定质检吗？"
                   @confirm="handleQualityCheck(row)"
-                  :disabled="row.isDispatch === 0"
+                  :disabled="row.isDispatch === 0 || row.qualityCheckStatus === 30"
                 >
                   <span
-                    :class="['action-button', 'btn-back', { disabled: row.isDispatch === 0 }]"
+                    :class="['action-button', 'btn-back', { disabled: row.isDispatch === 0 || row.qualityCheckStatus === 30 }]"
                     slot="reference"
                     type="text">
                     质检
@@ -372,7 +372,7 @@ import { getListData } from '@/api/maintain/basic/batteryUnit/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import moment from 'moment';
 import BaseSearch from '@/libs/components/BaseSearch';
-import { page } from '@/api/maintain/basic/monitoringEquipmentConfig';
+import { ConfirmFaultEnum } from '../../constant';
 
 const allTabs = ['质检', '故障模块确认', '电池信息确认', '追溯信息确认', '终检'];
 const allSubTabs = [
@@ -704,7 +704,7 @@ export default {
           customClass: 'ais-leave-tips',
           showClose: false
         }).then(() => {
-          const newCustomerContent = this.vehicleInfo.confirmFault === 1 ? this.vehicleInfo.customerContent : '本次进店车辆无故障'; // 1 为准确 2 为不准确
+          const newCustomerContent = this.vehicleInfo.confirmFault === ConfirmFaultEnum.ACCURATE ? this.vehicleInfo.customerContent : '本次进店车辆无故障'; // 1 为准确 2 为不准确
           addFaultRecord({ id: this.vehicleInfo.id, currentFault: 0, customerContent: newCustomerContent }).then(() => {
             this.faultTableData = [];
             this.$message.success('故障模块信息已清空');
@@ -740,6 +740,13 @@ export default {
         this.submitLoading = false;
         return;
       }
+
+      if (!this.formInline.batteryUnitId) {
+        this.$message.warning('请填写电池去向单位');
+        this.submitLoading = false;
+        return;
+      }
+
       try {
         // 组装提交数据
         const submitData = {

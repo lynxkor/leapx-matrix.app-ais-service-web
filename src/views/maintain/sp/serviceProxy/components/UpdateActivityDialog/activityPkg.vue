@@ -416,7 +416,6 @@ export default {
           id: this.vehicleInfo.id
         });
         this.$message.success('取消成功');
-        this.$emit('refresh');
         return true;
       } catch (error) {
         console.error('取消套餐失败', error);
@@ -515,7 +514,6 @@ export default {
           partsList: partsList
         };
         await useActivity(params);
-        this.$emit('refresh');
         this.$message.success('使用成功');
         return true;
       } catch (error) {

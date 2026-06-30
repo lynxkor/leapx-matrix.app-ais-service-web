@@ -366,7 +366,7 @@ export default {
       }
       exportTable({
         businessType: '维修出库',
-        dataFetchPath: 'sp/web/outbound/maintenanceOutboundOrder/page',
+        dataFetchPath: 'sp/web/maintenance/maintenanceOutboundOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

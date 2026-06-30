@@ -25,7 +25,7 @@
           @command="command"
           />
         </section>
-        <section class="common-section"  v-if="canAddOrUpdate && schemeId">
+        <section class="common-section"  v-if="canDetail && schemeId">
           <div
             class="common-section-header"
           >
@@ -72,7 +72,6 @@
                 @change="partChange"
                 labelKey="displayLabel"
                 valueKey="partAndSupplierId"
-                clearable
                 filterable
               >
                 <template #option="{ item }">

@@ -388,7 +388,6 @@ export default {
                 type: 'info',
                 show: (row) => {
                   if (!this.canApprove) { return false; }
-                  if (String(row.dataSource) === DATA_SOURCE.LXP_APP) { return false; }
                   return row.applyStatus === APPLY_STATUS.PENDING;
                 }
               },
@@ -401,7 +400,6 @@ export default {
                 type: 'danger',
                 show: (row) => {
                   if (!this.canReject) { return false; }
-                  if (String(row.dataSource) === DATA_SOURCE.LXP_APP) { return false; }
                   return row.applyStatus === APPLY_STATUS.PENDING;
                 }
               }

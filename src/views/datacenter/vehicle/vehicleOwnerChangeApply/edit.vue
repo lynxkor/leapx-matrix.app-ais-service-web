@@ -15,9 +15,9 @@
       <template v-if="!fromLxpApp">
         <el-button v-if="canCancel && (form.applyStatus === APPLY_STATUS.DRAFT || form.applyStatus === APPLY_STATUS.REJECTED)" type="danger" size="small" @click="handleCancel">作废</el-button>
         <el-button v-if="canSubmit && (form.applyStatus === APPLY_STATUS.DRAFT || form.applyStatus === APPLY_STATUS.REJECTED)" type="primary" size="small" @click="handleSubmit">提交</el-button>
-        <el-button v-if="canReject && form.applyStatus === APPLY_STATUS.PENDING" type="danger" size="small" @click="handleReject">审批驳回</el-button>
-        <el-button v-if="canApprove && form.applyStatus === APPLY_STATUS.PENDING" type="primary" size="small" @click="handleApprove">审批通过</el-button>
       </template>
+      <el-button v-if="canReject && form.applyStatus === APPLY_STATUS.PENDING" type="danger" size="small" @click="handleReject">审批驳回</el-button>
+      <el-button v-if="canApprove && form.applyStatus === APPLY_STATUS.PENDING" type="primary" size="small" @click="handleApprove">审批通过</el-button>
     </template>
     <el-main>
       <section class="common-section">
@@ -508,6 +508,7 @@
                   :key="type"
                   :businessId="_id"
                   :attachType="type"
+                  configCode="mcs_vehownerchange"
                   :uploadConfig="attachmentConfigs[type]"
                   type="card"
                   :title="type"
@@ -521,6 +522,7 @@
                   :key="type"
                   :businessId="_id"
                   :attachType="type"
+                  configCode="mcs_vehownerchange"
                   :uploadConfig="attachmentConfigs[type]"
                   type="card"
                   :title="type"

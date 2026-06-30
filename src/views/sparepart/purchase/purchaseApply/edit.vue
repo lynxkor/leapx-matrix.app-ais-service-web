@@ -258,7 +258,7 @@
               <div style="margin-bottom: 10px;">
                 <el-button size="small" @click="handleAdd" type="primary" plain :disabled="!['0', '3'].includes(form.orderStatus)"><i
                     class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
-                <el-button class="ais-button" size="small" :disabled="!['0', '3'].includes(form.orderStatus)" @click="handleRestock">
+                <el-button class="ais-button" size="small" v-if="permissions.has('AISPART-purchaseApply-predict')" :disabled="!['0', '3'].includes(form.orderStatus)" @click="handleRestock">
                   补货预测
                 </el-button>
                 <el-button size="small" @click="handleImport" :disabled="!routeQueryType">备件导入</el-button>
@@ -274,13 +274,21 @@
                     </template>
                   </vxe-column>
                   <vxe-column field="partName" title="备件名称" width="200" />
+                  <vxe-column field="purchaseQty" title="采购数" width="150">
+                    <template #default="{ row }">
+                      <el-input v-model="row.purchaseQty" type="number" :disabled="!canEditQtyOrRemark" @change="handleQtyOrRemarkChange(row)" />
+                    </template>
+                  </vxe-column>
                   <vxe-column field="originalPrice" title="原价" width="150" />
                   <vxe-column field="purchasePrice" title="采购价" width="150" />
                   <vxe-column field="purchaseAmount" title="采购金额" width="150" />
                   <vxe-column field="cashUnitPrice" title="现金单价" width="150" />
                   <vxe-column field="cashAmount" title="现金金额" width="150" />
-                  <vxe-column field="purchaseQty" title="采购数" width="150" />
-                  <vxe-column field="remark" title="备注" width="200" />
+                  <vxe-column field="remark" title="备注" width="200">
+                    <template #default="{ row }">
+                      <el-input v-model="row.remark" :disabled="!canEditQtyOrRemark" @change="handleQtyOrRemarkChange(row)" />
+                    </template>
+                  </vxe-column>
                   <vxe-column field="originalPriceSource" title="原价来源" width="220">
                     <template v-slot="{ row }">
                       <el-link type="success" target="_blank"
@@ -321,10 +329,10 @@
                   :businessId="_id"
                   configCode="mcs_partsclaimorder"
                   attachType="索赔申请附件"
-                  readonly
+                  :readonly="form.orderStatus !== '0' && form.orderStatus !== '3'"
                 />
               </div>
-              <h2 class="common-title">审批附件</h2>
+              <!-- <h2 class="common-title">审批附件</h2>
               <div class="common-section-table">
                 <AisAttachment
                   :businessId="_id"
@@ -332,7 +340,7 @@
                   attachType="索赔审批附件"
                   readonly
                 />
-              </div>
+              </div> -->
             </div>
           </section>
         </el-main>
@@ -385,7 +393,7 @@
 <script>
 import {
   getDetail, addOrUpdate, getPurchaseApplyPage, purchaseApplyDelete, deleteItem,
-  purchaseApplyReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, purchaseApplyGetCoupon
+  purchaseApplyReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy, purchaseApplyGetCoupon, addDetail
 } from '@/api/sparepart/purchase/purchaseApply/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 // import EditTable from '@/libs/components/EditTable';
@@ -482,7 +490,10 @@ export default {
       return this.id || this.$route.query.id || this.form.id;
     },
     isAllowOrNot () {
-      return this.form.thirdPartyDeliveryIs === '0';
+      return this.form.thirdPartyDeliveryIs !== '1';
+    },
+    canEditQtyOrRemark () {
+      return this.form.orderStatus === '0' || this.form.orderStatus === '3';
     },
     isThirdPartyDelivery () {
       return !this.accountFlag || this.isAllowedThirdDelivered === 1;
@@ -696,6 +707,12 @@ export default {
         return getDetail(id).then(res => {
           this.getLoginUser();
           this.getDetailData();
+          this.originalReceiving = {
+            recipientName: res.recipientName,
+            recipientPhone: res.recipientPhone,
+            provinceCityCountyCode: res.provinceCityCountyCode,
+            address: res.address
+          };
           return res;
         });
       }
@@ -742,12 +759,14 @@ export default {
           this.form.thirdPartyDeliveryIs = String(res.sparePartReceiving.isAllowedThirdDelivered);
         }
         this.form.address = res.sparePartReceiving.partAddress;
-        this.originalReceiving = {
-          recipientName: res.sparePartReceiving.partRecipient,
-          recipientPhone: res.sparePartReceiving.partPhone,
-          provinceCityCountyCode: res.sparePartReceiving.provinceCityCountyCode,
-          address: res.sparePartReceiving.partAddress
-        };
+        if (!this._id) {
+          this.originalReceiving = {
+            recipientName: res.sparePartReceiving.partRecipient,
+            recipientPhone: res.sparePartReceiving.partPhone,
+            provinceCityCountyCode: res.sparePartReceiving.provinceCityCountyCode,
+            address: res.sparePartReceiving.partAddress
+          };
+        }
         this.isAllowedThirdDelivered = Number(res.sparePartReceiving.isAllowedThirdDelivered);
         return res;
       } catch (error) {
@@ -923,6 +942,22 @@ export default {
     async handleDel (val) {
       await purchaseApplyDelete([val.id]);
       this.getDetailData();
+    },
+    async handleQtyOrRemarkChange (row) {
+      const params = {
+        id: row.id,
+        sparePartId: row.sparePartId,
+        purchaseApplyId: this._id,
+        purchaseQty: row.purchaseQty,
+        remark: row.remark
+      };
+      try {
+        await addDetail(params);
+        this.$message.success('修改成功');
+        this.handleRefresh();
+      } catch (error) {
+        this.handleRefresh();
+      }
     },
     // 补货预测
     handleRestock () {

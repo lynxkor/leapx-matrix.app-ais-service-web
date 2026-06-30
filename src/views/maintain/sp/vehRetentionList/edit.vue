@@ -148,13 +148,13 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="留车配置项编码：" prop="configCode">
-                  <el-link type="primary" :href="`/maintain/sp/vehRetention/edit?id=${form.configId}`" target="_blank">{{ form.configCode }}</el-link>
+                  <el-link type="primary" :href="`/service/maintain/sp/vehRetention/edit?id=${form.configId}`" target="_blank">{{ form.configCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
                   <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
                 </el-form-item>
                 <el-form-item label="接车施工单：" prop="serviceProxyCode">
-                  <el-link type="primary" :href="`/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`" target="_blank">{{ form.serviceProxyCode }}</el-link>
+                  <el-link type="primary" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`" target="_blank">{{ form.serviceProxyCode }}</el-link>
                 </el-form-item>
                 <el-form-item label="年款：" prop="vehYearTypeName">
                   {{ form.vehYearTypeName }}

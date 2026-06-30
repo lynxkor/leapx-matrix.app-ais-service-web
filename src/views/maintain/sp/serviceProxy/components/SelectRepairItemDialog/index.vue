@@ -477,7 +477,7 @@
 
 <script>
 // import EditTable from '@/libs/components/EditTable';
-import { getEnum, getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
+import { getDiscountType, getRepairItemInfo, filterRepairItem, filterSparePartItem, saveRepairItem, getRepairItemTypeList, getCheckoutTypeList, getDealerPermission } from '@/api/maintain/sp/serviceProxy/index';
 import UpdateActivityDialog from '../UpdateActivityDialog';
 import { CheckoutTypeEnum, WarrantyTypeEnum, UNIVERSAL_LABOR_HOUR_ITEM_ID, MaintenanceTypeEnum, PackageTypeEnum, PackageTypeOptions, WorkRecordStatusEnum, GENERAL_REPAIR_ID } from '../../constant';
 
@@ -684,6 +684,7 @@ export default {
     },
     close () {
       this.dialogVisible = false;
+      this.$emit('check');
     },
     closed () {
       // 重置数据
@@ -718,10 +719,13 @@ export default {
         item => item.repairItemTypeId === this.repairType
       );
 
-      // 查找结算类型的默认值（取第一个，考虑权限过滤）
-      let checkoutTypeObj = this.filteredRepairItemCheckoutTypes?.[0];
-      if (selectedItem.code === this.universalLaborHourItemId) {
-        checkoutTypeObj = this.filteredRepairItemCheckoutTypes?.filter(item => !this.checkoutTypeIncluded(item.checkoutTypeId))?.[0];
+      // 查找结算类型：优先继承上一条记录（仅自费/保险/内部结算），否则取第一个
+      let checkoutTypeObj = this.getInheritedCheckoutType(this.itemData, this.filteredRepairItemCheckoutTypes);
+      if (!checkoutTypeObj) {
+        checkoutTypeObj = this.filteredRepairItemCheckoutTypes?.[0];
+        if (selectedItem.code === this.universalLaborHourItemId) {
+          checkoutTypeObj = this.filteredRepairItemCheckoutTypes?.filter(item => !this.checkoutTypeIncluded(item.checkoutTypeId))?.[0];
+        }
       }
 
       // 获取保修类型选项（维修项目）
@@ -750,7 +754,7 @@ export default {
         isProdType: selectedItem.isProdType || 0,
         _originalWorkHour: selectedItem.workhour || 0
       };
-      this.updateCheckoutType(newItem, this.partRepairType);
+      this.updateCheckoutType(newItem, this.partRepairType, checkoutTypeObj);
       this.itemData.push(newItem);
 
       // 如果维修项目带有关联零件列表，自动添加这些零件
@@ -785,7 +789,7 @@ export default {
             autoImport: 1 // 标记为自动导入
           };
 
-          this.updateCheckoutType(newPart, this.partRepairType);
+          this.updateCheckoutType(newPart, this.partRepairType, checkoutTypeObj);
           this.partData.push(newPart);
         });
       }
@@ -817,8 +821,11 @@ export default {
         item => item.repairItemTypeId === this.partRepairType
       );
 
-      // 查找结算类型的默认值（取第一个，考虑权限过滤）
-      const checkoutTypeObj = this.filteredPartCheckoutTypes?.[0];
+      // 查找结算类型：优先继承上一条记录（仅自费/保险/内部结算），否则取第一个
+      let checkoutTypeObj = this.getInheritedCheckoutType(this.partData, this.filteredPartCheckoutTypes);
+      if (!checkoutTypeObj) {
+        checkoutTypeObj = this.filteredPartCheckoutTypes?.[0];
+      }
 
       // 查找保修类型的默认值（取第一个，考虑权限过滤和checkoutTypeMap）
       const finalWarrantyOptions = this.getWarrantyTypeOptions(checkoutTypeObj, 'part');
@@ -845,7 +852,7 @@ export default {
         isBindltem: 0, // 手动添加的零件，标记为非自动导入
         packageCode: selectedPart.packageCode || ''
       };
-      this.updateCheckoutType(newPart, this.partRepairType);
+      this.updateCheckoutType(newPart, this.partRepairType, checkoutTypeObj);
       this.partData.push(newPart);
 
       // 清空输入
@@ -857,6 +864,12 @@ export default {
     },
     submit () {
       // 验证数据
+      // 备件数量必须大于0
+      const invalidPart = this.partData.find(part => !part.isOutstock && !part.packageId && Number(part.quantity) <= 0);
+      if (invalidPart) {
+        this.$message.warning('备件数量必须大于0');
+        return;
+      }
       // if (this.itemData.length === 0 && this.partData.length === 0) {
       //   this.$message.warning('请至少添加一个维修项目或维修配件');
       //   return;
@@ -892,7 +905,6 @@ export default {
       if (JSON.stringify(data) === this.originalDataJson) {
         this.$emit('update:visible', false);
         this.submitLoading = false;
-        this.$emit('check');
         return;
       }
 
@@ -903,31 +915,21 @@ export default {
         this.$emit('update:visible', false);
         this.$emit('refresh');
         // 检查维修类型变化
-        this.checkRepairTypeChange(() => {
-          this.$emit('check');
-        });
+        this.checkRepairTypeChange();
       }).catch(e => {
         this.submitLoading = false;
       });
     },
     checkRepairTypeChange (callback) {
-      // 检查原来的维修项目是否包含"一般维修"或"三电维修"或"保修"
-      const originalRepairItems = this.vehicleInfo.costCountResp?.repairItemRespList || [];
-      const originalHasTargetRepair = originalRepairItems.some(item =>
+      // 检查当前保存的维修项目或者配件中是否包含"一般维修"或"三电维修"或"保修"（通过ID判断）
+      const currentHasTargetRepair = [...this.itemData, ...this.partData].some(item =>
         item.repairItemTypeId === MaintenanceTypeEnum.GENERAL_REPAIR ||
         item.repairItemTypeId === MaintenanceTypeEnum.BATTERY_REPAIR ||
         item.repairItemTypeId === MaintenanceTypeEnum.WARRANTY
       );
 
-      // 检查当前保存的维修项目中是否包含"一般维修"或"三电维修"（通过ID判断）或"保修"
-      const currentHasTargetRepair = this.itemData.some(item =>
-        item.repairItemTypeId === MaintenanceTypeEnum.GENERAL_REPAIR ||
-        item.repairItemTypeId === MaintenanceTypeEnum.BATTERY_REPAIR ||
-        item.repairItemTypeId === MaintenanceTypeEnum.WARRANTY
-      );
-
-      // 如果原来不包含，但现在包含，则显示提示
-      if (!originalHasTargetRepair && currentHasTargetRepair && !this.vehicleInfo.currentFault) {
+      // 当前保存数据包含目标维修类型，且订单未标记故障时，显示提示
+      if (currentHasTargetRepair && !this.vehicleInfo.currentFault) {
         this.$confirm('维修类型为："一般维修"或"三电维修"或"保修"，系统默认调整 【本次是否因故障进店】为：是，存在故障，请填写故障模块信息！', '提醒', {
           confirmButtonText: '确定',
           type: 'warning'
@@ -941,39 +943,39 @@ export default {
       }
     },
     getEnumData () {
-      getEnum('MaintenanceTypeEnum').then(res => {
+      getRepairItemTypeList({ status: 1, category: 10 }).then(res => {
         this.itemOptions.repairItemTypeName = (res || []).map(item => ({
-          repairItemTypeId: item.code,
-          repairItemTypeName: item.message,
-          label: item.message,
-          value: item.code
+          repairItemTypeId: item.id,
+          repairItemTypeName: item.name,
+          label: item.name,
+          value: item.id
         }));
-        this.repairType = res?.[0].code;
-        this.partRepairType = res?.[0].code;
+        this.repairType = res?.[0]?.id;
+        this.partRepairType = res?.[0]?.id;
       });
       getDiscountType().then(res => {
         this.discountType = (res || []);
       });
-      getEnum('StatementTypeEnum').then(res => {
+      getCheckoutTypeList({}).then(res => {
         this.itemOptions.checkoutTypeName = (res || []).map(item => ({
-          checkoutTypeId: item.code,
-          checkoutTypeName: item.message,
-          label: item.message,
-          value: item.code
+          checkoutTypeId: item.id,
+          checkoutTypeName: item.name,
+          label: item.name,
+          value: item.id
         }));
       });
-      getEnum('WarrantyTypeEnum').then(res => {
+      getRepairItemTypeList({ status: 1, category: 20 }).then(res => {
         this.itemOptions.warrantyTypeName = (res || []).map(item => ({
-          warrantyTypeId: item.code,
-          warrantyTypeName: item.message,
-          label: item.message,
-          value: item.code
+          warrantyTypeId: item.id,
+          warrantyTypeName: item.name,
+          label: item.name,
+          value: item.id
         }));
       });
       this.getPermissions();
     },
     getRepairItemInfo () {
-      getRepairItemInfo(this.vehicleInfo.id).then(res => {
+      return getRepairItemInfo(this.vehicleInfo.id).then(res => {
         this.info = res || {};
         this.itemData = (res.repairItemRespList || []).map(item => ({
           ...item,
@@ -996,10 +998,18 @@ export default {
         }, 300);
 
         this.packageType = PackageTypeOptions.map(item => {
-          const el = this.info.packageRespList?.find(item2 => +item.code === item2.packageType);
+          const count = this.info.packageRespList?.reduce((acc, cur) => {
+            // 技术服务活动和关爱服务活动累加显示到服务活动
+            if (String(item.code) === PackageTypeEnum.TECH_ACTIVITY && (String(cur.packageType) === PackageTypeEnum.TECH_ACTIVITY || String(cur.packageType) === PackageTypeEnum.CARE_ACTIVITY)) {
+              acc += cur.packageCount;
+            } else if (cur.packageType === +item.code) {
+              acc += cur.packageCount;
+            }
+            return acc;
+          }, 0);
           return {
             ...item,
-            value: el?.packageCount || 0
+            value: count || 0
           };
         });
       });
@@ -1159,6 +1169,7 @@ export default {
     },
     // 处理维修配件表格删除行
     async handleRemovePartRow (index, row) {
+      if (row.isOutstock) return;
       const packageTypeLabelMap = {
         // [PackageTypeEnum.REPAIR]: '维修套餐',
         [PackageTypeEnum.EQUITY]: '权益套餐',
@@ -1194,7 +1205,7 @@ export default {
       this.partData = this.partData.filter(part => part.packageId !== row.packageId);
       this.itemData = this.itemData.filter(item => item.packageId !== row.packageId);
     },
-    updateCheckoutType (row, repairItemTypeId) {
+    updateCheckoutType (row, repairItemTypeId, inheritCheckoutTypeObj) {
       if (repairItemTypeId === MaintenanceTypeEnum.WARRANTY) {
         const target = this.itemOptions.checkoutTypeName.find(item => item.checkoutTypeId === CheckoutTypeEnum.WARRANTY);
         row.checkoutTypeId = CheckoutTypeEnum.WARRANTY;
@@ -1207,7 +1218,8 @@ export default {
           this.handleCheckoutTypeChange(row);
         }
       } else {
-        const target = this.itemOptions.checkoutTypeName?.[0];
+        // 优先使用继承的结算类型，否则回退到第一个
+        const target = inheritCheckoutTypeObj || this.itemOptions.checkoutTypeName?.[0];
         row.checkoutTypeId = target.checkoutTypeId;
         row.checkoutTypeName = target.checkoutTypeName;
         if (row.partsId) {
@@ -1309,6 +1321,11 @@ export default {
     // 数量变化
     handlePartQuantityChange (row) {
       const quantity = Number(row.quantity) || 0;
+      // 数量必须大于0，允许小数，故min保持0，此处拦截0值
+      if (quantity <= 0) {
+        this.$message.warning('备件数量必须大于0');
+        return;
+      }
       const originalAmount = quantity * row.price;
       row.discountAmount = originalAmount * row.discountRate;
       row.partsAmount = originalAmount - row.discountAmount;
@@ -1342,6 +1359,15 @@ export default {
     // 结算类型是否为合同、保修
     checkoutTypeIncluded (type) {
       return type === CheckoutTypeEnum.WARRANTY || type === CheckoutTypeEnum.CONTRACT;
+    },
+    // 获取可继承的结算类型：若上一条记录结算类型为 自费/保险/内部结算，
+    // 且仍在当前权限过滤后的可选项中，则返回该选项；否则返回 null
+    getInheritedCheckoutType (list, filteredOptions) {
+      const lastRow = list && list.length ? list[list.length - 1] : null;
+      if (lastRow && lastRow.checkoutTypeId && !this.checkoutTypeIncluded(lastRow.checkoutTypeId)) {
+        return (filteredOptions || []).find(item => item.checkoutTypeId === lastRow.checkoutTypeId) || null;
+      }
+      return null;
     },
 
     // 套餐类型是否为商城订单
@@ -1470,9 +1496,11 @@ export default {
       this.repairType = v;
       this.partRepairType = v;
     },
-    handleRefresh () {
-      this.getRepairItemInfo();
+    async handleRefresh () {
+      await this.getRepairItemInfo();
       this.$emit('refresh');
+      // 检查维修类型变化（逻辑同手动保存，覆盖5种套餐导入入口）
+      this.checkRepairTypeChange();
     },
     // ----------替换件逻辑-----------------
     handlePartReplaceChange (current, row) {
@@ -1494,8 +1522,8 @@ export default {
         discountRate: this.selectedDiscount?.discountPartRate || 0,
         discountAmount: discountAmount,
         partsAmount: current.price - discountAmount,
-        repairItemName: current.repairItemName || '',
-        repairItemId: current.repairItemId || '',
+        repairItemName: current.repairItemName,
+        repairItemId: current.repairItemId,
         isBindltem: 0, // 手动添加的零件，标记为非自动导入
         packageCode: row.packageCode || '',
         packageId: row.packageId || '',
@@ -1763,6 +1791,14 @@ export default {
 <style lang="scss">
 .repair-item-autocomplete-popper,
 .repair-part-autocomplete-popper {
-  width: 400px !important;
+  width: auto !important;
+  min-width: 200px;
+  max-width: 1000px;
+  .el-autocomplete-suggestion__list {
+    padding-bottom: 28px;
+  }
+  .el-autocomplete-suggestion__wrap {
+    overflow-x: auto;
+  }
 }
 </style>

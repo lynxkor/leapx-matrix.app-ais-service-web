@@ -368,7 +368,7 @@ export default {
       }
       exportTable({
         businessType: '备件入库单',
-        dataFetchPath: 'sp/web/inbound/inboundOrder/page',
+        dataFetchPath: 'sp/web/purchase/inboundOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

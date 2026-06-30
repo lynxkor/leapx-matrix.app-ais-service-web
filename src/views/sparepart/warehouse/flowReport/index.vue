@@ -130,7 +130,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { flowReport } from '@/api/sparepart/warehouse/inventory/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listDealerPartWithOem } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listDealerPartWithOem, getDesensitize } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -191,23 +191,7 @@ export default {
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
-      pickerMinDate: null,
-      pickerOptions: {
-        onPick: ({ minDate }) => {
-          this.pickerMinDate = minDate;
-        },
-        disabledDate: (time) => {
-          if (time.getTime() > Date.now()) {
-            return true;
-          }
-          if (this.pickerMinDate) {
-            const min = new Date(this.pickerMinDate).getTime();
-            const range = 90 * 24 * 3600 * 1000;
-            return Math.abs(time.getTime() - min) > range;
-          }
-          return false;
-        },
-      },
+      pickerOptions: {},
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
@@ -265,9 +249,30 @@ export default {
           { props: 'createStatementInfoDate', label: '生成结算单时间', visible: true, width: 200 },
           { props: 'statementType', label: '结算类型', visible: true, width: 120 },
           { props: 'statementRemark', label: '备注', visible: true, width: 200 },
-          { props: 'carPlate', label: '车牌', visible: true, width: 160 },
-          { props: 'vehProfileVin', label: 'VIN', visible: true, width: 200 },
-          { props: 'customerName', label: '车主名称', visible: true, width: 160 }
+          {
+            props: 'carPlate',
+            label: '车牌',
+            visible: true,
+            width: 160,
+            mask: true,
+            getValue: (row) => getDesensitize(row.sparePartId, 'flowReport', 'carPlate')
+          },
+          {
+            props: 'vehProfileVin',
+            label: 'VIN',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDesensitize(row.sparePartId, 'flowReport', 'vehProfileVin')
+          },
+          {
+            props: 'customerName',
+            label: '车主名称',
+            visible: true,
+            width: 160,
+            mask: true,
+            getValue: (row) => getDesensitize(row.sparePartId, 'flowReport', 'customerName')
+          }
         ],
         total: 0
       },

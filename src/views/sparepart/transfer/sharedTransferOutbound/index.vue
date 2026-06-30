@@ -437,7 +437,7 @@ export default {
       }
       exportTable({
         businessType: '共享备件调拨出库',
-        dataFetchPath: 'sp/web/transfer/sharedTransferOutbound/page',
+        dataFetchPath: 'sp/web/dealer/sharedTransferOutbound/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'

@@ -18,9 +18,9 @@
         <template #extraButtons>
           <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && permissions.has('AISMC-preAuth-audit') && form.approvalStatus === AUDIT_STATUS.IN_PROGRESS && !form.isGoodWarranty">审批</el-button>
           <el-button size="small" type="primary" plain @click="handleCancel" v-if="_id && permissions.has('AISMC-preAuth-cancel') && form.approvalStatus === AUDIT_STATUS.REJECTED">作废</el-button>
-          <el-button size="small" type="primary" plain @click="handleRevoke" v-if="_id && permissions.has('AISMC-preAuth-audit') && form.approvalStatus === AUDIT_STATUS.APPROVED">撤回</el-button>
-          <el-button size="small" type="primary" :loading="loading" @click="handleSubmit(1)" v-if="_id && (form.approvalStatus === AUDIT_STATUS.TODO || form.approvalStatus === AUDIT_STATUS.REJECTED)">提交</el-button>
-          <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && form.approvalStatus === AUDIT_STATUS.REFUSED">激活</el-button>
+          <el-button size="small" type="primary" plain @click="handleRevoke" v-if="_id && permissions.has('AISMC-preAuth-revoke') && form.approvalStatus === AUDIT_STATUS.APPROVED && !form.isGoodWarranty">撤回</el-button>
+          <el-button size="small" type="primary" :loading="loading" @click="handleSubmit(1)" v-if="_id && permissions.has('AISMC-preAuth-submit') && (form.approvalStatus === AUDIT_STATUS.TODO || form.approvalStatus === AUDIT_STATUS.REJECTED)">提交</el-button>
+          <el-button size="small" type="primary" plain @click="handleApprove" v-if="_id && permissions.has('AISMC-preAuth-activate') && form.approvalStatus === AUDIT_STATUS.REFUSED && !form.isGoodWarranty">激活</el-button>
         </template>
         <template #footer>
           <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleSubmit(0)" :loading="loading">保存</el-button>
@@ -125,22 +125,47 @@
             <div class="common-section-body">
               <el-form :inline="true" class="form-detail">
                 <el-form-item label="车主姓名：">
-                  <span>{{ serviceProxyDetail?.customerName || form.serviceProxyResp?.customerName || '-' }}</span>
+                  <LPEncrypted
+                    :value="serviceProxyCustomerName"
+                    :decryptMethod="() => getServiceProxyDecryptField('customerName')"
+                    @update:value="updateServiceProxyCustomerName"
+                  />
                 </el-form-item>
                 <el-form-item label="送修人：">
-                  <span>{{ serviceProxyDetail?.shuttleName || form.serviceProxyResp?.shuttleName || '-' }}</span>
+                  <LPEncrypted
+                    :value="serviceProxyShuttleName"
+                    :decryptMethod="() => getServiceProxyDecryptField('shuttleName')"
+                    @update:value="updateServiceProxyShuttleName"
+                  />
                 </el-form-item>
                 <el-form-item label="送修人手机：">
-                  <span>{{ serviceProxyDetail?.shuttlePhone || form.serviceProxyResp?.shuttlePhone || '-' }}</span>
+                  <LPEncrypted
+                    :value="serviceProxyPhone"
+                    :decryptMethod="() => getServiceProxyDecryptField('shuttlePhone')"
+                    @update:value="updateServiceProxyPhone"
+                  />
                 </el-form-item>
                 <el-form-item label="VIN：">
-                  <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
+                  <LPEncrypted
+                    :value="serviceProxyVin"
+                    :decryptMethod="() => getServiceProxyDecryptField('vehProfileVin')"
+                    @update:value="updateServiceProxyVin"
+                  >
+                    <template v-if="form.vehProfileId">
+                      <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ serviceProxyVin }}</el-link>
+                    </template>
+                    <span v-else>{{ serviceProxyVin || '-' }}</span>
+                  </LPEncrypted>
                 </el-form-item>
                 <el-form-item label="车型：">
                   <span>{{ serviceProxyDetail?.vehModelName || form.serviceProxyResp?.vehModelName || '-' }}</span>
                 </el-form-item>
                 <el-form-item label="车牌号：">
-                  <span>{{ serviceProxyDetail?.carPlate || form.serviceProxyResp?.carPlate || '-' }}</span>
+                  <LPEncrypted
+                    :value="serviceProxyCarPlate"
+                    :decryptMethod="() => getServiceProxyDecryptField('carPlate')"
+                    @update:value="updateServiceProxyCarPlate"
+                  />
                 </el-form-item>
                 <el-form-item label="车辆用途：">
                   <span>{{ preAuthInfoDetail.carPropertyLabel || form.carPropertyLabel || '-' }}</span>
@@ -169,8 +194,8 @@
                 <el-form-item label="三包预警：">
                   <span>{{ preAuthInfoDetail?.alarmLevelLabel ||form.alarmLevelLabel || '-' }}</span>
                 </el-form-item>
-                <el-form-item label="预警信息：">
-                  <span>{{ preAuthInfoDetail?.alarmInfo || form.alarmInfo || '-' }}</span>
+                <el-form-item label="预警信息：" class="alarm-info-item">
+                  <span v-safe-html.nl2br="preAuthInfoDetail?.alarmInfo || form.alarmInfo || '-'"></span>
                 </el-form-item>
               </el-form>
             </div>
@@ -517,12 +542,13 @@
 <script>
 import { getDetail, addOrUpdate, getServiceProxyDetail, cancelItem, revokeItem, getPreAuthInfo, checkPreAuth } from '@/api/maintain/sp/preAuth/index';
 import { getList as getQualityReportList } from '@/api/maintain/sp/qualityOrderReport/index';
-import { selectServiceProxy as selectServiceProxyApi, getEnum } from '@/api/maintain/sp/serviceProxy/index';
+import { selectServiceProxy as selectServiceProxyApi, getEnum, getDecrypt } from '@/api/maintain/sp/serviceProxy/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Attachment from './components/FileUploadGrid';
 import PreAuthAuditDialog from './components/AuditDialog/index.vue';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -608,7 +634,8 @@ export default {
     EditBaseContainer,
     FetchSelect,
     Attachment,
-    PreAuthAuditDialog
+    PreAuthAuditDialog,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -616,6 +643,21 @@ export default {
     },
     title () {
       return '申请单号：' + (this.form.code || '新增');
+    },
+    serviceProxyCustomerName () {
+      return this.serviceProxyDetail?.customerName || this.form.serviceProxyResp?.customerName || '-';
+    },
+    serviceProxyShuttleName () {
+      return this.serviceProxyDetail?.shuttleName || this.form.serviceProxyResp?.shuttleName || '-';
+    },
+    serviceProxyPhone () {
+      return this.serviceProxyDetail?.shuttlePhone || this.form.serviceProxyResp?.shuttlePhone || '-';
+    },
+    serviceProxyVin () {
+      return this.serviceProxyDetail?.vehProfileVin || this.form.serviceProxyResp?.vehProfileVin || this.form.vehProfileVin || '-';
+    },
+    serviceProxyCarPlate () {
+      return this.serviceProxyDetail?.carPlate || this.form.serviceProxyResp?.carPlate || '-';
     }
   },
   watch: {
@@ -655,7 +697,7 @@ export default {
       // 审核对话框
       auditDialogVisible: false,
       rules: {
-        serviceProxyId: [
+        serviceProxyCode: [
           { required: true, message: '请选择施工单', trigger: 'change' }
         ],
         preAuthType: [
@@ -669,6 +711,45 @@ export default {
     };
   },
   methods: {
+    getServiceProxyDecryptField (field) {
+      return getDecrypt(this.form.serviceProxyId, field);
+    },
+    updateServiceProxyPhone (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
+      this.$set(this.serviceProxyDetail, 'shuttlePhone', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'shuttlePhone', value);
+      }
+    },
+    updateServiceProxyCustomerName (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
+      this.$set(this.serviceProxyDetail, 'customerName', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'customerName', value);
+      }
+    },
+    updateServiceProxyShuttleName (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
+      this.$set(this.serviceProxyDetail, 'shuttleName', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'shuttleName', value);
+      }
+    },
+    updateServiceProxyVin (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
+      this.$set(this.serviceProxyDetail, 'vehProfileVin', value);
+      this.$set(this.form, 'vehProfileVin', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'vehProfileVin', value);
+      }
+    },
+    updateServiceProxyCarPlate (value) {
+      if (!this.serviceProxyDetail) this.serviceProxyDetail = {};
+      this.$set(this.serviceProxyDetail, 'carPlate', value);
+      if (this.form.serviceProxyResp) {
+        this.$set(this.form.serviceProxyResp, 'carPlate', value);
+      }
+    },
     /**
      * 格式化日期为 yyyy-MM-dd 格式
      * @param {string|number|Date} date - 日期值
@@ -800,7 +881,15 @@ export default {
         qualityOrderReport: this.form.qualityOrderReport,
       });
     },
-    handleSubmit (v = 0) {
+    async handleSubmit (v = 0) {
+      // 表单校验：commonMixins 已注入 formRefs（包含所有 ruleForm* 表单）
+      try {
+        for (const formRef of this.formRefs) {
+          if (formRef) await formRef.validate();
+        }
+      } catch (e) {
+        return; // 校验失败时 el-form 会自动展示错误信息
+      }
       this.loading = true;
       addOrUpdate({
         id: this._id,
@@ -883,6 +972,9 @@ export default {
         checkPreAuth(record.id).then(res => {
           if (!res.needPreAuth) {
             this.$message.error('该施工单无需预授权');
+            Object.assign(this.form, defaultForm, { serviceProxyResp: {} });
+            this.preAuthInfoDetail = {};
+            this.serviceProxyDetail = {};
           } else {
             this.form.preAuthType = res.preAuthType;
             getServiceProxyDetail(record.id).then(detailRes => {
@@ -1051,6 +1143,16 @@ export default {
       color: var(--leap-color-link);
       cursor: pointer;
     }
+  }
+}
+
+// 预警信息独占一行，并支持多条预警换行展示（【提示1】\n【提示2】）
+.alarm-info-item {
+  width: 100%;
+
+  .el-form-item__content {
+    white-space: pre-line;
+    word-break: break-word;
   }
 }
 </style>

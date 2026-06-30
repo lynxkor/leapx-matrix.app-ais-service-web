@@ -384,6 +384,7 @@ export default {
             }, {
               // eslint-disable-next-line no-warning-comments
               name: '完成',
+              show: () => this.isServiceCareActivity ? this.permissions.has('AISCR-serviceCareActivityVehicle-finish') : this.permissions.has('AISCR-serviceActivityVehicle-finish'),
               disabled: row => row.finished === '1',
               click: (rowIndex, row) => {
                 this.finishActDialogInfo = row;
@@ -483,13 +484,17 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size, isServiceCareActivity: this.isServiceCareActivity })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          const records = (res && res.records) || [];
+          this.optionObj.dataList = records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = (res && res.total) || 0;
+        }).catch(err => {
+          console.error('获取活动车辆列表失败:', err);
+          this.$message.error('获取列表数据失败，请重试');
         }).finally(() => {
           this.loading = false;
         });

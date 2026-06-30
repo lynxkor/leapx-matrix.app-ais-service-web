@@ -128,7 +128,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/maintain/sp/qualityOrderReport/index';
+import { getList, deleteItem, enableItem, getDecrypt } from '@/api/maintain/sp/qualityOrderReport/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -250,6 +250,8 @@ export default {
             label: 'VIN码',
             visible: true,
             width: 200,
+            mask: true,
+            getValue: (row) => getDecrypt(row.id, 'vehProfileVin'),
             buttons: [{
               click: (rowIndex, row) => {
                 window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');

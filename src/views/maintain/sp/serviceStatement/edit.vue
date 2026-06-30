@@ -15,7 +15,7 @@
           <el-button size="small" @click="createRefund" v-if="buttonPermissions.reCreate || buttonPermissions.reCreate1" :style="{'opacity': isStoreOrder && isOverSettlement30Days ? '0.5': 1}">创建反结算单</el-button>
           <el-button size="small" @click="createWarrantyApply"
             v-if="canCreateWarrantyApply">创建保修申请单</el-button>
-          <el-button size="small" @click="handlePrint">打印结算单</el-button>
+          <el-button size="small" @click="handlePrint" v-if="buttonPermissions.canPrint">打印结算单</el-button>
         </template>
         <div class="common-sub-title">
           <span>结算单号：{{ form.code || '-' }}</span>
@@ -70,7 +70,7 @@
                   <el-input placeholder="请输入" v-model="form.serviceOwnerName" disabled clearable />
                 </el-form-item>
                 <el-form-item label="支付方式：" prop="payType">
-                  <el-input placeholder="请输入" v-model="form.payTypeLabel" disabled clearable />
+                  <el-input placeholder="请输入" v-model="form.payType" disabled clearable />
                   <!-- <fetch-select :request="fetchOptions" enumCode="xxx" v-model="form.payTypeLabel" placeholder="请选择" disabled
                     clearable filterable /> -->
                 </el-form-item>
@@ -244,7 +244,8 @@
                   {{ form.repairItemAmount }}
                 </el-form-item>
                 <el-form-item label="结算人员：" prop="statementPersonName">
-                  <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.statementPersonId}`">{{ form.statementPersonName }}</el-link>
+                  {{ form.statementPersonName }}
+                  <!-- <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.statementPersonId}`">{{ form.statementPersonName }}</el-link> -->
                 </el-form-item>
                 <el-form-item label="去零金额：" prop="noFractionAmount">
                   {{ form.noFractionAmount }}
@@ -262,7 +263,8 @@
                   {{ form.repairItemPayableAmount }}
                 </el-form-item>
                 <el-form-item label="收款人：" prop="payeeName">
-                  <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.payeeId}`">{{ form.payeeName }}</el-link>
+                  {{ form.payeeName }}
+                  <!-- <el-link type="success" target="_blank" :href="`/partner/user/list/detail?&userId=${form.payeeId}`">{{ form.payeeName }}</el-link> -->
                 </el-form-item>
                 <el-form-item label="优惠总金额：" prop="discountAmount">
                   {{ form.discountAmount }}
@@ -478,6 +480,8 @@ export default {
         addRecord: baseType.includes(statementType) && statementStatus === 30 && this.permissions.has('AISMC-serviceStatement-addReceiptRecord'),
         // 重推签字短信
         canResendSignSms: signStatus === 10 && signGeneratedOn,
+        // 打印结算单
+        canPrint: this.permissions.has('AISMC-serviceStatement-print'),
       };
     },
 

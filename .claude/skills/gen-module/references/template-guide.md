@@ -21,22 +21,22 @@ Available at top level of templates:
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `{{{title}}}` | Chinese title of module | "门店信息管理" |
-| `{{{name}}}` | Module name (PascalCase) | "DealerInfo" |
-| `{{{nameLowerCase}}}` | Module name lowercase | "dealerinfo" |
-| `{{{nameKebabCase}}}` | Module name kebab-case | "dealer-info" |
-| `{{{nameCamelCase}}}` | **Module name lower camelCase** (First letter MUST be lowercase!) | "dealerInfo" |
-| `{{{apiPath}}}` | API path with /web/ | "maintain/web/dealerInfo" |
+| `{{{name}}}` | Module name (**lowerCamelCase**) | "dealerInfo" |
+| `{{{nameCamelCase}}}` | Module name (**lowerCamelCase**, same as `{{{name}}}`) | "dealerInfo" |
+| `{{{nameKebabCase}}}` | Module name kebab-case (CSS class) | "dealer-info" |
+| `{{{apiPath}}}` | API path with `/web/` inserted | "maintain/web/basic/dealerInfo" |
 | `{{{modulePath}}}` | Full module path | "maintain/basic/dealerInfo" |
-| `{{{isProForm}}}` | Whether to use ProForm | true |
+| `{{{isProForm}}}` | Whether to use ProForm mode (default `true`) | true |
 
-**CRITICAL RULE for `{{{nameCamelCase}}}`**:
-This variable MUST produce **lower camelCase** (first letter lowercase):
-- ✅ Correct output: `dealerWorkTeam`, `storeInfo`, `vehicleModel`
-- ❌ Wrong output: `DealerWorkTeam`, `StoreInfo`, `VehicleModel`
+**CRITICAL RULE — lowerCamelCase**:
+`{{{name}}}` and `{{{nameCamelCase}}}` MUST both produce **lowerCamelCase** (first letter lowercase):
+- ✅ Correct: `dealerWorkTeam`, `storeInfo`, `vehicleModel`
+- ❌ Wrong: `DealerWorkTeam`, `StoreInfo`, `VehicleModel`
 
-**Use cases for `{{{nameCamelCase}}}`**:
+**Use cases**:
 - `moduleKey: 'AISMC-{{{nameCamelCase}}}'` → `moduleKey: 'AISMC-dealerWorkTeam'`
-- Route names that need lower camelCase
+- Route `name`: `{{{nameCamelCase}}}` → `dealerInfo`
+- Component `name`: `{{{nameCamelCase}}}Edit` → `dealerInfoEdit`
 
 ### Field Properties
 
@@ -72,6 +72,83 @@ Field loops:
 - `{{{#top2SearchList}}}` - Fields 1-2 (always visible)
 - `{{{#thirdSearchList}}}` - Field 3 (v-show based on visibleCount)
 - `{{{#lastSearchList}}}` - Fields 4+ (v-show based on show flag)
+
+---
+
+## Search Form Three-Segment Layout (CRITICAL)
+
+The search form uses a strict three-segment layout driven by `responsiveSearchForm` mixin's `visibleCount` and the page's `show` state. **All three segments MUST follow these exact rules** — do not free-form the visibility control.
+
+### Visibility Control Matrix
+
+| Segment | Field Index | Visibility Binding | Large Screen (≥1920) | Collapsed (show=false, Mid/Small Screen) |
+|---|---|---|---|---|
+| `top2SearchList` | 0, 1 | **None** (always rendered, no `v-show`) | Always visible | Always visible |
+| `thirdSearchList` | 2 | **Each item independently** `v-show="this.visibleCount === 3 \|\| show"` | Always visible | Only when `show === true` |
+| `lastSearchList` | ≥3 | **Entire group wrapped** in `<template v-if="show">` | Only when `show === true` (renders) | Not rendered |
+
+### Skeleton Example
+
+```vue
+<el-form :inline="true" :model="form" size="small"
+         label-position="right" label-width="150px" class="ais-search-form">
+
+  <!-- Segment 1: top2SearchList - always visible, no v-show -->
+  <el-form-item label="字段1">
+    <el-input v-model="form.field1" clearable />
+  </el-form-item>
+  <el-form-item label="字段2">
+    <el-input v-model="form.field2" clearable />
+  </el-form-item>
+
+  <!-- Segment 2: thirdSearchList - independent v-show on EACH item -->
+  <el-form-item label="字段3" v-show="this.visibleCount === 3 || show">
+    <fetch-select :request="fetchOptions" enumCode="StatusEnum"
+      v-model="form.field3" clearable multiple filterable />
+  </el-form-item>
+
+  <!-- Segment 3: lastSearchList - wrapped ENTIRELY in <template v-if="show"> -->
+  <template v-if="show">
+    <el-form-item label="字段4">
+      <el-input v-model="form.field4" clearable />
+    </el-form-item>
+    <el-form-item label="字段5">
+      <el-date-picker v-model="form.field5" type="daterange" unlink-panels
+        :picker-options="pickerOptions" range-separator="至"
+        value-format="yyyy-MM-dd HH:mm:ss"
+        start-placeholder="开始日期" end-placeholder="结束日期" />
+    </el-form-item>
+  </template>
+
+  <page-search-action
+    v-if="canList"
+    v-model="show"
+    is-expandable
+    :loading="loading"
+    @submit="onSubmit"
+    @reset="onReset"
+  />
+</el-form>
+```
+
+### Hard Requirements (MUST Follow)
+
+1. **`data()` must contain `show: false`** — controls the expand/collapse state.
+2. **`mixins` array must include `responsiveSearchForm`** (imported from `@/libs/mixins/responsive`) — provides `visibleCount`. Without it, `v-show="this.visibleCount === 3 || show"` will throw ReferenceError.
+3. **`el-date-picker` MUST include `unlink-panels`** — allows independent panel selection in date ranges (project-wide convention).
+4. **`page-search-action` default attributes**: `v-if="canList" v-model="show" is-expandable :loading="loading" @submit="onSubmit" @reset="onReset"`.
+5. **`getFormData()` MUST contain `data.sortColumns = this.sortColumns;`** — even when `sortColumns` is an empty array.
+6. **When all three segments are empty** (no searchable fields): omit the entire `<el-form class="ais-search-form">` block AND the `<page-search-action>` component. Keep `responsiveSearchForm` mixin and `show: false` in data for consistency.
+7. **When `lastSearchList` is empty**: set `<page-search-action :is-expandable="false">` to avoid showing a non-functional expand button.
+8. **Segment 2 uses `v-show`** (display:none, keeps DOM); **Segment 3 uses `v-if`** (no render, frees DOM). This difference is intentional — Segment 2 needs to be reactive to `visibleCount` changes (screen resize), Segment 3 only depends on user action.
+9. **Preserve `this.` prefix** in `v-show="this.visibleCount === 3 || show"` — template literal requires explicit `this.` even though Vue templates usually allow omitting it. This is project-wide convention.
+
+### Edge Cases
+
+- **Only 1 searchable field**: it goes to `top2SearchList`, no segments 2/3. Set `:is-expandable="false"` on `page-search-action`.
+- **Only 2 searchable fields**: both go to `top2SearchList`, no segments 2/3. Set `:is-expandable="false"`.
+- **Exactly 3 searchable fields**: top2 + third, no last. Keep `is-expandable` (allows user to hide field 3 on small screens).
+- **4+ searchable fields**: full three-segment layout, `is-expandable` enabled.
 
 #### Search Form Field Types
 
@@ -317,7 +394,7 @@ export default {
 import debounce from 'lodash.debounce';
 
 // 2. @leapmotor/design components
-import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
+import { LPVxeTable } from '@leapmotor/design';
 
 // 3. Local components
 import PageSearchAction from '@/libs/components/AisPageSearchAction';

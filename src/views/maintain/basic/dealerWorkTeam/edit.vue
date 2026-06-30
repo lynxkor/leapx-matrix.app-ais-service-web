@@ -57,12 +57,17 @@
                   />
                 </el-form-item>
                 <el-form-item label="负责人：" prop="ownerUserName">
-                  <InputLink
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.ownerUserName"
+                    disabled
+                  />
+                  <!-- <InputLink
                     v-model="form.ownerUserName"
                     :link="`/partner/user/list/detail?&userId=${form.ownerId}`"
                     placeholder="请输入"
                     readonly
-                  />
+                  /> -->
                 </el-form-item>
                 <el-form-item label="说明：" prop="remark" class="form-item-full">
                   <el-input
@@ -345,15 +350,16 @@ export default {
       });
     },
     handleUserSelect (val, record) {
-      this.tableData.push({
-        ...record,
-        id: null,
-      });
-      addOrUpdate({ ...this.form, teamUsers: this.tableData }).then(res => {
+      addOrUpdate({
+        ...this.form,
+        teamUsers: [...this.tableData, {
+          ...record,
+          id: null,
+        }]
+      }).then(res => {
         this.$message.success('添加成功');
+      }).finally(e => {
         this.$refs.containerRef.handleRefresh();
-      }).catch(e => {
-        this.tableData = this.tableData.filter(item => item !== record);
       });
     },
     async saveRowEdit (row, defer) {

@@ -333,13 +333,19 @@ export default {
       })
         .then((res) => {
           console.log(res);
-          this.optionObj.dataList = res.records.map((item) => {
+          const records = res?.records || [];
+          this.optionObj.dataList = records.map((item) => {
             return {
               ...item,
               deleteLoading: false,
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
+        })
+        .catch((err) => {
+          console.error('维修记录列表加载失败:', err);
+          this.optionObj.dataList = [];
+          this.optionObj.total = 0;
         })
         .finally(() => {
           this.loading = false;
