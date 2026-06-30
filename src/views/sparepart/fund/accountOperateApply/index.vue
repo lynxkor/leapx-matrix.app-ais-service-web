@@ -229,7 +229,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: this.accountName,
+      pageTitle: '备件返利充值管理',
       pageType: 'list',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISPART-accountOperateApply',
