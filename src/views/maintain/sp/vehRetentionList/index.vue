@@ -92,7 +92,7 @@
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchPush" :disabled="selectionList.length === 0">批量推送</el-button>
-      <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchInvalid" :disabled="selectionList.length === 0">批量作废</el-button>
+      <el-button v-if="permissions.has('AISMC-vehRetentionList-batchInvalid')" size="small" @click="handleBatchInvalid" :disabled="selectionList.length === 0">批量作废</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -309,7 +309,7 @@ export default {
             }, {
               name: '作废',
               show: (row) => {
-                return !(row.retentionStatus === 60);
+                return !(row.retentionStatus === 60) && this.permissions.has('AISMC-vehRetentionList-batchInvalid');
               },
               // popconfirmConfirmButtonType: 'danger',
               // popconfirmConfirmButtonText: '作废',
