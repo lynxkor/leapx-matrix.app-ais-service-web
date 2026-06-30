@@ -199,7 +199,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       exportTable({
-        businessType: '新页面',
+        businessType: '不合格件配置',
         dataFetchPath: 'claimreturn/web/oldpart/basic/oldPartUnqualifiedConfig/page',
         reqParams: this.getFormData(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -207,7 +207,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '不合格件配置.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
