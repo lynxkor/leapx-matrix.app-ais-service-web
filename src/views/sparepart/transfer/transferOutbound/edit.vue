@@ -365,7 +365,7 @@
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />
-                  <vxe-column title="操作" width="100" fixed="right" v-if="orderStatusType">
+                  <vxe-column title="操作" width="100" fixed="right" v-if="orderStatusType && canAddOrUpdate">
                     <template #default="{ row }">
                       <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(row.id)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
