@@ -221,8 +221,10 @@ export default {
       if (val && val.length === 2) {
         const start = new Date(val[0]);
         const end = new Date(val[1]);
-        const maxEnd = new Date(start);
-        maxEnd.setMonth(maxEnd.getMonth() + 1);
+        const startDay = start.getDate();
+        const lastDayOfNextMonth = new Date(start.getFullYear(), start.getMonth() + 2, 0).getDate();
+        // 下月同日，若日溢出则取下月最后一天（如1月31日→2月28日）
+        const maxEnd = new Date(start.getFullYear(), start.getMonth() + 1, Math.min(startDay, lastDayOfNextMonth));
         if (end > maxEnd) {
           this.$message.warning('完工日期选择间隔不能超过一个月');
           this.form.finishDate = '';
