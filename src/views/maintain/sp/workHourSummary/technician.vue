@@ -30,6 +30,7 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          @change="handleDateChange"
         />
       </el-form-item>
       <template v-if="show">
@@ -128,7 +129,7 @@ import WorkHourDetailSubTable from './components/WorkHourDetailSubTable.vue';
 function getDefaultFinishDate () {
   const end = new Date();
   const start = new Date();
-  start.setMonth(start.getMonth() - 3);
+  start.setMonth(start.getMonth() - 1);
   const fmt = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   return [fmt(start) + ' 00:00:00', fmt(end) + ' 23:59:59'];
 }
@@ -216,12 +217,24 @@ export default {
       if (val === null || val === '' || isNaN(val)) return '-';
       return Number(val).toFixed(2);
     },
+    handleDateChange (val) {
+      if (val && val.length === 2) {
+        const start = new Date(val[0]);
+        const end = new Date(val[1]);
+        const maxEnd = new Date(start);
+        maxEnd.setMonth(maxEnd.getMonth() + 1);
+        if (end > maxEnd) {
+          this.$message.warning('完工日期选择间隔不能超过一个月');
+          this.form.finishDate = '';
+        }
+      }
+    },
     onSubmit () {
       this.pageNum = 1;
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      this.form = { ...defaultForm, finishDate: getDefaultFinishDate() };
       this.pageNum = 1;
       this.pageSize = 20;
       this.getData();
@@ -247,6 +260,10 @@ export default {
       ];
     },
     exportExcel () {
+      if (!this.form.dealerCodes || !this.form.dealerCodes.length) {
+        this.$message.warning('请选择门店后再导出');
+        return;
+      }
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
       exportTable({
@@ -254,7 +271,7 @@ export default {
         dataFetchPath: 'maintain/web/sp/spRepairWorkRecord/pageWorkHourSummaryByTechnician',
         reqParams,
         titleMap: {
-          groupName: '技师姓名',
+          repairTechnicianName: '技师姓名',
           repairItemCode: '维修项目代码',
           repairItemName: '维修项目名称',
           serviceProxyCode: '接车施工单',
@@ -264,7 +281,11 @@ export default {
           dealerName: '门店名称',
           carPlate: '车牌',
           vehProfileVin: 'VIN',
-          serviceAdvisorName: '客户经理'
+          serviceAdvisorName: '客户经理',
+          workHour: '工时',
+          price: '工时单价',
+          repairAmount: '工时金额',
+          discountAmount: '工时优惠金额'
         },
         httpMethod: 'POST'
       }).then(async res => {
