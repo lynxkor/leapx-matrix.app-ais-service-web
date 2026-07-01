@@ -74,6 +74,7 @@
                 </div>
             </div>
         </div>
+        <ReplacerDialog :visible.sync="replacerDialogVisible" :list="replacerList" />
     </div>
 </template>
 
@@ -82,6 +83,7 @@ import { addDetail, getPurchaseApplyDetail, getPurchaseApplyPage } from '@/api/s
 import EditTable from '@/libs/components/EditTable';
 import { sparePartListShort } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
+import ReplacerDialog from './ReplacerDialog.vue';
 
 export default {
   props: {
@@ -98,13 +100,15 @@ export default {
       default: ''
     }
   },
-  components: { EditTable, FetchSelect },
+  components: { EditTable, FetchSelect, ReplacerDialog },
   data () {
     return {
       sparePartId: '', // 备件信息ID
       sparePartDetail: {}, // 备件详情信息
       detailId: '', // 详情ID
       outsideTableData: [],
+      replacerDialogVisible: false, // 可采购替换件弹窗
+      replacerList: [], // 可采购替换件列表
       defaultNewRow: {
         name: '',
       },
@@ -183,6 +187,13 @@ export default {
         purchaseApplyId: this.purchaseApplyId
       };
       addDetail(params).then(res => {
+        // 响应包含可采购替换件时，当做失败分支处理：不再调用其他接口和emit，弹窗展示替换件
+        if (res.sparePartReplacerResponses && res.sparePartReplacerResponses.length) {
+          this.replacerList = res.sparePartReplacerResponses;
+          this.replacerDialogVisible = true;
+          this.sparePartId = '';
+          return;
+        }
         this.detailId = res.id || '';
         this.getSparePartDetail(res.id); // 拿到获取的 备件列表id 去查询详情
         if (res.add) {
