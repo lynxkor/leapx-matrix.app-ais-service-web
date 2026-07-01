@@ -23,6 +23,7 @@
           clearable
         />
       </el-form-item>
+      <template v-if="show">
       <el-form-item label="维修项目代码">
         <el-input
           placeholder="请输入"
@@ -30,7 +31,6 @@
           clearable
         />
       </el-form-item>
-      <template v-if="show">
         <el-form-item label="维修项目名称">
         <el-input
           placeholder="请输入"
