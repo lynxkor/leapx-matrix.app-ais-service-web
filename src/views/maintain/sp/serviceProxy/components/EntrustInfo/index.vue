@@ -426,6 +426,7 @@
           <h3>添加故障模块</h3>
         </div>
         <base-search
+          ref="alertModuleSearch"
           style="width: 450px;margin-bottom: 10px;"
           filterable
           clearable
@@ -804,7 +805,16 @@ export default {
       }
       this.form._prevCurrentFault = val;
     },
+    // 关闭故障模块搜索下拉框(filterable+remote 偶发选中后不自动收起)
+    closeAlertModuleDropdown () {
+      this.$nextTick(() => {
+        const input = this.$refs.alertModuleSearch?.$el?.querySelector('input');
+        if (input) input.blur();
+      });
+    },
     handleAlertModuleChange (val, record) {
+      // 选中后立即关闭下拉框
+      this.closeAlertModuleDropdown();
       if (this._id) {
         // 编辑模式：即时保存到后端
         if (!this.form.faultAlertRecordRespList) {
