@@ -870,8 +870,8 @@ export default {
       }
     },
     submitRequest () {
-      if (this.form.targetVehicleProperty === VEHICLE_PROPERTY.OPERATIONAL &&
-        this.form.oldVehicleProperty !== VEHICLE_PROPERTY.HOUSEHOLD) {
+      if (String(this.form.targetVehicleProperty) === VEHICLE_PROPERTY.OPERATIONAL &&
+        String(this.form.oldVehicleProperty) !== VEHICLE_PROPERTY.HOUSEHOLD) {
         this.$message.warning('当前只支持从家用车辆属性申请变更为运营车辆属性');
         return Promise.reject(new Error('validation failed'));
       }
