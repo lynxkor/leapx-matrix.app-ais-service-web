@@ -528,7 +528,7 @@ export default {
     // 若施工单中：【是否已生成结算单】为是或者【本次进店是否存在故障】为否，则不允许搜索添加故障模块，置灰；
     // 搜索框默认展示文案：“当前工单为已提交结算或者不存在故障，无需添加CCC”
     faultTableDisabled () {
-      return this.formData.isCreateStatementInfo === 1 || !this.currentFault;
+      return this.formData.isCreateStatementInfo === 1 || !this.form.currentFault;
     },
     currentFaultDisabled () {
       // 枚举：是、否，非必填，开单默认为 否；工单为：已作废、已交车或【是否已生成结算单】为是时，该字段锁定不可修改；
