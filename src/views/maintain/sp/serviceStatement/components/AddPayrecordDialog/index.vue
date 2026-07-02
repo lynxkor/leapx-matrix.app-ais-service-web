@@ -256,7 +256,7 @@ export default {
       }
       // 计算已有收款记录的总金额
       const payAmount = this.tableData.reduce((sum, row) => {
-        return sum;
+        return sum + (+row.payAmount || 0);
       }, 0);
 
       // 检查总收款金额是否超过实际应付金额
