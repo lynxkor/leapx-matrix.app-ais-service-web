@@ -219,7 +219,7 @@ import ShelvesDialog from './ShelvesDialog.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   sparePartIdList: null,
-  codeList: null,
+  codeList: [],
   locationIdList: null,
   dealerCodeList: null,
   remarkLike: '',
