@@ -33,18 +33,6 @@
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="旧件返回类型">
-         <fetch-select
-           :request="fetchOptions"
-           enumCode="old_part_return_type"
-           v-model="form.returnTypeList"
-           placeholder="请选择"
-           clearable
-           multiple
-           filterable
-           :format="returnTypeFormat"
-         />
-       </el-form-item>
         <el-form-item label="是否验收完成">
           <fetch-select
             :request="fetchOptions"

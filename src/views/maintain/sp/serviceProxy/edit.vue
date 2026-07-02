@@ -567,6 +567,13 @@ export default {
           }
         }
         this.submitLoading = true;
+        delete data.currentSituation;
+        delete data.currentSituationLabel;
+        delete data.recentlyfaultServiceProxy;
+        delete data.recentlyfaultServiceProxyCode;
+        delete data.earliestfaultServiceProxy;
+        delete data.earliestfaultServiceProxyCode;
+        delete data.faultAlert;
         addOrUpdate(data).then(res => {
           this.$message({
             message: '保存成功',

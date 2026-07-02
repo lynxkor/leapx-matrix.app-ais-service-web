@@ -426,17 +426,18 @@
           <h3>添加故障模块</h3>
         </div>
         <base-search
+          ref="alertModuleSearch"
           style="width: 450px;margin-bottom: 10px;"
           filterable
           clearable
           remote
-          :placeholder="form.currentFault ? '请输入VRT/VFG/CCC模糊搜索' : '当前工单为已提交结算或者不存在故障，无需添加CCC'"
+          :placeholder="!faultTableDisabled ? '请输入VRT/VFG/CCC模糊搜索' : '当前工单为已提交结算或者不存在故障，无需添加CCC'"
           :remote-method="getAlertModule"
           @change="handleAlertModuleChange"
           collapse-tags
           value-key="id"
           label-key="name"
-          :disabled="formDisabled || !form.currentFault"
+          :disabled="formDisabled || faultTableDisabled"
         />
         <vxe-table
           ref="faultTable"
@@ -524,6 +525,11 @@ export default {
       }
       return this.form.faultAlertRecordParams || [];
     },
+    // 若施工单中：【是否已生成结算单】为是或者【本次进店是否存在故障】为否，则不允许搜索添加故障模块，置灰；
+    // 搜索框默认展示文案：“当前工单为已提交结算或者不存在故障，无需添加CCC”
+    faultTableDisabled () {
+      return this.formData.isCreateStatementInfo === 1 || !this.form.currentFault;
+    },
     currentFaultDisabled () {
       // 枚举：是、否，非必填，开单默认为 否；工单为：已作废、已交车或【是否已生成结算单】为是时，该字段锁定不可修改；
       return this.formData.orderStatus === RepairOrderStatusEnum.CANCEL ||
@@ -567,17 +573,26 @@ export default {
           // 处理预授权字段：为空时显示"否"
           this.$set(this.form, 'isPreAuthLabel', val.isPreAuthLabel || '否');
           this.$set(this.form, 'isCreatePreAuthLabel', val.isCreatePreAuthLabel || '否');
+          // 根据订单状态及维修项目/配件情况,动态设置预计交车时间必填规则
+          this.updateExpectFinishAtRule();
         }
       },
       immediate: true
     },
-    'formData.orderStatus': {
-      handler (val) {
-        if (val === 110) {
-          this.$set(this.rules, 'expectFinishAt', [
-            { required: true, message: '请输入预计交车时间', trigger: 'change' }
-          ]);
-        }
+    'formData.orderStatus' () {
+      this.updateExpectFinishAtRule();
+    },
+    // 维修项目或零件变化时,需重新计算预计交车时间的必填规则
+    'formData.costCountResp.repairItemRespList': {
+      deep: true,
+      handler () {
+        this.updateExpectFinishAtRule();
+      }
+    },
+    'formData.costCountResp.sparePartRespList': {
+      deep: true,
+      handler () {
+        this.updateExpectFinishAtRule();
       }
     },
     'form.currentFault': {
@@ -644,6 +659,15 @@ export default {
       } else if (Number(val) === 30) {
         this.form.isStoreLive = '1';
       }
+    },
+    // 预计交车时间:仅当订单状态为制单中且存在维修项目或零件时才必填
+    updateExpectFinishAtRule () {
+      const isCreatingOrder = this.formData?.orderStatus === RepairOrderStatusEnum.CREATING_ORDER;
+      const hasRepairItemOrPart = (this.formData?.costCountResp?.repairItemRespList?.length > 0) ||
+        (this.formData?.costCountResp?.sparePartRespList?.length > 0);
+      this.$set(this.rules, 'expectFinishAt', isCreatingOrder && hasRepairItemOrPart
+        ? [{ required: true, message: '请输入预计交车时间', trigger: 'change' }]
+        : []);
     },
     validateForm () {
       if (this.formData?.costCountResp?.repairItemRespList?.length === 0 && this.formData?.costCountResp?.sparePartRespList?.length === 0) {
@@ -786,7 +810,16 @@ export default {
       }
       this.form._prevCurrentFault = val;
     },
+    // 关闭故障模块搜索下拉框(filterable+remote 偶发选中后不自动收起)
+    closeAlertModuleDropdown () {
+      this.$nextTick(() => {
+        const input = this.$refs.alertModuleSearch?.$el?.querySelector('input');
+        if (input) input.blur();
+      });
+    },
     handleAlertModuleChange (val, record) {
+      // 选中后立即关闭下拉框
+      this.closeAlertModuleDropdown();
       if (this._id) {
         // 编辑模式：即时保存到后端
         if (!this.form.faultAlertRecordRespList) {
