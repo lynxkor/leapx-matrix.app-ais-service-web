@@ -260,7 +260,7 @@ export default {
       }, 0);
 
       // 检查总收款金额是否超过实际应付金额
-      if ((payAmount).toFixed(2) > parseFloat(this.info.payableAmount).toFixed(2)) {
+      if (parseFloat((payAmount).toFixed(2)) > parseFloat((this.info.payableAmount).toFixed(2))) {
         this.$message.warning(
           `收款总金额不能超过实际应付总金额 ${this.formatAmount(
             this.info.payableAmount
