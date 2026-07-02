@@ -234,6 +234,10 @@ export default {
       }
     },
     onSubmit () {
+      if (!this.form.finishDate || !this.form.finishDate.length) {
+        this.$message.warning('请选择完工日期');
+        return;
+      }
       this.pageNum = 1;
       this.getData();
     },
@@ -266,6 +270,10 @@ export default {
     exportExcel () {
       if (!this.form.dealerCodes || !this.form.dealerCodes.length) {
         this.$message.warning('请选择门店名称后再导出');
+        return;
+      }
+      if (!this.form.finishDate || !this.form.finishDate.length) {
+        this.$message.warning('请选择完工日期后再导出');
         return;
       }
       this.exportLoading = true;
