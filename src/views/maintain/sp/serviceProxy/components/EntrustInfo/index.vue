@@ -431,13 +431,13 @@
           filterable
           clearable
           remote
-          :placeholder="form.currentFault ? '请输入VRT/VFG/CCC模糊搜索' : '当前工单为已提交结算或者不存在故障，无需添加CCC'"
+          :placeholder="!faultTableDisabled ? '请输入VRT/VFG/CCC模糊搜索' : '当前工单为已提交结算或者不存在故障，无需添加CCC'"
           :remote-method="getAlertModule"
           @change="handleAlertModuleChange"
           collapse-tags
           value-key="id"
           label-key="name"
-          :disabled="formDisabled || !form.currentFault"
+          :disabled="formDisabled || faultTableDisabled"
         />
         <vxe-table
           ref="faultTable"
@@ -524,6 +524,11 @@ export default {
         return this.form.faultAlertRecordRespList || [];
       }
       return this.form.faultAlertRecordParams || [];
+    },
+    // 若施工单中：【是否已生成结算单】为是或者【本次进店是否存在故障】为否，则不允许搜索添加故障模块，置灰；
+    // 搜索框默认展示文案：“当前工单为已提交结算或者不存在故障，无需添加CCC”
+    faultTableDisabled () {
+      return this.formData.isCreateStatementInfo === 1 || !this.form.currentFault;
     },
     currentFaultDisabled () {
       // 枚举：是、否，非必填，开单默认为 否；工单为：已作废、已交车或【是否已生成结算单】为是时，该字段锁定不可修改；
