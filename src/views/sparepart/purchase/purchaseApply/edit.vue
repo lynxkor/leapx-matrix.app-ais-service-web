@@ -256,12 +256,12 @@
             </div>
             <div class="common-section-body">
               <div style="margin-bottom: 10px;">
-                <el-button size="small" @click="handleAdd" type="primary" plain :disabled="!['0', '3'].includes(form.orderStatus)"><i
+                <el-button size="small" @click="handleAdd" type="primary" plain v-if="permissions.has('AISPART-purchaseApply-addOrUpdate')" :disabled="!['0', '3'].includes(form.orderStatus)"><i
                     class="iconfont icon-lxppc-plus"></i>添加备件</el-button>
                 <el-button class="ais-button" size="small" v-if="permissions.has('AISPART-purchaseApply-predict')" :disabled="!['0', '3'].includes(form.orderStatus)" @click="handleRestock">
                   补货预测
                 </el-button>
-                <el-button size="small" @click="handleImport" :disabled="!routeQueryType">备件导入</el-button>
+                <el-button size="small" @click="handleImport" v-if="permissions.has('AISPART-purchaseApply-addOrUpdate')" :disabled="!routeQueryType">备件导入</el-button>
                 <el-button v-if="permissions.has('AISPART-purchaseApply-importLack')" size="small" @click="handleLack" :disabled="!routeQueryType">缺料导入</el-button>
               </div>
               <div class="common-title">备件列表</div>
@@ -329,7 +329,7 @@
                   :businessId="_id"
                   configCode="mcs_partsclaimorder"
                   attachType="索赔申请附件"
-                  :readonly="form.orderStatus !== '0' && form.orderStatus !== '3'"
+                  :readonly="(form.orderStatus !== '0' && form.orderStatus !== '3')||!permissions.has('AISPART-purchaseApply-addOrUpdate')"
                 />
               </div>
               <!-- <h2 class="common-title">审批附件</h2>

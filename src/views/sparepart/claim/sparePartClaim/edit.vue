@@ -241,7 +241,7 @@
               <div class="common-title" v-show="!(isEditing || !_id)">采购单发货方</div>
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" class="form-detail"
                 v-show="!(isEditing || !_id)">
-                <el-form-item label="仓库编码：" prop="deliveryWarehouseCode">
+                <el-form-item label="仓库编码：" prop="deliveryWarehouseName">
                   {{ form.deliveryWarehouseCode }}
                 </el-form-item>
                 <el-form-item label="仓库名称：" prop="deliveryWarehouseName">
