@@ -38,9 +38,9 @@
                   :disabled="isRowDisabled(row)" size="small" clearable />
               </template>
             </vxe-column>
-            <vxe-column field="payAmount" title="实际付款总额" width="150">
+            <vxe-column field="payAmount" title="实际付款总额" width="200">
               <template #default="{ row }">
-                <el-input-number v-model="row.payAmount" size="small" :precision="2" :min="0" controls-position="right"
+                <el-input-number v-model="row.payAmount" size="small" :precision="6" :min="0" controls-position="right"
                   :disabled="isRowDisabled(row)" @change="handlePayAmountChange" style="width: 100%"></el-input-number>
               </template>
             </vxe-column>
@@ -290,7 +290,7 @@ export default {
       if (amount === null || amount === undefined) {
         return '0.00';
       }
-      return parseFloat(amount).toFixed(2);
+      return parseFloat(amount).toFixed(6);
     },
   },
 };

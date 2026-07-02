@@ -637,15 +637,15 @@ export default {
       const invoiceRecords = this.form.invoiceRecordResps || [];
       const totalPayAmount = parseFloat(invoiceRecords.reduce((sum, record) => {
         return sum + (+record.payAmount || 0);
-      }, 0).toFixed(2));
-      const payableAmount = parseFloat((+this.form.payableAmount || 0).toFixed(2));
+      }, 0).toFixed(6));
+      const payableAmount = parseFloat((+this.form.payableAmount || 0).toFixed(6));
       if (totalPayAmount === 0 && payableAmount === 0) {
         // 直接执行收款完成
         this.confirmPaySuccess();
       } else if (totalPayAmount !== payableAmount) {
         // 金额不一致时提示错误
         this.$message.warning(
-          `结账记录总金额${totalPayAmount.toFixed(2)}不等于结算单应付总金额${payableAmount.toFixed(2)}！`
+          `结账记录总金额${totalPayAmount.toFixed(6)}不等于结算单应付总金额${payableAmount.toFixed(6)}！`
         );
       } else {
         // 金额一致时弹出确认对话框
