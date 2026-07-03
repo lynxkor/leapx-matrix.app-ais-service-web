@@ -544,9 +544,9 @@ export default {
               click: (rowIndex, row) => {
                 if (row.shopcode) {
                   this.navigateToRoute({
-                    path: '/sales/vehretail/productManager/productCenter/edit',
+                    path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
                     query: {
-                      code: row.shopcode
+                      id: row.vehicleOrderId
                     }
                   });
                 }
