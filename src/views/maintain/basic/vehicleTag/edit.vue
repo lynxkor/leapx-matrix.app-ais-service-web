@@ -71,15 +71,19 @@
                 <edit-table
                   ref="editTable"
                   :columns="columns"
-                  :data="form.vinList"
-                  :defaultNewRow="defaultNewRow"
+                  :data="vinTableData"
+                  :loading="vinLoading"
+                  :show-pagination="true"
+                  :total="vinTotal"
+                  :current-page="vinPageNum"
+                  :page-size="vinPageSize"
                   :show-toolbar="false"
-                  :options="options"
                   :delTitle="delTitle"
-                  :enableSingleRowSave="true"
-                  @save-row-edit="saveRowEdit"
+                  :defaultNewRow="{}"
                   @remove-row="removeRow"
-                  :auth="{edit: canAddOrUpdate, delete: canDelete}"
+                  @current-page-change="onVinPageChange"
+                  @page-size-change="onVinPageSizeChange"
+                  :auth="{ delete: canDelete }"
                 />
               </div>
             </div>
@@ -91,7 +95,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/maintain/basic/vehicleTag/index';
+import { getDetail, addOrUpdate, getVinList, addOrUpdateVin, deleteVin } from '@/api/maintain/basic/vehicleTag/index';
 import EditTable from '@/libs/components/EditTable';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { getEnum, getUserByNameOrNo } from '@/api/common';
@@ -139,36 +143,20 @@ export default {
       moduleKey: 'AISMC-vehicleTag',
       loading: false,
       submitLoading: false,
+      // VIN 子表分页(独立接口 getVinList)
+      vinLoading: false,
+      vinTableData: [],
+      vinPageNum: 1,
+      vinPageSize: 10,
+      vinTotal: 0,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
-      defaultNewRow: {
-        name: '',
-      },
-      options: {
-        vin: []
-      },
       delTitle: '此操作将删除此适配车辆信息，您无法撤消此操作，是否继续？',
       columns: [
         {
           field: 'vin',
           title: 'VIN',
-          width: '80%',
-          editable: true,
-          editRender: {
-            name: 'ElSelect',
-            props: {
-              clearable: true,
-              filterable: true,
-              remote: true,
-              'suffix-icon': 'el-icon-search',
-              placeholder: '请选择VIN',
-              'remote-method': this.querySearchAsync,
-            }
-          },
-          rules: [
-            { required: true, message: 'VIN不能为空', trigger: 'blur' }
-          ]
         },
       ],
       rules: {
@@ -177,6 +165,11 @@ export default {
         ],
       }
     };
+  },
+  mounted () {
+    if (this._id) {
+      this.loadVinList();
+    }
   },
   methods: {
     detailRequest () {
@@ -187,15 +180,10 @@ export default {
       return {};
     },
     async submitRequest () {
-      let tableData = [];
-      if (this.$refs.editTable) {
-        try {
-          tableData = await this.$refs.editTable.saveAll();
-        } catch (e) {
-          return Promise.reject(e);
-        }
-      }
-      return addOrUpdate({ ...this.form, vinList: tableData });
+      // 基础信息保存:VIN 由独立接口分页管理,不再随表单提交
+      const payload = { ...this.form };
+      delete payload.vinList;
+      return addOrUpdate(payload);
     },
     getDefautlForm () {
       const userInfo = this.$store.state.user.userInfo;
@@ -215,21 +203,6 @@ export default {
       }
       return [];
     },
-    querySearchAsync (query, cb) {
-      if (!query) {
-        return;
-      }
-      getVehicleProfile({ searchVin: query }).then(res => {
-        const list = res?.map(item => {
-          return {
-            value: item.id,
-            label: item.vin,
-            ...item
-          };
-        }) || [];
-        this.options.vin = list;
-      });
-    },
     queryVinList (query) {
       return new Promise(resolve => {
         getVehicleProfile({ searchVin: query }).then(res => {
@@ -246,36 +219,46 @@ export default {
       });
     },
     handleVinSelect (val, record) {
-      if (!this.form.vinList) {
-        this.form.vinList = [];
-      }
-      this.form.vinList.push({
-        ...record,
-        id: null,
-      });
-      addOrUpdate({ ...this.form, vinList: this.form.vinList }).then(res => {
-        this.$message.success('添加成功');
-      }).catch(e => {
-        this.form.vinList = this.form.vinList.filter(item => item !== record);
+      // 新增单条 VIN:vehicleTagId + vin
+      addOrUpdateVin({ vehicleTagId: this._id, vin: record.vin })
+        .then(() => {
+          this.$message.success('添加成功');
+          this.loadVinList();
+        })
+        .catch(() => {});
+    },
+    removeRow (row, index, defer) {
+      // 按 VIN 记录 id 删除(接口支持批量,这里单条)
+      deleteVin([row.id])
+        .then(res => {
+          defer.resolve(res);
+          this.$message.success('删除成功');
+          this.loadVinList();
+        })
+        .catch(() => defer.reject());
+    },
+    loadVinList () {
+      if (!this._id) return;
+      this.vinLoading = true;
+      getVinList({
+        vehicleTagId: this._id,
+        pageNum: this.vinPageNum,
+        pageSize: this.vinPageSize,
+      }).then(res => {
+        this.vinTableData = (res && res.records) || [];
+        this.vinTotal = (res && res.total) || 0;
+      }).finally(() => {
+        this.vinLoading = false;
       });
     },
-    async saveRowEdit (row, defer) {
-      this.submitRequest().then(res => {
-        defer.resolve(res);
-        this.$message.success('更新成功');
-        this.$refs.containerRef.handleRefresh();
-      }).catch(e => {
-        defer.reject();
-      });
+    onVinPageChange (page) {
+      this.vinPageNum = page;
+      this.loadVinList();
     },
-    async removeRow (row, index, defer) {
-      this.submitRequest().then(res => {
-        defer.resolve(res);
-        this.$message.success('删除成功');
-        this.$refs.containerRef.handleRefresh();
-      }).catch(e => {
-        defer.reject();
-      });
+    onVinPageSizeChange (size) {
+      this.vinPageSize = size;
+      this.vinPageNum = 1;
+      this.loadVinList();
     }
   }
 };
