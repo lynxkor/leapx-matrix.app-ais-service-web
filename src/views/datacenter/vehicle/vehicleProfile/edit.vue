@@ -144,7 +144,7 @@
                   <el-link
                     v-if="form.shopcode"
                     type="primary"
-                    :href="`/sales/vehretail/productManager/productCenter/edit?code=${form.vehicleOrderId}`"
+                    :href="`/sales/vehretail/productManager/productCenter/edit?id=${form.vehicleOrderId}`"
                     target="_blank"
                   >{{ form.shopcode }}</el-link>
                   <span v-else>{{ form.shopcode }}</span>
