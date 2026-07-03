@@ -224,12 +224,6 @@
                   <LPEncrypted
                     :value.sync="form.vin"
                     :decryptMethod="() => getDesensitize(form.id, 'retailOrder', 'vin')"
-                  >
-                    {{ form.vin }}
-                  </LPEncrypted>
-                  <LPEncrypted
-                    :value.sync="form.vin"
-                    :decryptMethod="() => getDesensitize(form.id, 'retailOrder', 'vin')"
                   />
                 </el-form-item>
                 <el-form-item label="客户名称：" prop="customerName">
