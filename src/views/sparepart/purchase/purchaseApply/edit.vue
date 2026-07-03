@@ -317,7 +317,7 @@
               </div>
             </div>
           </section>
-          <section class="common-section">
+          <section class="common-section" v-if="_id">
             <div class="common-section-header">
               <h2>附件信息</h2>
             </div>

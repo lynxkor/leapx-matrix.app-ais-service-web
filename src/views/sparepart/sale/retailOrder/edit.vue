@@ -842,6 +842,9 @@ export default {
   },
   methods: {
     formatNumberInput,
+    getDesensitize (id, type, field) {
+      return getDesensitize(id, type, field);
+    },
     async handleVinChange (val, ele) {
       this.form.customerName = ele.vehicleProfileOwnerResp.ownerName;
       this.form.plateNumber = ele.vehiclePlateNo;
@@ -1168,10 +1171,7 @@ export default {
         template: 'SettlementStatement', // 必选，对应 ./template/文件名.vue
         title: `${this.form.dealerName}厅店结算单`// 可选，打印标题
       });
-    },
-    getDesensitize (id, type, field) {
-      return getDesensitize(id, type, field);
-    },
+    }
   }
 };
 </script>
