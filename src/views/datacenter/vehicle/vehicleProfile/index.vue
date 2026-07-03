@@ -546,7 +546,7 @@ export default {
                   this.navigateToRoute({
                     path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
                     query: {
-                      code: row.vehicleOrderId
+                      id: row.vehicleOrderId
                     }
                   });
                 }
