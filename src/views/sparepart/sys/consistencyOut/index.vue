@@ -312,13 +312,13 @@ export default {
       getList({ ...this.getFormData(), outInType: 'OUT', pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          this.optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });
