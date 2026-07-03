@@ -140,6 +140,8 @@ function buildRequestConfig (method, config, sign, url) {
   const contentType = contentTypeMap[method] || 'application/x-www-form-urlencoded';
   return {
     baseURL: resolveBaseURL(url, sign),
+    // 默认请求超时时间，防止慢接口或网关挂起时请求永久阻塞 UI；单个请求可在 config 中覆盖
+    timeout: 60000,
     ...config,
     headers: { 'Content-Type': contentType, ...config?.headers }
   };

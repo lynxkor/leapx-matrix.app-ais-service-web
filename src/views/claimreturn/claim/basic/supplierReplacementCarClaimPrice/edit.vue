@@ -51,6 +51,29 @@
                     @change="handleVehicleSeriesChange"
                     :params="{}" />
                 </el-form-item>
+                <el-form-item label="维修项目代码：" prop="repairItemCode">
+                  <list-select
+                    listUrl="/maintain/web/basic/repairItem/list"
+                    placeholder="请输入维修项目代码/名称"
+                    v-model="form.repairItemId"
+                    :disabled="Boolean(_id)"
+                    query-key="codeOrNameLike"
+                    auto-load-options
+                    filterable
+                    clearable
+                    label-key="code"
+                    second-line-key="name"
+                    @change="handleRepairItemChange"
+                    :params="{}" />
+                </el-form-item>
+                <el-form-item label="维修项目名称：" prop="repairItemName">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.repairItemName"
+                    clearable
+                    disabled
+                  />
+                </el-form-item>
                 <el-form-item label="供应商索赔价格：" prop="supplierClaimPrice">
                   <el-input
                     placeholder="请输入"
@@ -103,6 +126,12 @@
                 </el-form-item>
                 <el-form-item label="车系名称：" prop="vehicleSeriesName">
                   {{ form.vehicleSeriesName }}
+                </el-form-item>
+                <el-form-item label="维修项目代码：" prop="repairItemCode">
+                  {{ form.repairItemCode }}
+                </el-form-item>
+                <el-form-item label="维修项目名称：" prop="repairItemName">
+                  {{ form.repairItemName }}
                 </el-form-item>
                 <el-form-item label="供应商索赔价格：" prop="supplierClaimPrice">
                   {{ form.supplierClaimPrice }}
@@ -157,6 +186,9 @@ const defaultForm = {
   // 多选时字段有变化，自行修复
   priceSerialNo: '',
   vehicleSeriesName: '',
+  repairItemId: '',
+  repairItemCode: '',
+  repairItemName: '',
   supplierClaimPrice: '',
   claimDaysAdjustment: 0,
   effectiveStartTime: '',
@@ -251,6 +283,9 @@ export default {
         vehicleSeriesName: [
           { required: true, message: '请输入车系名称', trigger: 'change' }
         ],
+        repairItemCode: [
+          { required: true, message: '请输入维修项目代码', trigger: 'change' }
+        ],
         supplierClaimPrice: [
           { required: true, message: '请输入供应商索赔价格', trigger: 'change' },
           { validator: this.validatePositiveNumber, trigger: 'change' }
@@ -304,6 +339,11 @@ export default {
     handleVehicleSeriesChange (val, selectedItem) {
       this.form.vehicleSeriesId = val;
       this.form.vehicleSeriesName = selectedItem ? selectedItem.name : '';
+    },
+    handleRepairItemChange (val, selectedItem) {
+      this.form.repairItemId = val;
+      this.form.repairItemCode = selectedItem ? selectedItem.code : '';
+      this.form.repairItemName = selectedItem ? selectedItem.name : '';
     },
     validateEffectiveStartTime (rule, value, callback) {
       // 只在新增时验证，编辑时不允许编辑早于今天的日期，不需要验证提示

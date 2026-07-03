@@ -92,19 +92,16 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
-                <div class="ais-select-group">
-                  <fetch-select
-                    style="width: 300px;"
-                    :remote-method="queryListData"
-                    remote
-                    placeholder="请选择"
-                    clearable
-                    value-key="id"
-                    label-key="name"
-                    @change="handleAddTableData"
-                  />
-                  <el-button type="primary" size="small">添加</el-button>
-                </div>
+                 <base-search
+                  style="width: 300px;"
+                  :remote-method="queryListData"
+                  remote
+                  placeholder="请选择"
+                  clearable
+                  value-key="id"
+                  label-key="name"
+                  @change="handleAddTableData"
+                />
               </div>
               <div class="common-section-table">
                 <vxe-table
@@ -217,6 +214,7 @@
 <script>
 import { getDetail, addOrUpdate } from '@/api/{{{{modulePath}}}}/index';
 import FetchSelect from '@/libs/components/FetchSelect';
+import BaseSearch from '@/libs/components/BaseSearch';
 {{{#isProForm}}}
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
@@ -249,7 +247,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     {{{/isProForm}}}
-    FetchSelect
+    FetchSelect,
+    BaseSearch
   },
   computed: {
     _id () {
