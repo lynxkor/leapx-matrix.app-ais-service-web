@@ -29,8 +29,8 @@
           <el-form-item label="旧件名称：" prop="oldPartName">
             {{ form.oldPartName }}
           </el-form-item>
-          <el-form-item class="form-item-full" label="适用车型：" prop="vehicleModelNames">
-            {{ form.vehicleModelNames }}
+          <el-form-item class="form-item-full" label="适用车型：" prop="vehicleModelName">
+            {{ form.vehicleModelName }}
           </el-form-item>
           <el-form-item label="旧件唯一码：" prop="oldPartUniqueCode">
             {{ form.oldPartUniqueCode }}
