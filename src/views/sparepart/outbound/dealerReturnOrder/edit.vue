@@ -116,7 +116,7 @@
                   {{ form.dealerInboundOrderCode }}
                 </el-form-item>
                 <el-form-item label="供应商名称：" prop="supplierInfoId">
-                  {{ form.supplierInfoName }}
+                  {{ form.supplierName }}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   {{ form.dealerName }}

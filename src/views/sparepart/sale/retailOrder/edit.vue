@@ -221,16 +221,25 @@
                   {{ form.warehouseName }}
                 </el-form-item>
                 <el-form-item label="VIN：" prop="vin">
-                  {{ form.vin }}
+                  <LPEncrypted
+                    :value.sync="form.vin"
+                    :decryptMethod="() => getDesensitize(form.id, 'retailOrder', 'vin')"
+                  />
                 </el-form-item>
                 <el-form-item label="客户名称：" prop="customerName">
-                  {{ form.customerName }}
+                  <LPEncrypted
+                    :value.sync="form.customerName"
+                    :decryptMethod="() => getDesensitize(form.id, 'retailOrder', 'customerName')"
+                  />
                 </el-form-item>
                 <el-form-item label="客户类型：" prop="customerType">
                   {{ form.customerTypeLabel }}
                 </el-form-item>
                 <el-form-item label="客户联系方式：" prop="customerContactInfo">
-                  {{ form.customerContactInfo }}
+                  <LPEncrypted
+                    :value.sync="form.customerContactInfo"
+                    :decryptMethod="() => getDesensitize(form.id, 'retailOrder', 'customerContactInfo')"
+                  />
                 </el-form-item>
                 <el-form-item label="订单总金额：" prop="totalAmount">
                   {{ form.totalAmount }}
@@ -530,7 +539,7 @@ import {
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getPartDealer, getLoginUser } from '@/api/common';
+import { getEnum, getPartDealer, getLoginUser, getDesensitize } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -541,6 +550,7 @@ import ReturnMateriaDialog from './ReturnMateriaDialog.vue';
 import HarvestDialog from './HarvestDialog.vue';
 import { handleCommonAction, handleCommonPrompt, formatNumberInput } from '@/libs/utils/index';
 import BaseSearch from '@/libs/components/BaseSearch';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -640,7 +650,8 @@ export default {
     OutboundDialog,
     ReturnMateriaDialog,
     HarvestDialog,
-    BaseSearch
+    BaseSearch,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -831,6 +842,9 @@ export default {
   },
   methods: {
     formatNumberInput,
+    getDesensitize (id, type, field) {
+      return getDesensitize(id, type, field);
+    },
     async handleVinChange (val, ele) {
       this.form.customerName = ele.vehicleProfileOwnerResp.ownerName;
       this.form.plateNumber = ele.vehiclePlateNo;
@@ -1157,7 +1171,7 @@ export default {
         template: 'SettlementStatement', // 必选，对应 ./template/文件名.vue
         title: `${this.form.dealerName}厅店结算单`// 可选，打印标题
       });
-    },
+    }
   }
 };
 </script>

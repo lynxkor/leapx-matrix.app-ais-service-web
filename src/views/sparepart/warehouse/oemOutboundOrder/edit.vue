@@ -309,9 +309,6 @@
                   {{ form.purchaseOrderTypeLabel }}
                 </el-form-item>
                 <el-form-item label="物流单号：" prop="logisticsOrderNo">
-                  {{ form.logisticsOrderNo }}
-                </el-form-item>
-                <el-form-item label="发运单：" prop="logisticsOrderNo">
                   <div class="shipping-order" @click="handleLogisticsClick">{{ form.logisticsOrderNo }}</div>
                 </el-form-item>
                 <el-form-item label="订单同步是否成功：" prop="orderSyncSuccessIs">
@@ -475,6 +472,7 @@ export default {
       handler (val) {
         if (val && this.$refs.containerRef) {
           this.$refs.containerRef.loadDetail();
+          this.getData();
         }
       },
       immediate: true

@@ -299,7 +299,7 @@
                   {{ form.carrier }}
                 </el-form-item>
                 <el-form-item label="收货地址：">
-                  {{ form.fullAddress }}
+                  {{ form.address }}
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}

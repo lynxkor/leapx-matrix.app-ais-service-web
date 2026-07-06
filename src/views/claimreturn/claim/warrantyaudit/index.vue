@@ -493,7 +493,7 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
+        businessType: '保修审计',
         dataFetchPath: 'claimreturn/claim/web/warrantyaudit/warrantyAudit/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -501,7 +501,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '保修审计.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

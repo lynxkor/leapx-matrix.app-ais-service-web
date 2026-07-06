@@ -33,18 +33,6 @@
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="旧件返回类型">
-         <fetch-select
-           :request="fetchOptions"
-           enumCode="old_part_return_type"
-           v-model="form.returnTypeList"
-           placeholder="请选择"
-           clearable
-           multiple
-           filterable
-           :format="returnTypeFormat"
-         />
-       </el-form-item>
         <el-form-item label="是否验收完成">
           <fetch-select
             :request="fetchOptions"
@@ -378,10 +366,15 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
       exportTable({
         businessType: '门店旧件快返回运单',
         dataFetchPath: 'claimreturn/oldpart/web/returnorder/oldPartReturnOrder/page',
-        reqParams: this.getFormData(),
+        reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {

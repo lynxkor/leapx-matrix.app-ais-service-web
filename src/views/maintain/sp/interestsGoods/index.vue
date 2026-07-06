@@ -247,7 +247,7 @@ export default {
                 this.toggleWhetherShelf(row.id, 0, row);
               },
               show: (row) => {
-                return row.whetherShelf === 1; // Show button only if user has permission
+                return row.whetherShelf === 1 && this.canAddOrUpdate;
               },
               type: 'info' // Different color for different states
             }, {
@@ -256,7 +256,7 @@ export default {
                 this.toggleWhetherShelf(row.id, 1, row);
               },
               show: (row) => {
-                return row.whetherShelf === 0; // Show button only if user has permission
+                return row.whetherShelf === 0 && this.canAddOrUpdate;
               },
               type: 'info' // Different color for different states
             }, {

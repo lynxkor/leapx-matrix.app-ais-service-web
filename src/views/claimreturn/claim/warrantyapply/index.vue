@@ -322,6 +322,13 @@ import RightsDialog from './RightsDialog/index.vue';
 import ApproveDialog from './ApproveDialog/index.vue';
 import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
+import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
+
+// 创建时间默认值：最近 3 个月
+function getDefaultCreateTime () {
+  const { startTime, endTime } = getTimeRangeByTypeFormat('最近三个月');
+  return [startTime, endTime];
+}
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -382,7 +389,8 @@ export default {
       // TIPS: 权限前缀 AISCR，根据实际情况修改
       moduleKey: 'AISCR-warrantyApply',
       form: {
-        ...defaultForm
+        ...defaultForm,
+        createTime: getDefaultCreateTime()
       },
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
@@ -874,7 +882,7 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      this.form = { ...defaultForm, createTime: getDefaultCreateTime() };
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
       this._scopeTypeOrgCache = null;
