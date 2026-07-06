@@ -1011,7 +1011,7 @@ export default {
     },
     // 跳转数模
     handleDigitalModel () {
-      window.open(`https://usercenter-uat.leapmotor.com/auth/oauth/authorize?response_type=code&client_id=ITP&redirect_uri=https://itpuat.leapmotor.com/#/detailsPart?detailsPartCode=${this.form.partCode}`, '_blank');
+      window.open(`https://usercenter.leapmotor.com/auth/oauth/authorize?response_type=code&client_id=ITP&redirect_uri=https://itp.leapmotor.com/#/detailsPart?detailsPartCode=${this.form.partCode}`, '_blank');
     }
   }
 };
