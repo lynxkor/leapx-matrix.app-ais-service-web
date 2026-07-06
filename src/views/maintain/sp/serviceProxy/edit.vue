@@ -574,6 +574,10 @@ export default {
         delete data.earliestfaultServiceProxy;
         delete data.earliestfaultServiceProxyCode;
         delete data.faultAlert;
+        delete data.signStatus;
+        delete data.signUrlExpiredOn;
+        delete data.signCompletedOn;
+        delete data.signGeneratedOn;
         addOrUpdate(data).then(res => {
           this.$message({
             message: '保存成功',
