@@ -537,7 +537,11 @@ export default {
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form });
+      const data = { ...this.form };
+      delete data.purchaser;
+      delete data.purchaserPhone;
+      delete data.vehProfileVin;
+      return addOrUpdate(data);
     },
     // 打开侧边栏
     openPane () {
