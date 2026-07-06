@@ -405,13 +405,13 @@ export default {
 
       getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
         .then(res => {
-          this.tableDataList = res.records.map(item => {
+          this.tableDataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.tableTotal = res.total;
+          this.tableTotal = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });
