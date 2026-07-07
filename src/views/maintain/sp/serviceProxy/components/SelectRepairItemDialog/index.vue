@@ -897,7 +897,10 @@ export default {
 
       const data = {
         itemList: this.itemData,
-        partsList: this.partData,
+        partsList: this.partData.map(item => ({
+          ...item,
+          partsAmount: (+item.partsAmount).toFixed(2)
+        })),
         discountId: this.discountMode,
         serviceProxyId: this.vehicleInfo.id,
       };
