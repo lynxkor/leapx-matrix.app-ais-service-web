@@ -312,7 +312,6 @@ export default {
           { props: 'supplierMinOrderQuantity', label: '供应商起订量', visible: true, width: 200 },
           { props: 'supplierDeliveryPeriod', label: '供应商交货周期', visible: true, width: 200 },
           { props: 'purchaseTypeLabel', label: '采购状态', visible: true, width: 200 },
-          { props: 'categorySpareSupplyName', label: '供应物料分类', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
