@@ -272,6 +272,7 @@
             placeholder="请输入"
             v-model="form.departureMileage"
             clearable
+            maxlength="10"
           >
             <template slot="append">KM</template>
           </el-input>
