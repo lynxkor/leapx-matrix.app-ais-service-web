@@ -272,6 +272,7 @@
             placeholder="请输入"
             v-model="form.departureMileage"
             clearable
+            maxlength="10"
           >
             <template slot="append">KM</template>
           </el-input>
@@ -632,6 +633,7 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import LPEncrypted from '@/libs/components/LPEncrypted';
 import { getVehicleProfile, getCarInfo, checkVinTag, getEnum, getActivityInfo, getRecentlyServiceProxy, getLastStoreMileage, getDecrypt } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../constant';
+import { getFileSaveUrl } from '@/utils';
 
 export const CustomTypeEnum = {
   /** 预约客户 */
@@ -878,14 +880,14 @@ export default {
           this.form.anomalyDescription = res.anomalyDescription || '';
           this.form.exteriorPhotoList = (res.exteriorPhotoList || []).map(item => ({
             fileId: item.fileId,
-            fileUrl: item.fileUrl,
+            fileUrl: getFileSaveUrl(item),
             fileType: item.fileType,
             attachType: item.attachType,
             configCode: item.configCode
           }));
           this.form.interiorPhotoList = (res.interiorPhotoList || []).map(item => ({
             fileId: item.fileId,
-            fileUrl: item.fileUrl,
+            fileUrl: getFileSaveUrl(item),
             fileType: item.fileType,
             attachType: item.attachType,
             configCode: item.configCode
