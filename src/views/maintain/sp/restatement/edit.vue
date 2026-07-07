@@ -320,7 +320,7 @@ const defaultForm = {
   reason: '',
   statementId: '',
   serviceProxyId: '',
-  dealerId: ''
+  dealerCode: ''
 };
 
 export default {
@@ -512,7 +512,7 @@ export default {
       }
     },
     goToDealerDetail () {
-      if (this.form.dealerId) {
+      if (this.form.dealerCode) {
         window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${this.form.dealerCode}`, '_blank');
       } else {
         this.$message.warning('未找到厅店信息');
