@@ -206,7 +206,7 @@ export default {
           uploadConfig: {
             attachType: item.fileType,
             maxNum: item.quantity || 9,
-            acceptSuffix: '.jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx',
+            acceptSuffix: item.acceptSuffix || '.png,.jpg,.jpeg,.gif,.pdf,.ppt,.pptx,.xlsx,.xls,.docx,.doc,.rar,.zip,.mp4',
             maxSize: 50,
             required: item.required || '0',
           },

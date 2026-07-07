@@ -282,3 +282,14 @@ export function getAreaInfo (districtCode) {
     }
   }
 }
+
+/**
+ * 获取文件保存 URL
+ */
+export function getFileSaveUrl (file) {
+  const url = file?.fileUrl || file?.url || file?.authFileUrl || '';
+  if (!url) return '';
+  // 如果是带签名的完整URL，提取 /VirtualUrl/... 路径部分
+  const match = url.match(/\/VirtualUrl\/[^?]+/);
+  return match ? match[0] : url;
+}
