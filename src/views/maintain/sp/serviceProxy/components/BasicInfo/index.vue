@@ -711,6 +711,10 @@ export default {
           { required: true, message: '请输入送修人手机', trigger: 'blur' },
           { pattern: /^1[\d*]{10}$/, message: '请输入正确的手机号码', trigger: 'blur' }
         ],
+        departureMileage: [
+          { required: false, message: '请输入离店里程数', trigger: 'blur' },
+          { pattern: /^(0|[1-9]\d*)(\.\d+)?$/, message: '请输入正确的离店里程数', trigger: 'blur' }
+        ],
         carPlate: [
           { validator: this.validateCarPlate, trigger: ['blur', 'change'] }
         ],
