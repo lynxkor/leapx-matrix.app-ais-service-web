@@ -699,6 +699,7 @@ import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
 import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
 
 const SEARCH_PARAMS_KEY = 'WARRANTY_APPLY_SEARCH_PARAMS';
+const NO_OLD_PART = '10'; // 无旧件
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -1203,12 +1204,13 @@ export default {
       this.printLoading = true;
       print({ ids: [this._id] })
         .then(res => {
-          if (res && res.length > 0) {
+          const printData = res?.filter(item => item.returnPartType !== NO_OLD_PART) || [];
+          if (printData.length > 0) {
             this.$print.show({
               id: new Date().getTime() + '',
               template: 'OldPartMark',
               title: '保修旧件标签',
-              data: res,
+              data: printData,
               width: 1122,
               isWarrantyApply: true,
             });
