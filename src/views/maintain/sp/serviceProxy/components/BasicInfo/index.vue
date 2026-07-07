@@ -713,7 +713,7 @@ export default {
         ],
         departureMileage: [
           { required: false, message: '请输入离店里程数', trigger: 'blur' },
-          { pattern: /^\d*$/, message: '请输入正确的离店里程数', trigger: 'blur' }
+          { pattern: /^(0|[1-9]\d*)(\.\d+)?$/, message: '请输入正确的离店里程数', trigger: 'blur' }
         ],
         carPlate: [
           { validator: this.validateCarPlate, trigger: ['blur', 'change'] }
