@@ -411,10 +411,10 @@
               />
             </el-form-item>
             <el-form-item class="form-item-full" label="故障信息描述：" prop="faultPhenomenon">
-              <base-input type="textarea" v-model="form.faultPhenomenon" clearable />
+              <base-input type="textarea" v-model="form.faultPhenomenon" clearable maxlength="5000" />
             </el-form-item>
             <el-form-item class="form-item-full" label="故障排除流程：" prop="troubleshootingFlow">
-              <base-input type="textarea" v-model="form.troubleshootingFlow" clearable />
+              <base-input type="textarea" v-model="form.troubleshootingFlow" clearable maxlength="5000" />
             </el-form-item>
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!isFormEditing">
