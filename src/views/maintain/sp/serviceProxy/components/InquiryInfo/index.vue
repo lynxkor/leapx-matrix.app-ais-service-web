@@ -66,8 +66,8 @@ export default {
       this.loading = true;
       try {
         const [extRes, intRes] = await Promise.all([
-          getFileList({ businessId: this._id, attachType: '车外照片' }),
-          getFileList({ businessId: this._id, attachType: '车内照片' })
+          getFileList({ businessId: this._id, attachType: '车外照片', sortColumns: [{ column: 'id', sort: 'asc' }] }),
+          getFileList({ businessId: this._id, attachType: '车内照片', sortColumns: [{ column: 'id', sort: 'asc' }] })
         ]);
         this.externalFiles = this.normalizeFiles(extRes?.data ?? extRes ?? []);
         this.internalFiles = this.normalizeFiles(intRes?.data ?? intRes ?? []);
