@@ -118,7 +118,7 @@ export default {
         this.saving = true;
         updateFlat({
           id: this.vehicleProfileId,
-          nextMaintainDate: this.form.nextMaintainDate,
+          nextMaintainDate: this.form.nextMaintainDate === 'Invalid date' ? null : this.form.nextMaintainDate,
           nextMaintainMileages: this.form.nextMaintainMileages,
         }).then(() => {
           this.$message.success('保存成功');
