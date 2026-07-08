@@ -235,7 +235,7 @@
                     v-else
                     v-model="row.workHour"
                     size="small"
-                    :precision="4"
+                    :precision="2"
                     :min="0"
                     controls-position="right"
                     @change="handleWorkHourChange(row)"
