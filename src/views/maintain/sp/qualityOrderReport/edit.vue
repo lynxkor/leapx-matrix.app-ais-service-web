@@ -583,6 +583,7 @@
                     type="textarea"
                     placeholder="请输入"
                     v-model="form.customerContent"
+                    maxlength="500"
                     clearable
                   />
                 </el-form-item>
@@ -591,6 +592,7 @@
                     type="textarea"
                     placeholder="请输入"
                     v-model="form.troubleshootingProcess"
+                    maxlength="500"
                     clearable
                   />
                 </el-form-item>
