@@ -134,7 +134,7 @@
                     <td>{{ item.repairItemTypeName }}</td>
                     <td>{{ item.repairItemCode }}</td>
                     <td>{{ item.repairItemName }}</td>
-                    <td>{{ item.workHour }}</td>
+                    <td>{{ parseFloat(item.workHour).toFixed(2) }}</td>
                     <td>{{ formatAmount(item.price) }}</td>
                     <td>{{ formatAmount(item.discountAmount) }}</td>
                     <td>{{ formatAmount(item.repairAmount) }}</td>

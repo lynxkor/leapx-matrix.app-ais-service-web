@@ -58,6 +58,7 @@
                     :remote-method="getLocaltion"
                     remote
                     v-model="form.locationId"
+                    :params="form.locationName"
                     placeholder="请输入库位名称"
                     labelKey="name"
                     valueKey="id"
