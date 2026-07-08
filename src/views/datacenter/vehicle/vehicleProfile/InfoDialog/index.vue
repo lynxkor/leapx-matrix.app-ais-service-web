@@ -95,7 +95,7 @@ export default {
   watch: {
     data: {
       handler (val) {
-        this.form.nextMaintainDate = moment(val.nextMaintainDate || '').format('YYYY-MM-DD HH:mm:ss');
+        this.form.nextMaintainDate = val.nextMaintainDate && moment(val.nextMaintainDate).isValid() ? moment(val.nextMaintainDate).format('YYYY-MM-DD HH:mm:ss') : null;
         this.form.nextMaintainMileages = val.nextMaintainMileages || '';
         this.originalForm = { ...this.form };
       },
