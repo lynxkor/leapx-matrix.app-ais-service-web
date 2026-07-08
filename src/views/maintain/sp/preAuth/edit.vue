@@ -519,7 +519,7 @@
               <h2>附件信息</h2>
             </div>
             <div class="common-section-body">
-              <Attachment :_id="_id" :attachType="'mcs_preauth'" ref="attachmentRef"/>
+              <Attachment :id="_id" :attachType="'mcs_preauth'" ref="attachmentRef"/>
             </div>
           </section>
         </el-main>

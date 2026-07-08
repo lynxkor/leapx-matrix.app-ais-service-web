@@ -16,6 +16,13 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="车牌号">
+        <el-input
+          placeholder="请输入"
+          v-model="form.carPlate"
+          clearable
+        />
+      </el-form-item>
       <page-search-action
         v-if="canList"
         v-model="show"
