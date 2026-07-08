@@ -1240,7 +1240,8 @@ export default {
     handleApproveSuccess () {
       const searchParams = JSON.parse(sessionStorage.getItem(SEARCH_PARAMS_KEY) || '{}');
       getNextId({
-        ...searchParams
+        ...searchParams,
+        maxId: this._id
       }).then(nextId => {
         if (nextId) {
           if (nextId !== this._id) {
