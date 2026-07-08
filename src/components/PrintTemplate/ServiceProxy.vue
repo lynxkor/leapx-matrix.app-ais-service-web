@@ -260,7 +260,7 @@
                     <td>{{ item.repairItemCode }}</td>
                     <td>{{ item.repairItemName }}</td>
                     <td>{{ item.checkoutTypeName }}</td>
-                    <td>{{ item.workHour }}</td>
+                    <td>{{ parseFloat(item.workHour).toFixed(2) }}</td>
                     <td>{{ item.price }}</td>
                     <td>{{ item.discountAmount }}</td>
                     <td>{{ item.repairAmount }}</td>
