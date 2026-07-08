@@ -235,7 +235,7 @@
                     v-else
                     v-model="row.workHour"
                     size="small"
-                    :precision="1"
+                    :precision="2"
                     :min="0"
                     controls-position="right"
                     @change="handleWorkHourChange(row)"
@@ -897,7 +897,10 @@ export default {
 
       const data = {
         itemList: this.itemData,
-        partsList: this.partData,
+        partsList: this.partData.map(item => ({
+          ...item,
+          partsAmount: (+item.partsAmount).toFixed(2)
+        })),
         discountId: this.discountMode,
         serviceProxyId: this.vehicleInfo.id,
       };

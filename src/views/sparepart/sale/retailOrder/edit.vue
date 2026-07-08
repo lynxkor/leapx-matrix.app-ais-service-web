@@ -224,12 +224,13 @@
                   <LPEncrypted
                     :value.sync="form.vin"
                     :decryptMethod="() => getDesensitize(form.id, 'retailOrder', 'vin')"
-                  >
-                    {{ form.vin }}
-                  </LPEncrypted>
+                  />
                 </el-form-item>
                 <el-form-item label="客户名称：" prop="customerName">
-                  {{ form.customerName }}
+                  <LPEncrypted
+                    :value.sync="form.customerName"
+                    :decryptMethod="() => getDesensitize(form.id, 'retailOrder', 'customerName')"
+                  />
                 </el-form-item>
                 <el-form-item label="客户类型：" prop="customerType">
                   {{ form.customerTypeLabel }}
@@ -238,9 +239,7 @@
                   <LPEncrypted
                     :value.sync="form.customerContactInfo"
                     :decryptMethod="() => getDesensitize(form.id, 'retailOrder', 'customerContactInfo')"
-                  >
-                    {{ form.customerContactInfo }}
-                  </LPEncrypted>
+                  />
                 </el-form-item>
                 <el-form-item label="订单总金额：" prop="totalAmount">
                   {{ form.totalAmount }}
@@ -652,7 +651,7 @@ export default {
     ReturnMateriaDialog,
     HarvestDialog,
     BaseSearch,
-    LPEncrypted,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -1172,7 +1171,7 @@ export default {
         template: 'SettlementStatement', // 必选，对应 ./template/文件名.vue
         title: `${this.form.dealerName}厅店结算单`// 可选，打印标题
       });
-    },
+    }
   }
 };
 </script>
