@@ -205,7 +205,8 @@ export default {
           attachType: item.fileType,
           uploadConfig: {
             attachType: item.fileType,
-            maxNum: item.quantity || 9,
+            maxNum: item.maxNum,
+            minNum: item.quantity,
             acceptSuffix: item.acceptSuffix || '.png,.jpg,.jpeg,.gif,.pdf,.ppt,.pptx,.xlsx,.xls,.docx,.doc,.rar,.zip,.mp4',
             maxSize: 50,
             required: item.required || '0',
