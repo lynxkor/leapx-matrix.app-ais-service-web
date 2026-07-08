@@ -143,7 +143,9 @@ export default {
     },
   },
   mounted () {
-    this.getDetailPageApi();
+    if (this._id) {
+      this.getDetailPageApi();
+    }
   },
   beforeDestroy () {
   },
