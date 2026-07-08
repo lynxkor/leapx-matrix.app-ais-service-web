@@ -179,6 +179,7 @@
       </el-form-item>
       <el-form-item label="创建时间：">
         <el-date-picker
+          :clearable="false"
           :default-time="['00:00:00', '23:59:59']"
           v-model="form.createTime"
           type="daterange"
@@ -877,6 +878,14 @@ export default {
       });
     },
     onSubmit () {
+      // 创建时间范围校验：跨度不超过 1 年
+      if (this.form.createTime?.length > 1) {
+        const span = new Date(this.form.createTime[1]).getTime() - new Date(this.form.createTime[0]).getTime();
+        if (span > 365 * 24 * 60 * 60 * 1000) {
+          this.$message.warning('创建时间范围不能超过 1 年');
+          return;
+        }
+      }
       sessionStorage.setItem(SEARCH_PARAMS_KEY, JSON.stringify(this.getFormData()));
       this.tableForm.page = 1;
       this.getData();
