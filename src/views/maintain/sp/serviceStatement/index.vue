@@ -15,27 +15,40 @@
       <el-form-item label="结算单号">
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="VIN码" v-show="this.visibleCount === 3 || show">
+      <el-form-item label="VIN码">
         <tag-input v-model="form.vehProfileVinList" placeholder="请输入" />
       </el-form-item>
+       <el-form-item label="创建时间">
+        <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
+      <el-form-item label="车牌号">
+        <tag-input v-model="form.carPlateList" placeholder="请输入" />
+      </el-form-item>
+      <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
+        <dealer-select v-model="form.dealerCodes" multiple />
+      </el-form-item>
+      <el-form-item label="签字状态" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="SignStatusEnum"
+          v-model="form.signStatusList"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="车牌号">
-          <tag-input v-model="form.carPlateList" placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="门店">
-          <dealer-select v-model="form.dealerCodes" multiple />
-        </el-form-item>
-        <el-form-item label="签字状态">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="SignStatusEnum"
-            v-model="form.signStatusList"
-            placeholder="请选择"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
         <el-form-item label="签字渠道">
           <fetch-select
             :request="fetchOptions"
@@ -126,19 +139,6 @@
             clearable
             multiple
             filterable
-          />
-        </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            unlink-panels
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
           />
         </el-form-item>
         <el-form-item label="结算时间">
