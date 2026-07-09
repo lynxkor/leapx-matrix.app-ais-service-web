@@ -1239,6 +1239,8 @@ export default {
     // 同意成功后跳转下一条
     handleApproveSuccess () {
       const searchParams = JSON.parse(sessionStorage.getItem(SEARCH_PARAMS_KEY) || '{}');
+      // 增加预防，无id不跳
+      if (!this._id) return;
       getNextId({
         ...searchParams,
         maxId: this._id
