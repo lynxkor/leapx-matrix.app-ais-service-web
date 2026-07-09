@@ -84,7 +84,7 @@ import { YES_NO_ENUM } from '@/libs/constants';
 import commonMixins from '@/libs/mixins/commonMixins';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { downloadExcel } from '@/utils/index.js';
-import {refreshFileAuthUrl} from "@/api/file/fileDetail";
+import { refreshFileAuthUrl } from '@/api/file/fileDetail';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
