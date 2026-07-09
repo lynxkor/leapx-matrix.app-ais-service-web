@@ -235,7 +235,7 @@
                     v-else
                     v-model="row.workHour"
                     size="small"
-                    :precision="4"
+                    :precision="2"
                     :min="0"
                     controls-position="right"
                     @change="handleWorkHourChange(row)"
@@ -381,6 +381,7 @@
                     v-else
                     v-model="row.quantity"
                     size="small"
+                    :precision="2"
                     :min="0"
                     controls-position="right"
                     @change="handlePartQuantityChange(row)"

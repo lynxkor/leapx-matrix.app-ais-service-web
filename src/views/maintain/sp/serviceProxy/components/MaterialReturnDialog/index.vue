@@ -42,7 +42,7 @@
                 v-model="row.returnQuantity"
                 :min="0"
                 :max="getMaxReturnQuantity(row)"
-                :precision="0"
+                :precision="2"
                 size="mini"
                 controls-position="right"
                 style="width: 100%"
