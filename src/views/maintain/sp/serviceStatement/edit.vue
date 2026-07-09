@@ -58,10 +58,7 @@
                   <el-input placeholder="请输入" v-model="form.dealerName" disabled clearable />
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
-                  <LPEncrypted
-                    :value.sync="form.vehProfileVin"
-                    :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
-                  />
+                  <LPCopy :value="form.vehProfileVin" />
                 </el-form-item>
                 <el-form-item label="数据来源：" prop="dataSource">
                   <el-input placeholder="请输入" v-model="form.dataSource" disabled clearable />
@@ -189,13 +186,10 @@
                   <el-link type="success" @click.prevent="goToDealer(form.dealerId)">{{ form.dealerName }}</el-link>
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
-                  <LPEncrypted
-                    :value.sync="form.vehProfileVin"
-                    :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
-                  >
+                  <LPCopy :value="form.vehProfileVin">
                     <el-link type="success" @click.prevent="goToVehicleProfile(form.vehProfileId)">{{
                       form.vehProfileVin }}</el-link>
-                  </LPEncrypted>
+                  </LPCopy>
                 </el-form-item>
                 <el-form-item label="数据来源：" prop="dataSourceLabel">
                   {{ form.dataSourceLabel }}
@@ -320,11 +314,11 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, reject, receiptCompletion, createCounterSettlement, resendSignSms, getDecrypt } from '@/api/maintain/sp/serviceStatement/index';
+import { getDetail, addOrUpdate, reject, receiptCompletion, createCounterSettlement, resendSignSms } from '@/api/maintain/sp/serviceStatement/index';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import LPEncrypted from '@/libs/components/LPEncrypted';
+import LPCopy from '@/libs/components/LPCopy';
 import { getEnum } from '@/api/common';
 import { StatementCheckoutTypeEnum, PackageTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 import CreateWarrantyApplyDialog from './components/CreateWarrantyApplyDialog';
@@ -423,7 +417,7 @@ export default {
 
     EditPageLayout,
     EditBaseContainer,
-    LPEncrypted,
+    LPCopy,
     // EditTable,
     // FetchSelect,
     RepaireRecord,
@@ -809,9 +803,6 @@ export default {
         return getEnum(code);
       }
       return [];
-    },
-    getDecryptField (id, field) {
-      return getDecrypt(id, field);
     },
     handleResendSignSms () {
       const message = '此操作将再次推送短信给用户进行结算单签字，是否继续？';

@@ -493,21 +493,22 @@ export default {
             props: 'vin',
             label: 'VIN',
             visible: true,
-            mask: true,
-            getValue: (row) => getDetailDecryptField(row.id, 'vin'),
-            width: 200,
+            width: 220,
             fixed: 'left',
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/datacenter/vehicle/vehicleProfile/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'primary'
-            }]
+            copy: true,
+            buttons: [
+              {
+                click: (rowIndex, row) => {
+                  this.$router.push({
+                    path: '/datacenter/vehicle/vehicleProfile/edit',
+                    query: {
+                      id: row.id
+                    }
+                  });
+                },
+                type: 'primary'
+              }
+            ]
           },
           {
             props: 'vehiclePlateNo',
@@ -794,6 +795,9 @@ export default {
       });
     },
     onSubmit () {
+      if (this.form.vinList) {
+        this.form.vinList = this.form.vinList.map(vin => vin.trim()).filter(vin => vin);
+      }
       if (this.form.vinList && this.form.vinList.some(vin => vin.length < 6)) {
         this.$message.error('VIN码输入不能少于6位');
         return;

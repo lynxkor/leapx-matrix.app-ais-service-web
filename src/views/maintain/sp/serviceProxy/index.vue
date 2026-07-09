@@ -15,31 +15,44 @@
       <el-form-item label="车牌号">
         <tag-input v-model="form.carPlateList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="VIN码" v-show="this.visibleCount === 3 || show">
+      <el-form-item label="VIN码">
         <tag-input v-model="form.vehProfileVinList" placeholder="请输入" />
       </el-form-item>
+      <el-form-item label="开单时间">
+        <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
+      <el-form-item label="车主姓名">
+        <el-input
+          placeholder="请输入"
+          v-model="form.customerName"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="车主手机" v-show="this.visibleCount === 3 || show">
+        <el-input
+          placeholder="请输入"
+          v-model="form.customerPhone"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="送修人手机"  v-show="this.visibleCount === 3 || show">
+        <el-input
+          placeholder="请输入"
+          v-model="form.shuttlePhone"
+          clearable
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="车主姓名">
-          <el-input
-            placeholder="请输入"
-            v-model="form.customerName"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="车主手机">
-          <el-input
-            placeholder="请输入"
-            v-model="form.customerPhone"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="送修人手机">
-          <el-input
-            placeholder="请输入"
-            v-model="form.shuttlePhone"
-            clearable
-          />
-        </el-form-item>
         <el-form-item label="预约单号">
           <tag-input v-model="form.appointmentNoList" placeholder="请输入" />
         </el-form-item>
@@ -148,19 +161,6 @@
             clearable
             multiple
             filterable
-          />
-        </el-form-item>
-        <el-form-item label="开单时间">
-          <el-date-picker
-            :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            unlink-panels
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
           />
         </el-form-item>
         <el-form-item label="预计交车时间">
@@ -415,15 +415,16 @@ export default {
             props: 'vehProfileVin',
             label: 'VIN',
             visible: true,
-            width: 200,
-            mask: true,
-            getValue: (row) => getDecrypt(row.id, 'vehProfileVin'),
-            buttons: [{
-              click: (rowIndex, row) => {
-                window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
-              },
-              type: 'primary'
-            }]
+            width: 220,
+            copy: true,
+            buttons: [
+              {
+                click: (rowIndex, row) => {
+                  window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
+                },
+                type: 'primary'
+              }
+            ]
           },
           { props: 'repairItemTypeDetailCollect', label: '维修类型（汇总）', visible: true, width: 200 },
           { props: 'customerName', label: '车主姓名', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'customerName') },
@@ -645,6 +646,14 @@ export default {
           }
         }
       });
+
+      // VIN 搜索前后去空格
+      if (Array.isArray(data.vehProfileVinList)) {
+        data.vehProfileVinList = data.vehProfileVinList.map(v => v.trim());
+      }
+      if (data.vehProfileVinLike) {
+        data.vehProfileVinLike = data.vehProfileVinLike.trim();
+      }
 
       if (this.form.createTime) {
         delete data.createTime;

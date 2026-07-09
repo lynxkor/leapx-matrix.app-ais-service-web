@@ -638,13 +638,18 @@ export default {
     },
     // 计算最终金额数据（用于提交）
     getFinalData () {
+      // 规范化行数据：保证优惠金额等关键字段为数值（后端对部分行类型可能不返回 discountAmount）
+      const normalizeItem = (item) => ({
+        ...item,
+        discountAmount: parseFloat(item.discountAmount) || 0
+      });
       const data = {
         id: this.info.id,
         serviceProxyCode: this.info.serviceProxyCode,
         noFractionAmount: this.roundAmount,
         discountId: this.discountMode?.id,
-        repairItemList: this.projectData,
-        partList: this.partsData,
+        repairItemList: this.projectData.map(normalizeItem),
+        partList: this.partsData.map(normalizeItem),
       };
       this.totalData = data;
       return data;
