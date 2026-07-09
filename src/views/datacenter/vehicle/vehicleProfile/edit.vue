@@ -13,12 +13,9 @@
         :detailRequest="detailRequest"
       >
         <template #status>
-          <LPEncrypted
-            :value.sync="form.vin"
-            :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
-          >
+          <LPCopy :value="form.vin">
             <span style="overflow: visible;">VIN码：{{ form.vin }}</span>
-          </LPEncrypted>
+          </LPCopy>
         </template>
         <template #extraButtons>
           <el-button v-if="canReturn" size="small" type="primary" @click="onReturn">退车</el-button>
@@ -656,12 +653,9 @@
               </div>
               <el-form label-width="150px" :inline="true" :model="form" class="form-edit" v-show="isEditing || !_id">
                 <el-form-item label="VIN：">
-                  <LPEncrypted
-                    :value.sync="form.vin"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
-                  >
+                  <LPCopy :value="form.vin">
                     {{ form.vin }}
-                  </LPEncrypted>
+                  </LPCopy>
                 </el-form-item>
                 <el-form-item label="车牌号：">
                   <LPEncrypted
@@ -759,12 +753,9 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="VIN：">
-                  <LPEncrypted
-                    :value.sync="form.vin"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
-                  >
+                  <LPCopy :value="form.vin">
                     {{ form.vin }}
-                  </LPEncrypted>
+                  </LPCopy>
                 </el-form-item>
                 <el-form-item label="车牌号：">
                   <LPEncrypted
@@ -906,6 +897,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
+import LPCopy from '@/libs/components/LPCopy/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
 import { getAreaInfo, getAreaTree } from '@/utils';
@@ -1070,6 +1062,7 @@ export default {
   components: {
     FetchSelect,
     LPEncrypted,
+    LPCopy,
     EditPageLayout,
     EditBaseContainer,
     ChangeHistory,

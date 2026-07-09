@@ -467,15 +467,16 @@ export default {
             props: 'vehProfileVin',
             label: 'VIN码',
             visible: true,
-            width: 200,
-            mask: true,
-            getValue: (row) => getDecrypt(row.id, 'vehProfileVin'),
-            buttons: [{
-              click: (rowIndex, row) => {
-                window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
-              },
-              type: 'primary'
-            }]
+            width: 220,
+            copy: true,
+            buttons: [
+              {
+                click: (rowIndex, row) => {
+                  window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
+                },
+                type: 'primary'
+              }
+            ]
           },
           {
             props: 'customerName',
@@ -845,6 +846,14 @@ export default {
           }
         }
       });
+
+      // VIN 搜索前后去空格
+      if (Array.isArray(data.vehProfileVinList)) {
+        data.vehProfileVinList = data.vehProfileVinList.map(v => v.trim());
+      }
+      if (data.vehProfileVinLike) {
+        data.vehProfileVinLike = data.vehProfileVinLike.trim();
+      }
 
       if (this.form.createTime) {
         delete data.createTime;

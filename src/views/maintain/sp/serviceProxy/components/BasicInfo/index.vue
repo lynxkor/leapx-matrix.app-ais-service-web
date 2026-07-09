@@ -29,10 +29,9 @@
             label-key="vin"
             :selectRef="onSelectRef"
           />
-          <LPEncrypted
+          <LPCopy
             v-else
-            :value.sync="form.vehProfileVin"
-            :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
+            :value="form.vehProfileVin"
           >
             <el-input
               placeholder="请输入"
@@ -40,7 +39,7 @@
               clearable
               :disabled="vinDisabled"
             />
-          </LPEncrypted>
+          </LPCopy>
         </el-form-item>
         <el-form-item label="车牌号：" prop="carPlate" :required="carPlateRequired">
           <el-input
@@ -475,12 +474,9 @@
           {{ form.code }}
         </el-form-item>
         <el-form-item label="VIN码：" prop="vehProfileVin">
-          <LPEncrypted
-            :value.sync="form.vehProfileVin"
-            :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
-          >
+          <LPCopy :value="form.vehProfileVin">
             <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
-          </LPEncrypted>
+          </LPCopy>
         </el-form-item>
         <el-form-item label="车牌号：" prop="carPlate">
           <LPEncrypted
@@ -631,6 +627,7 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import LPEncrypted from '@/libs/components/LPEncrypted';
+import LPCopy from '@/libs/components/LPCopy';
 import { getVehicleProfile, getCarInfo, checkVinTag, getEnum, getActivityInfo, getRecentlyServiceProxy, getLastStoreMileage, getDecrypt } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../constant';
 import { getFileSaveUrl } from '@/utils';
@@ -678,7 +675,8 @@ export default {
   },
   components: {
     FetchSelect,
-    LPEncrypted
+    LPEncrypted,
+    LPCopy
   },
   watch: {
     formData: {

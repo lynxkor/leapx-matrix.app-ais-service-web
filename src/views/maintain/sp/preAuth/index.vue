@@ -284,8 +284,8 @@ export default {
             label: 'VIN',
             visible: true,
             width: 200,
-            mask: true,
-            getValue: (row) => getServiceProxyDecrypt(row.serviceProxyId, 'vehProfileVin'),
+            copy: true,
+            // getValue: (row) => getServiceProxyDecrypt(row.serviceProxyId, 'vehProfileVin'),
             buttons: [{
               click: (rowIndex, row) => {
                 window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
