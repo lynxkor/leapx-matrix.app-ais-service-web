@@ -27,11 +27,7 @@
               <el-link type="success" :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`" target="_blank">{{ row.dealerName }}</el-link>
             </template>
           </vxe-column>
-          <vxe-column field="vehProfileVin" title="VIN码" min-width="200">
-            <template v-slot="{ row }">
-              <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`" target="_blank">{{ row.vehProfileVin }}</el-link>
-            </template>
-          </vxe-column>
+          <vxe-column field="vehProfileVin" title="VIN码" min-width="200"/>
           <vxe-column field="carPlate" title="车牌号" min-width="150"/>
           <vxe-column field="outboundStatusLabel" title="处理状态" min-width="150"/>
           <vxe-column field="remark" title="备注" min-width="150"/>
