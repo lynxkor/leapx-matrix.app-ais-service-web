@@ -120,6 +120,30 @@ export function userQuery (data) {
 }
 
 /**
+ * 通行证用户查询（脱敏按用户配置等场景使用）
+ * 入参 ZoneManagementUserQueryDto：
+ *   param - 用户名称或手机号模糊查询关键字
+ *   enabled - 启用状态（可空）
+ *   page / size - 继承自 PageRequest，分页字段（注意：字段名是 page 和 size，不是 pageNum/pageSize；size 默认 10）
+ * 出参 PaginationModel&lt;UserDTO&gt;：records 列表、total 总数
+ * @param {Object} data - { param, enabled, page, size }
+ */
+export function findUserList (data) {
+  return api.jsonPost('passport/zoneManagement/findUserList', data);
+}
+
+/**
+ * 通行证岗位分页查询（脱敏按岗位配置等场景使用）
+ * 接入路径：GET /passport/postInfo/page，分页参数走 query（page / size）
+ * 入参 PostInfoDTO：postId、zhName、enCode、enabled、postLevel 等
+ * 出参 PaginationModel&lt;PostInfoDTO&gt;：records 列表、total 总数
+ * @param {Object} data - { page, size }
+ */
+export function getPostPage (data) {
+  return api.get('passport/postInfo/page', data);
+}
+
+/**
  * 门店模糊搜索
  * @param {*} data
  */

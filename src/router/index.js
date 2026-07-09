@@ -2664,8 +2664,7 @@ const routes = [
 
       meta: {
         name: '新页面',
-        keepAlive: true,
-        notRefresh: true,
+        keepAlive: true
       }
     }, {
       path: '/claimreturn/claim/warrantyApply/edit',
@@ -2907,6 +2906,23 @@ const routes = [
 
       meta: {
         name: '门店备件库存流水详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/desensitize/setting',
+      name: 'desensitizeSetting',
+      component: () => import('@/views/desensitize/setting/index.vue'),
+      meta: {
+        name: '脱敏设置',
+        keepAlive: true,
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/desensitize/setting/edit',
+      name: 'desensitizeSettingEdit',
+      component: () => import('@/views/desensitize/setting/edit.vue'),
+      meta: {
+        name: '脱敏设置-编辑',
         noResourceUrl: 'true'
       }
     }]
