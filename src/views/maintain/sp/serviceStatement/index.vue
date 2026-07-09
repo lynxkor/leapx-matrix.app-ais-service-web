@@ -1008,7 +1008,7 @@ export default {
     margin-bottom: 8px;
   }
   .ais-table-c {
-    height: calc(100% - 168px);
+    height: calc(100% - 210px);
   }
 }
 </style>
