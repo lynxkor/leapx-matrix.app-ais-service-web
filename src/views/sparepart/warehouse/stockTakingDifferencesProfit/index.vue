@@ -597,7 +597,7 @@ export default {
     exportExcel () {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
-      reqParams.profit=true;
+      reqParams.profit = true;
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;

@@ -12,7 +12,7 @@
           <el-button size="small" @click="reject" v-if="buttonPermissions.reject">驳回</el-button>
           <el-button size="small" @click="addInvoiceRecord" v-if="buttonPermissions.addRecord">添加收款记录</el-button>
           <el-button size="small" @click="paySuccess" v-if="buttonPermissions.success">完成收款</el-button>
-          <el-button size="small" @click="createRefund" v-if="buttonPermissions.reCreate || buttonPermissions.reCreate1" :style="{'opacity': isStoreOrder && isOverSettlement30Days ? '0.5': 1}">创建反结算单</el-button>
+          <el-button size="small" @click="createRefund" v-if="buttonPermissions.reCreate || buttonPermissions.reCreate1" :style="{'opacity': isStoreOrder && isOverSettlement30Days ? '0.5': 1}" :loading="refundLoading">创建反结算单</el-button>
           <el-button size="small" @click="createWarrantyApply"
             v-if="canCreateWarrantyApply">创建保修申请单</el-button>
           <el-button size="small" @click="handlePrint" v-if="buttonPermissions.canPrint">打印结算单</el-button>
@@ -676,6 +676,7 @@ export default {
         return;
       }
       const result = await this.showMsg('确定要创建反结算申请？<br><strong style="color: var(--leap-color-danger);">该施工单对应的结算单均需反结算,才可回退施工单进行修改</strong>');
+      if (this.refundLoading) return;
       if (result) {
         try {
           this.refundLoading = true;
