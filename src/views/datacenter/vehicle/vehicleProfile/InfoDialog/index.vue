@@ -23,7 +23,7 @@
           v-model="form.nextMaintainMileages"
           placeholder="请输入"
           maxlength="20"
-          @blur="onFieldChange"
+          @change="onFieldChange"
         />
       </el-form-item>
     </el-form>
@@ -119,7 +119,7 @@ export default {
         updateFlat({
           id: this.vehicleProfileId,
           nextMaintainDate: this.form.nextMaintainDate === 'Invalid date' ? null : this.form.nextMaintainDate,
-          nextMaintainMileages: this.form.nextMaintainMileages,
+          nextMaintainMileages: (this.form.nextMaintainMileages === '' || this.form.nextMaintainMileages === null) ? null : this.form.nextMaintainMileages,
         }).then(() => {
           this.$message.success('保存成功');
           this.originalForm = { ...this.form };
