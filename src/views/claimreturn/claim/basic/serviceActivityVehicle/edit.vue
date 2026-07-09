@@ -121,7 +121,12 @@
                     {{ form.ownerName }}
                   </el-form-item>
                   <el-form-item label="车主手机号码：" prop="ownerPhone">
-                    {{ form.ownerPhone }}
+                    <LPEncrypted
+                      :value.sync="form.ownerPhone"
+                      :decryptMethod="() => getDetailDecryptField(form.id, 'ownerPhone')"
+                    >
+                      {{ form.ownerPhone }}
+                    </LPEncrypted>
                   </el-form-item>
                   <el-form-item label="是否完成：" prop="finished">
                     {{ form.finishedLabel }}
