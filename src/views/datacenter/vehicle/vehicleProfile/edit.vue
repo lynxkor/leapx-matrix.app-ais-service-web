@@ -120,31 +120,34 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="整车订单：">
-                  <el-link
+                  <!-- <el-link
                     v-if="form.vehicleOrderId"
                     type="primary"
                     :href="`/sales/vehretail/orderManager/retailOrderInfo/edit?id=${form.vehicleOrderId}`"
                     target="_blank"
                   >{{ form.vehicleOrder }}</el-link>
-                  <span v-else>{{ form.vehicleOrder }}</span>
+                  <span v-else>{{ form.vehicleOrder }}</span> -->
+                  <span>{{ form.vehicleOrder }}</span>
                 </el-form-item>
                 <el-form-item label="企业客户整车订单：">
-                  <el-link
+                  <!-- <el-link
                     v-if="form.vehicleEnterpriseOrderId"
                     type="primary"
                     :href="`/sales/vehwholesale/entorder/entVehicleOrder/edit?id=${form.vehicleEnterpriseOrderId}`"
                     target="_blank"
                   >{{ form.vehicleEnterpriseOrder }}</el-link>
-                  <span v-else>{{ form.vehicleEnterpriseOrder }}</span>
+                  <span v-else>{{ form.vehicleEnterpriseOrder }}</span> -->
+                  <span>{{ form.vehicleEnterpriseOrder }}</span>
                 </el-form-item>
                 <el-form-item label="商城订单号：">
-                  <el-link
+                  <!-- <el-link
                     v-if="form.shopcode"
                     type="primary"
                     :href="`/sales/vehretail/orderManager/retailOrderInfo/edit?id=${form.vehicleOrderId}`"
                     target="_blank"
                   >{{ form.shopcode }}</el-link>
-                  <span v-else>{{ form.shopcode }}</span>
+                  <span v-else>{{ form.shopcode }}</span> -->
+                  <span>{{ form.shopcode }}</span>
                 </el-form-item>
                 <el-form-item label="销售门店：">
                   <el-link
@@ -354,31 +357,16 @@
                   />
                 </el-form-item>
                 <el-form-item label="车主姓名：">
-                  <LPEncrypted
-                    :value.sync="form.ownerName"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'ownerName')"
-                  >
-                    {{ form.ownerName }}
-                  </LPEncrypted>
+                  {{ form.ownerName }}
                 </el-form-item>
                 <el-form-item label="车主手机号码：">
-                  <LPEncrypted
-                    :value.sync="form.mobilephone"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'mobilephone')"
-                  >
-                    {{ form.mobilephone }}
-                  </LPEncrypted>
+                  {{ form.mobilephone }}
                 </el-form-item>
                 <el-form-item label="证件类型：">
                   <el-input clearable v-model="form.idcardTypeLabel" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="证件号码：">
-                  <LPEncrypted
-                    :value.sync="form.idcardNo"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'idcardNo')"
-                  >
-                    {{ form.idcardNo }}
-                  </LPEncrypted>
+                  {{ form.idcardNo }}
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
@@ -386,31 +374,16 @@
                   {{ form.genderLabel }}
                 </el-form-item>
                 <el-form-item label="车主姓名：">
-                  <LPEncrypted
-                    :value.sync="form.ownerName"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'ownerName')"
-                  >
-                    {{ form.ownerName }}
-                  </LPEncrypted>
+                  {{ form.ownerName }}
                 </el-form-item>
                 <el-form-item label="车主手机号码：">
-                  <LPEncrypted
-                    :value.sync="form.mobilephone"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'mobilephone')"
-                  >
-                    {{ form.mobilephone }}
-                  </LPEncrypted>
+                  {{ form.mobilephone }}
                 </el-form-item>
                 <el-form-item label="证件类型：">
                   {{ form.idcardTypeLabel }}
                 </el-form-item>
                 <el-form-item label="证件号码：">
-                  <LPEncrypted
-                    :value.sync="form.idcardNo"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'idcardNo')"
-                  >
-                    {{ form.idcardNo }}
-                  </LPEncrypted>
+                  {{ form.idcardNo }}
                 </el-form-item>
               </el-form>
               <div class="common-section-sub-header">
@@ -421,31 +394,16 @@
                   <el-input clearable v-model="form.bindingUserid" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="绑车人姓名：">
-                  <LPEncrypted
-                    :value.sync="form.bindingUser"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingUser')"
-                  >
-                    {{ form.bindingUser }}
-                  </LPEncrypted>
+                  {{ form.bindingUser }}
                 </el-form-item>
                 <el-form-item label="绑车人手机：">
-                  <LPEncrypted
-                    :value.sync="form.bindingPhone"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingPhone')"
-                  >
-                    {{ form.bindingPhone }}
-                  </LPEncrypted>
+                  {{ form.bindingPhone }}
                 </el-form-item>
                 <el-form-item label="绑车人证件类型：">
                   <el-input clearable v-model="form.bindingIdtypeLabel" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="绑车人证件号码：">
-                  <LPEncrypted
-                    :value.sync="form.bindingIdno"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingIdno')"
-                  >
-                    {{ form.bindingIdno }}
-                  </LPEncrypted>
+                  {{ form.bindingIdno }}
                 </el-form-item>
                 <el-form-item label="绑车时间：">
                   <el-input clearable v-model="form.bindingOn" placeholder="请输入" disabled />
@@ -456,31 +414,16 @@
                   {{form.bindingUserid}}
                 </el-form-item>
                 <el-form-item label="绑车人姓名：">
-                  <LPEncrypted
-                    :value.sync="form.bindingUser"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingUser')"
-                  >
-                    {{ form.bindingUser }}
-                  </LPEncrypted>
+                  {{ form.bindingUser }}
                 </el-form-item>
                 <el-form-item label="绑车人手机：">
-                  <LPEncrypted
-                    :value.sync="form.bindingPhone"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingPhone')"
-                  >
-                    {{ form.bindingPhone }}
-                  </LPEncrypted>
+                  {{ form.bindingPhone }}
                 </el-form-item>
                 <el-form-item label="绑车人证件类型：">
                   {{ form.bindingIdtypeLabel }}
                 </el-form-item>
                 <el-form-item label="绑车人证件号码：">
-                  <LPEncrypted
-                    :value.sync="form.bindingIdno"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'bindingIdno')"
-                  >
-                    {{ form.bindingIdno }}
-                  </LPEncrypted>
+                  {{ form.bindingIdno }}
                 </el-form-item>
                 <el-form-item label="绑车时间：">
                   {{ form.bindingOn }}
@@ -658,12 +601,7 @@
                   </LPCopy>
                 </el-form-item>
                 <el-form-item label="车牌号：">
-                  <LPEncrypted
-                    :value.sync="form.vehiclePlateNo"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
-                  >
-                    {{ form.vehiclePlateNo }}
-                  </LPEncrypted>
+                  {{ form.vehiclePlateNo }}
                 </el-form-item>
                 <el-form-item label="合格证号：">
                   <el-input clearable v-model="form.certNumber" placeholder="请输入" disabled />
@@ -758,12 +696,7 @@
                   </LPCopy>
                 </el-form-item>
                 <el-form-item label="车牌号：">
-                  <LPEncrypted
-                    :value.sync="form.vehiclePlateNo"
-                    :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
-                  >
-                    {{ form.vehiclePlateNo }}
-                  </LPEncrypted>
+                  {{ form.vehiclePlateNo }}
                 </el-form-item>
                 <el-form-item label="合格证号：">
                   {{ form.certNumber }}
@@ -896,7 +829,6 @@ import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
 import LPCopy from '@/libs/components/LPCopy/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { getEnum } from '@/api/common';
@@ -1061,7 +993,6 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     FetchSelect,
-    LPEncrypted,
     LPCopy,
     EditPageLayout,
     EditBaseContainer,
