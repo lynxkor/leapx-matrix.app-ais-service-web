@@ -209,21 +209,10 @@
         <div class="common-section-body">
           <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isFormEditing">
             <el-form-item label="VIN：" prop="vin">
-              <LPEncrypted
-                :value.sync="form.vin"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
-                >
-                <el-input placeholder="" v-model="form.vin" clearable disabled />
-              </LPEncrypted>
+              <el-input placeholder="" v-model="form.vin" clearable disabled />
             </el-form-item>
             <el-form-item label="车牌号：" prop="vehiclePlateNo">
-              <LPEncrypted
-                :value.sync="form.vehiclePlateNo"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
-                >
-                <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled />
-              </LPEncrypted>
-              <!-- <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled /> -->
+              <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled />
             </el-form-item>
             <el-form-item label="生产日期：" prop="produceDate">
               <el-date-picker
@@ -297,19 +286,10 @@
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!isFormEditing">
             <el-form-item label="VIN：" prop="vin">
-              <LPEncrypted
-                :value.sync="form.vin"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
-              >
-                <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfileId}`" target="_blank">{{ form.vin }}</el-link>
-              </LPEncrypted>
+              <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfileId}`" target="_blank">{{ form.vin }}</el-link>
             </el-form-item>
             <el-form-item label="车牌号：" prop="vehiclePlateNo">
-              <LPEncrypted
-                :value.sync="form.vehiclePlateNo"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
-                >
-              </LPEncrypted>
+              {{ form.vehiclePlateNo }}
             </el-form-item>
             <el-form-item label="生产日期：" prop="produceDate">
               {{ form.produceDate }}
@@ -330,32 +310,16 @@
               {{ form.mileage }}
             </el-form-item>
             <el-form-item label="车主姓名：" prop="ownerName">
-              <LPEncrypted
-                :value.sync="form.ownerName"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'ownerName')"
-                >
-              </LPEncrypted>
+              {{ form.ownerName }}
             </el-form-item>
             <el-form-item label="车主电话：" prop="ownerPhone">
-              <LPEncrypted
-                :value.sync="form.ownerPhone"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'ownerPhone')"
-                >
-              </LPEncrypted>
+              {{ form.ownerPhone }}
             </el-form-item>
             <el-form-item label="送修人姓名：" prop="shuttleName">
-              <LPEncrypted
-                :value.sync="form.shuttleName"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'shuttleName')"
-                >
-              </LPEncrypted>
+              {{ form.shuttleName }}
             </el-form-item>
             <el-form-item label="送修人电话：" prop="shuttlePhone">
-              <LPEncrypted
-                :value.sync="form.shuttlePhone"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'shuttlePhone')"
-                >
-              </LPEncrypted>
+              {{ form.shuttlePhone }}
             </el-form-item>
             <el-form-item label="是否终身免保：" prop="isLifetimeWarrantyLabel">
               {{ form.isLifetimeWarrantyLabel }}
@@ -657,7 +621,6 @@
 import {
   getDetail,
   addOrUpdate,
-  getDetailDecryptField,
   submit,
   withdraw,
   approve,
@@ -681,7 +644,6 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import CccSearch from '@/components/CccSearch/index.vue';
 import { getRelatedReports } from '@/api/maintain/sp/qualityOrderReport/index';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
-import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
 import WorkHourTable from './WorkHourTable.vue';
 import OtherTable from './OtherTable.vue';
 import ActivityTable from './ActivityTable.vue';
@@ -855,7 +817,6 @@ export default {
     ApprovalRecordTable,
     PartTable,
     WarrantyApplyFile,
-    LPEncrypted,
     RejectDialog,
     DenyDialog,
     RightsDialog,
@@ -975,9 +936,6 @@ export default {
     console.log('[DEBUG] warrantyAuditList mounted', this.permissions);
   },
   methods: {
-    getDetailDecryptField (id, field) {
-      return getDetailDecryptField(id, field);
-    },
     handleTableUpdate () {
       this.refreshAll();
     },
