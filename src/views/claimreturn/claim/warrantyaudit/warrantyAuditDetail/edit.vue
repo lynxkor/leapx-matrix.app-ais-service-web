@@ -101,12 +101,7 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="vin：">
-                  <LPEncrypted
-                    :value.sync="form.vehicleProfile.vin"
-                    :decryptMethod="() => getDetailDecryptField()"
-                  >
-                    <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfile?.vin}`" target="_blank">{{ form.vehicleProfile?.vin }}</el-link>
-                  </LPEncrypted>
+                  <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfile?.vin}`" target="_blank">{{ form.vehicleProfile?.vin }}</el-link>
                 </el-form-item>
                 <el-form-item label="车牌号：">
                   {{ form.vehicleProfile?.vehiclePlateNo }}
@@ -528,9 +523,7 @@ import {
   getDetailWithRelated,
   addOrUpdate,
   agree,
-  getDecryptField,
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
-import LPEncrypted from '@/libs/components/LPEncrypted';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -577,8 +570,7 @@ export default {
     RejectAppealDialog,
     AisAttachment,
     SupplyMaterialDialog,
-    AppealDialog,
-    LPEncrypted
+    AppealDialog
   },
   computed: {
     _id () {
@@ -660,9 +652,6 @@ export default {
   mounted () {
   },
   methods: {
-    getDetailDecryptField () {
-      return getDecryptField(this._id, 'vin');
-    },
     async detailRequest () {
       const id = this._id;
       if (id) {
