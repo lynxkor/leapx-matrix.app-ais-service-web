@@ -1508,7 +1508,7 @@ export default {
     },
     // ----------替换件逻辑-----------------
     handlePartReplaceChange (current, row) {
-      const discountAmount = Number(current.price || 0) * (Number(this.selectedDiscount?.discountPartRate || 0) || 0);
+      const discountAmount = current.discountAmount || 0;
       const old = JSON.parse(JSON.stringify(row));
       Object.assign(row, {
         partsId: current.partsId,
