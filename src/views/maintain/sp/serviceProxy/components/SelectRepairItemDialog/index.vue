@@ -981,7 +981,7 @@ export default {
     getRepairItemInfo () {
       return getRepairItemInfo(this.vehicleInfo.id).then(res => {
         this.info = res || {};
-        this.itemData = (res.repairItemRespList || []).map(item => ({
+        this.itemData = (res?.repairItemRespList || []).map(item => ({
           ...item,
           _originalWorkHour: item.workHour
         }));
