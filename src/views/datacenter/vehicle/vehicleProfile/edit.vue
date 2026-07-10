@@ -120,31 +120,34 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="整车订单：">
-                  <el-link
+                  <!-- <el-link
                     v-if="form.vehicleOrderId"
                     type="primary"
                     :href="`/sales/vehretail/orderManager/retailOrderInfo/edit?id=${form.vehicleOrderId}`"
                     target="_blank"
                   >{{ form.vehicleOrder }}</el-link>
-                  <span v-else>{{ form.vehicleOrder }}</span>
+                  <span v-else>{{ form.vehicleOrder }}</span> -->
+                  <span>{{ form.vehicleOrder }}</span>
                 </el-form-item>
                 <el-form-item label="企业客户整车订单：">
-                  <el-link
+                  <!-- <el-link
                     v-if="form.vehicleEnterpriseOrderId"
                     type="primary"
                     :href="`/sales/vehwholesale/entorder/entVehicleOrder/edit?id=${form.vehicleEnterpriseOrderId}`"
                     target="_blank"
                   >{{ form.vehicleEnterpriseOrder }}</el-link>
-                  <span v-else>{{ form.vehicleEnterpriseOrder }}</span>
+                  <span v-else>{{ form.vehicleEnterpriseOrder }}</span> -->
+                  <span>{{ form.vehicleEnterpriseOrder }}</span>
                 </el-form-item>
                 <el-form-item label="商城订单号：">
-                  <el-link
+                  <!-- <el-link
                     v-if="form.shopcode"
                     type="primary"
                     :href="`/sales/vehretail/orderManager/retailOrderInfo/edit?id=${form.vehicleOrderId}`"
                     target="_blank"
                   >{{ form.shopcode }}</el-link>
-                  <span v-else>{{ form.shopcode }}</span>
+                  <span v-else>{{ form.shopcode }}</span> -->
+                  <span>{{ form.shopcode }}</span>
                 </el-form-item>
                 <el-form-item label="销售门店：">
                   <el-link
