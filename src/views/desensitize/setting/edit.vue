@@ -84,8 +84,7 @@
                 </el-form-item>
                 <el-form-item label="数据分类：" prop="dataCategory">
                   <fetch-select
-                    :request="fetchOptions"
-                    enumCode="desensitize_data_category"
+                    :request="fetchCategoryList"
                     v-model="form.dataCategory"
                     placeholder="请选择"
                     clearable
@@ -94,10 +93,26 @@
                   />
                 </el-form-item>
                 <el-form-item label="前缀保留位数：" prop="prefixKeep">
-                  <el-input-number v-model="form.prefixKeep" :min="0" :precision="0" :controls="false" style="width: 280px;" />
+                  <el-input-number
+                    v-model="form.prefixKeep"
+                    placeholder="请输入"
+                    :min="0"
+                    :precision="0"
+                    :controls="false"
+                    clearable
+                    style="width: 280px;"
+                  />
                 </el-form-item>
                 <el-form-item label="后缀保留位数：" prop="suffixKeep">
-                  <el-input-number v-model="form.suffixKeep" :min="0" :precision="0" :controls="false" style="width: 280px;" />
+                  <el-input-number
+                    v-model="form.suffixKeep"
+                    placeholder="请输入"
+                    :min="0"
+                    :precision="0"
+                    :controls="false"
+                    clearable
+                    style="width: 280px;"
+                  />
                 </el-form-item>
                 <el-form-item label="列表默认脱敏：" prop="listDesensitize">
                   <el-select v-model="form.listDesensitize" placeholder="请选择" style="width: 280px;">
@@ -326,10 +341,6 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 
-// TODO: 与后端确认数据分类 dictType 编码
-const DATA_CATEGORY_ENUM = 'desensitize_data_category';
-// TODO: 与后端确认岗位查询接口；下面用占位实现 fetchPositionOptions
-
 const defaultForm = {
   id: '',
   name: '',
@@ -339,8 +350,8 @@ const defaultForm = {
   columnName: '',
   columnNameZh: '',
   dataCategory: '',
-  prefixKeep: 3,
-  suffixKeep: 4,
+  prefixKeep: '',
+  suffixKeep: '',
   listDesensitize: 1,
   detailDesensitize: 1,
   exportDesensitize: 1,
@@ -682,19 +693,19 @@ export default {
     getDefautlForm () {
       return { ...defaultForm };
     },
-    async fetchOptions (code) {
-      if (!code) return [];
-      // 数据分类字典 - dictType 由后端确认，当前占位
-      if (code === DATA_CATEGORY_ENUM) {
-        try {
-          const list = await getEnum(code);
-          return list || [];
-        } catch (err) {
-          console.error('获取字典失败', err);
-          return [];
-        }
+    // 数据分类下拉 - FetchSelect request 方法
+    async fetchCategoryList () {
+      try {
+        const res = await getEnum('desensitize_category');
+        // 后端返回格式 { label, value }，转换为 { code, message }
+        return (res || []).map(item => ({
+          code: item.value,
+          message: item.label
+        }));
+      } catch (err) {
+        console.error('获取数据分类失败', err);
+        return [];
       }
-      return [];
     }
   }
 };

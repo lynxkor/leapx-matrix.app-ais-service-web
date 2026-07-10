@@ -77,15 +77,15 @@
           />
         </el-form-item>
         <el-form-item label="状态">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="BooleanEnum"
-            v-model="form.statusIncludeList"
+          <el-select
+            v-model="form.status"
             placeholder="请选择"
             clearable
-            multiple
             filterable
-          />
+          >
+            <el-option :value="1" label="启用" />
+            <el-option :value="0" label="禁用" />
+          </el-select>
         </el-form-item>
         <el-form-item label="数据分类">
           <fetch-select
@@ -178,7 +178,6 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
-import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   systemId: 'leapx',
