@@ -1523,6 +1523,7 @@ export default {
         isOemPart: parseInt(current.isOemPart) || 0,
         quantity: current?.quantity || row?.quantity || 1,
         price: current.price || 0,
+        claimPrice: current.claimPrice,
         discountRate: this.selectedDiscount?.discountRate || 0,
         discountAmount: discountAmount,
         partsAmount: current.price - discountAmount,
