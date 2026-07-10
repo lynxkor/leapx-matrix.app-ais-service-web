@@ -58,13 +58,7 @@
                       filterable
                       @change="handleVINChange"
                     />
-                    <LPEncrypted
-                      v-else
-                      :value.sync="form.vin"
-                      :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
-                    >
-                      <span>{{form.vin}}</span>
-                    </LPEncrypted>
+                    <span v-else>{{ form.vin }}</span>
 
                   </el-form-item>
                   <el-form-item label="计划实施门店名称：" prop="plannedDealerCode">
@@ -78,10 +72,7 @@
                     {{ form.ownerName }}
                   </el-form-item>
                   <el-form-item label="车主手机号码：" prop="ownerPhone">
-                    <LPEncrypted
-                      :value.sync="form.ownerPhone"
-                      :decryptMethod="() => getDetailDecryptField(form.id, 'ownerPhone')"
-                    />
+                    {{ form.ownerPhone }}
                   </el-form-item>
                   <el-form-item label="是否完成：" prop="finished">
                     {{ form.finishedLabel }}
@@ -107,12 +98,7 @@
                     {{ form.activityName }}
                   </el-form-item>
                   <el-form-item label="VIN：" prop="vin">
-                     <LPEncrypted
-                      :value.sync="form.vin"
-                      :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
-                    >
-                      <span>{{form.vin}}</span>
-                    </LPEncrypted>
+                    {{ form.vin }}
                   </el-form-item>
                   <el-form-item label="计划实施门店名称：" prop="plannedDealerName">
                     {{ form.plannedDealerName }}
@@ -153,7 +139,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, getDetailDecryptField } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
+import { getDetail, addOrUpdate } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
 import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -161,7 +147,6 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
-import LPEncrypted from '@/libs/components/LPEncrypted';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 
@@ -233,8 +218,7 @@ export default {
     EditBaseContainer,
     EditPageLayout,
     DealerSelect,
-    ListSelect,
-    LPEncrypted
+    ListSelect
   },
   computed: {
     _id () {
@@ -278,9 +262,6 @@ export default {
   mounted () {
   },
   methods: {
-    getDetailDecryptField (id, field) {
-      return getDetailDecryptField(id, field);
-    },
     detailRequest () {
       const id = this._id;
       if (id) {

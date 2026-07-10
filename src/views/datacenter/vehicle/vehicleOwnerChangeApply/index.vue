@@ -285,8 +285,8 @@ export default {
             props: 'vin',
             label: 'VIN',
             visible: true,
-            mask: true,
-            getValue: (row) => getDecryptField(row.id, 'vin'),
+            copy: true,
+            // getValue: (row) => getDecryptField(row.id, 'vin'),
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
