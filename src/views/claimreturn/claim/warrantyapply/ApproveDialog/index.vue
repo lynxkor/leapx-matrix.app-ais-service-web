@@ -87,7 +87,11 @@ export default {
           approvalRemark: this.form.approvalRemark,
         }).then(res => {
           this.close();
-          this.$message.success('同意成功！');
+          if (res.failedCount > 0) {
+            this.$message.warning(res.failedCount + '条数据同意失败！');
+          } else {
+            this.$message.success('同意成功！');
+          }
           this.$emit('success');
         }).finally(() => {
           this.submitLoading = false;
