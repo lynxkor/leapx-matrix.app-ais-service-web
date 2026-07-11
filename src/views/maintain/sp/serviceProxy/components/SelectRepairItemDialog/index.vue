@@ -981,7 +981,7 @@ export default {
     getRepairItemInfo () {
       return getRepairItemInfo(this.vehicleInfo.id).then(res => {
         this.info = res || {};
-        this.itemData = (res.repairItemRespList || []).map(item => ({
+        this.itemData = (res?.repairItemRespList || []).map(item => ({
           ...item,
           _originalWorkHour: item.workHour
         }));
@@ -1508,7 +1508,7 @@ export default {
     },
     // ----------替换件逻辑-----------------
     handlePartReplaceChange (current, row) {
-      const discountAmount = Number(current.price || 0) * (Number(this.selectedDiscount?.discountPartRate || 0) || 0);
+      const discountAmount = current.discountAmount || 0;
       const old = JSON.parse(JSON.stringify(row));
       Object.assign(row, {
         partsId: current.partsId,
@@ -1523,7 +1523,8 @@ export default {
         isOemPart: parseInt(current.isOemPart) || 0,
         quantity: current?.quantity || row?.quantity || 1,
         price: current.price || 0,
-        discountRate: this.selectedDiscount?.discountPartRate || 0,
+        claimPrice: current.claimPrice,
+        discountRate: this.selectedDiscount?.discountRate || 0,
         discountAmount: discountAmount,
         partsAmount: current.price - discountAmount,
         repairItemName: current.repairItemName,
