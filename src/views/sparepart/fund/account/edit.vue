@@ -473,7 +473,7 @@ export default {
         { field: 'businessNo', title: '业务单号', width: 200 },
         { field: 'taxInvoiceNo', title: '税务发票号', width: 200 },
         { field: 'invoiceDate', title: '开票日期', width: 150 },
-        { field: 'postingTime', title: '入账时间', width: 180 }
+        { field: 'createTime', title: '入账时间', width: 180 }
       ],
       columnConfigsDj: [
         { field: 'businessTypeLabel', title: '业务类型', width: '11%' },

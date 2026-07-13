@@ -119,6 +119,19 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <el-form-item label="发货时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.shippingTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -455,6 +468,7 @@ export default {
           { props: 'cashAmount', label: '使用现金', visible: true, align: 'right', width: 120 },
           { props: 'rebateAmount', label: '使用返利', visible: true, align: 'right', width: 120 },
           { props: 'originalPriceCouponId', label: '原价券', visible: true, width: 200 },
+          { props: 'shippingTime', label: '发货时间', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
         ],
@@ -553,6 +567,7 @@ export default {
           { props: 'cashAmount', label: '现金金额', visible: true, align: 'right', width: 120 },
           { props: 'detailRemark', label: '备注', visible: true, width: 200 },
           { props: 'originalPriceCouponId', label: '原价券', visible: true, width: 200 },
+          { props: 'shippingTime', label: '发货时间', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -670,6 +685,7 @@ export default {
           { props: 'inboundQty', label: '已入库数', visible: true, width: 120 },
           { props: 'receiveWarehouseName', label: '仓库名称', visible: true, width: 200 },
           { props: 'operateQty', label: '本次签收数', visible: true, width: 120 },
+          { props: 'shippingTime', label: '发货时间', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -909,7 +925,13 @@ export default {
           delete data[key];
         }
       });
-
+      if (this.form.shippingTime) {
+        delete data.shippingTime;
+        if (this.form.shippingTime.length > 1) {
+          data.shippingTimeStart = this.form.shippingTime[0];
+          data.shippingTimeEnd = this.form.shippingTime[1];
+        }
+      }
       if (this.form.createTime) {
         delete data.createTime;
         if (this.form.createTime.length > 1) {
