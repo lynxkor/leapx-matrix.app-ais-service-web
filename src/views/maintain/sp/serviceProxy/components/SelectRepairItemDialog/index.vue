@@ -162,6 +162,7 @@
                   <el-input
                     v-else
                     v-model="row.repairItemName"
+                    maxlength="100"
                     size="small"
                   />
                 </template>
