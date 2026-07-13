@@ -221,9 +221,9 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vehicleSeriesName', label: '车系名称', visible: true, width: 140 },
           { props: 'repairItemCode', label: '维修项目代码', visible: true, width: 200 },
           { props: 'repairItemName', label: '维修项目名称', visible: true, width: 200 },
+          { props: 'vehicleSeriesName', label: '车系名称', visible: true, width: 140 },
           { props: 'supplierClaimPrice', label: '供应商索赔价格', visible: true, width: 140, align: 'right' },
           { props: 'claimDaysAdjustment', label: '索赔天数调整', visible: true, width: 120, align: 'right' },
           { props: 'effectiveStartTime', label: '生效开始日期', visible: true, width: 200 },
