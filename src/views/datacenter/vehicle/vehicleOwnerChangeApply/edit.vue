@@ -127,12 +127,7 @@
               {{ form.businessTypeLabel }}
             </el-form-item>
             <el-form-item label="VIN：" prop="vin">
-              <LPEncrypted
-                :value.sync="form.vin"
-                :decryptMethod="() => getDecryptField(form.id, 'vin')"
-                >
-                <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfileId}`" target="_blank">{{ form.vin }}</el-link>
-              </LPEncrypted>
+              <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfileId}`" target="_blank">{{ form.vin }}</el-link>
             </el-form-item>
             <el-form-item label="门店编码：" prop="dealerCode">
               <el-link
@@ -145,20 +140,10 @@
              {{ form.dealerName }}
             </el-form-item>
             <el-form-item label="申请人：" prop="applierName">
-              <LPEncrypted
-                :value.sync="form.applierName"
-                :decryptMethod="() => getDecryptField(form.id, 'applierName')"
-                >
-                {{ form.applierName }}
-              </LPEncrypted>
+              {{ form.applierName }}
             </el-form-item>
             <el-form-item label="申请人 ID：" prop="applierId">
-              <LPEncrypted
-                :value.sync="form.applierId"
-                :decryptMethod="() => getDecryptField(form.id, 'applierId')"
-                >
-                {{ form.applierId }}
-              </LPEncrypted>
+              {{ form.applierId }}
             </el-form-item>
             <el-form-item label="申请时间：" prop="applyTime">
               {{ form.applyTime }}
@@ -571,7 +556,6 @@ import AisAttachment from '@/libs/components/AisAttachment';
 import { getByCode, getFileList } from '@/libs/api/attachment';
 import { vehicleListFullByVin } from '@/api/datacenter/vehicle/vehicleProfile';
 import { loginUserGet } from '@/libs/api/common';
-import LPEncrypted from '@/libs/components/LPEncrypted';
 import FormCancelDialog from './FormCancelDialog';
 import FormRejectDialog from './FormRejectDialog';
 import {
@@ -640,7 +624,6 @@ export default {
     EditBaseContainer,
     FetchSelect,
     AisAttachment,
-    LPEncrypted,
     FormCancelDialog,
     FormRejectDialog,
   },
@@ -870,8 +853,8 @@ export default {
       }
     },
     submitRequest () {
-      if (this.form.targetVehicleProperty === VEHICLE_PROPERTY.OPERATIONAL &&
-        this.form.oldVehicleProperty !== VEHICLE_PROPERTY.HOUSEHOLD) {
+      if (String(this.form.targetVehicleProperty) === VEHICLE_PROPERTY.OPERATIONAL &&
+        String(this.form.oldVehicleProperty) !== VEHICLE_PROPERTY.HOUSEHOLD) {
         this.$message.warning('当前只支持从家用车辆属性申请变更为运营车辆属性');
         return Promise.reject(new Error('validation failed'));
       }

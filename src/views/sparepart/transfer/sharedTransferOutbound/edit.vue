@@ -109,10 +109,16 @@
                   {{ form.inboundDealerName }}
                 </el-form-item>
                 <el-form-item label="入库方联系人：" prop="inboundContactPerson">
-                  {{ form.inboundContactPerson }}
+                  <LPEncrypted
+                    :value.sync="form.inboundContactPerson"
+                    :decryptMethod="() => getDesensitize(form.id, 'sharedTransferOutbound', 'inboundContactPerson')"
+                  />
                 </el-form-item>
                 <el-form-item label="入库方手机：" prop="inboundContactPhone">
-                  {{ form.inboundContactPhone }}
+                  <LPEncrypted
+                    :value.sync="form.inboundContactPhone"
+                    :decryptMethod="() => getDesensitize(form.id, 'sharedTransferOutbound', 'inboundContactPhone')"
+                  />
                 </el-form-item>
                 <el-form-item label="物流商：" prop="logisticsProvider">
                   {{ form.logisticsProvider }}
@@ -261,11 +267,12 @@
 import { getDetail, addOrUpdate, sharedTransferOutboundDetailPage } from '@/api/sparepart/transfer/sharedTransferOutbound/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getLogistics } from '@/api/common';
+import { getEnum, getLogistics, getDesensitize } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import ShipmentDialog from './ShipmentDialog.vue';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 
 const defaultForm = {
   code: '',
@@ -297,7 +304,8 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
-    ShipmentDialog
+    ShipmentDialog,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -348,6 +356,9 @@ export default {
     };
   },
   methods: {
+    getDesensitize (id, type, field) {
+      return getDesensitize(id, type, field);
+    },
     detailRequest () {
       const id = this._id;
       if (id) {

@@ -42,3 +42,27 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 查询VIN列表
+ * @param {Object} data
+ */
+export function getVinList (data) {
+  return api.jsonPost(prefix + 'pageTagVin', data);
+}
+
+/**
+ * 新增或修改
+ * @param {Object} data
+ */
+export function addOrUpdateVin (data) {
+  return api.jsonPost(prefix + 'addOrUpdateTagVin', data);
+}
+
+/**
+ * 删除
+ * @param {Array<Number>} data
+ */
+export function deleteVin (data) {
+  return api.jsonPost(prefix + 'deleteVehicleTagVinByIds', data);
+}

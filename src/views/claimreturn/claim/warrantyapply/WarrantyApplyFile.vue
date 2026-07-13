@@ -14,7 +14,7 @@
           :readonly="disabled || !canAddOrUpdate"
         />
         <!-- 技术服务活动：根据服务活动ID动态获取配置 -->
-        <div v-else v-loading="loadingActivityConfigs">
+        <div v-else>
           <AisAttachment
             v-for="config in activityFileConfigs"
             :key="config.id"
@@ -25,6 +25,13 @@
             :readonly="disabled || !canAddOrUpdate"
             :config-code="'TECHNICAL_SERVICE_ACTIVITY'"
             type="card"
+          />
+          <AttachmentList
+            :business-id="_id"
+            :config-code="configCodeOther"
+            type="card"
+            :readonly="disabled || !canAddOrUpdate"
+            onlyShowUnclassifiedTypes
           />
         </div>
       </div>
@@ -169,6 +176,10 @@ export default {
       const item = repairItemTypeArr.find(i => i.id === this.repairItemTypeId);
       return item ? item.code : '';
     },
+    configCodeOther () {
+      const item = repairItemTypeArr.find(i => i.id === this.repairItemTypeId);
+      return item ? item.code : '';
+    }
   },
   watch: {
     serviceActivityId: {
@@ -194,8 +205,9 @@ export default {
           attachType: item.fileType,
           uploadConfig: {
             attachType: item.fileType,
-            maxNum: item.quantity || 9,
-            acceptSuffix: '.jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx',
+            maxNum: item.maxNum,
+            minNum: item.quantity,
+            acceptSuffix: item.acceptSuffix || '.png,.jpg,.jpeg,.gif,.pdf,.ppt,.pptx,.xlsx,.xls,.docx,.doc,.rar,.zip,.mp4',
             maxSize: 50,
             required: item.required || '0',
           },

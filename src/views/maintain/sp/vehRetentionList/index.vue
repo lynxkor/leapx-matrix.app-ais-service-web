@@ -249,6 +249,7 @@ export default {
             label: 'VIN码',
             visible: true,
             width: 200,
+            copy: true,
             buttons: [{
               click: (rowIndex, row) => {
                 window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');

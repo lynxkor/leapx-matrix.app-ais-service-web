@@ -23,7 +23,7 @@
           v-model="form.nextMaintainMileages"
           placeholder="请输入"
           maxlength="20"
-          @blur="onFieldChange"
+          @change="onFieldChange"
         />
       </el-form-item>
     </el-form>
@@ -80,6 +80,7 @@ export default {
         nextMaintainMileages: [{ validator: validateMileage, trigger: 'blur' }],
       },
       saving: false,
+      pendingSave: false,
     };
   },
   computed: {
@@ -95,7 +96,7 @@ export default {
   watch: {
     data: {
       handler (val) {
-        this.form.nextMaintainDate = moment(val.nextMaintainDate || '').format('YYYY-MM-DD HH:mm:ss');
+        this.form.nextMaintainDate = val.nextMaintainDate && moment(val.nextMaintainDate).isValid() ? moment(val.nextMaintainDate).format('YYYY-MM-DD HH:mm:ss') : null;
         this.form.nextMaintainMileages = val.nextMaintainMileages || '';
         this.originalForm = { ...this.form };
       },
@@ -108,26 +109,54 @@ export default {
       this.dialogVisible = false;
     },
     onFieldChange () {
-      if (this.saving) return;
+      if (this.saving) {
+        this.pendingSave = true;
+        return;
+      }
       this.$refs.formRef.validate((valid) => {
         if (!valid) return;
-        const noChange =
-          this.form.nextMaintainDate === this.originalForm.nextMaintainDate &&
-          Number(this.form.nextMaintainMileages) === Number(this.originalForm.nextMaintainMileages);
-        if (noChange) return;
+        if (this.isNoChange()) return;
+
         this.saving = true;
+        const sentDate = this.normalizeDate(this.form.nextMaintainDate);
+        const sentMileages = this.normalizeMileages(this.form.nextMaintainMileages);
+
         updateFlat({
           id: this.vehicleProfileId,
-          nextMaintainDate: this.form.nextMaintainDate,
-          nextMaintainMileages: this.form.nextMaintainMileages,
+          nextMaintainDate: sentDate,
+          nextMaintainDateSetNull: !sentDate,
+          nextMaintainMileages: sentMileages,
+          nextMaintainMileagesSetNull: !sentMileages,
         }).then(() => {
           this.$message.success('保存成功');
-          this.originalForm = { ...this.form };
+          this.syncOriginalForm(sentDate, sentMileages);
           this.$emit('update');
         }).finally(() => {
           this.saving = false;
+          if (this.pendingSave) {
+            this.pendingSave = false;
+            this.$nextTick(() => this.onFieldChange());
+          }
         });
       });
+    },
+    isNoChange () {
+      return this.normalizeDate(this.form.nextMaintainDate) === this.normalizeDate(this.originalForm.nextMaintainDate) &&
+        this.normalizeMileages(this.form.nextMaintainMileages) === this.normalizeMileages(this.originalForm.nextMaintainMileages);
+    },
+    normalizeDate (val) {
+      return (!val || val === 'Invalid date') ? null : val;
+    },
+    normalizeMileages (val) {
+      return (val === '' || val === null || val === undefined) ? null : val;
+    },
+    syncOriginalForm (sentDate, sentMileages) {
+      if (this.normalizeDate(this.form.nextMaintainDate) === sentDate) {
+        this.originalForm.nextMaintainDate = this.form.nextMaintainDate;
+      }
+      if (this.normalizeMileages(this.form.nextMaintainMileages) === sentMileages) {
+        this.originalForm.nextMaintainMileages = this.form.nextMaintainMileages;
+      }
     },
   },
 };

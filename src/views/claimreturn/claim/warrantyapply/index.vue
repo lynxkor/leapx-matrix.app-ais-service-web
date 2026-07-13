@@ -876,7 +876,45 @@ export default {
         path: '/claimreturn/claim/warrantyApply/edit'
       });
     },
+    /**
+     * 校验日期范围跨度是否超过 1 年
+     * @param {Array} dateRange - 日期范围数组 [start, end]
+     * @param {string} fieldName - 字段中文名，用于提示
+     * @returns {boolean} true 表示校验通过（未超限）
+     */
+    validateDateSpan (dateRange, fieldName) {
+      if (dateRange?.length > 1) {
+        const span = new Date(dateRange[1]).getTime() - new Date(dateRange[0]).getTime();
+        if (span > 365 * 24 * 60 * 60 * 1000) {
+          this.$message.warning(`${fieldName}范围不能超过 1 年`);
+          return false;
+        }
+      }
+      return true;
+    },
     onSubmit () {
+      // 1. 若【保修申请单号】或【VIN】有内容，清空【创建时间】【当前提交时间】【审批时间】
+      const hasApplyNo = this.form.applyNoList?.length > 0;
+      const hasVin = this.form.vinList?.length > 0;
+      if (hasApplyNo || hasVin) {
+        this.form.createTime = null;
+        this.form.currentSubmitTime = null;
+        this.form.approvalTime = null;
+      }
+
+      // 2. 非空校验：【保修申请单号】【VIN】【创建时间】【当前提交时间】【审批时间】不允许都为空
+      const allEmpty = !hasApplyNo && !hasVin &&
+        !this.form.createTime &&
+        !this.form.currentSubmitTime &&
+        !this.form.approvalTime;
+      if (allEmpty) {
+        this.$message.warning('【保修申请单号】【VIN】【创建时间】【当前提交时间】【审批时间】不允许都为空');
+        return;
+      }
+
+      // 3. 日期范围校验：所有日期最长跨度为一年
+      if (!this.validateDateSpan(this.form.createTime, '创建时间')) return;
+
       sessionStorage.setItem(SEARCH_PARAMS_KEY, JSON.stringify(this.getFormData()));
       this.tableForm.page = 1;
       this.getData();

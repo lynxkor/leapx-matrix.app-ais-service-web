@@ -87,15 +87,21 @@
             clearable
             remote
             reserve-keyword
-            v-model="row.oldPartCode"
+            v-model="editingOldPartKey"
             :remote-method="partRemote"
             :params="row.oldPartName"
+            :format="formatPartOptions"
             @change="(value, option) => onOldPartCodeChange(row, value, option)"
             placeholder="请输入"
-            value-key="partCode"
-            label-key="partName"
-          />
-          <span v-else>{{ row.oldPartName }}</span>
+            value-key="partAndSupplierId"
+            label-key="displayLabel"
+          >
+            <template #option="{ item }">
+              <span v-if="item.disabled">{{ item.placeholder }}</span>
+              <span v-else>{{ item.displayLabel }}</span>
+            </template>
+          </fetch-select>
+          <span v-else>{{ row.oldPartCode }}</span>
         </template>
       </vxe-column>
       <vxe-column field="oldSupplierId" title="旧件供应商" width="160">
@@ -226,8 +232,7 @@ import {
 import permissions from '@/libs/mixins/permissions';
 import popconfirmScrollClose from '@/libs/mixins/popconfirmScrollClose';
 import { getEnum, repairItemType } from '@/api/common';
-import { getList as sparePartSupplierList } from '@/api/sparepart/basic/sparePartSupplier';
-import { getList as partList } from '@/api/sparepart/basic/sparePart';
+import { getLists as sparePartList } from '@/api/sparepart/basic/sparePartSupplier';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { cloneDeep } from 'lodash';
 
@@ -268,6 +273,8 @@ export default {
     return {
       // 正在编辑的行
       eidtRowIndex: -1,
+      // 当前编辑行的旧件编码复合键 String(oldPartId)+String(oldSupplierId)，仅用于 fetch-select v-model 反显
+      editingOldPartKey: '',
       originTableData: [],
       //
       current: 1,
@@ -393,20 +400,22 @@ export default {
         return;
       }
       this.eidtRowIndex = rowIndex;
-      // 设置旧件编码下拉组件的选项数据，确保正确显示名称
+      // 同步当前编辑行的旧件编码复合键，供 fetch-select v-model 反显
+      this.editingOldPartKey = row.oldPartId && row.oldSupplierId
+        ? String(row.oldPartId) + String(row.oldSupplierId)
+        : row.oldPartId || '';
+      // 由行已有供应商数据构造旧件供应商下拉（单选项）
+      // 注意：__options__ 多为运行期新增字段，需用 $set 保证响应式，并调用 updateData 强制刷新下拉，否则名称无法反显
       this.$nextTick(() => {
-        if (row.oldPartCode && row.oldPartName && this.$refs.oldPartSelect) {
-          this.$refs.oldPartSelect.remoteOptions = [{
-            partCode: row.oldPartCode,
-            partName: row.oldPartName,
-            id: row.oldPartId
-          }];
-          this.$refs.oldPartSelect.initialLoaded = true;
+        if (!row.__options__) {
+          this.$set(row, '__options__', {});
         }
-        // 如果有旧件编码，加载对应的供应商列表
-        if (row.oldPartId) {
-          this.sparePartSupplierListApi(row.oldPartId, row);
-        }
+        this.$set(row.__options__, 'oldSupplierId', row.oldSupplierId ? [{
+          label: row.oldSupplierName,
+          value: row.oldSupplierId,
+          labelDesc: row.oldSupplierCode,
+        }] : []);
+        this.$refs.editTable.updateData(row, row);
       });
     },
     // 取消
@@ -478,44 +487,6 @@ export default {
       this.current = current;
       this.getDetailPageApi();
     },
-    // -------------
-    // 零件对应的供应商列表查询
-    sparePartSupplierListApi (partId, row) {
-      return sparePartSupplierList({
-        sparePartId: partId,
-        pageNum: 1,
-        pageSize: 999,
-      }).then(res => {
-        const list = res.records || [];
-        const options = list.map(item => {
-          return {
-            label: item.supplierName,
-            value: item.supplierInfoId,
-            labelDesc: item.supplierCode,
-          };
-        });
-        // --- 下拉数据
-        if (!row.__options__) {
-          row.__options__ = {};
-        }
-        row.__options__.oldSupplierId = options?.length ? options : [];
-
-        // 默认选择第一个（切换旧件编码时强制更新）
-        if (options.length) {
-          const item = options[0];
-          row.oldSupplierName = item.label;
-          row.oldSupplierId = item.value;
-          row.oldSupplierCode = item.labelDesc;
-        } else {
-          row.oldSupplierName = '';
-          row.oldSupplierId = '';
-          row.oldSupplierCode = '';
-        }
-
-        this.$refs.editTable.updateData(row, row);
-        return options;
-      });
-    },
     handleAdd (partId, row) {
       if (this.eidtRowIndex !== -1) {
         this.$message.info('请先保存数据，再添加');
@@ -524,9 +495,8 @@ export default {
       this.tableData.unshift(row);
       this.$refs.editTable.setEditRow(row);
       this.eidtRowIndex = 0;
-      // 用零件id查找供应商，并填充第一条数据
-      this.sparePartSupplierListApi(partId, row).then((res) => {
-      });
+      // 新增行时重置旧件编码复合键，旧件信息待用户选择旧件编码时带出
+      this.editingOldPartKey = '';
     },
     // 维修类型
     repairItemTypeRemote (query) {
@@ -561,25 +531,85 @@ export default {
       row.oldSupplierCode = option?.labelDesc;
       this.$refs.editTable.updateData(row, row);
     },
-    // 旧件编码下拉
+    // 旧件编码下拉：选择后由记录直接带出供应商（单选项）
     onOldPartCodeChange (row, value, option) {
-      // 先清空旧的供应商信息
-      row.oldSupplierId = '';
-      row.oldSupplierName = '';
-      row.oldSupplierCode = '';
-      row.oldPartCode = option?.partCode;
-      row.oldPartName = option?.partName;
-      row.oldPartId = option?.id;
-      // 获取新的供应商列表并默认选择第一个
-      this.sparePartSupplierListApi(option?.id, row);
+      if (!row.__options__) {
+        this.$set(row, '__options__', {});
+      }
+      if (value && option) {
+        row.oldPartId = option.sparePartId || '';
+        row.oldPartCode = option.partCode || '';
+        row.oldPartName = option.partName || '';
+        // 旧件供应商由所选记录带出，下拉仅此一项
+        const supplierOption = option.supplierInfoId ? [{
+          label: option.supplierName,
+          value: option.supplierInfoId,
+          labelDesc: option.supplierCode,
+        }] : [];
+        this.$set(row.__options__, 'oldSupplierId', supplierOption);
+        if (supplierOption.length) {
+          const item = supplierOption[0];
+          row.oldSupplierId = item.value;
+          row.oldSupplierName = item.label;
+          row.oldSupplierCode = item.labelDesc;
+        } else {
+          row.oldSupplierId = '';
+          row.oldSupplierName = '';
+          row.oldSupplierCode = '';
+        }
+        this.$refs.editTable.updateData(row, row);
+      } else {
+        // 清空选择
+        row.oldPartId = '';
+        row.oldPartCode = '';
+        row.oldPartName = '';
+        row.oldSupplierId = '';
+        row.oldSupplierName = '';
+        row.oldSupplierCode = '';
+        this.$set(row.__options__, 'oldSupplierId', []);
+        this.$refs.editTable.updateData(row, row);
+      }
     },
-    // 零部件下拉接口
+    // 旧件编码下拉接口（件+供应商组合，参照主因零部件）
     partRemote (query) {
-      return partList({
-        partCodeOrNameLike: query,
-        pageSize: 20,
-        pageNum: 1,
-        status: 1
+      return new Promise((resolve) => {
+        sparePartList({
+          pageNum: 1,
+          pageSize: 20,
+          oemPart: 1,
+          partCodeOrNameLike: query,
+          status: 1,
+        }).then(res => {
+          if (!res?.length) {
+            resolve([
+              {
+                placeholder: `备件编码：${query}不存在备件供应商关系信息`,
+                disabled: true,
+              }
+            ]);
+          } else {
+            const records = res.map(item => {
+              return {
+                ...item,
+                partAndSupplierId: String(item.sparePartId) + String(item.supplierInfoId),
+              };
+            });
+            resolve(records);
+          }
+        });
+      });
+    },
+    // 旧件编码下拉格式化
+    formatPartOptions (list) {
+      return list.map(item => {
+        const code = item.partCode || '';
+        const name = item.partName || '';
+        const label = code || name ? `${code}/${name}` : (item.sparePartId || '');
+        const suffix = item.supplierCode ? `-${item.supplierName || ''}-${item.supplierCode}` : '';
+        return {
+          ...item,
+          displayLabel: label + suffix
+        };
       });
     },
   },

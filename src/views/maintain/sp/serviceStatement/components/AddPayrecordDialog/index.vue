@@ -38,7 +38,7 @@
                   :disabled="isRowDisabled(row)" size="small" clearable />
               </template>
             </vxe-column>
-            <vxe-column field="payAmount" title="实际付款总额" width="150">
+            <vxe-column field="payAmount" title="实际付款总额" width="200">
               <template #default="{ row }">
                 <el-input-number v-model="row.payAmount" size="small" :precision="2" :min="0" controls-position="right"
                   :disabled="isRowDisabled(row)" @change="handlePayAmountChange" style="width: 100%"></el-input-number>
@@ -256,11 +256,11 @@ export default {
       }
       // 计算已有收款记录的总金额
       const payAmount = this.tableData.reduce((sum, row) => {
-        return sum;
+        return sum + (+row.payAmount || 0);
       }, 0);
 
       // 检查总收款金额是否超过实际应付金额
-      if (payAmount > this.info.payableAmount) {
+      if (parseFloat((payAmount).toFixed(2)) > parseFloat((+this.info.payableAmount).toFixed(2))) {
         this.$message.warning(
           `收款总金额不能超过实际应付总金额 ${this.formatAmount(
             this.info.payableAmount

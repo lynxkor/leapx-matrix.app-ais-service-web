@@ -2664,7 +2664,8 @@ const routes = [
 
       meta: {
         name: '新页面',
-        keepAlive: true
+        keepAlive: true,
+        notRefresh: true,
       }
     }, {
       path: '/claimreturn/claim/warrantyApply/edit',

@@ -129,18 +129,23 @@
                     />
                   </el-form-item>
                   <el-form-item label="VIN码：" prop="vehProfileVin">
-                    <fetch-select
-                      filterable
-                      clearable
-                      remote
-                      reserve-keyword
-                      v-model="form.vehProfileVin"
-                      :remote-method="searchVehicle"
-                      @change="handleVinChange"
-                      :disabled="vinDisabled"
-                      value-key="vin"
-                      label-key="vin"
-                    />
+                    <LPEncrypted
+                      :value.sync="form.vehProfileVin"
+                      :decryptMethod="() => getDecryptField(form.serviceProxyId, 'vehProfileVin')"
+                    >
+                      <fetch-select
+                        filterable
+                        clearable
+                        remote
+                        reserve-keyword
+                        v-model="form.vehProfileVin"
+                        :remote-method="searchVehicle"
+                        @change="handleVinChange"
+                        :disabled="vinDisabled"
+                        value-key="vin"
+                        label-key="vin"
+                      />
+                    </LPEncrypted>
                   </el-form-item>
                   <el-form-item label="基本车型：" prop="vehModelName">
                     <el-input
@@ -257,7 +262,12 @@
                     <el-link type="success" :href="`/service/maintain/sp/serviceProxy/edit?id=${form.serviceProxyId}`" target="_blank">{{ form.serviceProxyCode }}</el-link>
                   </el-form-item>
                   <el-form-item label="VIN码：" prop="vehProfileVin">
-                    <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
+                    <LPEncrypted
+                      :value.sync="form.vehProfileVin"
+                      :decryptMethod="() => getDecryptField(form.serviceProxyId, 'vehProfileVin')"
+                    >
+                      <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
+                    </LPEncrypted>
                   </el-form-item>
                   <el-form-item label="基本车型：" prop="vehModelName">
                     <el-link type="success" :href="`/sales/datacenter/materials/vehicleModel/edit?id=${form.vehModelId}`" target="_blank">{{ form.vehModelName }}</el-link>
@@ -568,26 +578,30 @@
             </div>
             <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm6" label-width="150px" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item label="故障现象描述：" prop="customerContent">
+                <el-form-item label="故障现象描述：" prop="customerContent" class="form-item-full">
                   <el-input
+                    type="textarea"
                     placeholder="请输入"
                     v-model="form.customerContent"
+                    maxlength="500"
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="故障排查流程：" prop="troubleshootingProcess">
+                <el-form-item label="故障排查流程：" prop="troubleshootingProcess" class="form-item-full">
                   <el-input
+                    type="textarea"
                     placeholder="请输入"
                     v-model="form.troubleshootingProcess"
+                    maxlength="500"
                     clearable
                   />
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item label="故障现象描述：" prop="customerContent">
+                <el-form-item label="故障现象描述：" prop="customerContent" class="form-item-full">
                   {{ form.customerContent }}
                 </el-form-item>
-                <el-form-item label="故障排查流程：" prop="troubleshootingProcess">
+                <el-form-item label="故障排查流程：" prop="troubleshootingProcess" class="form-item-full">
                   {{ form.troubleshootingProcess }}
                 </el-form-item>
                 <el-form-item label="技术经理回复：" prop="technicalManagerResponse">
@@ -605,7 +619,7 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-header" v-show="canEdit">
-                <el-button size="small" type="primary" @click="handleAddRow()">添加</el-button>
+                <el-button size="small" type="primary" plain @click="handleAddRow()">添加</el-button>
               </div>
               <div class="common-section-table">
                 <edit-table
@@ -728,12 +742,13 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import EditTable from '@/libs/components/EditTable';
+import LPEncrypted from '@/libs/components/LPEncrypted';
 import { getEnum, sparePartList } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
-import { getVehicleProfile, checkVinTag, getCarInfo } from '@/api/maintain/sp/serviceProxy/index';
+import { getVehicleProfile, checkVinTag, getCarInfo, getDecrypt } from '@/api/maintain/sp/serviceProxy/index';
 import { vfglist } from '@/api/claimreturn/claim/basic/vfg';
 import { vrtlist } from '@/api/claimreturn/claim/basic/vrt';
 import { getList as ccclist } from '@/api/claimreturn/claim/basic/ccc';
@@ -837,7 +852,8 @@ export default {
     EditBaseContainer,
     FetchSelect,
     EditTable,
-    Attachment
+    Attachment,
+    LPEncrypted
   },
   computed: {
     _id () {
@@ -1387,7 +1403,10 @@ export default {
           });
         }
       });
-    }
+    },
+    getDecryptField (id, field) {
+      return getDecrypt(id, field);
+    },
   }
 };
 </script>

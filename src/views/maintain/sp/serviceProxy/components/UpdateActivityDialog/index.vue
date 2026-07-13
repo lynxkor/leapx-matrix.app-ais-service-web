@@ -166,6 +166,7 @@ export default {
   ::v-deep .el-dialog__body {
     padding: 0;
     overflow: hidden;
+    max-height: 100%;
   }
 
   .tabs-wrapper {

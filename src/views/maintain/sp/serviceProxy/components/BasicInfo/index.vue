@@ -29,10 +29,9 @@
             label-key="vin"
             :selectRef="onSelectRef"
           />
-          <LPEncrypted
+          <LPCopy
             v-else
-            :value.sync="form.vehProfileVin"
-            :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
+            :value="form.vehProfileVin"
           >
             <el-input
               placeholder="请输入"
@@ -40,7 +39,7 @@
               clearable
               :disabled="vinDisabled"
             />
-          </LPEncrypted>
+          </LPCopy>
         </el-form-item>
         <el-form-item label="车牌号：" prop="carPlate" :required="carPlateRequired">
           <el-input
@@ -272,6 +271,7 @@
             placeholder="请输入"
             v-model="form.departureMileage"
             clearable
+            maxlength="10"
           >
             <template slot="append">KM</template>
           </el-input>
@@ -474,12 +474,9 @@
           {{ form.code }}
         </el-form-item>
         <el-form-item label="VIN码：" prop="vehProfileVin">
-          <LPEncrypted
-            :value.sync="form.vehProfileVin"
-            :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
-          >
+          <LPCopy :value="form.vehProfileVin">
             <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehProfileId}`" target="_blank">{{ form.vehProfileVin }}</el-link>
-          </LPEncrypted>
+          </LPCopy>
         </el-form-item>
         <el-form-item label="车牌号：" prop="carPlate">
           <LPEncrypted
@@ -630,8 +627,10 @@
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
 import LPEncrypted from '@/libs/components/LPEncrypted';
+import LPCopy from '@/libs/components/LPCopy';
 import { getVehicleProfile, getCarInfo, checkVinTag, getEnum, getActivityInfo, getRecentlyServiceProxy, getLastStoreMileage, getDecrypt } from '@/api/maintain/sp/serviceProxy/index';
 import { RepairOrderStatusEnum, BusinessTypeEnum } from '../../constant';
+import { getFileSaveUrl } from '@/utils';
 
 export const CustomTypeEnum = {
   /** 预约客户 */
@@ -676,7 +675,8 @@ export default {
   },
   components: {
     FetchSelect,
-    LPEncrypted
+    LPEncrypted,
+    LPCopy
   },
   watch: {
     formData: {
@@ -708,6 +708,10 @@ export default {
         shuttlePhone: [
           { required: true, message: '请输入送修人手机', trigger: 'blur' },
           { pattern: /^1[\d*]{10}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+        ],
+        departureMileage: [
+          { required: false, message: '请输入离店里程数', trigger: 'blur' },
+          { pattern: /^(0|[1-9]\d*)(\.\d+)?$/, message: '请输入正确的离店里程数', trigger: 'blur' }
         ],
         carPlate: [
           { validator: this.validateCarPlate, trigger: ['blur', 'change'] }
@@ -878,14 +882,14 @@ export default {
           this.form.anomalyDescription = res.anomalyDescription || '';
           this.form.exteriorPhotoList = (res.exteriorPhotoList || []).map(item => ({
             fileId: item.fileId,
-            fileUrl: item.fileUrl,
+            fileUrl: getFileSaveUrl(item),
             fileType: item.fileType,
             attachType: item.attachType,
             configCode: item.configCode
           }));
           this.form.interiorPhotoList = (res.interiorPhotoList || []).map(item => ({
             fileId: item.fileId,
-            fileUrl: item.fileUrl,
+            fileUrl: getFileSaveUrl(item),
             fileType: item.fileType,
             attachType: item.attachType,
             configCode: item.configCode

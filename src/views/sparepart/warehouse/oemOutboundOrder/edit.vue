@@ -472,6 +472,7 @@ export default {
       handler (val) {
         if (val && this.$refs.containerRef) {
           this.$refs.containerRef.loadDetail();
+          this.getData();
         }
       },
       immediate: true

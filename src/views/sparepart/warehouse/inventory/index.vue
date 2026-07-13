@@ -219,7 +219,7 @@ import ShelvesDialog from './ShelvesDialog.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   sparePartIdList: null,
-  codeList: null,
+  codeList: [],
   locationIdList: null,
   dealerCodeList: null,
   remarkLike: '',
@@ -367,7 +367,7 @@ export default {
             }, {
               name: '上架共享',
               show: (row) => {
-                return Number(row.availableQty) > 0 && row.oemPart === '1';
+                return Number(row.availableQty) > 0 && row.oemPart === '1' && this.permissions.has('AISPART-inventory-sharedShelves');
               },
               click: (rowIndex, row) => {
                 this.launchDialog = true;
@@ -377,7 +377,7 @@ export default {
             }, {
               name: '下架共享',
               show: (row) => {
-                return Number(row.sharedQty) > 0;
+                return Number(row.sharedQty) > 0 && this.permissions.has('AISPART-inventory-sharedRemove');
               },
               click: (rowIndex, row) => {
                 this.shelvesDialog = true;

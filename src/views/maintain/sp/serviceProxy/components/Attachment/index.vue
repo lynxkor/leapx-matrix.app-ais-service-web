@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="showUpload" class="ais-actions">
-      <el-button type="primary" size="small" @click="openUploadDialog">
+      <el-button type="primary" size="small" plain @click="openUploadDialog">
         <!-- <i class="el-icon-upload"></i> -->
         上传附件
       </el-button>

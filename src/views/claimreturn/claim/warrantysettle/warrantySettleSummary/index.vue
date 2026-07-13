@@ -189,13 +189,17 @@ export default {
 
       getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
         .then(res => {
-          this.tableDataList = res.records.map(item => {
+          this.tableDataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.tableTotal = res.total;
+          this.tableTotal = res?.total || 0;
+        }).catch(err => {
+          console.error('查询保修结算汇总报表失败:', err);
+          this.tableDataList = [];
+          this.tableTotal = 0;
         }).finally(() => {
           this.loading = false;
         });

@@ -284,8 +284,8 @@ export default {
             label: 'VIN',
             visible: true,
             width: 200,
-            mask: true,
-            getValue: (row) => getDecrypt(row.id, 'vehProfileVin'),
+            copy: true,
+            // getValue: (row) => getDecrypt(row.id, 'vehProfileVin'),
             buttons: [{
               click: (rowIndex, row) => {
                 window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');

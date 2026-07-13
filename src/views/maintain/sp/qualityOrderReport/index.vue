@@ -250,8 +250,8 @@ export default {
             label: 'VIN码',
             visible: true,
             width: 200,
-            mask: true,
-            getValue: (row) => getDecrypt(row.id, 'vehProfileVin'),
+            copy: true,
+            // getValue: (row) => getDecrypt(row.id, 'vehProfileVin'),
             buttons: [{
               click: (rowIndex, row) => {
                 window.open(`/service/datacenter/vehicle/vehicleProfile/edit?id=${row.vehProfileId}`, '_blank');
@@ -452,13 +452,13 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          this.optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });

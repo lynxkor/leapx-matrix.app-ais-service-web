@@ -567,6 +567,19 @@ export default {
           }
         }
         this.submitLoading = true;
+        delete data.currentSituation;
+        delete data.currentSituationLabel;
+        delete data.recentlyfaultServiceProxy;
+        delete data.recentlyfaultServiceProxyCode;
+        delete data.earliestfaultServiceProxy;
+        delete data.earliestfaultServiceProxyCode;
+        delete data.faultAlert;
+        delete data.signStatus;
+        delete data.signUrlExpiredOn;
+        delete data.signCompletedOn;
+        delete data.signGeneratedOn;
+        delete data.orderStatus;
+        delete data.confirmedOn;
         addOrUpdate(data).then(res => {
           this.$message({
             message: '保存成功',
