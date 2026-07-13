@@ -1278,8 +1278,13 @@ export default {
     handleWorkHourChange (row) {
       const workHour = Number(row.workHour) || 0;
       const originalAmount = workHour * row.price;
-      row.discountAmount = originalAmount * row.discountRate;
       row.repairAmount = originalAmount - row.discountAmount;
+      // 商城订单和服务活动，优惠金额不能变
+      if (String(row.packageType) !== PackageTypeEnum.STORE && String(row.packageType) !== PackageTypeEnum.TECH_ACTIVITY && String(row.packageType) !== PackageTypeEnum.CARE_ACTIVITY) {
+        row.discountAmount = originalAmount * row.discountRate;
+      } else {
+        row.discountRate = (row.discountAmount / (originalAmount || 1)).toFixed(8);
+      }
       this.updateTotals();
     },
     // 优惠金额变化
