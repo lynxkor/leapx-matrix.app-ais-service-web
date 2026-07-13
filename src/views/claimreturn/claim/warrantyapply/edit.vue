@@ -636,7 +636,7 @@ import {
 } from './constants';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getLoginUser } from '@/api/common';
+import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -832,13 +832,10 @@ export default {
       return '保修申请单号：' + (this.form.applyNo);
     },
     canEdit () {
-      return EDITABLE_STATUSES.includes(this.form.applyStatus) && this.canAddOrUpdate && !this.isFactoryAccount;
-    },
-    isFactoryAccount () {
-      return this.accountFlag === false; // 是否为主机厂还是门店账号 false为主机厂  true为门店
+      return EDITABLE_STATUSES.includes(this.form.applyStatus) && this.canAddOrUpdate;
     },
     isFormEditing () {
-      return !this.isFactoryAccount && (this.isEditing || !this._id);
+      return this.isEditing || !this._id;
     },
     isPendingCurrentUserReview () {
       if (!this.form.isInApproval) return false;
@@ -916,8 +913,7 @@ export default {
       cancelIds: [],
       withdrawDialogVisible: false,
       withdrawIds: [],
-      rightsDialogVisible: false,
-      accountFlag: null,
+      rightsDialogVisible: false
     };
   },
   created () {
@@ -928,9 +924,6 @@ export default {
     this.canWithdraw = this.permissions.has(`${this.moduleKey}-withdraw`);
     this.canDeny = this.permissions.has(`${this.moduleKey}-deny`);
     this.canCancel = this.permissions.has(`${this.moduleKey}-cancel`);
-    getLoginUser().then(res => {
-      this.accountFlag = res.accountFlag;
-    });
   },
   mounted () {
     console.log('[DEBUG] warrantyAuditList mounted', this.permissions);
