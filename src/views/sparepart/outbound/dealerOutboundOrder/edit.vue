@@ -502,6 +502,7 @@ export default {
     'form.code': {
       handler (val) {
         if (val) {
+          this.pageNum = 1;
           this.getData();
           if (this.form.orderStatus === '10' || this.form.orderStatus === '30') {
             this.orderStatusType = true;
