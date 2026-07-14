@@ -162,6 +162,7 @@
                   <el-input
                     v-else
                     v-model="row.repairItemName"
+                    maxlength="100"
                     size="small"
                   />
                 </template>
@@ -235,7 +236,7 @@
                     v-else
                     v-model="row.workHour"
                     size="small"
-                    :precision="2"
+                    :precision="4"
                     :min="0"
                     controls-position="right"
                     @change="handleWorkHourChange(row)"
@@ -246,7 +247,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE || row.packageType == PackageTypeEnum.TECH_ACTIVITY || row.packageType == PackageTypeEnum.CARE_ACTIVITY">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -392,7 +393,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE || row.packageType == PackageTypeEnum.TECH_ACTIVITY || row.packageType == PackageTypeEnum.CARE_ACTIVITY">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -1277,8 +1278,13 @@ export default {
     handleWorkHourChange (row) {
       const workHour = Number(row.workHour) || 0;
       const originalAmount = workHour * row.price;
-      row.discountAmount = originalAmount * row.discountRate;
       row.repairAmount = originalAmount - row.discountAmount;
+      // 商城订单和服务活动，优惠金额不能变
+      if (String(row.packageType) !== PackageTypeEnum.STORE && String(row.packageType) !== PackageTypeEnum.TECH_ACTIVITY && String(row.packageType) !== PackageTypeEnum.CARE_ACTIVITY) {
+        row.discountAmount = originalAmount * row.discountRate;
+      } else {
+        row.discountRate = (row.discountAmount / (originalAmount || 1)).toFixed(8);
+      }
       this.updateTotals();
     },
     // 优惠金额变化

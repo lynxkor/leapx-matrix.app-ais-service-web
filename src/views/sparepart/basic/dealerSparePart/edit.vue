@@ -169,6 +169,9 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { formatNumberInput } from '@/libs/utils/index';
 
+// 登录用户信息为静态数据，模块级缓存避免每次新增重复请求
+let loginUserCache = null;
+
 const defaultForm = {
   // 多选时字段有变化，自行修复
   id: '',
@@ -269,6 +272,12 @@ export default {
         }
       },
       immediate: true
+    },
+    // 保存并再建一个后表单被重置，dealerCode 清空 → 重新预填门店信息
+    'form.dealerCode' (val) {
+      if (!val && !this._id) {
+        this.initDealerUser();
+      }
     }
   },
   data () {
@@ -308,7 +317,9 @@ export default {
     };
   },
   mounted () {
-    this.initDealerUser();
+    if (!this._id) {
+      this.initDealerUser();
+    }
   },
   methods: {
     formatNumberInput,
@@ -350,10 +361,15 @@ export default {
     },
     async initDealerUser () {
       // 查询是否店端 true为门店  false为厂端
-      const res = await getLoginUser();
-      this.accountFlag = res.accountFlag;
-      this.form.dealerCode = res.currentDealerCode;// 当前门店code
-      this.form.dealerName = res.currentDealerName;// 当前门店名称
+      // 登录用户信息为静态数据，缓存后避免每次新增重复请求
+      try {
+        const res = loginUserCache || (loginUserCache = await getLoginUser());
+        this.accountFlag = res.accountFlag;
+        this.form.dealerCode = res.currentDealerCode;// 当前门店code
+        this.form.dealerName = res.currentDealerName;// 当前门店名称
+      } catch (error) {
+        console.error(error);
+      }
     },
     // 新增子表数据
     handleAddTableData (val, record) {
