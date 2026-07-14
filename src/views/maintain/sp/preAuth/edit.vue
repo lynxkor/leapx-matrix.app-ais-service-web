@@ -705,7 +705,7 @@ export default {
         ],
         reason: [
           { required: true, message: '请输入申请原因', trigger: 'blur' },
-          { max: 200, message: '申请原因不能超过200字符', trigger: 'blur' }
+          { max: 500, message: '申请原因不能超过500字符', trigger: 'blur' }
         ]
       }
     };
