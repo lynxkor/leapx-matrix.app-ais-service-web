@@ -206,6 +206,7 @@ export default {
 
       pageDepartureDetail({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
+          if (!res || !res.records) return;
           this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,
@@ -213,6 +214,8 @@ export default {
             };
           });
           this.optionObj.total = res.total;
+        }).catch(err => {
+          console.error('获取列表数据失败:', err);
         }).finally(() => {
           this.loading = false;
         });

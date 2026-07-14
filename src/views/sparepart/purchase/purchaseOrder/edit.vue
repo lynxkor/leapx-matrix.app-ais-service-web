@@ -280,6 +280,9 @@
                 <el-form-item label="发货仓库：" prop="deliveryWarehouse">
                   {{ form.deliveryWarehouseName }}
                 </el-form-item>
+                <el-form-item label="发货时间：" prop="shippingTime">
+                  {{ form.shippingTime }}
+                </el-form-item>
                 <el-form-item label="收货人姓名：" prop="recipientName">
                   {{ form.recipientName }}
                 </el-form-item>
