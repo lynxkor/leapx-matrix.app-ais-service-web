@@ -200,7 +200,7 @@
                   <el-input clearable v-model="form.warrantyStartdate" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="整车是否在保(预测)：">
-                  <el-input clearable v-model="form.isLifetimeWarrantyLabel" placeholder="请输入" disabled />
+                  <el-input clearable v-model="form.isLifetimeWarrantyForecastLabel" placeholder="请输入" disabled />
                 </el-form-item>
                 <el-form-item label="整车保修结束日期(预测)：">
                   <el-input clearable v-model="form.warrantyEnddateForecast" placeholder="请输入" disabled />
@@ -211,7 +211,7 @@
                   {{ form.warrantyStartdate }}
                 </el-form-item>
                 <el-form-item label="整车是否在保(预测)：">
-                  {{ form.isLifetimeWarrantyLabel }}
+                  {{ form.isLifetimeWarrantyForecastLabel }}
                 </el-form-item>
                 <el-form-item label="整车保修结束日期(预测)：">
                   {{ form.warrantyEnddateForecast }}
