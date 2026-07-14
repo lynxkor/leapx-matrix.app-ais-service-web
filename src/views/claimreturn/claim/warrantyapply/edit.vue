@@ -230,6 +230,12 @@
             <el-form-item label="车型：" prop="vehicleModelName">
               <el-input placeholder="" v-model="form.vehicleModelName" clearable disabled />
             </el-form-item>
+            <el-form-item label="车系：" prop="vehicleSeriesName">
+              <el-input placeholder="" v-model="form.vehicleSeriesName" clearable disabled />
+            </el-form-item>
+            <el-form-item label="年款：" prop="vehicleYearName">
+              <el-input placeholder="" v-model="form.vehicleYearName" clearable disabled />
+            </el-form-item>
             <el-form-item label="保修开始日期：" prop="warrantyStartdate">
               <el-date-picker
                 disabled
@@ -299,6 +305,12 @@
             </el-form-item>
             <el-form-item label="车型：" prop="vehicleModelName">
               {{ form.vehicleModelName }}
+            </el-form-item>
+            <el-form-item label="车系：" prop="vehicleSeriesName">
+              {{ form.vehicleSeriesName }}
+            </el-form-item>
+            <el-form-item label="年款：" prop="vehicleYearName">
+              {{ form.vehicleYearName }}
             </el-form-item>
             <el-form-item label="保修开始日期：" prop="warrantyStartdate">
               {{ form.warrantyStartdate }}
@@ -723,6 +735,10 @@ const defaultForm = {
   vehicleProperty: '',
   vehicleModelId: '',
   vehicleModelName: '',
+  vehicleSeriesId: '',
+  vehicleSeriesName: '',
+  vehicleYearId: '',
+  vehicleYearName: '',
   warrantyStartdate: '',
   serviceMonth: '',
   alarmLevel: '',

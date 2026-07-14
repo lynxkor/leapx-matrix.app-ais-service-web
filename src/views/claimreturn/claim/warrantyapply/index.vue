@@ -545,6 +545,8 @@ export default {
           { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 160, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vehiclePlateNo') },
           { props: 'ownerName', label: '车主姓名', visible: true, width: 120, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'ownerName') },
           { props: 'vehicleModelName', label: '车型', visible: true, width: 180 },
+          { props: 'vehicleSeriesName', label: '车系', visible: true, width: 160 },
+          { props: 'vehicleYearName', label: '年款', visible: true, width: 120 },
           { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 200 },
           { props: 'repairStartTime', label: '维修开始日期', visible: true, width: 200 },
           { props: 'mainPartCode', label: '主因件编码', visible: true, width: 200 },
