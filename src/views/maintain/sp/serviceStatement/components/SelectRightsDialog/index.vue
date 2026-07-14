@@ -98,6 +98,8 @@ export default {
           if (!(amountInfo.threshold === 0 && amountInfo.discount === 0)) {
             this.$nextTick(() => {
               row.checked = false;
+              // 数据驱动模式下，手动改 checked 字段后需刷新表头全选框三态
+              this.$refs.rightsTable.checkSelectionStatus();
               this.$message.warning('剩余应付款金额为0，不能再选择新的抵扣券');
             });
             return;
@@ -111,24 +113,42 @@ export default {
           // 阻止选中，恢复复选框状态
           this.$nextTick(() => {
             row.checked = false;
+            this.$refs.rightsTable.checkSelectionStatus();
             this.$message.warning(validationResult.message || '该优惠券不可用');
           });
         }
       }
     },
 
+    // 判断单行是否应当被选中（全选拦截回滚时按此规则统一重算）
+    // 业务规则：可用(isChange) + 剩余为0时仅允许(0,0)券 + 通过基础校验
+    shouldRowBeChecked (row, isRemainZero) {
+      if (row.isChange !== true) return false;
+      if (isRemainZero) {
+        const { threshold, discount } = this.parsePaymentAmount(row.paymentAmount);
+        if (!(threshold === 0 && discount === 0)) return false;
+      }
+      return this.validateCoupon(row).valid;
+    },
+
     // 处理全选事件
     handleSelectAll ({ checked, records }) {
       if (checked) {
+        const isRemainZero = this.isRemainAmountZero();
         // 全选时，剩余应付款金额为0时只允许满减金额为(0,0)的券
         let availableRecords = records;
-        if (this.isRemainAmountZero()) {
+        if (isRemainZero) {
           availableRecords = records.filter(coupon => {
             const amountInfo = this.parsePaymentAmount(coupon.paymentAmount);
             return amountInfo.threshold === 0 && amountInfo.discount === 0;
           });
           if (availableRecords.length === 0) {
             this.$nextTick(() => {
+              // 全选拦截：按业务规则重算选中状态（此分支无可用(0,0)券，结果为全 false）
+              this.tableData.forEach(row => {
+                row.checked = this.shouldRowBeChecked(row, isRemainZero);
+              });
+              this.$refs.rightsTable.checkSelectionStatus();
               this.$message.warning('剩余应付款金额为0，不能再选择新的抵扣券');
             });
             return;
@@ -139,8 +159,12 @@ export default {
         const optimalCombination = this.findOptimalCouponCombination(availableRecords);
 
         if (!optimalCombination.success) {
-          // 如果无法全选，给出提示并阻止
+          // 如果无法全选，回滚到全选前的选择状态并给出提示
           this.$nextTick(() => {
+            this.tableData.forEach(row => {
+              row.checked = this.shouldRowBeChecked(row, isRemainZero);
+            });
+            this.$refs.rightsTable.checkSelectionStatus();
             this.$message.warning(optimalCombination.message || '部分优惠券无法同时使用');
           });
           return;
@@ -151,6 +175,7 @@ export default {
           this.tableData.forEach(row => {
             row.checked = optimalCombination.selectedIds.includes(row.useId);
           });
+          this.$refs.rightsTable.checkSelectionStatus();
 
           // 打印最优组合信息
           console.group('🎯 全选最优组合');

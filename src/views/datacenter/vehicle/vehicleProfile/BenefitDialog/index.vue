@@ -2,7 +2,7 @@
   <el-dialog
     class="m-return-dialog"
     title="权益"
-    width="1000px"
+    width="1200px"
     :visible.sync="dialogVisible"
     @close="close"
   >
@@ -11,25 +11,28 @@
         ref="editTable"
         :data="tableData"
         stripe
-        show-overflow
         resizable
         :row-config="{ isHover: true }"
         border="inner"
         size="medium"
         min-height="0"
-        max-height="400px"
+        max-height="600px"
         >
         <vxe-column
           title="序号"
-          width="80"
+          width="60"
         >
           <template #default="{rowIndex }">
             {{ rowIndex + 1 }}
           </template>
         </vxe-column>
-        <vxe-column field="rightsCode" title="权益编号"></vxe-column>
-        <vxe-column field="rightsName" title="权益名称"></vxe-column>
-        <vxe-column field="rightsRuleDesc" title="权益规则说明"></vxe-column>
+        <vxe-column field="rightsCode" width="220" title="权益编号"></vxe-column>
+        <vxe-column field="rightsName" width="180" title="权益名称"></vxe-column>
+        <vxe-column field="rightsRuleDesc" title="权益规则说明">
+          <template #default="{ row }">
+            <span v-safe-html="row.rightsRuleDesc" />
+          </template>
+        </vxe-column>
         <template #empty>
           <div class="m-vxe-table-empty-text">
             暂无数据
