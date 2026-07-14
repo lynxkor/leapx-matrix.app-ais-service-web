@@ -151,6 +151,7 @@ export default {
         nameOrCodeLike: query || '',
         pageNum: 1,
         pageSize: 20,
+        statusList: ['1'] // 只搜启用的
       });
     },
     onChange (value, row) {
