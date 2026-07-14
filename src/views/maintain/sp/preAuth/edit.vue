@@ -79,7 +79,7 @@
                   <el-input
                     type="textarea"
                     :rows="2"
-                    placeholder="请输入申请原因，限200字符"
+                    placeholder="请输入申请原因，限500字符"
                     v-model="form.reason"
                     maxlength="500"
                     show-word-limit
