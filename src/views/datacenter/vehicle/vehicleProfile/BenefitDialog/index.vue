@@ -98,6 +98,9 @@ export default {
 
 <style lang="scss" scoped>
 .m-return-dialog {
+  ::v-deep .vxe-table--render-default .vxe-cell {
+    white-space: normal!important;
+  }
   ::v-deep .el-dialog__body {
     padding: 20px;
     min-height: 400px;
