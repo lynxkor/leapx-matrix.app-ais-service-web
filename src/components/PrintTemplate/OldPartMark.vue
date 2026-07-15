@@ -1,7 +1,7 @@
 <!-- 保修旧件标签 -->
 <template>
   <div id="printArea" style="width:1060px;" class="print-minh" v-loading="loading">
-    <div v-for="item in result" :key="item.id" class="divMain">
+    <div v-for="(item, index) in result" :key="item.id" class="divMain">
       <div class="divLeft">
         <table>
           <tbody>
@@ -100,12 +100,12 @@
               <td></td>
               <td>
                 <div class="divlabel">
-                  <span class="span1">主</span>
+                  <span class="span1">{{ item.isMainPart === '1' ? '主': '' }}</span>
                 </div>
               </td>
               <td>
                 <div>
-                  <span class="span2">1 - 1</span>
+                  <span class="span2">{{ result.length }} - {{ index + 1 }}</span>
                 </div>
               </td>
               <td></td>
