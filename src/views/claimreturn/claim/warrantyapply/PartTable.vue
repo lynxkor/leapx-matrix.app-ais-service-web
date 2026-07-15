@@ -292,6 +292,8 @@ export default {
           oemPart: 1,
           partCodeOrNameLike: query,
           status: 1,
+          spareStatusIncludeList: ['1'],
+          supplyStatusIncludeList: ['1']
         }).then(res => {
           if (!res?.records?.length) {
             resolve({
