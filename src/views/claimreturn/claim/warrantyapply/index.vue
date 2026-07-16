@@ -234,7 +234,8 @@
       <el-button size="small" @click="handlePrint">打印标签</el-button>
       <el-dropdown
         trigger="click"
-        placement="top-end"
+        placement="bottom-end"
+        popper-class="m-view-dropdown__popper"
         class="m-view-dropdown m-view-dropdown--right"
         @command="onDropdownCommand"
         @visible-change="onDropdownVisibleChange"
@@ -1280,6 +1281,10 @@ export default {
   .m-view-dropdown {
     &--right {
       margin-left: auto;
+    }
+    &__popper {
+      // 菜单往左挪 80px,避免压住表格右侧操作列图标
+      margin-left: -80px !important;
     }
     &__trigger {
       display: inline-flex;
