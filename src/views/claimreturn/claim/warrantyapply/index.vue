@@ -219,6 +219,14 @@
       <el-button v-if="reject" size="small" @click="handleReject">批量驳回</el-button>
       <el-button v-if="approve"  size="small" @click="handleApprove">批量同意</el-button>
       <el-button v-if="cancel" size="small" @click="handleCancel">批量作废</el-button>
+      <el-button size="small" @click="customDialogVisible = true">
+        高级查询
+        <el-badge
+          v-if="customConditionsCount > 0"
+          :value="customConditionsCount"
+          class="c-cq-badge"
+        />
+      </el-button>
       <el-button size="small" @click="handlePrint">打印标签</el-button>
     </div>
     <el-tabs v-model="activeTab" @tab-click="handleTabChange">
@@ -248,6 +256,10 @@
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
     </div>
+    <CustomQueryDialog
+      :visible.sync="customDialogVisible"
+      v-model="appliedCustomConditions"
+    />
     <RejectDialog
       :visible.sync="rejectDialogVisible"
       :rejectIds="rejectIds"
@@ -323,6 +335,7 @@ import ApproveDialog from './ApproveDialog/index.vue';
 import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
+import CustomQueryDialog from './components/CustomQueryDialog/index.vue';
 
 // 创建时间默认值：最近 3 个月
 function getDefaultCreateTime () {
@@ -381,6 +394,7 @@ export default {
     ApproveDialog,
     CancelDialog,
     WithdrawDialog,
+    CustomQueryDialog,
   },
   data () {
     return {
@@ -438,9 +452,19 @@ export default {
       rightsDialogVisible: false,
       vehicleProfileId: '',
       rowId: '',
+      customDialogVisible: false,
+      appliedCustomConditions: null,
     };
   },
   computed: {
+    customConditionsCount () {
+      if (!this.appliedCustomConditions) return 0;
+      const count = (group) => group.conditions.reduce((sum, item) => {
+        if (item.type === 'group') return sum + count(item);
+        return sum + 1;
+      }, 0);
+      return count(this.appliedCustomConditions);
+    },
     optionObj () {
       return {
         id: 'warrantyApplyTable',
@@ -920,6 +944,7 @@ export default {
       this.getData();
     },
     onReset () {
+      this.appliedCustomConditions = null;
       this.form = { ...defaultForm, createTime: getDefaultCreateTime() };
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
@@ -1134,6 +1159,13 @@ export default {
   }
   .ais-table-c {
     height: calc(100% - 168px);
+  }
+  .c-cq-badge {
+    margin-left: 4px;
+    ::v-deep sup {
+      right: -8px;
+      transform: translateY(-50%);
+    }
   }
 }
 </style>
