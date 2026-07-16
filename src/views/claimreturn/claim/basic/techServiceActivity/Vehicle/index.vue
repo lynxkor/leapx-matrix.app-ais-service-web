@@ -37,6 +37,7 @@
       :visible="uploadDialogVisible"
       id="serviceActivityVehicleInActivity"
       :business-params="id"
+      :async="true"
       @close="handleUploadDialogClose"
       @getData="getData"
     />
