@@ -174,6 +174,10 @@ export default {
   watch: {
     row: {
       handler (val) {
+        // Guard against re-emit loop: parent splices the row in after our
+        // emit, so row prop comes back as a new reference with same content.
+        // Skip if content already matches localRow.
+        if (JSON.stringify(val) === JSON.stringify(this.localRow)) return;
         this.localRow = { ...val };
       },
       deep: true
