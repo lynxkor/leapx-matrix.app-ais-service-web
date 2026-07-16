@@ -1196,6 +1196,10 @@ export default {
   }
   .ais-actions {
     margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   .ais-table-c {
     height: calc(100% - 168px);
