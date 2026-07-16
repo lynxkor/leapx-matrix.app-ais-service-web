@@ -231,24 +231,52 @@
       <el-button v-if="reject" size="small" @click="handleReject">批量驳回</el-button>
       <el-button v-if="approve"  size="small" @click="handleApprove">批量同意</el-button>
       <el-button v-if="cancel" size="small" @click="handleCancel">批量作废</el-button>
-      <el-button size="small" @click="customDialogVisible = true">
-        高级查询
-        <el-badge
-          v-if="customConditionsCount > 0"
-          :value="customConditionsCount"
-          class="c-cq-badge"
-        />
-      </el-button>
-      <el-tag
-        v-if="activePresetName"
-        size="small"
-        type="info"
-        class="m-preset-tag"
-        effect="plain"
+      <el-dropdown
+        trigger="click"
+        placement="bottom-start"
+        class="m-view-dropdown"
+        @command="onDropdownCommand"
+        @visible-change="onDropdownVisibleChange"
       >
-        使用方案：{{ activePresetName }}
-        <i class="el-icon-close" @click="handleClearPreset" />
-      </el-tag>
+        <el-button size="small" class="m-view-dropdown__trigger">
+          <template v-if="activePresetName">高级查询：{{ activePresetName }}</template>
+          <template v-else>高级查询</template>
+          <i class="el-icon-arrow-down el-icon--right" />
+          <i
+            v-if="activePresetName"
+            class="el-icon-close m-view-dropdown__clear"
+            @click.stop="handleClearPreset"
+          />
+        </el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item
+            :command="'__default__'"
+            :class="{ 'is-active': !activePresetId }"
+          >
+            <i class="el-icon-check m-view-dropdown__check" />
+            <span class="m-view-dropdown__label">默认视图</span>
+          </el-dropdown-item>
+          <el-dropdown-item
+            v-for="p in presets"
+            :key="p.id"
+            :command="p.id"
+            :class="['m-view-dropdown__item', { 'is-active': activePresetId === p.id }]"
+            divided
+          >
+            <i class="el-icon-check m-view-dropdown__check" />
+            <span class="m-view-dropdown__label">{{ p.name }}</span>
+            <span class="m-view-dropdown__actions">
+              <i class="el-icon-edit" title="编辑条件" @click.stop="onEditView(p)" />
+              <i class="el-icon-edit-outline" title="重命名" @click.stop="onRenameView(p)" />
+              <i class="el-icon-delete" title="删除" @click.stop="onDeleteView(p)" />
+            </span>
+          </el-dropdown-item>
+          <el-dropdown-item divided command="__new__">
+            <i class="el-icon-plus" />
+            <span class="m-view-dropdown__label">新建视图</span>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
       <el-button size="small" @click="handlePrint">打印标签</el-button>
     </div>
     <el-tabs v-model="activeTab" @tab-click="handleTabChange">
@@ -359,7 +387,8 @@ import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
 import CustomQueryDialog from './components/CustomQueryDialog/index.vue';
-import { loadPresets } from './components/CustomQueryDialog/presetStore';
+import { loadPresets, renamePreset, deletePreset } from './components/CustomQueryDialog/presetStore';
+import { cloneTree } from './components/CustomQueryDialog/fieldMeta';
 
 // 创建时间默认值：最近 3 个月
 function getDefaultCreateTime () {
@@ -479,6 +508,7 @@ export default {
       customDialogVisible: false,
       appliedCustomConditions: null,
       activePresetId: null,
+      presets: [],
     };
   },
   computed: {
@@ -490,14 +520,6 @@ export default {
       const list = loadPresets();
       const preset = list.find(p => p.id === this.activePresetId);
       return preset ? preset.name : '';
-    },
-    customConditionsCount () {
-      if (!this.appliedCustomConditions) return 0;
-      const count = (group) => group.conditions.reduce((sum, item) => {
-        if (item.type === 'group') return sum + count(item);
-        return sum + 1;
-      }, 0);
-      return count(this.appliedCustomConditions);
     },
     optionObj () {
       return {
@@ -992,6 +1014,73 @@ export default {
       this.appliedCustomConditions = null;
       this.$message.success('已清除方案,可自由编辑查询条件');
     },
+    refreshPresets () {
+      this.presets = loadPresets();
+    },
+    onDropdownVisibleChange (visible) {
+      // 每次展开时刷新 localStorage,确保新建/删除/重命名后立即可见
+      if (visible) this.refreshPresets();
+    },
+    onDropdownCommand (cmd) {
+      if (cmd === '__default__') {
+        if (this.activePresetId) this.handleClearPreset();
+        return;
+      }
+      if (cmd === '__new__') {
+        // 新建视图:清空当前方案,打开空配置弹窗
+        this.activePresetId = null;
+        this.appliedCustomConditions = null;
+        this.customDialogVisible = true;
+        return;
+      }
+      // 选中已有视图:锁定表单,使用该视图的条件
+      const preset = this.presets.find(p => p.id === cmd);
+      if (!preset) return;
+      this.activePresetId = preset.id;
+      this.appliedCustomConditions = cloneTree(preset.tree);
+      this.$message.success(`已使用方案「${preset.name}」,表单已锁定`);
+    },
+    onEditView (preset) {
+      // 选中并打开弹窗编辑
+      this.activePresetId = preset.id;
+      this.appliedCustomConditions = cloneTree(preset.tree);
+      this.customDialogVisible = true;
+    },
+    async onRenameView (preset) {
+      try {
+        const { value: name } = await this.$prompt('请输入新的视图名称', '重命名视图', {
+          confirmButtonText: '保存',
+          cancelButtonText: '取消',
+          inputValue: preset.name,
+          inputPattern: /\S+/,
+          inputErrorMessage: '视图名称不能为空'
+        });
+        if (name === preset.name) return;
+        const dup = this.presets.find(p => p.name === name && p.id !== preset.id);
+        if (dup) {
+          this.$message.warning(`已存在同名视图「${name}」`);
+          return;
+        }
+        this.presets = renamePreset(preset.id, name);
+        this.$message.success('已重命名');
+      } catch (e) { /* 取消 */ }
+    },
+    onDeleteView (preset) {
+      this.$confirm(`确认删除视图「${preset.name}」?删除后不可恢复。`, '提示', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deletePreset(preset.id);
+        this.refreshPresets();
+        // 如果删的是当前激活的视图,自动清除
+        if (this.activePresetId === preset.id) {
+          this.activePresetId = null;
+          this.appliedCustomConditions = null;
+        }
+        this.$message.success('已删除视图');
+      }).catch(() => {});
+    },
     handleTabChange () {
       this.tableForm.page = 1;
       this.getData();
@@ -1201,26 +1290,62 @@ export default {
     flex-wrap: wrap;
     gap: 8px;
   }
-  .ais-table-c {
-    height: calc(100% - 168px);
-  }
-  .c-cq-badge {
-    margin-left: 4px;
-  }
-  .m-preset-tag {
-    display: inline-flex;
-    align-items: center;
-    height: 32px;
-    line-height: 30px;
-    padding: 0 10px;
-    i {
+  .m-view-dropdown {
+    &__trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    &__clear {
       margin-left: 6px;
-      cursor: pointer;
-      font-size: 12px;
+      padding: 0 4px;
+      font-size: 14px;
+      border-radius: 50%;
       &:hover {
+        background: rgba(0,0,0,0.1);
         color: var(--leap-color-primary);
       }
     }
+    &__check {
+      visibility: hidden;
+      margin-right: 6px;
+      font-size: 12px;
+    }
+    .is-active &__check {
+      visibility: visible;
+    }
+    &__label {
+      flex: 1;
+    }
+    &__actions {
+      display: inline-flex;
+      gap: 8px;
+      margin-left: 8px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      i {
+        padding: 2px 4px;
+        font-size: 13px;
+        border-radius: 3px;
+        &:hover {
+          background: rgba(0,0,0,0.08);
+          color: var(--leap-color-primary);
+        }
+        &.el-icon-delete:hover {
+          color: #f56c6c;
+        }
+      }
+    }
+    ::v-deep .el-dropdown-menu__item:hover &__actions {
+      opacity: 1;
+    }
+    ::v-deep .el-dropdown-menu__item.is-active {
+      color: var(--leap-color-primary);
+      background: #ecf5ff;
+    }
+  }
+  .ais-table-c {
+    height: calc(100% - 168px);
   }
   &.is-preset-locked {
     ::v-deep .ais-search-form {

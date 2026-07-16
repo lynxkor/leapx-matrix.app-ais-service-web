@@ -68,7 +68,6 @@
         :fields="fields"
         :depth="0"
         :removable="false"
-        :disabled="presetMode"
         @change="onTreeChange"
       />
     </div>
@@ -95,7 +94,8 @@ import {
   loadPresets,
   addPreset,
   renamePreset,
-  deletePreset
+  deletePreset,
+  updatePresetTree
 } from './presetStore';
 
 export default {
@@ -278,6 +278,10 @@ export default {
         return;
       }
       this.errorSummary = [];
+      // 选中预设:把改动写回预设(否则只更新 appliedCustomConditions,预设不变)
+      if (this.selectedPresetId) {
+        this.presets = updatePresetTree(this.selectedPresetId, this.workingTree);
+      }
       this.$emit('input', cloneTree(this.workingTree));
       this.$message.success(`已应用 ${this.countNodes(this.workingTree)} 个自定义条件`);
       this.$emit('update:visible', false);

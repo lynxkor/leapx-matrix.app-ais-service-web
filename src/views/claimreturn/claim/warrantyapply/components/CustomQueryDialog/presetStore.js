@@ -54,6 +54,17 @@ export function deletePreset (id) {
   return persist(loadPresets().filter(p => p.id !== id));
 }
 
+export function updatePresetTree (id, tree) {
+  const list = loadPresets();
+  const item = list.find(p => p.id === id);
+  if (item) {
+    item.tree = JSON.parse(JSON.stringify(tree));
+    item.updatedAt = new Date().toISOString();
+    persist(list);
+  }
+  return list;
+}
+
 export function getPreset (id) {
   return loadPresets().find(p => p.id === id) || null;
 }
