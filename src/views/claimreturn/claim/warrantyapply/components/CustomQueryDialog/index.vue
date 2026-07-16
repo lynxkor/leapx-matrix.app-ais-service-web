@@ -7,12 +7,12 @@
     @close="onClose"
   >
     <div class="c-cqd">
-      <!-- 方案管理栏 -->
+      <!-- 视图管理栏 -->
       <div class="c-cqd__presets">
-        <span class="c-cqd__presets-label">使用方案：</span>
+        <span class="c-cqd__presets-label">使用视图：</span>
         <el-select
           v-model="selectedPresetId"
-          placeholder="不选择方案(自定义编辑)"
+          placeholder="不选择视图(自定义编辑)"
           size="small"
           clearable
           class="c-cqd__presets-select"
@@ -30,7 +30,7 @@
           icon="el-icon-document-add"
           :disabled="!canSave"
           @click="onSavePreset"
-        >保存为方案</el-button>
+        >保存为视图</el-button>
         <el-button
           v-if="selectedPreset"
           size="small"
@@ -44,13 +44,13 @@
           type="danger"
           plain
           @click="onDeletePreset"
-        >删除方案</el-button>
+        >删除视图</el-button>
         <el-tag
           v-if="selectedPreset"
           type="info"
           size="small"
           class="c-cqd__presets-hint"
-        >正在使用「{{ selectedPreset.name }}」,只读模式</el-tag>
+        >正在编辑「{{ selectedPreset.name }}」</el-tag>
       </div>
 
       <!-- 错误汇总 -->
@@ -203,16 +203,16 @@ export default {
       }
       this.errorSummary = [];
       try {
-        const { value: name } = await this.$prompt('请输入方案名称', '保存为方案', {
+        const { value: name } = await this.$prompt('请输入视图名称', '保存为视图', {
           confirmButtonText: '保存',
           cancelButtonText: '取消',
           inputPattern: /\S+/,
-          inputErrorMessage: '方案名称不能为空'
+          inputErrorMessage: '视图名称不能为空'
         });
         const dup = this.presets.find(p => p.name === name);
         if (dup) {
           try {
-            await this.$confirm(`已存在同名方案「${name}」,是否覆盖?`, '提示', {
+            await this.$confirm(`已存在同名视图「${name}」,是否覆盖?`, '提示', {
               confirmButtonText: '覆盖',
               cancelButtonText: '取消',
               type: 'warning'
@@ -226,7 +226,7 @@ export default {
         this.presets = loadPresets();
         this.selectedPresetId = preset.id;
         this.$emit('update:active-preset-id', preset.id);
-        this.$message.success('已保存方案');
+        this.$message.success('已保存视图');
       } catch (e) {
         // 用户取消输入
       }
@@ -234,17 +234,17 @@ export default {
     async onRenamePreset () {
       if (!this.selectedPreset) return;
       try {
-        const { value: name } = await this.$prompt('请输入新的方案名称', '重命名方案', {
+        const { value: name } = await this.$prompt('请输入新的视图名称', '重命名视图', {
           confirmButtonText: '保存',
           cancelButtonText: '取消',
           inputValue: this.selectedPreset.name,
           inputPattern: /\S+/,
-          inputErrorMessage: '方案名称不能为空'
+          inputErrorMessage: '视图名称不能为空'
         });
         if (name === this.selectedPreset.name) return;
         const dup = this.presets.find(p => p.name === name && p.id !== this.selectedPreset.id);
         if (dup) {
-          this.$message.warning(`已存在同名方案「${name}」`);
+          this.$message.warning(`已存在同名视图「${name}」`);
           return;
         }
         this.presets = renamePreset(this.selectedPreset.id, name);
@@ -255,7 +255,7 @@ export default {
     },
     onDeletePreset () {
       if (!this.selectedPreset) return;
-      this.$confirm(`确认删除方案「${this.selectedPreset.name}」?删除后不可恢复。`, '提示', {
+      this.$confirm(`确认删除视图「${this.selectedPreset.name}」?删除后不可恢复。`, '提示', {
         confirmButtonText: '删除',
         cancelButtonText: '取消',
         type: 'warning'
@@ -268,7 +268,7 @@ export default {
           conditions: [createEmptyRow()]
         };
         this.$emit('update:active-preset-id', null);
-        this.$message.success('已删除方案');
+        this.$message.success('已删除视图');
       }).catch(() => {});
     },
     onApply () {
@@ -287,7 +287,7 @@ export default {
       this.$emit('update:visible', false);
     },
     onClear () {
-      this.$confirm('确认清空当前条件(不会删除已保存的方案)?', '提示', {
+      this.$confirm('确认清空当前条件(不会删除已保存的视图)?', '提示', {
         confirmButtonText: '清空',
         cancelButtonText: '取消',
         type: 'warning'
