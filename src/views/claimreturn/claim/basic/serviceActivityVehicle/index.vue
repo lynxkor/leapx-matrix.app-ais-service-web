@@ -200,6 +200,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
+      :async="true"
       id="serviceActivityVehicle"
       @close="handleUploadDialogClose"
       @getData="getData"
