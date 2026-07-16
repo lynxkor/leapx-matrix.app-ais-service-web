@@ -1162,10 +1162,6 @@ export default {
   }
   .c-cq-badge {
     margin-left: 4px;
-    ::v-deep sup {
-      right: -8px;
-      transform: translateY(-50%);
-    }
   }
 }
 </style>
