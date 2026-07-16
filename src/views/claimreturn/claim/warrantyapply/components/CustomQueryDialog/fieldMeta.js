@@ -7,13 +7,36 @@
  * 后续真正接入后端时,本文件可改成"从后端拉字典 + 类型"。
  */
 
+// 硬编码枚举字典(占位阶段避免依赖后端枚举接口/store)
+export const ENUM_OPTIONS = {
+  claim_warranty_apply_status: [
+    { code: '10', message: '未提交' },
+    { code: '20', message: '审核中' },
+    { code: '21', message: '待保修经理审核' },
+    { code: '25', message: '待总经理审核' },
+    { code: '30', message: '已驳回' },
+    { code: '40', message: '已拒赔' },
+    { code: '60', message: '审核通过' },
+    { code: '70', message: '已结算' },
+    { code: '80', message: '已付款' },
+    { code: '90', message: '已作废' }
+  ],
+  alarm_level: [
+    { code: '0', message: '未指定' },
+    { code: '10', message: '过期' },
+    { code: '20', message: '正常' },
+    { code: '30', message: '黄色' },
+    { code: '40', message: '红色' }
+  ]
+};
+
 // 35 个可作为查询条件的表格数据列(操作列 operate 不计)
 export const FIELDS = [
   { key: 'applyNo', label: '保修申请单', type: 'text' },
   { key: 'vin', label: 'VIN', type: 'text' },
   { key: 'serviceProxyNo', label: '施工单', type: 'text' },
   { key: 'statementCode', label: '结算单号', type: 'text' },
-  { key: 'applyStatusLabel', label: '保修单状态', type: 'enum', enumCode: 'claim_warranty_apply_status' },
+  { key: 'applyStatusLabel', label: '保修单状态', type: 'enum', enumCode: 'claim_warranty_apply_status', options: ENUM_OPTIONS.claim_warranty_apply_status },
   { key: 'repairItemTypeName', label: '保修类型', type: 'text' },
   { key: 'dealerCode', label: '门店编码', type: 'text' },
   { key: 'dealerName', label: '门店名称', type: 'text' },
@@ -43,7 +66,7 @@ export const FIELDS = [
   { key: 'troubleshootingFlow', label: '故障流程排查', type: 'text' },
   { key: 'createTime', label: '创建时间', type: 'date' },
   { key: 'updateTime', label: '修改时间', type: 'date' },
-  { key: 'alarmLevelLabel', label: '三包预警', type: 'enum', enumCode: 'alarm_level' }
+  { key: 'alarmLevelLabel', label: '三包预警', type: 'enum', enumCode: 'alarm_level', options: ENUM_OPTIONS.alarm_level }
 ];
 
 // 运算符定义(valueKind 决定值控件: single | multi | daterange | empty)

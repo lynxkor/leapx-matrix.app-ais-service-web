@@ -61,6 +61,7 @@
       v-if="valueKind === 'multi' && fieldMeta && fieldMeta.type === 'enum'"
       v-model="localRow.value"
       :enum-code="fieldMeta.enumCode"
+      :options="fieldMeta.options"
       :multiple="true"
       class="c-cr__value"
       :class="{ 'is-error': errors.value }"
