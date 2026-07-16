@@ -2,13 +2,13 @@
   <div :class="['c-cg', { 'c-cg--nested': depth > 0 }]">
     <!-- 组头部:AND/OR 切换 + 行数提示 + 删除按钮(子组才显示) -->
     <div class="c-cg__head">
-      <el-radio-group v-model="localGroup.logic" size="mini" @change="emitChange">
+      <el-radio-group v-model="localGroup.logic" size="mini" :disabled="disabled" @change="emitChange">
         <el-radio-button label="AND">且</el-radio-button>
         <el-radio-button label="OR">或</el-radio-button>
       </el-radio-group>
       <span class="c-cg__hint">满足以下 {{ localGroup.conditions.length }} 条</span>
       <el-button
-        v-if="removable"
+        v-if="removable && !disabled"
         type="text"
         icon="el-icon-delete"
         size="mini"
@@ -30,6 +30,7 @@
         v-if="item.type !== 'group'"
         :row="item"
         :fields="fields"
+        :disabled="disabled"
         @remove="removeAt(idx)"
         @change="onChildChange(idx, $event)"
       />
@@ -39,13 +40,14 @@
         :fields="fields"
         :depth="depth + 1"
         :removable="true"
+        :disabled="disabled"
         @remove="removeAt(idx)"
         @change="onChildChange(idx, $event)"
       />
     </div>
 
     <!-- 操作区 -->
-    <div class="c-cg__ops">
+    <div v-if="!disabled" class="c-cg__ops">
       <el-button size="mini" icon="el-icon-plus" @click="addRow">加条件</el-button>
       <el-tooltip
         :disabled="depth < 4"
@@ -84,6 +86,10 @@ export default {
       default: 0
     },
     removable: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     }

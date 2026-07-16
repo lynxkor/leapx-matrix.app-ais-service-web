@@ -2,11 +2,57 @@
   <el-dialog
     title="自定义条件查询"
     :visible.sync="dialogVisible"
-    width="760px"
+    width="1000px"
     :close-on-click-modal="false"
     @close="onClose"
   >
     <div class="c-cqd">
+      <!-- 方案管理栏 -->
+      <div class="c-cqd__presets">
+        <span class="c-cqd__presets-label">使用方案：</span>
+        <el-select
+          v-model="selectedPresetId"
+          placeholder="不选择方案(自定义编辑)"
+          size="small"
+          clearable
+          class="c-cqd__presets-select"
+          @change="onPresetChange"
+        >
+          <el-option
+            v-for="p in presets"
+            :key="p.id"
+            :value="p.id"
+            :label="p.name"
+          />
+        </el-select>
+        <el-button
+          size="small"
+          icon="el-icon-document-add"
+          :disabled="!canSave"
+          @click="onSavePreset"
+        >保存为方案</el-button>
+        <el-button
+          v-if="selectedPreset"
+          size="small"
+          icon="el-icon-edit"
+          @click="onRenamePreset"
+        >重命名</el-button>
+        <el-button
+          v-if="selectedPreset"
+          size="small"
+          icon="el-icon-delete"
+          type="danger"
+          plain
+          @click="onDeletePreset"
+        >删除方案</el-button>
+        <el-tag
+          v-if="selectedPreset"
+          type="info"
+          size="small"
+          class="c-cqd__presets-hint"
+        >正在使用「{{ selectedPreset.name }}」,只读模式</el-tag>
+      </div>
+
       <!-- 错误汇总 -->
       <el-alert
         v-if="errorSummary.length > 0"
@@ -22,6 +68,7 @@
         :fields="fields"
         :depth="0"
         :removable="false"
+        :disabled="presetMode"
         @change="onTreeChange"
       />
     </div>
@@ -44,6 +91,12 @@ import {
   cloneTree,
   operatorNeedsValue
 } from './fieldMeta';
+import {
+  loadPresets,
+  addPreset,
+  renamePreset,
+  deletePreset
+} from './presetStore';
 
 export default {
   name: 'CustomQueryDialog',
@@ -61,22 +114,54 @@ export default {
       // v-model:conditions — applied condition tree
       type: Object,
       default: null
+    },
+    activePresetId: {
+      // v-model:activePresetId — 当前激活的方案 ID(页面控制)
+      type: String,
+      default: null
     }
   },
   data () {
     return {
       dialogVisible: this.visible,
       workingTree: this.makeInitialTree(),
-      errorSummary: []
+      errorSummary: [],
+      presets: [],
+      selectedPresetId: null
     };
+  },
+  computed: {
+    presetMode () {
+      return !!this.selectedPreset;
+    },
+    selectedPreset () {
+      if (!this.selectedPresetId) return null;
+      return this.presets.find(p => p.id === this.selectedPresetId) || null;
+    },
+    canSave () {
+      // 只读模式下不能保存(避免覆盖),且当前树必须有有效内容
+      return !this.presetMode;
+    }
   },
   watch: {
     visible (val) {
       this.dialogVisible = val;
       if (val) {
-        // 每次打开重置 workingTree
         this.workingTree = this.makeInitialTree();
         this.errorSummary = [];
+        this.presets = loadPresets();
+        // 父组件传入的 activePresetId 同步到 selectedPresetId
+        this.selectedPresetId = this.activePresetId || null;
+        if (this.selectedPreset) {
+          this.workingTree = cloneTree(this.selectedPreset.tree);
+        }
+      }
+    },
+    activePresetId (val) {
+      // 父组件主动清除(例如点"清除方案"),同步到弹窗
+      this.selectedPresetId = val || null;
+      if (!val && this.dialogVisible) {
+        this.workingTree = this.makeInitialTree();
       }
     }
   },
@@ -93,6 +178,99 @@ export default {
     onTreeChange (newTree) {
       this.workingTree = newTree;
     },
+    onPresetChange (id) {
+      if (!id) {
+        // 切回自定义模式:重置为空
+        this.workingTree = {
+          logic: 'AND',
+          conditions: [createEmptyRow()]
+        };
+        this.$emit('update:active-preset-id', null);
+        return;
+      }
+      const preset = this.presets.find(p => p.id === id);
+      if (preset) {
+        this.workingTree = cloneTree(preset.tree);
+        this.$emit('update:active-preset-id', id);
+      }
+    },
+    async onSavePreset () {
+      const result = this.validateTree(this.workingTree);
+      if (!result.valid) {
+        this.errorSummary = result.summary;
+        this.$message.warning('请先完善条件再保存');
+        return;
+      }
+      this.errorSummary = [];
+      try {
+        const { value: name } = await this.$prompt('请输入方案名称', '保存为方案', {
+          confirmButtonText: '保存',
+          cancelButtonText: '取消',
+          inputPattern: /\S+/,
+          inputErrorMessage: '方案名称不能为空'
+        });
+        const dup = this.presets.find(p => p.name === name);
+        if (dup) {
+          try {
+            await this.$confirm(`已存在同名方案「${name}」,是否覆盖?`, '提示', {
+              confirmButtonText: '覆盖',
+              cancelButtonText: '取消',
+              type: 'warning'
+            });
+          } catch (e) {
+            return;
+          }
+          deletePreset(dup.id);
+        }
+        const preset = addPreset(name, this.workingTree);
+        this.presets = loadPresets();
+        this.selectedPresetId = preset.id;
+        this.$emit('update:active-preset-id', preset.id);
+        this.$message.success('已保存方案');
+      } catch (e) {
+        // 用户取消输入
+      }
+    },
+    async onRenamePreset () {
+      if (!this.selectedPreset) return;
+      try {
+        const { value: name } = await this.$prompt('请输入新的方案名称', '重命名方案', {
+          confirmButtonText: '保存',
+          cancelButtonText: '取消',
+          inputValue: this.selectedPreset.name,
+          inputPattern: /\S+/,
+          inputErrorMessage: '方案名称不能为空'
+        });
+        if (name === this.selectedPreset.name) return;
+        const dup = this.presets.find(p => p.name === name && p.id !== this.selectedPreset.id);
+        if (dup) {
+          this.$message.warning(`已存在同名方案「${name}」`);
+          return;
+        }
+        this.presets = renamePreset(this.selectedPreset.id, name);
+        this.$message.success('已重命名');
+      } catch (e) {
+        // 用户取消
+      }
+    },
+    onDeletePreset () {
+      if (!this.selectedPreset) return;
+      this.$confirm(`确认删除方案「${this.selectedPreset.name}」?删除后不可恢复。`, '提示', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const id = this.selectedPreset.id;
+        this.presets = deletePreset(id);
+        this.selectedPresetId = null;
+        this.workingTree = {
+          logic: 'AND',
+          conditions: [createEmptyRow()]
+        };
+        this.$emit('update:active-preset-id', null);
+        this.$message.success('已删除方案');
+      }).catch(() => {});
+    },
     onApply () {
       const result = this.validateTree(this.workingTree);
       if (!result.valid) {
@@ -105,7 +283,7 @@ export default {
       this.$emit('update:visible', false);
     },
     onClear () {
-      this.$confirm('确认清空所有自定义条件?', '提示', {
+      this.$confirm('确认清空当前条件(不会删除已保存的方案)?', '提示', {
         confirmButtonText: '清空',
         cancelButtonText: '取消',
         type: 'warning'
@@ -114,7 +292,9 @@ export default {
           logic: 'AND',
           conditions: [createEmptyRow()]
         };
+        this.selectedPresetId = null;
         this.errorSummary = [];
+        this.$emit('update:active-preset-id', null);
       }).catch(() => {});
     },
     onClose () {
@@ -175,6 +355,27 @@ export default {
   max-height: 60vh;
   overflow-y: auto;
   padding: 4px;
+  &__presets {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+    background: #f5f7fa;
+    border-radius: 4px;
+    flex-wrap: wrap;
+  }
+  &__presets-label {
+    color: #606266;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  &__presets-select {
+    width: 240px;
+  }
+  &__presets-hint {
+    margin-left: auto;
+  }
   &__alert {
     margin-bottom: 12px;
   }

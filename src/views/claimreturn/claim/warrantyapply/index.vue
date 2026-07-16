@@ -1,5 +1,5 @@
 <template>
-  <div class="page-common m-warranty-apply-list">
+  <div class="page-common m-warranty-apply-list" :class="{ 'is-preset-locked': formDisabled }">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
     <el-form
       :inline="true"
@@ -11,10 +11,10 @@
     >
       <!-- 基础查询条件 -->
       <el-form-item label="保修申请单号：">
-        <tag-input v-model="form.applyNoList" placeholder="请输入保修申请单号" />
+        <tag-input v-model="form.applyNoList" placeholder="请输入保修申请单号" :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="VIN：">
-        <tag-input v-model="form.vinList" placeholder="请输入VIN" />
+        <tag-input v-model="form.vinList" placeholder="请输入VIN" :disabled="formDisabled" />
       </el-form-item>
 
       <!-- 扩展查询条件 -->
@@ -28,13 +28,14 @@
           clearable
           multiple
           filterable
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="施工单号：">
-        <tag-input v-model="form.serviceProxyNoList" placeholder="请输入施工单号" />
+        <tag-input v-model="form.serviceProxyNoList" placeholder="请输入施工单号" :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="结算单号：">
-        <tag-input v-model="form.statementCodeList" placeholder="请输入结算单号" />
+        <tag-input v-model="form.statementCodeList" placeholder="请输入结算单号" :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="保修单状态：">
         <fetch-select
@@ -45,6 +46,7 @@
           clearable
           multiple
           filterable
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="保修类型：">
@@ -60,10 +62,11 @@
           value-key="id"
           label-key="name"
           sub-label-key="code"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="门店：">
-        <dealer-select v-model="form.dealerCodeList" multiple/>
+        <dealer-select v-model="form.dealerCodeList" multiple :disabled="formDisabled"/>
       </el-form-item>
       <el-form-item label="门店所属区域：">
         <fetch-select
@@ -77,6 +80,7 @@
           filterable
           value-key="code"
           label-key="name"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="当前提交时间：">
@@ -90,6 +94,7 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="审批时间：">
@@ -103,13 +108,14 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="车牌号：">
-        <el-input v-model="form.vehiclePlateNo" placeholder="请输入车牌号" clearable />
+        <el-input v-model="form.vehiclePlateNo" placeholder="请输入车牌号" clearable :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="车主姓名：">
-        <el-input v-model="form.ownerName" placeholder="请输入车主姓名" clearable />
+        <el-input v-model="form.ownerName" placeholder="请输入车主姓名" clearable :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="车型：">
         <fetch-select
@@ -122,6 +128,7 @@
           params=""
           value-key="id"
           label-key="name"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="保修开始日期：">
@@ -135,6 +142,7 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="维修开始日期：">
@@ -148,6 +156,7 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="主因件编码：">
@@ -163,19 +172,20 @@
           label-key="partName"
           subLabelKey="partCode"
           placeholder="请输入零件编码/名称"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="服务月份：">
-        <el-input v-model="form.serviceMonth" placeholder="请输入" clearable />
+        <el-input v-model="form.serviceMonth" placeholder="请输入" clearable :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="工时分担比例：">
-        <el-input v-model="form.laborShareRatio" placeholder="请输入" clearable />
+        <el-input v-model="form.laborShareRatio" placeholder="请输入" clearable :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="备件分担比例：">
-        <el-input v-model="form.partsShareRatio" placeholder="请输入" clearable />
+        <el-input v-model="form.partsShareRatio" placeholder="请输入" clearable :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="其他分担比例：">
-        <el-input v-model="form.otherShareRatio" placeholder="请输入" clearable />
+        <el-input v-model="form.otherShareRatio" placeholder="请输入" clearable :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="创建时间：">
         <el-date-picker
@@ -188,6 +198,7 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="修改时间：">
@@ -201,6 +212,7 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :disabled="formDisabled"
         />
       </el-form-item>
       </template>
@@ -227,6 +239,16 @@
           class="c-cq-badge"
         />
       </el-button>
+      <el-tag
+        v-if="activePresetName"
+        size="small"
+        type="info"
+        class="m-preset-tag"
+        effect="plain"
+      >
+        使用方案：{{ activePresetName }}
+        <i class="el-icon-close" @click="handleClearPreset" />
+      </el-tag>
       <el-button size="small" @click="handlePrint">打印标签</el-button>
     </div>
     <el-tabs v-model="activeTab" @tab-click="handleTabChange">
@@ -259,6 +281,7 @@
     <CustomQueryDialog
       :visible.sync="customDialogVisible"
       v-model="appliedCustomConditions"
+      v-model:active-preset-id="activePresetId"
     />
     <RejectDialog
       :visible.sync="rejectDialogVisible"
@@ -336,6 +359,7 @@ import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
 import CustomQueryDialog from './components/CustomQueryDialog/index.vue';
+import { loadPresets } from './components/CustomQueryDialog/presetStore';
 
 // 创建时间默认值：最近 3 个月
 function getDefaultCreateTime () {
@@ -454,9 +478,19 @@ export default {
       rowId: '',
       customDialogVisible: false,
       appliedCustomConditions: null,
+      activePresetId: null,
     };
   },
   computed: {
+    formDisabled () {
+      return !!this.activePresetId;
+    },
+    activePresetName () {
+      if (!this.activePresetId) return '';
+      const list = loadPresets();
+      const preset = list.find(p => p.id === this.activePresetId);
+      return preset ? preset.name : '';
+    },
     customConditionsCount () {
       if (!this.appliedCustomConditions) return 0;
       const count = (group) => group.conditions.reduce((sum, item) => {
@@ -945,12 +979,18 @@ export default {
     },
     onReset () {
       this.appliedCustomConditions = null;
+      this.activePresetId = null;
       this.form = { ...defaultForm, createTime: getDefaultCreateTime() };
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
       this._scopeTypeOrgCache = null;
       this.regionSelectKey++;
       this.getData();
+    },
+    handleClearPreset () {
+      this.activePresetId = null;
+      this.appliedCustomConditions = null;
+      this.$message.success('已清除方案,可自由编辑查询条件');
     },
     handleTabChange () {
       this.tableForm.page = 1;
@@ -1162,6 +1202,28 @@ export default {
   }
   .c-cq-badge {
     margin-left: 4px;
+  }
+  .m-preset-tag {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    line-height: 30px;
+    padding: 0 10px;
+    i {
+      margin-left: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      &:hover {
+        color: var(--leap-color-primary);
+      }
+    }
+  }
+  &.is-preset-locked {
+    ::v-deep .ais-search-form {
+      opacity: 0.6;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
   }
 }
 </style>

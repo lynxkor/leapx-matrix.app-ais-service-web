@@ -7,6 +7,7 @@
       size="small"
       filterable
       clearable
+      :disabled="disabled"
       class="c-cr__field"
       :class="{ 'is-error': errors.field }"
       @change="onFieldChange"
@@ -24,7 +25,7 @@
       v-model="localRow.operator"
       placeholder="选择运算符"
       size="small"
-      :disabled="!localRow.field"
+      :disabled="disabled || !localRow.field"
       class="c-cr__op"
       :class="{ 'is-error': errors.operator }"
       @change="onOperatorChange"
@@ -42,6 +43,7 @@
       v-if="valueKind === 'multi' && fieldMeta && fieldMeta.type === 'text'"
       v-model="localRow.value"
       :placeholder="valuePlaceholder"
+      :disabled="disabled"
       class="c-cr__value"
       :class="{ 'is-error': errors.value }"
     />
@@ -51,6 +53,7 @@
       v-if="valueKind === 'multi' && fieldMeta && fieldMeta.type === 'number'"
       v-model="localRow.value"
       :placeholder="valuePlaceholder"
+      :disabled="disabled"
       class="c-cr__value"
       :class="{ 'is-error': errors.value }"
       @input="onNumberTagInput"
@@ -63,6 +66,7 @@
       :enum-code="fieldMeta.enumCode"
       :options="fieldMeta.options"
       :multiple="true"
+      :disabled="disabled"
       class="c-cr__value"
       :class="{ 'is-error': errors.value }"
     />
@@ -74,6 +78,7 @@
       :placeholder="valuePlaceholder"
       size="small"
       clearable
+      :disabled="disabled"
       class="c-cr__value"
       :class="{ 'is-error': errors.value }"
     />
@@ -85,6 +90,7 @@
       :placeholder="valuePlaceholder"
       size="small"
       :controls="false"
+      :disabled="disabled"
       class="c-cr__value c-cr__value--number"
       :class="{ 'is-error': errors.value }"
     />
@@ -100,6 +106,7 @@
       end-placeholder="结束日期"
       value-format="yyyy-MM-dd HH:mm:ss"
       size="small"
+      :disabled="disabled"
       class="c-cr__value"
       :class="{ 'is-error': errors.value }"
     />
@@ -112,12 +119,14 @@
       value-format="yyyy-MM-dd HH:mm:ss"
       placeholder="选择日期"
       size="small"
+      :disabled="disabled"
       class="c-cr__value"
       :class="{ 'is-error': errors.value }"
     />
 
     <!-- 删除按钮 -->
     <el-button
+      v-if="!disabled"
       type="text"
       icon="el-icon-close"
       class="c-cr__remove"
@@ -150,6 +159,10 @@ export default {
     errors: {
       type: Object,
       default: () => ({})
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
