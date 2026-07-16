@@ -26,12 +26,15 @@
             :config-code="'TECHNICAL_SERVICE_ACTIVITY'"
             type="card"
           />
-          <AttachmentList
-            :business-id="_id"
-            :config-code="configCodeOther"
+          <!-- 老数据同步过来的不在新分类中的附件，只读 -->
+          <AisAttachment
+            v-for="type in unclassifiedAttachTypes"
+            :key="'unclassified-' + type"
+            :businessId="_id"
+            :attachType="type"
+            :title="type"
+            readonly
             type="card"
-            :readonly="disabled || !canAddOrUpdate"
-            onlyShowUnclassifiedTypes
           />
         </div>
       </div>
@@ -42,6 +45,7 @@
 import AttachmentList from '@/libs/components/AttachmentList/index.vue';
 import AisAttachment from '@/libs/components/AisAttachment';
 import { getServiceActivityFileConfigPage } from '@/api/claimreturn/claim/warrantyapply/index.js';
+import { getFileList } from '@/libs/api/attachment/index.js';
 
 const TECH_SERVICE_ACTIVITY_TYPE_ID = '64A3066F-82AC-E911-B0BB-FC82BA5F9EDF';
 
@@ -162,6 +166,7 @@ export default {
     return {
       activityFileConfigs: [],
       loadingActivityConfigs: false,
+      unclassifiedAttachTypes: [],
     };
   },
   computed: {
@@ -176,10 +181,6 @@ export default {
       const item = repairItemTypeArr.find(i => i.id === this.repairItemTypeId);
       return item ? item.code : '';
     },
-    configCodeOther () {
-      const item = repairItemTypeArr.find(i => i.id === this.repairItemTypeId);
-      return item ? item.code : '';
-    }
   },
   watch: {
     serviceActivityId: {
@@ -188,6 +189,7 @@ export default {
           this.loadActivityFileConfigs();
         } else {
           this.activityFileConfigs = [];
+          this.unclassifiedAttachTypes = [];
         }
       },
       immediate: true,
@@ -212,10 +214,29 @@ export default {
             required: item.required || '0',
           },
         }));
+        // 必须在分类配置加载完成后计算未分类附件，否则会基于空配置误判
+        this.loadUnclassifiedAttachTypes();
       } catch (e) {
         console.error('获取服务活动附件配置失败:', e);
       } finally {
         this.loadingActivityConfigs = false;
+      }
+    },
+    async loadUnclassifiedAttachTypes () {
+      if (!this._id) {
+        this.unclassifiedAttachTypes = [];
+        return;
+      }
+      try {
+        const res = await getFileList({ businessId: this._id });
+        const allFiles = Array.isArray(res) ? res : [];
+        const classified = new Set(this.activityFileConfigs.map(c => c.attachType));
+        this.unclassifiedAttachTypes = [...new Set(
+          allFiles.map(f => f.attachType).filter(t => t !== null && t !== undefined && !classified.has(t))
+        )];
+      } catch (e) {
+        console.error('获取未分类附件失败:', e);
+        this.unclassifiedAttachTypes = [];
       }
     },
   },
