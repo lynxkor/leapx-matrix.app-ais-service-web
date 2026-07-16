@@ -189,15 +189,6 @@ export default {
           this.loadActivityFileConfigs();
         } else {
           this.activityFileConfigs = [];
-        }
-      },
-      immediate: true,
-    },
-    _id: {
-      handler (val) {
-        if (this.isTechServiceActivity && val) {
-          this.loadUnclassifiedAttachTypes();
-        } else {
           this.unclassifiedAttachTypes = [];
         }
       },
@@ -223,6 +214,7 @@ export default {
             required: item.required || '0',
           },
         }));
+        // 必须在分类配置加载完成后计算未分类附件，否则会基于空配置误判
         this.loadUnclassifiedAttachTypes();
       } catch (e) {
         console.error('获取服务活动附件配置失败:', e);
