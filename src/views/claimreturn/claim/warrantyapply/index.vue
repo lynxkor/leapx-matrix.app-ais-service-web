@@ -224,6 +224,54 @@
         @submit="onSubmit"
         @reset="onReset"
       />
+      <el-form-item label=" " class="form-item-action">
+        <el-dropdown
+          trigger="click"
+          placement="bottom-start"
+          class="m-view-dropdown"
+          @command="onDropdownCommand"
+          @visible-change="onDropdownVisibleChange"
+        >
+          <el-button size="small" class="m-view-dropdown__trigger">
+            <template v-if="activePresetName">高级查询：{{ activePresetName }}</template>
+            <template v-else>高级查询</template>
+            <i class="el-icon-arrow-down el-icon--right" />
+            <i
+              v-if="activePresetName"
+              class="el-icon-close m-view-dropdown__clear"
+              @click.stop="handleClearPreset"
+            />
+          </el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item
+              :command="'__default__'"
+              :class="{ 'is-active': !activePresetId }"
+            >
+              <i class="el-icon-check m-view-dropdown__check" />
+              <span class="m-view-dropdown__label">默认视图</span>
+            </el-dropdown-item>
+            <el-dropdown-item
+              v-for="p in presets"
+              :key="p.id"
+              :command="p.id"
+              :class="['m-view-dropdown__item', { 'is-active': activePresetId === p.id }]"
+              divided
+            >
+              <i class="el-icon-check m-view-dropdown__check" />
+              <span class="m-view-dropdown__label">{{ p.name }}</span>
+              <span class="m-view-dropdown__actions">
+                <i class="el-icon-edit" title="编辑条件" @click.stop="onEditView(p)" />
+                <i class="el-icon-edit-outline" title="重命名" @click.stop="onRenameView(p)" />
+                <i class="el-icon-delete" title="删除" @click.stop="onDeleteView(p)" />
+              </span>
+            </el-dropdown-item>
+            <el-dropdown-item divided command="__new__">
+              <i class="el-icon-plus" />
+              <span class="m-view-dropdown__label">新建视图</span>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </el-form-item>
     </el-form>
     <div class="ais-actions">
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
@@ -231,52 +279,6 @@
       <el-button v-if="reject" size="small" @click="handleReject">批量驳回</el-button>
       <el-button v-if="approve"  size="small" @click="handleApprove">批量同意</el-button>
       <el-button v-if="cancel" size="small" @click="handleCancel">批量作废</el-button>
-      <el-dropdown
-        trigger="click"
-        placement="bottom-start"
-        class="m-view-dropdown"
-        @command="onDropdownCommand"
-        @visible-change="onDropdownVisibleChange"
-      >
-        <el-button size="small" class="m-view-dropdown__trigger">
-          <template v-if="activePresetName">高级查询：{{ activePresetName }}</template>
-          <template v-else>高级查询</template>
-          <i class="el-icon-arrow-down el-icon--right" />
-          <i
-            v-if="activePresetName"
-            class="el-icon-close m-view-dropdown__clear"
-            @click.stop="handleClearPreset"
-          />
-        </el-button>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item
-            :command="'__default__'"
-            :class="{ 'is-active': !activePresetId }"
-          >
-            <i class="el-icon-check m-view-dropdown__check" />
-            <span class="m-view-dropdown__label">默认视图</span>
-          </el-dropdown-item>
-          <el-dropdown-item
-            v-for="p in presets"
-            :key="p.id"
-            :command="p.id"
-            :class="['m-view-dropdown__item', { 'is-active': activePresetId === p.id }]"
-            divided
-          >
-            <i class="el-icon-check m-view-dropdown__check" />
-            <span class="m-view-dropdown__label">{{ p.name }}</span>
-            <span class="m-view-dropdown__actions">
-              <i class="el-icon-edit" title="编辑条件" @click.stop="onEditView(p)" />
-              <i class="el-icon-edit-outline" title="重命名" @click.stop="onRenameView(p)" />
-              <i class="el-icon-delete" title="删除" @click.stop="onDeleteView(p)" />
-            </span>
-          </el-dropdown-item>
-          <el-dropdown-item divided command="__new__">
-            <i class="el-icon-plus" />
-            <span class="m-view-dropdown__label">新建视图</span>
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
       <el-button size="small" @click="handlePrint">打印标签</el-button>
     </div>
     <el-tabs v-model="activeTab" @tab-click="handleTabChange">
