@@ -1283,8 +1283,8 @@ export default {
       margin-left: auto;
     }
     &__popper {
-      // 菜单往左挪 80px,避免压住表格右侧操作列图标
-      margin-left: -80px !important;
+      // 菜单往左挪,避免压住表格右侧操作列图标
+      margin-left: -200px !important;
     }
     &__trigger {
       display: inline-flex;
