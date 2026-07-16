@@ -234,7 +234,7 @@
       <el-button size="small" @click="handlePrint">打印标签</el-button>
       <el-dropdown
         trigger="click"
-        placement="bottom-end"
+        placement="top-end"
         class="m-view-dropdown m-view-dropdown--right"
         @command="onDropdownCommand"
         @visible-change="onDropdownVisibleChange"
