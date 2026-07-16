@@ -65,7 +65,7 @@
 
 <script>
 import CustomConditionRow from './CustomConditionRow.vue';
-import { createEmptyRow, createEmptyGroup } from './fieldMeta';
+import { createEmptyRow, createEmptyGroup, cloneTree } from './fieldMeta';
 
 export default {
   name: 'CustomConditionGroup',
@@ -90,7 +90,7 @@ export default {
   },
   data () {
     return {
-      localGroup: JSON.parse(JSON.stringify(this.group))
+      localGroup: cloneTree(this.group)
     };
   },
   watch: {
@@ -99,13 +99,13 @@ export default {
         // Guard against re-emit loop (same as CustomConditionRow).
         // Parent splice returns group prop as new ref with same content.
         if (JSON.stringify(val) === JSON.stringify(this.localGroup)) return;
-        this.localGroup = JSON.parse(JSON.stringify(val));
+        this.localGroup = cloneTree(val);
       },
       deep: true
     },
     localGroup: {
       handler (val) {
-        this.$emit('change', JSON.parse(JSON.stringify(val)));
+        this.$emit('change', cloneTree(val));
       },
       deep: true
     }
@@ -132,7 +132,7 @@ export default {
       this.emitChange();
     },
     emitChange () {
-      this.$emit('change', JSON.parse(JSON.stringify(this.localGroup)));
+      this.$emit('change', cloneTree(this.localGroup));
     }
   }
 };
