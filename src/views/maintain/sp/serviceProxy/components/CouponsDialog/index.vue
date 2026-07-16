@@ -171,7 +171,9 @@ export default {
 
 <style lang="scss" scoped>
 .m-coupons-dialog {
-
+  ::v-deep .vxe-table--render-default .vxe-cell {
+    white-space: normal!important;
+  }
   ::v-deep .vxe-table--render-default.size--medium .vxe-header--column.is--padding .vxe-cell,
   ::v-deep .vxe-table--render-default .vxe-body--column:not(.col--active).col--ellipsis>.vxe-cell,
   ::v-deep .vxe-table--render-default.size--medium .vxe-body--column.is--padding .vxe-cell {
