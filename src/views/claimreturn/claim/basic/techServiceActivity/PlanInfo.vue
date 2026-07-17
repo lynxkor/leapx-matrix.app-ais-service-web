@@ -595,7 +595,7 @@ export default {
       switch (command) {
         case 'copy':
           serviceActivitySchemeCopy({
-            id: item.id,
+            id: item.value,
             activityId: this.id,
           }).then(() => {
             this.$refs.tabs.refresh();
