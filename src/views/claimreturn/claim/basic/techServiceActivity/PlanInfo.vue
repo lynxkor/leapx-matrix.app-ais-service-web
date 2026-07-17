@@ -45,7 +45,7 @@
                 placeholder="请输入"
                 v-model="form.schemeName"
                 clearable
-                @blur="() => {this.updatePlan(this.form)}"
+                @blur="onSchemeNameBlur"
               />
             </el-form-item>
             <el-form-item v-if="!isServiceCareActivity" label="是否允许修改旧件：" prop="allowModifyOldPart">
@@ -318,6 +318,18 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 方案名称失焦：保存后同步 tab 标签
+    onSchemeNameBlur () {
+      const newName = this.form.schemeName;
+      this.updatePlan(this.form).then(() => {
+        const items = this.$refs.tabs && this.$refs.tabs.$data._items;
+        if (!items || !this.schemeId) return;
+        const idx = items.findIndex(it => it.value === this.schemeId);
+        if (idx > -1 && items[idx].label !== newName) {
+          this.$set(items, idx, { ...items[idx], name: newName, label: newName });
+        }
+      });
     },
     // 方案
     onTabAdd (item, defer) {
