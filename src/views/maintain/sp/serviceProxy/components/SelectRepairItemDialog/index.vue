@@ -114,7 +114,7 @@
                 <i class="iconfont icon-lxppc-search"></i>
               </template>
               <template #default="{item}">
-                <div v-if="item.value === 'empty'" style="pointer-events: none; white-space: nowrap;">未搜索到配件</div>
+                <div v-if="item.value === 'empty'" style="pointer-events: none; white-space: nowrap;">您当前搜索的维修配件，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
                 <div v-else style="white-space: nowrap;">
                   {{ item.value }}
                 </div>
