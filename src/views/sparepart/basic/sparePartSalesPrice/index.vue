@@ -326,13 +326,19 @@ export default {
       getList(params)
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          const records = (res && res.records) || [];
+          this.optionObj.dataList = records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = (res && res.total) || 0;
+        }).catch(err => {
+          console.error('查询备件销售价格列表失败:', err);
+          this.$message.error('查询备件销售价格列表失败，请重试');
+          this.optionObj.dataList = [];
+          this.optionObj.total = 0;
         }).finally(() => {
           this.loading = false;
         });
