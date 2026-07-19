@@ -19,8 +19,8 @@
           <span v-else-if="form.outboundStatus === '20'" class="status success">{{ form.outboundStatusLabel }}</span>
         </template>
         <template #extraButtons>
-          <el-button v-if="form.outboundStatus === '10'" size="small" @click="outboundConfirm">确认出库</el-button>
-          <el-button v-if="form.outboundStatus === '20' && form.syncStatus === '30'" size="small" @click="syncConfirm">同步</el-button>
+          <el-button v-if="form.outboundStatus === '10'" size="small" @click="outboundConfirm" :loading="outboundLoading">确认出库</el-button>
+          <el-button v-if="form.outboundStatus === '20' && form.syncStatus === '30'" size="small" @click="syncConfirm" :loading="syncLoading">同步</el-button>
           <el-button size="small" @click="printOutbound">打印出库单</el-button>
         </template>
         <el-main>
@@ -294,6 +294,8 @@ export default {
       moduleKey: 'AISCR-oldPartOemOutboundOrder',
       loading: false,
       submitLoading: false,
+      outboundLoading: false,
+      syncLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -430,17 +432,23 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.outboundLoading = true;
         confirmOutbound(this._id).then(res => {
           this.$message.success('出库成功');
           this.updateDetail();
           this.$refs.returntable.getTableData();
+        }).finally(() => {
+          this.outboundLoading = false;
         });
       });
     },
     syncConfirm () {
+      this.syncLoading = true;
       sync(this._id).then(res => {
         this.updateDetail();
         this.$message.success('同步成功');
+      }).finally(() => {
+        this.syncLoading = false;
       });
     },
     printOutbound () {
