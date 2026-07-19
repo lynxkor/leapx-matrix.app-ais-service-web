@@ -155,7 +155,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button size="small" @click="dialogFormVisible2 = false">取消</el-button>
-          <el-button size="small" type="primary" @click="approveSubmit">确定</el-button>
+          <el-button size="small" type="primary" @click="approveSubmit" :loading="approveLoading">确定</el-button>
         </div>
       </el-dialog>
     </template>
@@ -256,6 +256,7 @@ export default {
       loading: false,
       submitLoading: false,
       exportLoading: false,
+      approveLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -623,6 +624,7 @@ export default {
       });
     },
     approveSubmit () {
+      this.approveLoading = true;
       approve({
         id: this._id,
         approveRemark: this.form.approveRemark, // 审批说明
@@ -632,6 +634,8 @@ export default {
         this.$message.success('操作成功');
         this.$refs.containerRef.loadDetail();
       }).catch(() => {
+      }).finally(() => {
+        this.approveLoading = false;
       });
     },
     onBack () {
