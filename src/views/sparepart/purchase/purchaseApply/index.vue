@@ -771,7 +771,7 @@ export default {
     // 提交
     async handleSubmit (val) {
       const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
-      if (res.records.length > 0) {
+      if ((res?.records || []).length > 0) {
         this.purchaseId = val.id;
         this.purchaseList = res.records || [];
         this.submitDialogVisible = true;
