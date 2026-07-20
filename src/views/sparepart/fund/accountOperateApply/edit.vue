@@ -329,7 +329,7 @@ export default {
         const res = await getPartDealer({ code: query });
         this.form.companyCode = res.parentCompanyCode;
         this.form.companyName = res.parentCompanyName;
-        this.form.accountCode = res.cashAccountCode;
+        this.form.accountCode = res.rebateAccountCode;
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
