@@ -321,6 +321,11 @@ export default {
           width: '8%',
         },
         {
+          field: 'returnApplicationQty',
+          title: '退料数量',
+          width: '8%',
+        },
+        {
           field: 'price',
           title: '单价',
           width: '8%',
