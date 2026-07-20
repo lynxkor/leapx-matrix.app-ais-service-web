@@ -678,7 +678,8 @@ export default {
                   if (!this.deny) {
                     return false;
                   }
-                  return this.isRowPendingCurrentUserReview(row);
+                  // 【保修单状态】为审核中、待保修经理审核、待总经理审核、审核通过，显示此按钮
+                  return this.isRowPendingCurrentUserReview(row) || row.applyStatus === APPLY_STATUS.APPROVED;
                 },
               },
               {

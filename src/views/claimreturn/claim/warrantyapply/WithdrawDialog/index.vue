@@ -35,6 +35,7 @@
 <script>
 import { withdraw } from '@/api/claimreturn/claim/warrantyapply';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
+import { notifyBatchResult } from '../BatchResultHelper';
 
 const defaultForm = {
   withdrawRemark: '',
@@ -90,7 +91,7 @@ export default {
           withdrawRemark: this.form.withdrawRemark,
         }).then(res => {
           this.close();
-          this.$message.success('撤回成功！');
+          notifyBatchResult(this, res, '撤回');
           this.$emit('success');
         }).finally(() => {
           this.submitLoading = false;

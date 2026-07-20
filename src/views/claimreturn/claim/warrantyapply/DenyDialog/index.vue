@@ -56,6 +56,7 @@ import { getList } from '@/api/claimreturn/claim/basic/approvalRejectSetting/ind
 import { deny } from '@/api/claimreturn/claim/warrantyapply';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
+import { notifyBatchResult } from '../BatchResultHelper';
 
 const defaultForm = {
   approvalRemark: '', // 驳回原因
@@ -125,7 +126,7 @@ export default {
           errorCodeId: this.form.errorCodeId,
         }).then(res => {
           this.close();
-          this.$message.success('拒赔成功！');
+          notifyBatchResult(this, res, '拒赔');
           this.$emit('success');
         }).finally(() => {
           this.submitLoading = false;
