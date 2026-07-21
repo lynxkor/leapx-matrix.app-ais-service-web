@@ -111,18 +111,51 @@
       <el-form-item label="车主姓名：">
         <el-input v-model="form.ownerName" placeholder="请输入车主姓名" clearable />
       </el-form-item>
-      <el-form-item label="车型：">
-        <fetch-select
-          filterable
+      <el-form-item label="车系：">
+        <list-select
+          listUrl="/datacenter/web/materials/vehicleSeries/list"
+          placeholder="请选择"
+          v-model="form.vehicleSeriesIdList"
+          query-key="seriesNameLike"
           clearable
-          remote
+          collapseTags
+          auto-load-options
+          no-param-load
           multiple
-          v-model="form.vehicleModelIdList"
-          :remote-method="modelSearch"
-          params=""
-          value-key="id"
-          label-key="name"
+          filterable
+          :params="{}"
         />
+      </el-form-item>
+      <el-form-item label="车型：">
+        <list-select
+          listUrl="/datacenter/web/materials/vehicleModel/list"
+          placeholder="请选择"
+          v-model="form.vehicleModelIdList"
+          query-key="modelNameLike"
+          clearable
+          auto-load-options
+          collapseTags
+          multiple
+          filterable
+          :params="{seriesIdList: form.vehicleSeriesIdList}"
+        />
+      </el-form-item>
+      <el-form-item label="年款：">
+        <list-select
+          listUrl="/datacenter/web/materials/vehicleYearType/list"
+          placeholder="请选择"
+          v-model="form.vehicleYearIdList"
+          query-key="yearTypeNameLike"
+          clearable
+          multiple
+          collapseTags
+          no-param-load
+          auto-load-options
+          filterable
+        />
+      </el-form-item>
+      <el-form-item label="活动编码：">
+        <tag-input v-model="form.serviceActivityCodeList" placeholder="请输入活动编码" />
       </el-form-item>
       <el-form-item label="保修开始日期：">
         <el-date-picker
@@ -222,9 +255,9 @@
       <el-button size="small" @click="handlePrint">打印标签</el-button>
     </div>
     <el-tabs v-model="activeTab" @tab-click="handleTabChange">
-      <el-tab-pane label="全部" name="all" />
-      <el-tab-pane label="保修经理" name="manager" />
-      <el-tab-pane label="总经理" name="gm" />
+      <el-tab-pane label="全部订单" name="all" />
+      <el-tab-pane label="保修经理订单" name="manager" />
+      <el-tab-pane label="总经理订单" name="gm" />
     </el-tabs>
     <div
       class="ais-table-c"
@@ -303,10 +336,11 @@ import {
   validateBatchStatus,
 } from './constants';
 import {
-  getTableConfig, tableAddOrUpdate, getEnum, listVehicleModel,
+  getTableConfig, tableAddOrUpdate, getEnum,
   sparePartList, exportTable, getAllRegion
 } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
+import ListSelect from '@/libs/components/list-select';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
@@ -323,6 +357,7 @@ import ApproveDialog from './ApproveDialog/index.vue';
 import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
+import { getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity';
 
 // 创建时间默认值：最近 3 个月
 function getDefaultCreateTime () {
@@ -347,6 +382,10 @@ const defaultForm = {
   vehiclePlateNo: '',
   ownerName: '',
   vehicleModelName: '',
+  vehicleSeriesIdList: [],
+  vehicleModelIdList: [],
+  vehicleYearIdList: [],
+  serviceActivityCodeList: [],
   warrantyStartdate: '',
   repairStartTime: '',
   mainPartCode: '',
@@ -372,6 +411,7 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
+    ListSelect,
     EditPage,
     DealerSelect,
     TagInput,
@@ -526,6 +566,19 @@ export default {
           },
           { props: 'applyStatusLabel', label: '保修单状态', visible: true, width: 120 },
           { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 120 },
+          {
+            props: 'serviceActivityCode',
+            label: '活动编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              type: 'primary',
+              show: (row) => Boolean(row.serviceActivityId),
+              click: (rowIndex, row) => {
+                this.openActivityDetail(row);
+              }
+            }]
+          },
           {
             props: 'dealerCode',
             label: '门店编码',
@@ -746,6 +799,42 @@ export default {
       const userId = this.$store.state.user.userInfo.userId;
       return list.includes(userId);
     },
+    // 参考 techServiceActivity/index.vue 的 getPath 实现
+    getActivityPath (activityType) {
+      return activityType === '4'
+        ? '/claimreturn/claim/basic/serviceCareActivity/edit'
+        : '/claimreturn/claim/basic/techServiceActivity/edit';
+    },
+    async openActivityDetail (row) {
+      const activityId = row?.serviceActivityId;
+      if (!activityId) {
+        this.$message.warning('该保修申请单未关联活动');
+        return;
+      }
+      try {
+        const activity = await getServiceActivityDetail(activityId);
+        if (!activity) {
+          this.$message.error('活动不存在或已被删除');
+          return;
+        }
+        const activityType = String(activity.activityType || '').trim();
+        if (!activityType) {
+          this.$message.error('活动类型信息缺失，暂无法打开详情');
+          return;
+        }
+        // 保修申请页面仅查看活动，isEditing=false 进入查看模式（默认有"编辑"按钮，用户可手动进入编辑）
+        this.$router.push({
+          path: this.getActivityPath(activityType),
+          query: {
+            id: String(activityId),
+            isEditing: false,
+          }
+        });
+      } catch (error) {
+        console.error('获取活动详情失败:', error);
+        this.$message.error('活动详情查询失败，请稍后重试');
+      }
+    },
     handlePrint (paramIds) {
       const isRow = Array.isArray(paramIds);
       if (!this.selectionList?.length && !isRow) {
@@ -961,11 +1050,38 @@ export default {
       this.getData();
     }, 300),
     getConfig () {
-      return new Promise((resolve, reject) => {
+      // 后端 user_define_table 表中可能存了 warrantyApplyTable 的旧配置，
+      // 会覆盖前端 optionObj.dataProp 的列顺序。这里主动用前端硬编码的
+      // columnConfig 同步到后端，并保留用户自定义的 visible / width。
+      return new Promise((resolve) => {
         getTableConfig(this.optionObj.id).then(data => {
-          resolve({ data });
+          const remoteData = data?.data || {};
+          const remoteColumnConfig = remoteData?.config?.columnConfig || [];
+
+          const mergedColumnConfig = this.optionObj.dataProp.map((item) => {
+            const existing = remoteColumnConfig.find(c => c.props === item.props);
+            return {
+              ...item,
+              props: item.props,
+              visible: existing?.visible !== undefined ? existing.visible : item.visible !== false,
+              width: existing?.width || item.width,
+            };
+          });
+
+          const mergedConfig = {
+            ...(remoteData.config || {}),
+            columnConfig: mergedColumnConfig
+          };
+
+          // 异步覆盖后端旧配置，不阻塞页面渲染
+          tableAddOrUpdate({
+            tableCode: this.optionObj.id,
+            config: mergedConfig
+          }).catch(err => console.error('同步表格列配置失败:', err));
+
+          resolve({ data: { ...remoteData, config: mergedConfig } });
         }).catch(err => {
-          // 容错：此处如果接口挂了，也不应该影响正常使用
+          // 容错：接口挂了也不影响使用，回落到前端硬编码
           console.error(err);
           resolve(mockConfig);
         });
@@ -1060,9 +1176,6 @@ export default {
         return getEnum(code);
       }
       return [];
-    },
-    async modelSearch (query) {
-      return listVehicleModel({ modelNameLike: query });
     },
     repairItemTypeRemote (query) {
       return new Promise((resolve, reject) => {

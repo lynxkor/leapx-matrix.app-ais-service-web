@@ -185,7 +185,8 @@
               {{ form.approvalRemark }}
             </el-form-item>
             <el-form-item label="活动编码：" prop="serviceActivityCode">
-              {{ form.serviceActivityCode }}
+              <el-link v-if="form.serviceActivityId" type="primary" @click="openActivityDetail">{{ form.serviceActivityCode }}</el-link>
+              <span v-else>{{ form.serviceActivityCode }}</span>
             </el-form-item>
             <el-form-item label="维修结束时间：" prop="repairEndTime">
               {{ form.repairEndTime }}
@@ -671,6 +672,7 @@ import WithdrawDialog from './WithdrawDialog/index.vue';
 // 旧件供应商
 import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
 import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
+import { getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity';
 
 const SEARCH_PARAMS_KEY = 'WARRANTY_APPLY_SEARCH_PARAMS';
 const NO_OLD_PART = '10'; // 无旧件
@@ -945,6 +947,42 @@ export default {
     console.log('[DEBUG] warrantyAuditList mounted', this.permissions);
   },
   methods: {
+    // 参考 techServiceActivity/index.vue 的 getPath 实现
+    getActivityPath (activityType) {
+      return activityType === '4'
+        ? '/claimreturn/claim/basic/serviceCareActivity/edit'
+        : '/claimreturn/claim/basic/techServiceActivity/edit';
+    },
+    async openActivityDetail () {
+      const activityId = this.form?.serviceActivityId;
+      if (!activityId) {
+        this.$message.warning('该保修申请单未关联活动');
+        return;
+      }
+      try {
+        const activity = await getServiceActivityDetail(activityId);
+        if (!activity) {
+          this.$message.error('活动不存在或已被删除');
+          return;
+        }
+        const activityType = String(activity.activityType || '').trim();
+        if (!activityType) {
+          this.$message.error('活动类型信息缺失，暂无法打开详情');
+          return;
+        }
+        // 保修申请页面仅查看活动，isEditing=false 进入查看模式
+        this.$router.push({
+          path: this.getActivityPath(activityType),
+          query: {
+            id: String(activityId),
+            isEditing: false,
+          }
+        });
+      } catch (error) {
+        console.error('获取活动详情失败:', error);
+        this.$message.error('活动详情查询失败，请稍后重试');
+      }
+    },
     handleTableUpdate () {
       this.refreshAll();
     },
