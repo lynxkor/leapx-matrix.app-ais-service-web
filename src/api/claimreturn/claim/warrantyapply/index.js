@@ -20,6 +20,14 @@ export function getPartList (data) {
 };
 
 /**
+ * 工时清单分页查询（用于"工时清单"页签）
+ * @param {Object} data
+ */
+export function getWorkhourList (data) {
+  return api.jsonPost(prefix + 'workhourPage', data);
+};
+
+/**
  * 新增或修改
  * @param {Object} data
  */
