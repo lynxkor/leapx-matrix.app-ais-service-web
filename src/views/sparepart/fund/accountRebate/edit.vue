@@ -490,8 +490,6 @@ export default {
   },
   mounted () {
     this.getDetailData();
-    this.getAccountFlow();
-    this.getFrozenPage();
   },
   methods: {
     // 打开侧边栏
@@ -519,6 +517,8 @@ export default {
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
         });
+        this.getAccountFlow();
+        this.getFrozenPage();
       }
     },
     // 账户流水
@@ -526,7 +526,7 @@ export default {
       const params = {
         pageNum: this.pagination.current,
         pageSize: this.pagination.pageSize,
-        accountId: this.$route.query.id
+        accountId: this._id
       };
       const res = await accountFlowPage(params);
       this.tableData = res.records || [];
@@ -538,7 +538,7 @@ export default {
         pageNum: this.djPagination.current,
         pageSize: this.djPagination.pageSize,
         accountType: 'REBATE',
-        accountId: this.$route.query.id
+        accountId: this._id
       };
       const res = await frozenPage(params);
       this.djTableData = res.records || [];
