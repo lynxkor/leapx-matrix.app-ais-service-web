@@ -103,6 +103,14 @@ export function getEnum (code) {
 }
 
 /**
+ * 根据字典类型查询字典项
+ * @param {Object} data - { dictType, status }
+ */
+export function findByDictType (data) {
+  return api.get('/dic/findByDictType', data);
+}
+
+/**
  * 根据名称或工号查询用户
  * @param {*} data
  */

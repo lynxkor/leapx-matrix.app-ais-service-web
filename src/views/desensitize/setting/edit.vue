@@ -336,7 +336,7 @@ import {
   getTables,
   getColumns
 } from '@/api/desensitize/metadata';
-import { getEnum, findUserList, getPostPage } from '@/api/common';
+import { findByDictType, findUserList, getPostPage } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -696,8 +696,11 @@ export default {
     // 数据分类下拉 - FetchSelect request 方法
     async fetchCategoryList () {
       try {
-        const res = await getEnum('desensitize_category');
-        // 后端返回格式 { label, value }，转换为 { code, message }
+        const res = await findByDictType({
+          dictType: 'desensitizeCategory',
+          status: 0
+        });
+        // 后端返回 { label, value } 格式，转换为 FetchSelect 需要的 { code, message }
         return (res || []).map(item => ({
           code: item.value,
           message: item.label
