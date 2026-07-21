@@ -12,6 +12,14 @@ export function getList (data) {
 };
 
 /**
+ * 备件清单分页查询（用于"备件清单"页签）
+ * @param {Object} data
+ */
+export function getPartList (data) {
+  return api.jsonPost(prefix + 'partsPage', data);
+};
+
+/**
  * 新增或修改
  * @param {Object} data
  */
