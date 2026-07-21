@@ -476,10 +476,11 @@ export default {
       if (!dbName) return [];
       try {
         const list = await getTables(this.systemId, dbName);
-        // 返回 { code, message, tableName, tableNameZh } 格式
+        // 下拉只显示表名，避免表注释过长导致换行/溢出；
+        // 原 tableNameZh 仍回填表注释，供“表名”输入框展示。
         return (list || []).map(item => ({
           code: item.tableName,
-          message: item.tableComment ? `${item.tableName}（${item.tableComment}）` : item.tableName,
+          message: item.tableName,
           tableName: item.tableName,
           tableNameZh: item.tableComment || ''
         }));
@@ -494,10 +495,11 @@ export default {
       if (!dbName || !tableName) return [];
       try {
         const list = await getColumns(this.systemId, dbName, tableName);
-        // 返回 { code, message, columnName, columnNameZh, columnType } 格式
+        // 下拉只显示字段名，避免字段注释过长导致换行/溢出；
+        // 原 columnNameZh 仍回填字段注释，供“字段名”输入框展示。
         return (list || []).map(item => ({
           code: item.columnName,
-          message: item.columnComment ? `${item.columnName}（${item.columnComment}）` : item.columnName,
+          message: item.columnName,
           columnName: item.columnName,
           columnNameZh: item.columnComment || '',
           columnType: item.columnType || ''
