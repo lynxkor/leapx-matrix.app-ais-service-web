@@ -896,27 +896,31 @@ export default {
       return true;
     },
     onSubmit () {
-      // 1. 若【保修申请单号】或【VIN】有内容，清空【创建时间】【当前提交时间】【审批时间】
+      // 1. 若【保修申请单号】【VIN】【施工单号】【结算单号】任一有内容，清空【创建时间】【当前提交时间】【审批时间】
       const hasApplyNo = this.form.applyNoList?.length > 0;
       const hasVin = this.form.vinList?.length > 0;
-      if (hasApplyNo || hasVin) {
+      const hasServiceProxyNo = this.form.serviceProxyNoList?.length > 0;
+      const hasStatementCode = this.form.statementCodeList?.length > 0;
+      if (hasApplyNo || hasVin || hasServiceProxyNo || hasStatementCode) {
         this.form.createTime = null;
         this.form.currentSubmitTime = null;
         this.form.approvalTime = null;
       }
 
-      // 2. 非空校验：【保修申请单号】【VIN】【创建时间】【当前提交时间】【审批时间】不允许都为空
-      const allEmpty = !hasApplyNo && !hasVin &&
+      // 2. 非空校验：【保修申请单号】【VIN】【施工单号】【结算单号】【创建时间】【当前提交时间】【审批时间】不允许都为空
+      const allEmpty = !hasApplyNo && !hasVin && !hasServiceProxyNo && !hasStatementCode &&
         !this.form.createTime &&
         !this.form.currentSubmitTime &&
         !this.form.approvalTime;
       if (allEmpty) {
-        this.$message.warning('【保修申请单号】【VIN】【创建时间】【当前提交时间】【审批时间】不允许都为空');
+        this.$message.warning('【保修申请单号】【VIN】【施工单号】【结算单号】【创建时间】【当前提交时间】【审批时间】不允许都为空');
         return;
       }
 
       // 3. 日期范围校验：所有日期最长跨度为一年
       if (!this.validateDateSpan(this.form.createTime, '创建时间')) return;
+      if (!this.validateDateSpan(this.form.currentSubmitTime, '当前提交时间')) return;
+      if (!this.validateDateSpan(this.form.approvalTime, '审批时间')) return;
 
       sessionStorage.setItem(SEARCH_PARAMS_KEY, JSON.stringify(this.getFormData()));
       this.tableForm.page = 1;
