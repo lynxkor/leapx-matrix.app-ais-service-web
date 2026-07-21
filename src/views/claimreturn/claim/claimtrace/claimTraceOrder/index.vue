@@ -106,13 +106,12 @@
         </el-form-item>
         <el-form-item label="系统自动同意日期">
           <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
             v-model="form.sysAutoAgreeDate"
             type="daterange"
             unlink-panels
             :picker-options="pickerOptions"
             range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
+            value-format="yyyy-MM-dd"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
