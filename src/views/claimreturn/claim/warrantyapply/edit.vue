@@ -1040,18 +1040,19 @@ export default {
     },
     // 搜索主因零件
     partRemote (query) {
+      const search = (query || '').trim();
       return new Promise((resolve, reject) => {
         getLists({
           pageNum: 1,
           pageSize: 20,
           oemPart: 1,
-          partCodeOrNameLike: query,
+          partCodeOrNameLike: search,
           status: 1,
         }).then(res => {
           if (!res?.length) {
             resolve([
               {
-                placeholder: `备件编码：${query}不存在备件供应商关系信息`,
+                placeholder: `备件编码：${search}不存在备件供应商关系信息`,
                 disabled: true,
               }
             ]);
