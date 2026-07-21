@@ -771,7 +771,7 @@ export default {
     // 提交
     async handleSubmit (val) {
       const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
-      if (res.records.length > 0) {
+      if ((res?.records || []).length > 0) {
         this.purchaseId = val.id;
         this.purchaseList = res.records || [];
         this.submitDialogVisible = true;
@@ -797,7 +797,7 @@ export default {
         return;
       }
       const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
-      if (res.records.length > 0) {
+      if ((res?.records || []).length > 0) {
         // 确保只设置有效的id值
         if (val.id) {
           this.purchaseId = val.id;
@@ -806,7 +806,7 @@ export default {
         } else {
           this.$message.warning('操作失败：缺少采购单ID');
         }
-      } else if (res.records.length === 0) {
+      } else if ((res?.records || []).length === 0) {
         const res = await purchaseApplyGetCoupon({ id: val.id });
         // 确保只设置有效的id值
         if (val.id) {
