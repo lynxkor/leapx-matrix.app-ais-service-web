@@ -20,7 +20,7 @@
           <el-button v-if="_id && permissions.has(`${moduleKey}-pass`) && form.warrantyAuditDetail.auditStatus === '30'" size="small" type="primary" @click="handleAuditPass">审计通过</el-button>
           <el-button v-if="_id && permissions.has(`${moduleKey}-reject`) && form.warrantyAuditDetail.auditStatus === '30'" size="small" type="primary" @click="handleAuditReject">审计驳回</el-button>
           <el-button v-if="_id && permissions.has(`${moduleKey}-appeal`) && form.warrantyAuditDetail.auditStatus === '50'" size="small" type="primary" @click="handleAppeal">申诉</el-button>
-          <el-button v-if="_id && permissions.has(`${moduleKey}-agree`) && form.warrantyAuditDetail.auditStatus === '50'" size="small" type="primary" @click="handleAgree">同意</el-button>
+          <el-button v-if="_id && permissions.has(`${moduleKey}-agree`) && form.warrantyAuditDetail.auditStatus === '50'" size="small" type="primary" :loading="agreeLoading" @click="handleAgree">同意</el-button>
           <el-button v-if="_id && permissions.has(`${moduleKey}-agreeAppeal`) && form.warrantyAuditDetail.auditStatus === '60'" size="small" type="primary" @click="handleAgreeAppeal">同意申诉</el-button>
           <el-button v-if="_id && permissions.has(`${moduleKey}-rejectAppeal`) && form.warrantyAuditDetail.auditStatus === '60'" size="small" type="primary" @click="handleRejectAppeal">拒绝申诉</el-button>
         </template>
@@ -637,6 +637,7 @@ export default {
       moduleKey: 'AISCR-warrantyAuditDetail',
       loading: false,
       submitLoading: false,
+      agreeLoading: false,
       form: { ...form },
       originalForm: { ...form },
       // 弹窗控制
@@ -726,11 +727,14 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.agreeLoading = true;
         agree({ detailId: this._id }).then(() => {
           this.$message.success('操作成功');
           this.loadDetail();
         }).catch(() => {
           this.$message.error('操作失败');
+        }).finally(() => {
+          this.agreeLoading = false;
         });
       }).catch(() => {});
     },

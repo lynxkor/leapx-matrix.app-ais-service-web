@@ -285,12 +285,13 @@ export default {
     },
     // 搜索旧件
     partRemote (query) {
+      const search = (query || '').trim();
       return new Promise((resolve, reject) => {
         getList({
           pageNum: 1,
           pageSize: 20,
           oemPart: 1,
-          partCodeOrNameLike: query,
+          partCodeOrNameLike: search,
           status: 1,
           spareStatusIncludeList: ['1'],
           supplyStatusIncludeList: ['1']
@@ -300,7 +301,7 @@ export default {
               ...res,
               records: [
                 {
-                  placeholder: `备件编码：${query}不存在备件供应商关系信息`,
+                  placeholder: `备件编码：${search}不存在备件供应商关系信息`,
                   disabled: true,
                 }
               ],
