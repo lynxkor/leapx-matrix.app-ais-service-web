@@ -984,7 +984,7 @@ export default {
           { required: true, message: '请输入里程数（KM)', trigger: 'change' }
         ],
         salesDate: [
-          { required: true, message: '请选择销售日期', trigger: 'change' }
+          { required: false, message: '请选择销售日期', trigger: 'change' }
         ],
         repairDate: [
           { required: true, message: '请选择维修时间', trigger: 'change' }

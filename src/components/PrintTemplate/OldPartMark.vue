@@ -1,7 +1,7 @@
 <!-- 保修旧件标签 -->
 <template>
   <div id="printArea" style="width:1060px;" class="print-minh" v-loading="loading">
-    <div v-for="(item, index) in result" :key="item.id" class="divMain">
+    <div v-for="item in result" :key="item.id" class="divMain">
       <div class="divLeft">
         <table>
           <tbody>
@@ -105,7 +105,7 @@
               </td>
               <td>
                 <div>
-                  <span class="span2">{{ result.length }} - {{ index + 1 }}</span>
+                  <span class="span2">{{ getPartNo(item).total }} - {{ getPartNo(item).seq }}</span>
                 </div>
               </td>
               <td></td>
@@ -183,6 +183,24 @@ export default {
       immediate: true,
     }
   },
+  computed: {
+    // 按 warrantyNo 分组，预计算每个 item 的「该保修申请单旧件总数 - 组内序号」
+    partNoMap () {
+      const totalByNo = {};
+      this.result.forEach(it => {
+        const k = it.warrantyNo || '';
+        totalByNo[k] = (totalByNo[k] || 0) + 1;
+      });
+      const seqByNo = {};
+      const map = new Map();
+      this.result.forEach(it => {
+        const k = it.warrantyNo || '';
+        seqByNo[k] = (seqByNo[k] || 0) + 1;
+        map.set(it, { total: totalByNo[k], seq: seqByNo[k] });
+      });
+      return map;
+    }
+  },
   mounted () {
   },
   methods: {
@@ -200,6 +218,9 @@ export default {
       }).finally(() => {
         this.loading = false;
       });
+    },
+    getPartNo (item) {
+      return this.partNoMap.get(item) || { total: 0, seq: 0 };
     },
     transformDateHM (time) {
       if (!time) {
