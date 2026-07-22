@@ -529,8 +529,8 @@ export default {
         accountId: this._id
       };
       const res = await accountFlowPage(params);
-      this.tableData = res.records || [];
-      this.pagination.total = res.total;
+      this.tableData = res?.records || [];
+      this.pagination.total = res?.total || 0;
     },
     // 冻结账户流水
     async getFrozenPage () {
@@ -540,8 +540,8 @@ export default {
         accountId: this._id
       };
       const res = await frozenPage(params);
-      this.djTableData = res.records || [];
-      this.djPagination.total = res.total;
+      this.djTableData = res?.records || [];
+      this.djPagination.total = res?.total || 0;
     },
     pageSizeChange (pageSize) {
       this.pagination.pageSize = pageSize;
