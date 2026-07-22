@@ -28,6 +28,22 @@ export function getWorkhourList (data) {
 };
 
 /**
+ * 其他清单分页查询（用于"其他清单"页签）
+ * @param {Object} data
+ */
+export function getOtherList (data) {
+  return api.jsonPost(prefix + 'otherPage', data);
+};
+
+/**
+ * 审批记录分页查询（用于"审批记录"页签）
+ * @param {Object} data
+ */
+export function getApprovalList (data) {
+  return api.jsonPost(prefix + 'approvalPage', data);
+};
+
+/**
  * 新增或修改
  * @param {Object} data
  */

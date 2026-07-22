@@ -92,7 +92,7 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
-      <el-form-item label="审批时间：">
+      <el-form-item :label="activeTab === 'approval' ? '最终审批时间：' : '审批时间：'">
         <el-date-picker
           :default-time="['00:00:00', '23:59:59']"
           v-model="form.approvalTime"
@@ -223,7 +223,7 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
-      <el-form-item label="修改时间：">
+      <el-form-item label="订单修改时间：">
         <el-date-picker
           :default-time="['00:00:00', '23:59:59']"
           v-model="form.updateTime"
@@ -239,9 +239,6 @@
       </template>
       <!-- 备件清单专属搜索条件(仅备件清单页签展开时显示) -->
       <template v-if="show && activeTab === 'parts'">
-        <el-form-item label="主因件名称：">
-          <tag-input v-model="form.mainPartNameList" placeholder="请输入主因件名称" />
-        </el-form-item>
         <el-form-item label="是否主因：">
           <el-select v-model="form.isMainPartList" placeholder="请选择" clearable multiple collapse-tags>
             <el-option label="否" :value="0" />
@@ -286,9 +283,6 @@
       </template>
       <!-- 工时清单专属搜索条件(仅工时清单页签展开时显示) -->
       <template v-if="show && activeTab === 'workhours'">
-        <el-form-item label="主因件名称：">
-          <tag-input v-model="form.mainPartNameList" placeholder="请输入主因件名称" />
-        </el-form-item>
         <el-form-item label="是否主因：">
           <el-select v-model="form.isMainItemList" placeholder="请选择" clearable multiple collapse-tags>
             <el-option label="否" :value="0" />
@@ -302,6 +296,86 @@
           <el-input v-model="form.repairItemName" placeholder="请输入工时名称（模糊查询）" clearable />
         </el-form-item>
       </template>
+      <!-- 其他清单专属搜索字段 -->
+      <template v-if="show && activeTab === 'other'">
+        <el-form-item label="门店名称：">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="dealer_name"
+            v-model="form.dealerNameList"
+            placeholder="请选择门店名称"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="其他代码：">
+          <tag-input v-model="form.otherCodeList" placeholder="请输入其他代码" />
+        </el-form-item>
+        <el-form-item label="其他名称：">
+          <el-input v-model="form.otherName" placeholder="请输入其他名称（全模糊）" clearable />
+        </el-form-item>
+      </template>
+      <!-- 审批记录专属搜索字段 -->
+      <template v-if="show && activeTab === 'approval'">
+        <el-form-item label="日志审批人：">
+          <fetch-select
+            filterable
+            clearable
+            remote
+            multiple
+            reserve-keyword
+            v-model="form.approverUserIdList"
+            :remote-method="approverUserSearch"
+            value-key="userId"
+            label-key="username"
+            sub-label-key="empNo"
+            placeholder="请输入姓名/工号搜索"
+          />
+        </el-form-item>
+        <el-form-item label="日志审批时间：">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.logApprovalTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="日志审批结果：">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="claim_approval_result"
+            v-model="form.approvalResultList"
+            placeholder="请选择日志审批结果"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="日志审批说明：">
+          <el-input v-model="form.logApprovalRemark" placeholder="请输入日志审批说明（全模糊）" clearable />
+        </el-form-item>
+        <el-form-item label="日志错误代码：">
+          <fetch-select
+            filterable
+            clearable
+            remote
+            reserve-keyword
+            v-model="form.errorCodeList"
+            :remote-method="errorCodeSearch"
+            placeholder="请输入错误代码/名称搜索"
+            value-key="code"
+            label-key="name"
+            sub-label-key="code"
+            multiple
+          />
+        </el-form-item>
+      </template>
       <page-search-action
         v-if="canList"
         v-model="show"
@@ -313,7 +387,7 @@
     </el-form>
     <div class="ais-actions">
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
-      <template v-if="activeTab !== 'parts' && activeTab !== 'workhours'">
+      <template v-if="activeTab !== 'parts' && activeTab !== 'workhours' && activeTab !== 'other' && activeTab !== 'approval'">
         <el-button v-if="withdraw" size="small" @click="handleWithdraw">批量撤回</el-button>
         <el-button v-if="reject" size="small" @click="handleReject">批量驳回</el-button>
         <el-button v-if="approve"  size="small" @click="handleApprove">批量同意</el-button>
@@ -327,6 +401,8 @@
       <el-tab-pane label="总经理订单" name="gm" />
       <el-tab-pane label="备件清单" name="parts" />
       <el-tab-pane label="工时清单" name="workhours" />
+      <el-tab-pane label="其他清单" name="other" />
+      <el-tab-pane label="审批记录" name="approval" />
     </el-tabs>
     <div
       class="ais-table-c"
@@ -393,6 +469,8 @@ import {
   getList,
   getPartList,
   getWorkhourList,
+  getOtherList,
+  getApprovalList,
   submit,
   withdraw,
   approve,
@@ -409,8 +487,9 @@ import {
 } from './constants';
 import {
   getTableConfig, tableAddOrUpdate, getEnum,
-  sparePartList, exportTable, getAllRegion
+  sparePartList, exportTable, getAllRegion, userQuery
 } from '@/api/common';
+import { getList as getRejectSettingList } from '@/api/claimreturn/claim/basic/approvalRejectSetting/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import ListSelect from '@/libs/components/list-select';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -484,6 +563,18 @@ const defaultForm = {
   isMainItemList: [],
   repairItemCodeList: [],
   repairItemName: '',
+  // 其他清单专属查询字段
+  otherCodeList: [],
+  otherName: '',
+  // 审批记录专属查询字段
+  approverUserIdList: [],
+  logApprovalTime: '',
+  approvalResultList: [],
+  logApprovalRemark: '',
+  errorCodeList: [],
+  errorContent: '',
+  // 其他清单/审批记录共用字段（精确多选/批量）
+  dealerNameList: []
 };
 
 const SEARCH_PARAMS_KEY = 'WARRANTY_APPLY_SEARCH_PARAMS';
@@ -533,10 +624,10 @@ export default {
       tableForm: { page: 1, size: pageSize },
       //
       sortColumns: [
-        // {
-        // column: 'create_time',
-        // sort: 'DESC'
-        // }
+        {
+          column: 'create_time',
+          sort: 'DESC'
+        }
       ],
       rejectDialogVisible: false,
       rejectIds: [],
@@ -571,6 +662,8 @@ export default {
     optionObj () {
       if (this.activeTab === 'parts') return this.optionObjParts;
       if (this.activeTab === 'workhours') return this.optionObjWorkhours;
+      if (this.activeTab === 'other') return this.optionObjOther;
+      if (this.activeTab === 'approval') return this.optionObjApproval;
       return this.optionObjApply;
     },
     optionObjApply () {
@@ -711,7 +804,7 @@ export default {
           { props: 'faultPhenomenon', label: '故障信息描述', visible: true, width: 200 },
           { props: 'troubleshootingFlow', label: '故障流程排查', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
@@ -1174,7 +1267,7 @@ export default {
           { props: 'vehicleYearName', label: '年款', visible: true, width: 120 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
-          { props: 'isMainItemLabel', label: '是否主因工时', visible: true, width: 120, align: 'center' },
+          { props: 'isMainItemLabel', label: '是否主因', visible: true, width: 120, align: 'center' },
           {
             props: 'repairItemCode',
             label: '工时代码',
@@ -1192,12 +1285,276 @@ export default {
           { props: 'workHour', label: '工时数', visible: true, width: 120, align: 'right' },
           { props: 'workHourUnitPrice', label: '工时单价', visible: true, width: 140, align: 'right' },
           { props: 'totalCostAmount', label: '工时明细总金额', visible: true, width: 160, align: 'right' },
-          { props: 'standardLaborUnitPrice', label: '标准工时单价', visible: true, width: 160, align: 'right' },
-          { props: 'standardCostTotal', label: '标准费用总金额', visible: true, width: 160, align: 'right' },
-          { props: 'policyLaborUnitPrice', label: '政策工时单价', visible: true, width: 160, align: 'right' },
-          { props: 'policyCostTotal', label: '政策费用总金额', visible: true, width: 160, align: 'right' },
-          { props: 'estimatedPolicyUsage', label: '预计政策使用额度', visible: true, width: 160, align: 'right' },
           { props: 'remark', label: '工时明细备注', visible: true, width: 200 }
+        ],
+        total: this.tableTotal
+      };
+    },
+    optionObjOther () {
+      return {
+        id: 'warrantyApplyOtherTable',
+        dataList: this.tableDataList,
+        form: this.tableForm,
+        dataProp: [
+          { props: 'alarmLevelLabel', label: '三包预警', visible: true, width: 120 },
+          {
+            props: 'applyNo',
+            label: '保修申请单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantyApply/edit',
+                  query: { id: row.id }
+                });
+              }
+            }]
+          },
+          {
+            props: 'vin',
+            label: 'VIN',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'vin'),
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/datacenter/vehicle/vehicleProfile/edit',
+                  query: { id: row.vehicleProfileId }
+                });
+              }
+            }]
+          },
+          {
+            props: 'serviceProxyNo',
+            label: '施工单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceProxy/edit',
+                  query: { id: row.serviceProxyId }
+                });
+              }
+            }]
+          },
+          {
+            props: 'statementCode',
+            label: '结算单号',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceStatement/edit',
+                  query: { id: row.statementId }
+                });
+              }
+            }]
+          },
+          { props: 'applyStatusLabel', label: '保修单状态', visible: true, width: 120 },
+          { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 120 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              }
+            }]
+          },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 140 },
+          { props: 'dealerRegionName', label: '门店所属区域', visible: true, width: 140 },
+          { props: 'currentSubmitTime', label: '当前提交时间', visible: true, width: 200 },
+          { props: 'approvalTime', label: '审批时间', visible: true, width: 200 },
+          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 160, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vehiclePlateNo') },
+          { props: 'ownerName', label: '车主姓名', visible: true, width: 120, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'ownerName') },
+          { props: 'vehicleSeriesName', label: '车系', visible: true, width: 160 },
+          { props: 'vehicleModelName', label: '车型', visible: true, width: 180 },
+          { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 200 },
+          { props: 'repairStartTime', label: '维修开始日期', visible: true, width: 200 },
+          { props: 'mainPartCode', label: '主因件编码', visible: true, width: 200 },
+          { props: 'mainPartName', label: '主因件名称', visible: true, width: 200 },
+          { props: 'mileage', label: '进店里程 KM', visible: true, width: 160, align: 'right' },
+          { props: 'serviceMonth', label: '服务月份', visible: true, width: 120, align: 'right' },
+          { props: 'laborClaimTotal', label: '工时索赔小计', visible: true, width: 160, align: 'right' },
+          { props: 'partsClaimTotal', label: '备件索赔小计', visible: true, width: 160, align: 'right' },
+          { props: 'otherClaimTotal', label: '其他索赔小计', visible: true, width: 160, align: 'right' },
+          { props: 'totalClaimAmount', label: '索赔总金额', visible: true, width: 160, align: 'right' },
+          { props: 'workCostCount', label: '工时费用小计', visible: true, width: 160, align: 'right' },
+          { props: 'partsCostTotal', label: '备件费用小计', visible: true, width: 160, align: 'right' },
+          { props: 'otherCostTotal', label: '其他费用小计', visible: true, width: 160, align: 'right' },
+          { props: 'laborShareRatio', label: '工时分担比例', visible: true, width: 160, align: 'right' },
+          { props: 'partsShareRatio', label: '备件分担比例', visible: true, width: 160, align: 'right' },
+          { props: 'otherShareRatio', label: '其他分担比例', visible: true, width: 160, align: 'right' },
+          { props: 'faultPhenomenon', label: '故障信息描述', visible: true, width: 200 },
+          { props: 'troubleshootingFlow', label: '故障流程排查', visible: true, width: 200 },
+          {
+            props: 'serviceActivityCode',
+            label: '活动编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              type: 'primary',
+              show: (row) => Boolean(row.serviceActivityId),
+              click: (rowIndex, row) => {
+                this.openActivityDetail(row);
+              }
+            }]
+          },
+          { props: 'vehicleYearName', label: '年款', visible: true, width: 120 },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+          { props: 'otherCode', label: '其他代码', visible: true, width: 200 },
+          { props: 'otherName', label: '其他名称', visible: true, width: 200 },
+          { props: 'quantity', label: '数量', visible: true, width: 120, align: 'right' },
+          { props: 'totalCostAmount', label: '其他明细总金额', visible: true, width: 160, align: 'right' },
+          { props: 'remark', label: '其他明细备注', visible: true, width: 200 }
+        ],
+        total: this.tableTotal
+      };
+    },
+    optionObjApproval () {
+      return {
+        id: 'warrantyApplyApprovalTable',
+        dataList: this.tableDataList,
+        form: this.tableForm,
+        dataProp: [
+          { props: 'alarmLevelLabel', label: '三包预警', visible: true, width: 120 },
+          {
+            props: 'applyNo',
+            label: '保修申请单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantyApply/edit',
+                  query: { id: row.id }
+                });
+              }
+            }]
+          },
+          {
+            props: 'vin',
+            label: 'VIN',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.id, 'vin'),
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/datacenter/vehicle/vehicleProfile/edit',
+                  query: { id: row.vehicleProfileId }
+                });
+              }
+            }]
+          },
+          {
+            props: 'serviceProxyNo',
+            label: '施工单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceProxy/edit',
+                  query: { id: row.serviceProxyId }
+                });
+              }
+            }]
+          },
+          {
+            props: 'statementCode',
+            label: '结算单号',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/maintain/sp/serviceStatement/edit',
+                  query: { id: row.statementId }
+                });
+              }
+            }]
+          },
+          { props: 'applyStatusLabel', label: '保修单状态', visible: true, width: 120 },
+          { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 120 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              }
+            }]
+          },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 140 },
+          { props: 'dealerRegionName', label: '门店所属区域', visible: true, width: 140 },
+          { props: 'currentSubmitTime', label: '当前提交时间', visible: true, width: 200 },
+          { props: 'approvalTime', label: '最终审批时间', visible: true, width: 200 },
+          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 160, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vehiclePlateNo') },
+          { props: 'ownerName', label: '车主姓名', visible: true, width: 120, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'ownerName') },
+          { props: 'vehicleSeriesName', label: '车系', visible: true, width: 160 },
+          { props: 'vehicleModelName', label: '车型', visible: true, width: 180 },
+          { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 200 },
+          { props: 'repairStartTime', label: '维修开始日期', visible: true, width: 200 },
+          { props: 'mainPartCode', label: '主因件编码', visible: true, width: 200 },
+          { props: 'mainPartName', label: '主因件名称', visible: true, width: 200 },
+          { props: 'mileage', label: '进店里程 KM', visible: true, width: 160, align: 'right' },
+          { props: 'serviceMonth', label: '服务月份', visible: true, width: 120, align: 'right' },
+          { props: 'laborClaimTotal', label: '工时索赔小计', visible: true, width: 160, align: 'right' },
+          { props: 'partsClaimTotal', label: '备件索赔小计', visible: true, width: 160, align: 'right' },
+          { props: 'otherClaimTotal', label: '其他索赔小计', visible: true, width: 160, align: 'right' },
+          { props: 'totalClaimAmount', label: '索赔总金额', visible: true, width: 160, align: 'right' },
+          { props: 'workCostCount', label: '工时费用小计', visible: true, width: 160, align: 'right' },
+          { props: 'partsCostTotal', label: '备件费用小计', visible: true, width: 160, align: 'right' },
+          { props: 'otherCostTotal', label: '其他费用小计', visible: true, width: 160, align: 'right' },
+          { props: 'laborShareRatio', label: '工时分担比例', visible: true, width: 160, align: 'right' },
+          { props: 'partsShareRatio', label: '备件分担比例', visible: true, width: 160, align: 'right' },
+          { props: 'otherShareRatio', label: '其他分担比例', visible: true, width: 160, align: 'right' },
+          { props: 'faultPhenomenon', label: '故障信息描述', visible: true, width: 200 },
+          { props: 'troubleshootingFlow', label: '故障流程排查', visible: true, width: 200 },
+          {
+            props: 'serviceActivityCode',
+            label: '活动编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              type: 'primary',
+              show: (row) => Boolean(row.serviceActivityId),
+              click: (rowIndex, row) => {
+                this.openActivityDetail(row);
+              }
+            }]
+          },
+          { props: 'vehicleYearName', label: '年款', visible: true, width: 120 },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+          { props: 'approverUserName', label: '日志审批人', visible: true, width: 160 },
+          { props: 'logApprovalTime', label: '日志审批时间', visible: true, width: 200 },
+          { props: 'logApprovalResultLabel', label: '日志审批结果', visible: true, width: 140 },
+          { props: 'logApprovalRemark', label: '日志审批说明', visible: true, width: 200 },
+          { props: 'errorCode', label: '日志错误代码', visible: true, width: 160 },
+          { props: 'errorContent', label: '日志错误内容', visible: true, width: 200 }
         ],
         total: this.tableTotal
       };
@@ -1419,22 +1776,38 @@ export default {
         this.form.createTime = null;
         this.form.currentSubmitTime = null;
         this.form.approvalTime = null;
+        this.form.logApprovalTime = null;
       }
 
-      // 2. 非空校验：【保修申请单号】【VIN】【施工单号】【结算单号】【创建时间】【当前提交时间】【审批时间】不允许都为空
-      const allEmpty = !hasApplyNo && !hasVin && !hasServiceProxyNo && !hasStatementCode &&
+      // 2. 非空校验：根据 tab 不同校验条件不同
+      // 其他清单：与现有条件一致
+      // 审批记录：增加 "日志审批时间" 作为非空校验条件之一
+      const baseEmpty = !hasApplyNo && !hasVin && !hasServiceProxyNo && !hasStatementCode &&
         !this.form.createTime &&
         !this.form.currentSubmitTime &&
         !this.form.approvalTime;
+      let allEmpty = baseEmpty;
+      let emptyMessage = '【保修申请单号】【VIN】【施工单号】【结算单号】【创建时间】【当前提交时间】【审批时间】不允许都为空';
+      if (this.activeTab === 'approval') {
+        const hasLogApprovalTime = !!this.form.logApprovalTime;
+        allEmpty = baseEmpty && !hasLogApprovalTime;
+        emptyMessage = '【保修申请单号】【VIN】【施工单号】【结算单号】【创建时间】【当前提交时间】【最终审批时间】【日志审批时间】不允许都为空';
+      }
       if (allEmpty) {
-        this.$message.warning('【保修申请单号】【VIN】【施工单号】【结算单号】【创建时间】【当前提交时间】【审批时间】不允许都为空');
+        this.$message.warning(emptyMessage);
         return;
       }
 
       // 3. 日期范围校验：所有日期最长跨度为一年
+      // 审批时间在【审批记录】tab 下 label 变为【最终审批时间】，校验提示需同步
+      const approvalTimeLabel = this.activeTab === 'approval' ? '最终审批时间' : '审批时间';
       if (!this.validateDateSpan(this.form.createTime, '创建时间')) return;
       if (!this.validateDateSpan(this.form.currentSubmitTime, '当前提交时间')) return;
-      if (!this.validateDateSpan(this.form.approvalTime, '审批时间')) return;
+      if (!this.validateDateSpan(this.form.approvalTime, approvalTimeLabel)) return;
+      if (!this.validateDateSpan(this.form.warrantyStartdate, '保修开始日期')) return;
+      if (!this.validateDateSpan(this.form.repairStartTime, '维修开始日期')) return;
+      if (!this.validateDateSpan(this.form.updateTime, '订单修改时间')) return;
+      if (!this.validateDateSpan(this.form.logApprovalTime, '日志审批时间')) return;
 
       sessionStorage.setItem(SEARCH_PARAMS_KEY, JSON.stringify(this.getFormData()));
       this.tableForm.page = 1;
@@ -1462,6 +1835,10 @@ export default {
         apiCall = getPartList(reqData);
       } else if (this.activeTab === 'workhours') {
         apiCall = getWorkhourList(reqData);
+      } else if (this.activeTab === 'other') {
+        apiCall = getOtherList(reqData);
+      } else if (this.activeTab === 'approval') {
+        apiCall = getApprovalList(reqData);
       } else {
         apiCall = getList(reqData);
       }
@@ -1609,6 +1986,63 @@ export default {
         delete data.repairItemName;
         data.repairItemNameLike = this.form.repairItemName;
       }
+      // 其他清单专属字段映射
+      if (this.form.otherName) {
+        delete data.otherName;
+        data.otherNameLike = this.form.otherName;
+      }
+      // 审批记录专属字段 - 日志审批时间拆分
+      if (this.form.logApprovalTime) {
+        delete data.logApprovalTime;
+        if (this.form.logApprovalTime.length > 1) {
+          data.logApprovalTimeStart = this.form.logApprovalTime[0];
+          data.logApprovalTimeEnd = this.form.logApprovalTime[1];
+        }
+      }
+      // 审批记录专属字段 - 日志审批说明（全模糊→ approvalRemarkLike）
+      if (this.form.logApprovalRemark) {
+        delete data.logApprovalRemark;
+        data.approvalRemarkLike = this.form.logApprovalRemark;
+      }
+      // 审批记录专属字段 - 日志错误内容（全模糊→ errorContentLike）
+      if (this.form.errorContent) {
+        delete data.errorContent;
+        data.errorContentLike = this.form.errorContent;
+      }
+      // 其他清单/审批记录专用：门店名称（精确多选）
+      // partsPage/workhourPage 使用 dealerNameLike（模糊），与 dealerNameList 共存
+      // 此处直接传递 dealerNameList，不做转换
+
+      // 按页签过滤专属参数，防止跨页签参数泄漏导致 SQL 报错
+      const partsOnlyKeys = [
+        'isMainPartList', 'oldPartUniqueCode', 'partCodeList', 'partNameLike',
+        'returnPartTypeList', 'isReturnedList', 'oldPartCodeList', 'oldPartNameLike',
+        'oldPartSupplierCodeList', 'oldPartSupplierNameLike'
+      ];
+      // 工时 + 其他 共享（两者都用 repair_item_code/name）
+      const workhourAndOtherOnlyKeys = [
+        'isMainItemList', 'repairItemCodeList', 'repairItemNameLike'
+      ];
+      const otherOnlyKeys = [
+        'otherCodeList', 'otherNameLike'
+      ];
+      const approvalOnlyKeys = [
+        'approverUserIdList', 'logApprovalTimeStart', 'logApprovalTimeEnd',
+        'approvalResultList', 'approvalRemarkLike', 'errorCodeList', 'errorContentLike'
+      ];
+      if (this.activeTab === 'parts') {
+        [...workhourAndOtherOnlyKeys, ...otherOnlyKeys, ...approvalOnlyKeys].forEach(key => delete data[key]);
+      } else if (this.activeTab === 'workhours') {
+        // 工时清单：保留 repairItemCodeList / repairItemNameLike，其余专属字段全部清理
+        [...partsOnlyKeys, ...otherOnlyKeys, ...approvalOnlyKeys, 'isMainItemList']
+          .forEach(key => delete data[key]);
+      } else if (this.activeTab === 'other') {
+        // 其他清单：保留 otherCodeList / otherNameLike，其余专属字段全部清理
+        [...partsOnlyKeys, ...approvalOnlyKeys, 'isMainItemList']
+          .forEach(key => delete data[key]);
+      } else if (this.activeTab === 'approval') {
+        [...partsOnlyKeys, ...workhourAndOtherOnlyKeys, ...otherOnlyKeys].forEach(key => delete data[key]);
+      }
 
       if (data.serviceMonth) {
         data.serviceMonth = Number(data.serviceMonth);
@@ -1662,6 +2096,20 @@ export default {
     partRemote (query) {
       return sparePartList({ partCodeOrNameLike: query, oemPart: 1 });
     },
+    // 复用审批驳回配置接口加载错误代码下拉数据
+    // 下拉 value-key="code" 直接绑 code 数组，与后端 waa.error_code 筛字段一致，无需 id↔code 转换
+    errorCodeSearch (query) {
+      return getRejectSettingList({
+        nameOrCodeLike: query || '',
+        pageNum: 1,
+        pageSize: 20,
+      });
+    },
+    // 日志审批人：复用 common.userQuery 接口搜索（与 GradeTable/审计专员 一致）
+    // 下拉 value-key="userId" 直接绑 userId 数组，与后端 waa.approver_user_id 筛字段一致
+    approverUserSearch (query) {
+      return userQuery({ keyword: query });
+    },
     exportExcel () {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
@@ -1672,11 +2120,10 @@ export default {
       const tab = this.activeTab;
       const isParts = tab === 'parts';
       const isWorkhours = tab === 'workhours';
-      const dataFetchPath = isParts
-        ? 'claimreturn/claim/web/warrantyapply/warrantyApply/partsPage'
-        : isWorkhours
-          ? 'claimreturn/claim/web/warrantyapply/warrantyApply/workhourPage'
-          : 'claimreturn/claim/web/warrantyapply/warrantyApply/page';
+      // 与「其他清单 / 审批记录」的"好用的导出"行为保持一致：统一走 /page 接口
+      // 该接口返回 WarrantyApplyResp，已带 applyStatusLabel / alarmLevelLabel 等枚举文本，
+      // 通用导出微服务可以正常处理；/partsPage、/workhourPage 新接口导出报错暂规避。
+      const dataFetchPath = 'claimreturn/claim/web/warrantyapply/warrantyApply/page';
       const businessType = isParts
         ? '保修备件清单'
         : isWorkhours

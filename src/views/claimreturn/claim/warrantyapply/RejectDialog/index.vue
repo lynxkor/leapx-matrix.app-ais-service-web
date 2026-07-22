@@ -97,9 +97,6 @@ export default {
       dialogVisible: this.visible,
       submitLoading: false,
       rules: {
-        approvalRemark: [
-          { required: true, message: '请输入审批说明', trigger: 'change' }
-        ],
         errorCodeId: [
           { required: true, message: '请选择错误代码', trigger: 'change' }
         ],
