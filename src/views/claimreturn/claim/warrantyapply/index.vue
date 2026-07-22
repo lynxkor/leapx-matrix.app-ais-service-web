@@ -561,8 +561,8 @@ export default {
           { props: 'laborShareRatio', label: '工时分担比例', visible: true, width: 160, align: 'right' },
           { props: 'partsShareRatio', label: '备件分担比例', visible: true, width: 160, align: 'right' },
           { props: 'otherShareRatio', label: '其他分担比例', visible: true, width: 160, align: 'right' },
-          { props: 'faultPhenomenon', label: '故障信息描述', visible: true, width: 200 },
-          { props: 'troubleshootingFlow', label: '故障流程排查', visible: true, width: 200 },
+          { props: 'faultPhenomenon', label: '故障现象描述', visible: true, width: 200 },
+          { props: 'troubleshootingFlow', label: '故障排查流程', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
