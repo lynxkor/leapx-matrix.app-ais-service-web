@@ -100,7 +100,8 @@
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { pageStoreRevenue } from '@/api/datareport/storeRevenue';
-import { listOrgStoreInfoByParam } from '@/api/common';
+import { listOrgStoreInfoByParam, exportTable } from '@/api/common';
+import { downloadExcel } from '@/libs/utils';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -295,10 +296,28 @@ export default {
         return;
       }
       this.exportLoading = true;
-      // 后端导出接口待后续补,先提示用户
-      this.$message({ type: 'info', message: '门店营收报表导出功能待对接,当前仅查询分页', customClass: 'ais-message' });
-      this.exportLoading = false;
-      // TODO 后续接入 exportTable 通用导出
+      exportTable({
+        businessType: '门店营收报表',
+        dataFetchPath: 'datareport/web/revenue/storeRevenue/page',
+        reqParams: this.getFormData(),
+        titleMap: Object.fromEntries(this.tableColumns.map(col => [col.props, col.label])),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '门店营收报表.xlsx');
+          } catch (error) {
+            this.$message({ type: 'error', message: '文件导出失败' });
+          }
+        } else {
+          this.$confirmExport(
+            () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+          );
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
     }
   }
 };
