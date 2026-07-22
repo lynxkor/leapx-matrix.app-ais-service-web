@@ -26,7 +26,7 @@
               {{ info.updateTime  }}
             </el-form-item>
             <el-form-item label="建店类型：" prop="categoryBuildTypeRespList">
-              {{ info.categoryBuildTypeRespList.map(item => item.buildTypeName).join('、')  }}
+              {{ (info.categoryBuildTypeRespList || []).map(item => item.buildTypeName).join('、')  }}
             </el-form-item>
             <el-form-item label="备注：" prop="remark">
               {{ info.remark  }}
