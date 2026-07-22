@@ -374,10 +374,10 @@
                 :value="form.cccName"
               />
             </el-form-item>
-            <el-form-item class="form-item-full" label="故障信息描述：" prop="faultPhenomenon">
+            <el-form-item class="form-item-full" label="故障现象描述：" prop="faultPhenomenon">
               <base-input type="textarea" v-model="form.faultPhenomenon" clearable maxlength="5000" />
             </el-form-item>
-            <el-form-item class="form-item-full" label="故障排除流程：" prop="troubleshootingFlow">
+            <el-form-item class="form-item-full" label="故障排查流程：" prop="troubleshootingFlow">
               <base-input type="textarea" v-model="form.troubleshootingFlow" clearable maxlength="5000" />
             </el-form-item>
           </el-form>
@@ -394,10 +394,10 @@
             <el-form-item label="CCC：" prop="cccName">
               {{ form.cccName }}
             </el-form-item>
-            <el-form-item class="form-item-full" label="故障信息描述：" prop="faultPhenomenon">
+            <el-form-item class="form-item-full" label="故障现象描述：" prop="faultPhenomenon">
              {{ form.faultPhenomenon }}
             </el-form-item>
-            <el-form-item class="form-item-full" label="故障排除流程：" prop="troubleshootingFlow">
+            <el-form-item class="form-item-full" label="故障排查流程：" prop="troubleshootingFlow">
               {{ form.troubleshootingFlow }}
             </el-form-item>
           </el-form>
