@@ -58,51 +58,28 @@
     </div>
 
     <div class="ais-table-c">
-      <vxe-table
-        ref="xTable"
+      <LPVxeTable
+        ref="tableRef"
         v-loading="loading"
-        :data="optionObj.dataList"
+        is-page
         :show-footer="optionObj.dataList.length > 0"
         :footer-method="footerMethod"
-        max-height="800"
-        size="small"
-        resizable
-        stripe
-        border="inner"
-        show-overflow
-        highlight-hover-row
-        :auto-resize="true"
-      >
-        <vxe-column
-          v-for="col in tableColumns"
-          :key="col.props"
-          :field="col.props"
-          :title="col.label"
-          :width="col.width"
-          :align="col.align || 'left'"
-        />
-      </vxe-table>
-      <el-pagination
-        v-if="optionObj.total > 0"
-        class="ais-pagination"
-        background
-        :current-page.sync="optionObj.form.page"
-        :page-sizes="[10, 20, 50, 100]"
-        :page-size.sync="optionObj.form.size"
-        :total="optionObj.total"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @current-change="handlePageChange"
+        :option-obj="optionObj"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
       />
     </div>
   </div>
 </template>
 
 <script>
+import debounce from 'lodash.debounce';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import FetchSelect from '@/libs/components/FetchSelect';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import { pageProfitDetail } from '@/api/datareport/profitDetail';
-import { listOrgStoreInfoByParam, exportTable } from '@/api/common';
+import { listOrgStoreInfoByParam, exportTable, getTableConfig, tableAddOrUpdate } from '@/api/common';
 import { downloadExcel } from '@/libs/utils';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
@@ -118,7 +95,7 @@ const defaultForm = {
 export default {
   name: 'ProfitDetail',
   mixins: [responsiveSearchForm, permissions, commonMixins],
-  components: { PageSearchAction, FetchSelect },
+  components: { PageSearchAction, FetchSelect, LPVxeTable },
   data () {
     return {
       pageTitle: '门店利润明细',
@@ -189,12 +166,6 @@ export default {
         total: 0
       }
     };
-  },
-  computed: {
-    // 表格列定义(取自 optionObj.dataProp,过滤掉 visible: false 的列)
-    tableColumns () {
-      return this.optionObj.dataProp.filter(c => c.visible !== false);
-    }
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
@@ -280,24 +251,15 @@ export default {
       }
       return data;
     },
-    handleSizeChange (size) {
-      this.optionObj.form.size = size;
-      this.optionObj.form.page = 1;
-      this.getData();
-    },
-    handlePageChange (page) {
-      this.optionObj.form.page = page;
-      this.getData();
-    },
     // vxe-table 原生 footer:首列显示"本页合计",sum 列显示累加,其余空
     footerMethod ({ columns }) {
       const list = this.optionObj.dataList || [];
+      const sumProps = this.optionObj.dataProp.filter(c => c.sum).map(c => c.props);
       return [
         columns.map(col => {
           const field = col.field;
           if (field === columns[0].field) return '本页合计';
-          const def = this.optionObj.dataProp.find(c => c.props === field);
-          if (def && def.sum) {
+          if (sumProps.includes(field)) {
             const total = list.reduce((acc, row) => {
               const v = Number(row[field]);
               return acc + (isNaN(v) ? 0 : v);
@@ -312,6 +274,31 @@ export default {
       if (val === null || val === undefined || isNaN(Number(val))) return '';
       return Number(val).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     },
+    // ---- LPVxeTable 列配置回调 ----
+    getConfig () {
+      return new Promise(resolve => {
+        getTableConfig(this.optionObj.id).then(data => {
+          resolve({ data });
+        }).catch(err => {
+          console.error(err);
+          resolve({ data: null });
+        });
+      });
+    },
+    saveOrUpdate (data) {
+      return tableAddOrUpdate(data);
+    },
+    paginationChange (type, num) {
+      if (type === 'page') {
+        this.optionObj.form.page = num;
+      } else {
+        this.optionObj.form.size = num;
+      }
+      this.debouncedGetData();
+    },
+    debouncedGetData: debounce(function () {
+      this.getData();
+    }, 300),
     exportExcel () {
       if (!this.form.receiveTime || this.form.receiveTime.length < 2) {
         this.$message({ type: 'warning', message: '请先选择收款/审批时间范围' });
@@ -322,7 +309,7 @@ export default {
         businessType: '门店利润明细',
         dataFetchPath: 'datareport/web/profit/profitDetail/page',
         reqParams: this.getFormData(),
-        titleMap: Object.fromEntries(this.tableColumns.map(col => [col.props, col.label])),
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -349,10 +336,6 @@ export default {
 .m-profit-detail-list {
   .ais-actions {
     margin-bottom: 12px;
-  }
-  .ais-pagination {
-    margin-top: 16px;
-    text-align: right;
   }
 }
 </style>
