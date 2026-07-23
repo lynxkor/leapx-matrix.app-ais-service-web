@@ -51,10 +51,11 @@
     "vue-router": "^3.1.5",
     "vuex": "^3.1.2",
     "vxe-pc-ui": "^3.5.37",
-    "vxe-table": "^3.15.17"
+    "vxe-table": "^3.15.17",
+    "xe-utils": "^3.5.0"
   },
   "devDependencies": {
-    "@leapmotor/design": "^0.1.7-alpha.55",
+    "@leapmotor/design": "^0.1.7-alpha.56",
     "@types/lodash": "^4.17.21",
     "@vue/cli-plugin-babel": "^4.2.0",
     "@vue/cli-plugin-eslint": "^4.2.0",
