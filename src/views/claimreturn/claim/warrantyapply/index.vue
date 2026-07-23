@@ -1,5 +1,5 @@
 <template>
-  <div class="page-common m-warranty-apply-list">
+  <div class="page-common m-warranty-apply-list" :class="{ 'is-preset-locked': formDisabled }">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
     <el-form
       :inline="true"
@@ -11,10 +11,10 @@
     >
       <!-- 基础查询条件 -->
       <el-form-item label="保修申请单号：">
-        <tag-input v-model="form.applyNoList" placeholder="请输入保修申请单号" />
+        <tag-input v-model="form.applyNoList" placeholder="请输入保修申请单号" :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="VIN：">
-        <tag-input v-model="form.vinList" placeholder="请输入VIN" />
+        <tag-input v-model="form.vinList" placeholder="请输入VIN" :disabled="formDisabled" />
       </el-form-item>
 
       <!-- 扩展查询条件 -->
@@ -28,13 +28,14 @@
           clearable
           multiple
           filterable
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="施工单号：">
-        <tag-input v-model="form.serviceProxyNoList" placeholder="请输入施工单号" />
+        <tag-input v-model="form.serviceProxyNoList" placeholder="请输入施工单号" :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="结算单号：">
-        <tag-input v-model="form.statementCodeList" placeholder="请输入结算单号" />
+        <tag-input v-model="form.statementCodeList" placeholder="请输入结算单号" :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="保修单状态：">
         <fetch-select
@@ -45,6 +46,7 @@
           clearable
           multiple
           filterable
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="保修类型：">
@@ -60,10 +62,11 @@
           value-key="id"
           label-key="name"
           sub-label-key="code"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="门店：">
-        <dealer-select v-model="form.dealerCodeList" multiple/>
+        <dealer-select v-model="form.dealerCodeList" multiple :disabled="formDisabled"/>
       </el-form-item>
       <el-form-item label="门店所属区域：">
         <fetch-select
@@ -77,6 +80,7 @@
           filterable
           value-key="code"
           label-key="name"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="当前提交时间：">
@@ -90,6 +94,7 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="审批时间：">
@@ -103,13 +108,14 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="车牌号：">
-        <el-input v-model="form.vehiclePlateNo" placeholder="请输入车牌号" clearable />
+        <el-input v-model="form.vehiclePlateNo" placeholder="请输入车牌号" clearable :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="车主姓名：">
-        <el-input v-model="form.ownerName" placeholder="请输入车主姓名" clearable />
+        <el-input v-model="form.ownerName" placeholder="请输入车主姓名" clearable :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="车型：">
         <fetch-select
@@ -122,6 +128,7 @@
           params=""
           value-key="id"
           label-key="name"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="保修开始日期：">
@@ -135,6 +142,7 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="维修开始日期：">
@@ -148,6 +156,7 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="主因件编码：">
@@ -163,19 +172,20 @@
           label-key="partName"
           subLabelKey="partCode"
           placeholder="请输入零件编码/名称"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="服务月份：">
-        <el-input v-model="form.serviceMonth" placeholder="请输入" clearable />
+        <el-input v-model="form.serviceMonth" placeholder="请输入" clearable :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="工时分担比例：">
-        <el-input v-model="form.laborShareRatio" placeholder="请输入" clearable />
+        <el-input v-model="form.laborShareRatio" placeholder="请输入" clearable :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="备件分担比例：">
-        <el-input v-model="form.partsShareRatio" placeholder="请输入" clearable />
+        <el-input v-model="form.partsShareRatio" placeholder="请输入" clearable :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="其他分担比例：">
-        <el-input v-model="form.otherShareRatio" placeholder="请输入" clearable />
+        <el-input v-model="form.otherShareRatio" placeholder="请输入" clearable :disabled="formDisabled" />
       </el-form-item>
       <el-form-item label="创建时间：">
         <el-date-picker
@@ -188,6 +198,7 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="修改时间：">
@@ -201,6 +212,7 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          :disabled="formDisabled"
         />
       </el-form-item>
       </template>
@@ -220,6 +232,79 @@
       <el-button v-if="approve"  size="small" @click="handleApprove">批量同意</el-button>
       <el-button v-if="cancel" size="small" @click="handleCancel">批量作废</el-button>
       <el-button size="small" @click="handlePrint">打印标签</el-button>
+      <el-dropdown
+        trigger="click"
+        placement="bottom-end"
+        class="m-view-dropdown m-view-dropdown--right"
+        @command="onDropdownCommand"
+        @visible-change="onDropdownVisibleChange"
+      >
+        <el-button size="small" class="m-view-dropdown__trigger">
+          {{ activePresetName || '默认视图' }}
+          <i class="el-icon-arrow-down el-icon--right" />
+          <i
+            v-if="activePresetName"
+            class="el-icon-close m-view-dropdown__clear"
+            @click.stop="handleClearPreset"
+          />
+        </el-button>
+        <el-dropdown-menu slot="dropdown">
+          <div class="m-view-dropdown__search" @click.stop>
+            <el-input
+              v-model="presetFilterKeyword"
+              size="mini"
+              placeholder="搜索视图名称"
+              clearable
+              prefix-icon="el-icon-search"
+            />
+          </div>
+          <el-dropdown-item
+            v-if="defaultViewVisible"
+            command="__default__"
+            :class="['m-view-dropdown__item', { 'is-active': !activePresetId }]"
+          >
+            <span class="m-view-dropdown__label">默认视图</span>
+          </el-dropdown-item>
+          <el-dropdown-item
+            v-for="p in filteredPresets"
+            :key="p.id"
+            :command="p.id"
+            :class="['m-view-dropdown__item', { 'is-active': activePresetId === p.id }]"
+          >
+            <span class="m-view-dropdown__label">{{ p.name }}</span>
+            <el-tag
+              :type="perfStatusTagType(p)"
+              size="mini"
+              class="m-view-dropdown__perf"
+            >{{ perfStatusLabel(p) }}</el-tag>
+            <span class="m-view-dropdown__actions" @click.stop>
+              <i
+                class="el-icon-top m-view-dropdown__action"
+                title="置顶"
+                @click.stop="onMoveToTop(p)"
+              />
+              <i
+                class="el-icon-edit m-view-dropdown__action"
+                title="编辑"
+                @click.stop="onEditView(p)"
+              />
+              <i
+                class="el-icon-delete m-view-dropdown__action m-view-dropdown__action--danger"
+                title="删除"
+                @click.stop="onDeleteView(p)"
+              />
+            </span>
+          </el-dropdown-item>
+          <el-dropdown-item divided command="__new__">
+            <i class="el-icon-plus" />
+            <span class="m-view-dropdown__label">新增视图</span>
+          </el-dropdown-item>
+          <div
+            v-if="presetFilterKeyword && !defaultViewVisible && filteredPresets.length === 0"
+            class="m-view-dropdown__empty"
+          >未找到匹配的视图</div>
+        </el-dropdown-menu>
+      </el-dropdown>
     </div>
     <el-tabs v-model="activeTab" @tab-click="handleTabChange">
       <el-tab-pane label="全部" name="all" />
@@ -248,6 +333,14 @@
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
     </div>
+    <CustomQueryDialog
+      :visible.sync="customDialogVisible"
+      v-model="appliedCustomConditions"
+      v-model:active-preset-id="activePresetId"
+      :editing-preset-id="editingPresetId"
+      @update:sort="onApplySort"
+      @update:editing-preset-id="editingPresetId = $event"
+    />
     <RejectDialog
       :visible.sync="rejectDialogVisible"
       :rejectIds="rejectIds"
@@ -323,6 +416,9 @@ import ApproveDialog from './ApproveDialog/index.vue';
 import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
+import CustomQueryDialog from './components/CustomQueryDialog/index.vue';
+import { loadPresets, movePresetToTop, deletePreset, PERF_STATUS } from './components/CustomQueryDialog/presetStore';
+import { cloneTree, toSnakeCase } from './components/CustomQueryDialog/fieldMeta';
 
 // 创建时间默认值：最近 3 个月
 function getDefaultCreateTime () {
@@ -381,6 +477,7 @@ export default {
     ApproveDialog,
     CancelDialog,
     WithdrawDialog,
+    CustomQueryDialog,
   },
   data () {
     return {
@@ -438,286 +535,311 @@ export default {
       rightsDialogVisible: false,
       vehicleProfileId: '',
       rowId: '',
+      customDialogVisible: false,
+      appliedCustomConditions: null,
+      activePresetId: null,
+      editingPresetId: null,
+      presets: [],
+      presetFilterKeyword: '',
+      tableColumns: [
+        {
+          props: 'alarmLevelLabel',
+          label: '三包预警',
+          visible: true,
+          width: 200,
+          // buttons: [{ type: 'primary' }],
+        },
+        {
+          props: 'applyNo',
+          label: '保修申请单',
+          visible: true,
+          width: 200,
+          buttons: [{
+            type: 'primary',
+            click: (rowIndex, row) => {
+              this.$router.push({
+                path: '/claimreturn/claim/warrantyApply/edit',
+                query: {
+                  id: row.id
+                }
+              });
+            }
+          }]
+        },
+        {
+          props: 'vin',
+          label: 'VIN',
+          visible: true,
+          width: 200,
+          mask: true,
+          getValue: (row) => getDetailDecryptField(row.id, 'vin'),
+          buttons: [{
+            type: 'primary',
+            click: (rowIndex, row) => {
+              this.$router.push({
+                path: '/datacenter/vehicle/vehicleProfile/edit',
+                query: {
+                  id: row.vehicleProfileId
+                }
+              });
+            }
+          }]
+        },
+        {
+          props: 'serviceProxyNo',
+          label: '施工单',
+          visible: true,
+          width: 200,
+          buttons: [{
+            type: 'primary',
+            click: (rowIndex, row) => {
+              this.$router.push({
+                path: '/maintain/sp/serviceProxy/edit',
+                query: {
+                  id: row.serviceProxyId
+                }
+              });
+            }
+          }]
+        },
+        {
+          props: 'statementCode',
+          label: '结算单号',
+          visible: true,
+          width: 200,
+          buttons: [{
+            type: 'primary',
+            click: (rowIndex, row) => {
+              this.$router.push({
+                path: '/maintain/sp/serviceStatement/edit',
+                query: {
+                  id: row.statementId
+                }
+              });
+            }
+          }]
+        },
+        { props: 'applyStatusLabel', label: '保修单状态', visible: true, width: 120 },
+        { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 120 },
+        {
+          props: 'dealerCode',
+          label: '门店编码',
+          visible: true,
+          width: 200,
+          buttons: [{
+            type: 'primary',
+            click: (rowIndex, row) => {
+              window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+            }
+          }]
+        },
+        { props: 'dealerName', label: '门店名称', visible: true, width: 140 },
+        { props: 'dealerRegionName', label: '门店所属区域', visible: true, width: 140 },
+        { props: 'currentSubmitTime', label: '当前提交时间', visible: true, width: 200 },
+        { props: 'approvalTime', label: '审批时间', visible: true, width: 200 },
+        { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 160, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vehiclePlateNo') },
+        { props: 'ownerName', label: '车主姓名', visible: true, width: 120, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'ownerName') },
+        { props: 'vehicleModelName', label: '车型', visible: true, width: 180 },
+        { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 200 },
+        { props: 'repairStartTime', label: '维修开始日期', visible: true, width: 200 },
+        { props: 'mainPartCode', label: '主因件编码', visible: true, width: 200 },
+        { props: 'mainPartName', label: '主因件名称', visible: true, width: 200 },
+        { props: 'mileage', label: '进店里程 KM', visible: true, width: 160, align: 'right' },
+        { props: 'serviceMonth', label: '服务月份', visible: true, width: 120, align: 'right' },
+        { props: 'laborClaimTotal', label: '工时索赔小计', visible: true, width: 160, align: 'right' },
+        { props: 'partsClaimTotal', label: '备件索赔小计', visible: true, width: 160, align: 'right' },
+        { props: 'otherClaimTotal', label: '其他索赔小计', visible: true, width: 160, align: 'right' },
+        { props: 'totalClaimAmount', label: '索赔总金额', visible: true, width: 160, align: 'right' },
+        { props: 'workCostCount', label: '工时费用小计', visible: true, width: 160, align: 'right' },
+        { props: 'partsCostTotal', label: '备件费用小计', visible: true, width: 160, align: 'right' },
+        { props: 'otherCostTotal', label: '其他费用小计', visible: true, width: 160, align: 'right' },
+        { props: 'laborShareRatio', label: '工时分担比例', visible: true, width: 160, align: 'right' },
+        { props: 'partsShareRatio', label: '备件分担比例', visible: true, width: 160, align: 'right' },
+        { props: 'otherShareRatio', label: '其他分担比例', visible: true, width: 160, align: 'right' },
+        { props: 'faultPhenomenon', label: '故障信息描述', visible: true, width: 200 },
+        { props: 'troubleshootingFlow', label: '故障流程排查', visible: true, width: 200 },
+        { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+        { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+        {
+          props: 'operate',
+          label: '操作',
+          type: 'operate',
+          visible: true,
+          fixed: 'right',
+          buttons: [
+            {
+              name: '编辑 ',
+              show: (row) => {
+                return this.edit && (row.applyStatus === '10' || row.applyStatus === '30');
+              },
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantyApply/edit',
+                  query: {
+                    id: row.id,
+                    isEditing: true
+                  }
+                });
+              },
+              type: 'info'
+            }, {
+              name: '提交',
+              // popconfirmTitle: '确认提交?',
+              click: (rowIndex, row) => {
+                submit({
+                  id: row.id,
+                }).then(res => {
+                  this.$message.success('提交成功');
+                  this.getData();
+                });
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.submit) {
+                  return false;
+                }
+                // 未提交，已驳回
+                if (EDITABLE_STATUSES.includes(row.applyStatus)) {
+                  return true;
+                }
+                return false;
+              },
+            },
+            {
+              name: '同意',
+              click: (rowIndex, row) => {
+                this.handleApprove([row.id]);
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.approve) {
+                  return false;
+                }
+                return this.isRowPendingCurrentUserReview(row);
+              },
+            },
+            {
+              name: '驳回',
+              click: (rowIndex, row) => {
+                this.handleReject([row.id], false);
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.reject) {
+                  return false;
+                }
+                return this.isRowPendingCurrentUserReview(row);
+              },
+            },
+            {
+              name: '申请驳回',
+              click: (rowIndex, row) => {
+                this.handleReject([row.id], true);
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.applyReject) {
+                  return false;
+                }
+                return this.isRowPendingCurrentUserReview(row) || row.applyStatus === APPLY_STATUS.APPROVED;
+              },
+            },
+            {
+              name: '撤回',
+              click: (rowIndex, row) => {
+                this.handleWithdraw([row.id]);
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.withdraw) {
+                  return false;
+                }
+                // 【保修单状态】为审核通过，已拒赔 显示此按钮
+                if (WITHDRAWABLE_STATUSES.includes(row.applyStatus)) {
+                  return true;
+                }
+                return false;
+              },
+            },
+            {
+              name: '拒赔',
+              click: (rowIndex, row) => {
+                this.handleDeny([row.id]);
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.deny) {
+                  return false;
+                }
+                return this.isRowPendingCurrentUserReview(row);
+              },
+            },
+            {
+              name: '作废',
+              click: (rowIndex, row) => {
+                this.handleCancel([row.id]);
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.cancel) {
+                  return false;
+                }
+                // 保修单状态】为未提交，已驳回，显示此按钮
+                if (EDITABLE_STATUSES.includes(row.applyStatus)) {
+                  return true;
+                }
+                return false;
+              },
+            },
+            {
+              name: '打印标签',
+              click: (rowIndex, row) => {
+                this.handlePrint([row.id]);
+              },
+              type: 'info',
+            },
+            {
+              name: '查看权益',
+              show: () => {
+                return this.detail;
+              },
+              click: (rowIndex, row) => {
+                this.rightsDialogVisible = true;
+                this.vehicleProfileId = row.vehicleProfileId;
+                this.rowId = row.id;
+              },
+              type: 'info',
+            },
+          ]
+        }
+      ],
     };
   },
   computed: {
+    formDisabled () {
+      return !!this.activePresetId;
+    },
+    activePresetName () {
+      if (!this.activePresetId) return '';
+      const list = loadPresets();
+      const preset = list.find(p => p.id === this.activePresetId);
+      return preset ? preset.name : '';
+    },
+    filteredPresets () {
+      const kw = (this.presetFilterKeyword || '').trim().toLowerCase();
+      if (!kw) return this.presets;
+      return this.presets.filter(p => (p.name || '').toLowerCase().includes(kw));
+    },
+    defaultViewVisible () {
+      const kw = (this.presetFilterKeyword || '').trim().toLowerCase();
+      return !kw || '默认视图'.toLowerCase().includes(kw);
+    },
     optionObj () {
       return {
         id: 'warrantyApplyTable',
         dataList: this.tableDataList,
         form: this.tableForm,
-        dataProp: [
-          {
-            props: 'alarmLevelLabel',
-            label: '三包预警',
-            visible: true,
-            width: 200,
-            // buttons: [{ type: 'primary' }],
-          },
-          {
-            props: 'applyNo',
-            label: '保修申请单',
-            visible: true,
-            width: 200,
-            buttons: [{
-              type: 'primary',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/claimreturn/claim/warrantyApply/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              }
-            }]
-          },
-          {
-            props: 'vin',
-            label: 'VIN',
-            visible: true,
-            width: 200,
-            mask: true,
-            getValue: (row) => getDetailDecryptField(row.id, 'vin'),
-            buttons: [{
-              type: 'primary',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/datacenter/vehicle/vehicleProfile/edit',
-                  query: {
-                    id: row.vehicleProfileId
-                  }
-                });
-              }
-            }]
-          },
-          {
-            props: 'serviceProxyNo',
-            label: '施工单',
-            visible: true,
-            width: 200,
-            buttons: [{
-              type: 'primary',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/maintain/sp/serviceProxy/edit',
-                  query: {
-                    id: row.serviceProxyId
-                  }
-                });
-              }
-            }]
-          },
-          {
-            props: 'statementCode',
-            label: '结算单号',
-            visible: true,
-            width: 200,
-            buttons: [{
-              type: 'primary',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/maintain/sp/serviceStatement/edit',
-                  query: {
-                    id: row.statementId
-                  }
-                });
-              }
-            }]
-          },
-          { props: 'applyStatusLabel', label: '保修单状态', visible: true, width: 120 },
-          { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 120 },
-          {
-            props: 'dealerCode',
-            label: '门店编码',
-            visible: true,
-            width: 200,
-            buttons: [{
-              type: 'primary',
-              click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
-              }
-            }]
-          },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 140 },
-          { props: 'dealerRegionName', label: '门店所属区域', visible: true, width: 140 },
-          { props: 'currentSubmitTime', label: '当前提交时间', visible: true, width: 200 },
-          { props: 'approvalTime', label: '审批时间', visible: true, width: 200 },
-          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 160, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vehiclePlateNo') },
-          { props: 'ownerName', label: '车主姓名', visible: true, width: 120, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'ownerName') },
-          { props: 'vehicleModelName', label: '车型', visible: true, width: 180 },
-          { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 200 },
-          { props: 'repairStartTime', label: '维修开始日期', visible: true, width: 200 },
-          { props: 'mainPartCode', label: '主因件编码', visible: true, width: 200 },
-          { props: 'mainPartName', label: '主因件名称', visible: true, width: 200 },
-          { props: 'mileage', label: '进店里程 KM', visible: true, width: 160, align: 'right' },
-          { props: 'serviceMonth', label: '服务月份', visible: true, width: 120, align: 'right' },
-          { props: 'laborClaimTotal', label: '工时索赔小计', visible: true, width: 160, align: 'right' },
-          { props: 'partsClaimTotal', label: '备件索赔小计', visible: true, width: 160, align: 'right' },
-          { props: 'otherClaimTotal', label: '其他索赔小计', visible: true, width: 160, align: 'right' },
-          { props: 'totalClaimAmount', label: '索赔总金额', visible: true, width: 160, align: 'right' },
-          { props: 'workCostCount', label: '工时费用小计', visible: true, width: 160, align: 'right' },
-          { props: 'partsCostTotal', label: '备件费用小计', visible: true, width: 160, align: 'right' },
-          { props: 'otherCostTotal', label: '其他费用小计', visible: true, width: 160, align: 'right' },
-          { props: 'laborShareRatio', label: '工时分担比例', visible: true, width: 160, align: 'right' },
-          { props: 'partsShareRatio', label: '备件分担比例', visible: true, width: 160, align: 'right' },
-          { props: 'otherShareRatio', label: '其他分担比例', visible: true, width: 160, align: 'right' },
-          { props: 'faultPhenomenon', label: '故障信息描述', visible: true, width: 200 },
-          { props: 'troubleshootingFlow', label: '故障流程排查', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
-            visible: true,
-            fixed: 'right',
-            buttons: [
-              {
-                name: '编辑 ',
-                show: (row) => {
-                  return this.edit && (row.applyStatus === '10' || row.applyStatus === '30');
-                },
-                click: (rowIndex, row) => {
-                  this.$router.push({
-                    path: '/claimreturn/claim/warrantyApply/edit',
-                    query: {
-                      id: row.id,
-                      isEditing: true
-                    }
-                  });
-                },
-                type: 'info'
-              }, {
-                name: '提交',
-                // popconfirmTitle: '确认提交?',
-                click: (rowIndex, row) => {
-                  submit({
-                    id: row.id,
-                  }).then(res => {
-                    this.$message.success('提交成功');
-                    this.getData();
-                  });
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.submit) {
-                    return false;
-                  }
-                  // 未提交，已驳回
-                  if (EDITABLE_STATUSES.includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
-                },
-              },
-              {
-                name: '同意',
-                click: (rowIndex, row) => {
-                  this.handleApprove([row.id]);
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.approve) {
-                    return false;
-                  }
-                  return this.isRowPendingCurrentUserReview(row);
-                },
-              },
-              {
-                name: '驳回',
-                click: (rowIndex, row) => {
-                  this.handleReject([row.id], false);
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.reject) {
-                    return false;
-                  }
-                  return this.isRowPendingCurrentUserReview(row);
-                },
-              },
-              {
-                name: '申请驳回',
-                click: (rowIndex, row) => {
-                  this.handleReject([row.id], true);
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.applyReject) {
-                    return false;
-                  }
-                  return this.isRowPendingCurrentUserReview(row) || row.applyStatus === APPLY_STATUS.APPROVED;
-                },
-              },
-              {
-                name: '撤回',
-                click: (rowIndex, row) => {
-                  this.handleWithdraw([row.id]);
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.withdraw) {
-                    return false;
-                  }
-                  // 【保修单状态】为审核通过，已拒赔 显示此按钮
-                  if (WITHDRAWABLE_STATUSES.includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
-                },
-              },
-              {
-                name: '拒赔',
-                click: (rowIndex, row) => {
-                  this.handleDeny([row.id]);
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.deny) {
-                    return false;
-                  }
-                  return this.isRowPendingCurrentUserReview(row);
-                },
-              },
-              {
-                name: '作废',
-                click: (rowIndex, row) => {
-                  this.handleCancel([row.id]);
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.cancel) {
-                    return false;
-                  }
-                  // 保修单状态】为未提交，已驳回，显示此按钮
-                  if (EDITABLE_STATUSES.includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
-                },
-              },
-              {
-                name: '打印标签',
-                click: (rowIndex, row) => {
-                  this.handlePrint([row.id]);
-                },
-                type: 'info',
-              },
-              {
-                name: '查看权益',
-                show: () => {
-                  return this.detail;
-                },
-                click: (rowIndex, row) => {
-                  this.rightsDialogVisible = true;
-                  this.vehicleProfileId = row.vehicleProfileId;
-                  this.rowId = row.id;
-                },
-                type: 'info',
-              },
-            ]
-          }
-        ],
+        dataProp: this.tableColumns.map(c => ({ sortable: false, ...c })),
         total: this.tableTotal
       };
     },
@@ -734,6 +856,12 @@ export default {
     this.submit = this.permissions.has(`${this.moduleKey}-submit`);
     this.edit = this.permissions.has(`${this.moduleKey}-addOrUpdate`);
     this.detail = this.permissions.has(`${this.moduleKey}-detail`);
+  },
+  watch: {
+    // 弹窗关闭后清空 editingPresetId,下次打开不再继承上次的视图定位
+    customDialogVisible (val) {
+      if (!val) this.editingPresetId = null;
+    }
   },
   methods: {
     isRowPendingCurrentUserReview (row) {
@@ -770,7 +898,7 @@ export default {
     handleSortChange (value) {
       this.sortColumns = (value || []).map(item => {
         return {
-          column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
+          column: toSnakeCase(item.field),
           sort: (item.order || '').toUpperCase()
         };
       });
@@ -920,12 +1048,107 @@ export default {
       this.getData();
     },
     onReset () {
+      this.appliedCustomConditions = null;
+      this.activePresetId = null;
       this.form = { ...defaultForm, createTime: getDefaultCreateTime() };
+      this.sortColumns = [];
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
       this._scopeTypeOrgCache = null;
       this.regionSelectKey++;
       this.getData();
+    },
+    handleClearPreset () {
+      this.activePresetId = null;
+      this.appliedCustomConditions = null;
+      this.sortColumns = [];
+      this.$message.success('已清除方案,可自由编辑查询条件');
+    },
+    onMoveToTop (preset) {
+      this.presets = movePresetToTop(preset.id);
+      this.$message.success(`已将视图「${preset.name}」置顶`);
+    },
+    onEditView (preset) {
+      // 选中并打开弹窗编辑该视图的条件
+      this.activePresetId = preset.id;
+      this.appliedCustomConditions = cloneTree(preset.tree);
+      this.editingPresetId = preset.id;
+      this.customDialogVisible = true;
+    },
+    onDeleteView (preset) {
+      this.$confirm(`确认删除视图「${preset.name}」?删除后不可恢复。`, '提示', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deletePreset(preset.id);
+        this.presets = loadPresets();
+        // 如果删的是当前激活的视图,自动清除
+        if (this.activePresetId === preset.id) {
+          this.activePresetId = null;
+          this.appliedCustomConditions = null;
+        }
+        this.$message.success('已删除视图');
+      }).catch(() => {});
+    },
+    perfStatusLabel (preset) {
+      const s = preset.perfStatus || PERF_STATUS.PENDING;
+      if (s === PERF_STATUS.PASSED) return '已通过';
+      if (s === PERF_STATUS.FAILED) return '未通过';
+      return '待测试';
+    },
+    perfStatusTagType (preset) {
+      const s = preset.perfStatus || PERF_STATUS.PENDING;
+      if (s === PERF_STATUS.PASSED) return 'success';
+      if (s === PERF_STATUS.FAILED) return 'danger';
+      return 'warning';
+    },
+    refreshPresets () {
+      this.presets = loadPresets();
+    },
+    onDropdownVisibleChange (visible) {
+      // 每次展开时刷新 localStorage,确保新建/删除/重命名后立即可见
+      if (visible) {
+        this.refreshPresets();
+      } else {
+        // 收起时清空搜索关键字
+        this.presetFilterKeyword = '';
+      }
+    },
+    onApplySort (sort) {
+      // 弹窗保存/应用排序时,同步到 sortColumns 并重查
+      this.sortColumns = sort
+        ? [{ column: toSnakeCase(sort.field), sort: sort.order.toUpperCase() }]
+        : [];
+      this.getData();
+    },
+    onDropdownCommand (cmd) {
+      if (cmd === '__default__') {
+        this.handleClearPreset();
+        return;
+      }
+      if (cmd === '__new__') {
+        // 管理视图:打开条件编辑弹窗,顶部栏可保存/重命名/删除视图
+        this.activePresetId = null;
+        this.appliedCustomConditions = null;
+        this.customDialogVisible = true;
+        return;
+      }
+      // 选中已有视图:锁定表单,使用该视图的条件
+      const preset = this.presets.find(p => p.id === cmd);
+      if (!preset) return;
+      // 性能测试未通过的视图不能用于查询
+      if (preset.perfStatus !== PERF_STATUS.PASSED) {
+        this.$message.warning(`视图「${preset.name}」未通过性能测试,不能用于查询,请先在管理视图中完成测试`);
+        return;
+      }
+      this.activePresetId = preset.id;
+      this.appliedCustomConditions = cloneTree(preset.tree);
+      // 同步排序(视图里有 sort 就用,没有就清空走后端默认)
+      this.sortColumns = preset.sort
+        ? [{ column: toSnakeCase(preset.sort.field), sort: preset.sort.order.toUpperCase() }]
+        : [];
+      this.$message.success(`已使用视图「${preset.name}」,表单已锁定`);
     },
     handleTabChange () {
       this.tableForm.page = 1;
@@ -1131,9 +1354,95 @@ export default {
   }
   .ais-actions {
     margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .m-view-dropdown {
+    &--right {
+      // 触发器不要紧贴右边,让 popper 底部右对齐时也向左移,
+      // 避免弹出菜单压住表格右侧的操作列图标
+      margin-left: auto;
+      margin-right: 140px;
+    }
+    &__trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    &__clear {
+      margin-left: 6px;
+      padding: 0 4px;
+      font-size: 14px;
+      border-radius: 50%;
+      &:hover {
+        background: rgba(0,0,0,0.1);
+        color: var(--leap-color-primary);
+      }
+    }
+    &__search {
+      padding: 6px 10px;
+      border-bottom: 1px solid #ebeef5;
+    }
+    &__empty {
+      padding: 12px;
+      text-align: center;
+      color: #909399;
+      font-size: 12px;
+    }
+    &__label {
+      flex: 1;
+    }
+    &__perf {
+      margin-left: 8px;
+      height: 18px;
+      line-height: 18px;
+      padding: 0 6px;
+    }
+    ::v-deep .el-dropdown-menu__item &__perf.el-tag {
+      margin-left: 8px;
+      height: 18px;
+      line-height: 18px;
+      padding: 0 6px;
+    }
+    &__actions {
+      display: inline-flex;
+      gap: 4px;
+      margin-left: 8px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    &__action {
+      padding: 4px 6px;
+      border-radius: 3px;
+      font-size: 13px;
+      cursor: pointer;
+      &:hover {
+        background: rgba(0, 0, 0, 0.08);
+        color: var(--leap-color-primary);
+      }
+      &--danger:hover {
+        color: #f56c6c;
+      }
+    }
+    ::v-deep .el-dropdown-menu__item:hover &__actions {
+      opacity: 1;
+    }
+    ::v-deep .el-dropdown-menu__item.is-active {
+      color: var(--leap-color-primary);
+      background: #ecf5ff;
+    }
   }
   .ais-table-c {
     height: calc(100% - 168px);
+  }
+  &.is-preset-locked {
+    ::v-deep .ais-search-form {
+      opacity: 0.6;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
   }
 }
 </style>
