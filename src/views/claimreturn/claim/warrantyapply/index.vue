@@ -235,7 +235,6 @@
       <el-dropdown
         trigger="click"
         placement="bottom-end"
-        popper-class="m-view-dropdown__popper"
         class="m-view-dropdown m-view-dropdown--right"
         @command="onDropdownCommand"
         @visible-change="onDropdownVisibleChange"
@@ -250,24 +249,60 @@
           />
         </el-button>
         <el-dropdown-menu slot="dropdown">
+          <div class="m-view-dropdown__search" @click.stop>
+            <el-input
+              v-model="presetFilterKeyword"
+              size="mini"
+              placeholder="搜索视图名称"
+              clearable
+              prefix-icon="el-icon-search"
+            />
+          </div>
           <el-dropdown-item
-            v-for="p in presets"
+            v-if="defaultViewVisible"
+            command="__default__"
+            :class="['m-view-dropdown__item', { 'is-active': !activePresetId }]"
+          >
+            <span class="m-view-dropdown__label">默认视图</span>
+          </el-dropdown-item>
+          <el-dropdown-item
+            v-for="p in filteredPresets"
             :key="p.id"
             :command="p.id"
             :class="['m-view-dropdown__item', { 'is-active': activePresetId === p.id }]"
           >
-            <i class="el-icon-check m-view-dropdown__check" />
             <span class="m-view-dropdown__label">{{ p.name }}</span>
-            <span class="m-view-dropdown__actions">
-              <i class="el-icon-edit" title="编辑条件" @click.stop="onEditView(p)" />
-              <i class="el-icon-edit-outline" title="重命名" @click.stop="onRenameView(p)" />
-              <i class="el-icon-delete" title="删除" @click.stop="onDeleteView(p)" />
+            <el-tag
+              :type="perfStatusTagType(p)"
+              size="mini"
+              class="m-view-dropdown__perf"
+            >{{ perfStatusLabel(p) }}</el-tag>
+            <span class="m-view-dropdown__actions" @click.stop>
+              <i
+                class="el-icon-top m-view-dropdown__action"
+                title="置顶"
+                @click.stop="onMoveToTop(p)"
+              />
+              <i
+                class="el-icon-edit m-view-dropdown__action"
+                title="编辑"
+                @click.stop="onEditView(p)"
+              />
+              <i
+                class="el-icon-delete m-view-dropdown__action m-view-dropdown__action--danger"
+                title="删除"
+                @click.stop="onDeleteView(p)"
+              />
             </span>
           </el-dropdown-item>
           <el-dropdown-item divided command="__new__">
             <i class="el-icon-plus" />
-            <span class="m-view-dropdown__label">新建视图</span>
+            <span class="m-view-dropdown__label">新增视图</span>
           </el-dropdown-item>
+          <div
+            v-if="presetFilterKeyword && !defaultViewVisible && filteredPresets.length === 0"
+            class="m-view-dropdown__empty"
+          >未找到匹配的视图</div>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -302,6 +337,9 @@
       :visible.sync="customDialogVisible"
       v-model="appliedCustomConditions"
       v-model:active-preset-id="activePresetId"
+      :editing-preset-id="editingPresetId"
+      @update:sort="onApplySort"
+      @update:editing-preset-id="editingPresetId = $event"
     />
     <RejectDialog
       :visible.sync="rejectDialogVisible"
@@ -379,8 +417,8 @@ import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
 import CustomQueryDialog from './components/CustomQueryDialog/index.vue';
-import { loadPresets, renamePreset, deletePreset } from './components/CustomQueryDialog/presetStore';
-import { cloneTree } from './components/CustomQueryDialog/fieldMeta';
+import { loadPresets, movePresetToTop, deletePreset, PERF_STATUS } from './components/CustomQueryDialog/presetStore';
+import { cloneTree, toSnakeCase } from './components/CustomQueryDialog/fieldMeta';
 
 // 创建时间默认值：最近 3 个月
 function getDefaultCreateTime () {
@@ -500,7 +538,9 @@ export default {
       customDialogVisible: false,
       appliedCustomConditions: null,
       activePresetId: null,
+      editingPresetId: null,
       presets: [],
+      presetFilterKeyword: '',
     };
   },
   computed: {
@@ -512,6 +552,15 @@ export default {
       const list = loadPresets();
       const preset = list.find(p => p.id === this.activePresetId);
       return preset ? preset.name : '';
+    },
+    filteredPresets () {
+      const kw = (this.presetFilterKeyword || '').trim().toLowerCase();
+      if (!kw) return this.presets;
+      return this.presets.filter(p => (p.name || '').toLowerCase().includes(kw));
+    },
+    defaultViewVisible () {
+      const kw = (this.presetFilterKeyword || '').trim().toLowerCase();
+      return !kw || '默认视图'.toLowerCase().includes(kw);
     },
     optionObj () {
       return {
@@ -807,6 +856,12 @@ export default {
     this.edit = this.permissions.has(`${this.moduleKey}-addOrUpdate`);
     this.detail = this.permissions.has(`${this.moduleKey}-detail`);
   },
+  watch: {
+    // 弹窗关闭后清空 editingPresetId,下次打开不再继承上次的视图定位
+    customDialogVisible (val) {
+      if (!val) this.editingPresetId = null;
+    }
+  },
   methods: {
     isRowPendingCurrentUserReview (row) {
       if (!row.isInApproval) return false;
@@ -842,7 +897,7 @@ export default {
     handleSortChange (value) {
       this.sortColumns = (value || []).map(item => {
         return {
-          column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
+          column: toSnakeCase(item.field),
           sort: (item.order || '').toUpperCase()
         };
       });
@@ -1006,52 +1061,16 @@ export default {
       this.appliedCustomConditions = null;
       this.$message.success('已清除方案,可自由编辑查询条件');
     },
-    refreshPresets () {
-      this.presets = loadPresets();
-    },
-    onDropdownVisibleChange (visible) {
-      // 每次展开时刷新 localStorage,确保新建/删除/重命名后立即可见
-      if (visible) this.refreshPresets();
-    },
-    onDropdownCommand (cmd) {
-      if (cmd === '__new__') {
-        // 新建视图:清空当前方案,打开空配置弹窗
-        this.activePresetId = null;
-        this.appliedCustomConditions = null;
-        this.customDialogVisible = true;
-        return;
-      }
-      // 选中已有视图:锁定表单,使用该视图的条件
-      const preset = this.presets.find(p => p.id === cmd);
-      if (!preset) return;
-      this.activePresetId = preset.id;
-      this.appliedCustomConditions = cloneTree(preset.tree);
-      this.$message.success(`已使用视图「${preset.name}」,表单已锁定`);
+    onMoveToTop (preset) {
+      this.presets = movePresetToTop(preset.id);
+      this.$message.success(`已将视图「${preset.name}」置顶`);
     },
     onEditView (preset) {
-      // 选中并打开弹窗编辑
+      // 选中并打开弹窗编辑该视图的条件
       this.activePresetId = preset.id;
       this.appliedCustomConditions = cloneTree(preset.tree);
+      this.editingPresetId = preset.id;
       this.customDialogVisible = true;
-    },
-    async onRenameView (preset) {
-      try {
-        const { value: name } = await this.$prompt('请输入新的视图名称', '重命名视图', {
-          confirmButtonText: '保存',
-          cancelButtonText: '取消',
-          inputValue: preset.name,
-          inputPattern: /\S+/,
-          inputErrorMessage: '视图名称不能为空'
-        });
-        if (name === preset.name) return;
-        const dup = this.presets.find(p => p.name === name && p.id !== preset.id);
-        if (dup) {
-          this.$message.warning(`已存在同名视图「${name}」`);
-          return;
-        }
-        this.presets = renamePreset(preset.id, name);
-        this.$message.success('已重命名');
-      } catch (e) { /* 取消 */ }
     },
     onDeleteView (preset) {
       this.$confirm(`确认删除视图「${preset.name}」?删除后不可恢复。`, '提示', {
@@ -1060,7 +1079,7 @@ export default {
         type: 'warning'
       }).then(() => {
         deletePreset(preset.id);
-        this.refreshPresets();
+        this.presets = loadPresets();
         // 如果删的是当前激活的视图,自动清除
         if (this.activePresetId === preset.id) {
           this.activePresetId = null;
@@ -1068,6 +1087,61 @@ export default {
         }
         this.$message.success('已删除视图');
       }).catch(() => {});
+    },
+    perfStatusLabel (preset) {
+      const s = preset.perfStatus || PERF_STATUS.PENDING;
+      if (s === PERF_STATUS.PASSED) return '已通过';
+      if (s === PERF_STATUS.FAILED) return '未通过';
+      return '待测试';
+    },
+    perfStatusTagType (preset) {
+      const s = preset.perfStatus || PERF_STATUS.PENDING;
+      if (s === PERF_STATUS.PASSED) return 'success';
+      if (s === PERF_STATUS.FAILED) return 'danger';
+      return 'warning';
+    },
+    refreshPresets () {
+      this.presets = loadPresets();
+    },
+    onDropdownVisibleChange (visible) {
+      // 每次展开时刷新 localStorage,确保新建/删除/重命名后立即可见
+      if (visible) {
+        this.refreshPresets();
+      } else {
+        // 收起时清空搜索关键字
+        this.presetFilterKeyword = '';
+      }
+    },
+    onApplySort (sort) {
+      // 弹窗保存/应用排序时,同步到 sortColumns 并重查
+      this.sortColumns = sort
+        ? [{ column: toSnakeCase(sort.field), sort: sort.order.toUpperCase() }]
+        : [];
+      this.getData();
+    },
+    onDropdownCommand (cmd) {
+      if (cmd === '__default__') {
+        this.handleClearPreset();
+        return;
+      }
+      if (cmd === '__new__') {
+        // 管理视图:打开条件编辑弹窗,顶部栏可保存/重命名/删除视图
+        this.activePresetId = null;
+        this.appliedCustomConditions = null;
+        this.customDialogVisible = true;
+        return;
+      }
+      // 选中已有视图:锁定表单,使用该视图的条件
+      const preset = this.presets.find(p => p.id === cmd);
+      if (!preset) return;
+      // 性能测试未通过的视图不能用于查询
+      if (preset.perfStatus !== PERF_STATUS.PASSED) {
+        this.$message.warning(`视图「${preset.name}」未通过性能测试,不能用于查询,请先在管理视图中完成测试`);
+        return;
+      }
+      this.activePresetId = preset.id;
+      this.appliedCustomConditions = cloneTree(preset.tree);
+      this.$message.success(`已使用视图「${preset.name}」,表单已锁定`);
     },
     handleTabChange () {
       this.tableForm.page = 1;
@@ -1280,11 +1354,10 @@ export default {
   }
   .m-view-dropdown {
     &--right {
+      // 触发器不要紧贴右边,让 popper 底部右对齐时也向左移,
+      // 避免弹出菜单压住表格右侧的操作列图标
       margin-left: auto;
-    }
-    &__popper {
-      // 菜单往左挪,避免压住表格右侧操作列图标
-      margin-left: -200px !important;
+      margin-right: 140px;
     }
     &__trigger {
       display: inline-flex;
@@ -1301,34 +1374,49 @@ export default {
         color: var(--leap-color-primary);
       }
     }
-    &__check {
-      visibility: hidden;
-      margin-right: 6px;
-      font-size: 12px;
+    &__search {
+      padding: 6px 10px;
+      border-bottom: 1px solid #ebeef5;
     }
-    .is-active &__check {
-      visibility: visible;
+    &__empty {
+      padding: 12px;
+      text-align: center;
+      color: #909399;
+      font-size: 12px;
     }
     &__label {
       flex: 1;
     }
+    &__perf {
+      margin-left: 8px;
+      height: 18px;
+      line-height: 18px;
+      padding: 0 6px;
+    }
+    ::v-deep .el-dropdown-menu__item &__perf.el-tag {
+      margin-left: 8px;
+      height: 18px;
+      line-height: 18px;
+      padding: 0 6px;
+    }
     &__actions {
       display: inline-flex;
-      gap: 8px;
+      gap: 4px;
       margin-left: 8px;
       opacity: 0;
       transition: opacity 0.2s;
-      i {
-        padding: 2px 4px;
-        font-size: 13px;
-        border-radius: 3px;
-        &:hover {
-          background: rgba(0,0,0,0.08);
-          color: var(--leap-color-primary);
-        }
-        &.el-icon-delete:hover {
-          color: #f56c6c;
-        }
+    }
+    &__action {
+      padding: 4px 6px;
+      border-radius: 3px;
+      font-size: 13px;
+      cursor: pointer;
+      &:hover {
+        background: rgba(0, 0, 0, 0.08);
+        color: var(--leap-color-primary);
+      }
+      &--danger:hover {
+        color: #f56c6c;
       }
     }
     ::v-deep .el-dropdown-menu__item:hover &__actions {
