@@ -83,6 +83,33 @@
         :removable="false"
         @change="onTreeChange"
       />
+
+      <!-- 排序(单字段 + 升/降) -->
+      <div class="c-cqd__sort">
+        <div class="c-cqd__sort-title">排序</div>
+        <div class="c-cqd__sort-row">
+          <el-select
+            v-model="workingSort.field"
+            placeholder="选择排序字段"
+            size="small"
+            filterable
+            clearable
+            class="c-cqd__sort-field"
+          >
+            <el-option
+              v-for="f in fields"
+              :key="f.key"
+              :value="f.key"
+              :label="f.label"
+            />
+          </el-select>
+          <el-radio-group v-model="workingSort.order" size="small" :disabled="!workingSort.field">
+            <el-radio-button label="asc">升序</el-radio-button>
+            <el-radio-button label="desc">降序</el-radio-button>
+          </el-radio-group>
+        </div>
+        <div class="c-cqd__sort-hint">不选字段则按后端默认排序</div>
+      </div>
     </div>
 
     <template v-slot:footer>
@@ -452,6 +479,30 @@ export default {
   }
   &__alert {
     margin-bottom: 12px;
+  }
+  &__sort {
+    margin-top: 12px;
+    padding: 8px 10px;
+    background: #f5f7fa;
+    border-radius: 4px;
+  }
+  &__sort-title {
+    color: #606266;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  &__sort-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  &__sort-field {
+    width: 240px;
+  }
+  &__sort-hint {
+    color: #909399;
+    font-size: 12px;
   }
 }
 .dialog-footer {
