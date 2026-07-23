@@ -111,6 +111,19 @@
       :class="{ 'is-error': errors.value }"
     />
 
+    <!-- 值控件:日期单天(date 类型的等于/早于/晚于) -->
+    <el-date-picker
+      v-if="valueKind === 'date'"
+      v-model="localRow.value"
+      type="date"
+      value-format="yyyy-MM-dd"
+      placeholder="选择日期"
+      size="small"
+      :disabled="disabled"
+      class="c-cr__value"
+      :class="{ 'is-error': errors.value }"
+    />
+
     <!-- 值控件:日期单值 -->
     <el-date-picker
       v-if="valueKind === 'single' && fieldMeta && fieldMeta.type === 'date'"

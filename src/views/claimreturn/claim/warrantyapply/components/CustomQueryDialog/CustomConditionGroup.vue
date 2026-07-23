@@ -1,7 +1,11 @@
 <template>
-  <div :class="['c-cg', { 'c-cg--nested': depth > 0 }]">
-    <!-- 组头部:AND/OR 切换 + 行数提示 + 删除按钮(子组才显示) -->
+  <div :class="['c-cg', { 'c-cg--nested': depth > 0, 'c-cg--collapsed': collapsed }]">
+    <!-- 组头部:折叠开关 + AND/OR 切换 + 行数提示 + 删除按钮(子组才显示) -->
     <div class="c-cg__head">
+      <i
+        :class="['c-cg__caret', collapsed ? 'el-icon-arrow-right' : 'el-icon-arrow-down']"
+        @click="toggleCollapsed"
+      />
       <el-radio-group v-model="localGroup.logic" size="mini" :disabled="disabled" @change="emitChange">
         <el-radio-button label="AND">且</el-radio-button>
         <el-radio-button label="OR">或</el-radio-button>
@@ -13,16 +17,17 @@
         icon="el-icon-delete"
         size="mini"
         class="c-cg__remove"
-        @click="$emit('remove')"
+        @click.stop="$emit('remove')"
       >删除分组</el-button>
     </div>
 
     <!-- 行/子分组列表 -->
-    <div
-      v-for="(item, idx) in localGroup.conditions"
-      :key="item.id"
-      class="c-cg__item"
-    >
+    <div v-show="!collapsed">
+      <div
+        v-for="(item, idx) in localGroup.conditions"
+        :key="item.id"
+        class="c-cg__item"
+      >
       <span class="c-cg__sep">
         {{ idx === 0 ? '·' : (localGroup.logic === 'AND' ? '且' : '或') }}
       </span>
@@ -44,6 +49,7 @@
         @remove="removeAt(idx)"
         @change="onChildChange(idx, $event)"
       />
+      </div>
     </div>
 
     <!-- 操作区 -->
@@ -96,7 +102,8 @@ export default {
   },
   data () {
     return {
-      localGroup: cloneTree(this.group)
+      localGroup: cloneTree(this.group),
+      collapsed: false
     };
   },
   watch: {
@@ -117,6 +124,9 @@ export default {
     }
   },
   methods: {
+    toggleCollapsed () {
+      this.collapsed = !this.collapsed;
+    },
     addRow () {
       this.localGroup.conditions.push(createEmptyRow());
       this.emitChange();
@@ -161,6 +171,19 @@ export default {
     align-items: center;
     gap: 12px;
     margin-bottom: 8px;
+  }
+  &__caret {
+    cursor: pointer;
+    color: #909399;
+    font-size: 12px;
+    padding: 4px;
+    user-select: none;
+    &:hover {
+      color: var(--leap-color-primary);
+    }
+  }
+  &--collapsed &__head {
+    margin-bottom: 0;
   }
   &__hint {
     color: #909399;
