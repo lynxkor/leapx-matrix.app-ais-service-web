@@ -1141,6 +1141,10 @@ export default {
       }
       this.activePresetId = preset.id;
       this.appliedCustomConditions = cloneTree(preset.tree);
+      // 同步排序(视图里有 sort 就用,没有就清空走后端默认)
+      this.sortColumns = preset.sort
+        ? [{ column: toSnakeCase(preset.sort.field), sort: preset.sort.order.toUpperCase() }]
+        : [];
       this.$message.success(`已使用视图「${preset.name}」,表单已锁定`);
     },
     handleTabChange () {
