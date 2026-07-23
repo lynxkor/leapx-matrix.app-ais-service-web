@@ -1050,6 +1050,7 @@ export default {
       this.appliedCustomConditions = null;
       this.activePresetId = null;
       this.form = { ...defaultForm, createTime: getDefaultCreateTime() };
+      this.sortColumns = [];
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
       this._scopeTypeOrgCache = null;
@@ -1059,6 +1060,7 @@ export default {
     handleClearPreset () {
       this.activePresetId = null;
       this.appliedCustomConditions = null;
+      this.sortColumns = [];
       this.$message.success('已清除方案,可自由编辑查询条件');
     },
     onMoveToTop (preset) {
