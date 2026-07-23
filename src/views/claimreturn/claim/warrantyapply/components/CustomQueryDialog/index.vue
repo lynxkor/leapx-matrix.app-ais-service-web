@@ -2,7 +2,7 @@
   <el-dialog
     title="自定义条件查询"
     :visible.sync="dialogVisible"
-    width="1000px"
+    width="80%"
     :close-on-click-modal="false"
     @close="onClose"
   >
@@ -45,6 +45,19 @@
           plain
           @click="onDeletePreset"
         >删除视图</el-button>
+        <el-button
+          v-if="selectedPreset"
+          size="small"
+          icon="el-icon-cpu"
+          :loading="perfTesting"
+          @click="onRunPerfTest"
+        >性能测试</el-button>
+        <el-tag
+          v-if="selectedPreset"
+          :type="perfStatusTagType"
+          size="small"
+          class="c-cqd__presets-status"
+        >{{ perfStatusLabel }}</el-tag>
         <el-tag
           v-if="selectedPreset"
           type="info"
@@ -76,7 +89,7 @@
       <div class="dialog-footer">
         <el-button size="small" @click="onClear">清空</el-button>
         <el-button size="small" @click="onClose">取消</el-button>
-        <el-button size="small" type="primary" @click="onApply">应用</el-button>
+        <el-button size="small" type="primary" @click="onApply">保存</el-button>
       </div>
     </template>
   </el-dialog>
@@ -95,7 +108,10 @@ import {
   addPreset,
   renamePreset,
   deletePreset,
-  updatePresetTree
+  updatePresetTree,
+  setPresetPerfStatus,
+  PERF_STATUS,
+  PERF_THRESHOLD_MS
 } from './presetStore';
 
 export default {
@@ -119,15 +135,22 @@ export default {
       // v-model:activePresetId — 当前激活的方案 ID(页面控制)
       type: String,
       default: null
+    },
+    editingPresetId: {
+      // 打开弹窗时直接定位到该视图(优先级高于 activePresetId)
+      type: String,
+      default: null
     }
   },
   data () {
     return {
       dialogVisible: this.visible,
       workingTree: this.makeInitialTree(),
+      workingSort: this.makeInitialSort(),
       errorSummary: [],
       presets: [],
-      selectedPresetId: null
+      selectedPresetId: null,
+      perfTesting: false
     };
   },
   computed: {
@@ -141,6 +164,23 @@ export default {
     canSave () {
       // 只读模式下不能保存(避免覆盖),且当前树必须有有效内容
       return !this.presetMode;
+    },
+    perfStatusLabel () {
+      if (!this.selectedPreset) return '';
+      const s = this.selectedPreset.perfStatus || PERF_STATUS.PENDING;
+      const dur = this.selectedPreset.perfDurationMs;
+      if (s === PERF_STATUS.PASSED && dur != null) return `已通过(${dur}ms)`;
+      if (s === PERF_STATUS.FAILED && dur != null) return `未通过(${dur}ms)`;
+      if (s === PERF_STATUS.PASSED) return '已通过';
+      if (s === PERF_STATUS.FAILED) return '未通过';
+      return '待测试';
+    },
+    perfStatusTagType () {
+      if (!this.selectedPreset) return 'info';
+      const s = this.selectedPreset.perfStatus || PERF_STATUS.PENDING;
+      if (s === PERF_STATUS.PASSED) return 'success';
+      if (s === PERF_STATUS.FAILED) return 'danger';
+      return 'warning';
     }
   },
   watch: {
@@ -148,12 +188,17 @@ export default {
       this.dialogVisible = val;
       if (val) {
         this.workingTree = this.makeInitialTree();
+        this.workingSort = this.makeInitialSort();
         this.errorSummary = [];
         this.presets = loadPresets();
-        // 父组件传入的 activePresetId 同步到 selectedPresetId
-        this.selectedPresetId = this.activePresetId || null;
+        // editingPresetId 优先(编辑指定视图的场景)
+        // 其次回退到 activePresetId(打开弹窗查看当前激活视图)
+        this.selectedPresetId = this.editingPresetId || this.activePresetId || null;
         if (this.selectedPreset) {
           this.workingTree = cloneTree(this.selectedPreset.tree);
+          this.workingSort = this.selectedPreset.sort
+            ? { ...this.selectedPreset.sort }
+            : this.makeInitialSort();
         }
       }
     },
@@ -162,6 +207,7 @@ export default {
       this.selectedPresetId = val || null;
       if (!val && this.dialogVisible) {
         this.workingTree = this.makeInitialTree();
+        this.workingSort = this.makeInitialSort();
       }
     }
   },
@@ -174,6 +220,10 @@ export default {
         logic: 'AND',
         conditions: [createEmptyRow()]
       };
+    },
+    makeInitialSort () {
+      // 当前没有"已应用排序"概念,自定义模式默认空
+      return { field: null, order: null };
     },
     onTreeChange (newTree) {
       this.workingTree = newTree;
@@ -270,6 +320,26 @@ export default {
         this.$emit('update:active-preset-id', null);
         this.$message.success('已删除视图');
       }).catch(() => {});
+    },
+    async onRunPerfTest () {
+      if (!this.selectedPreset || this.perfTesting) return;
+      const result = this.validateTree(this.workingTree);
+      if (!result.valid) {
+        this.errorSummary = result.summary;
+        this.$message.warning('请先完善条件再测试');
+        return;
+      }
+      this.errorSummary = [];
+      this.perfTesting = true;
+      // 模拟耗时:800-2800ms 随机
+      const duration = 800 + Math.floor(Math.random() * 2000);
+      await new Promise(resolve => setTimeout(resolve, duration));
+      const status = duration <= PERF_THRESHOLD_MS ? PERF_STATUS.PASSED : PERF_STATUS.FAILED;
+      this.presets = setPresetPerfStatus(this.selectedPreset.id, status, duration);
+      this.perfTesting = false;
+      this.$message[status === PERF_STATUS.PASSED ? 'success' : 'error'](
+        `性能测试${status === PERF_STATUS.PASSED ? '通过' : '未通过'}:耗时 ${duration}ms`
+      );
     },
     onApply () {
       const result = this.validateTree(this.workingTree);
