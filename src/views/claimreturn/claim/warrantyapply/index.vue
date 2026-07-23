@@ -541,6 +541,278 @@ export default {
       editingPresetId: null,
       presets: [],
       presetFilterKeyword: '',
+      tableColumns: [
+        {
+          props: 'alarmLevelLabel',
+          label: '三包预警',
+          visible: true,
+          width: 200,
+          // buttons: [{ type: 'primary' }],
+        },
+        {
+          props: 'applyNo',
+          label: '保修申请单',
+          visible: true,
+          width: 200,
+          buttons: [{
+            type: 'primary',
+            click: (rowIndex, row) => {
+              this.$router.push({
+                path: '/claimreturn/claim/warrantyApply/edit',
+                query: {
+                  id: row.id
+                }
+              });
+            }
+          }]
+        },
+        {
+          props: 'vin',
+          label: 'VIN',
+          visible: true,
+          width: 200,
+          mask: true,
+          getValue: (row) => getDetailDecryptField(row.id, 'vin'),
+          buttons: [{
+            type: 'primary',
+            click: (rowIndex, row) => {
+              this.$router.push({
+                path: '/datacenter/vehicle/vehicleProfile/edit',
+                query: {
+                  id: row.vehicleProfileId
+                }
+              });
+            }
+          }]
+        },
+        {
+          props: 'serviceProxyNo',
+          label: '施工单',
+          visible: true,
+          width: 200,
+          buttons: [{
+            type: 'primary',
+            click: (rowIndex, row) => {
+              this.$router.push({
+                path: '/maintain/sp/serviceProxy/edit',
+                query: {
+                  id: row.serviceProxyId
+                }
+              });
+            }
+          }]
+        },
+        {
+          props: 'statementCode',
+          label: '结算单号',
+          visible: true,
+          width: 200,
+          buttons: [{
+            type: 'primary',
+            click: (rowIndex, row) => {
+              this.$router.push({
+                path: '/maintain/sp/serviceStatement/edit',
+                query: {
+                  id: row.statementId
+                }
+              });
+            }
+          }]
+        },
+        { props: 'applyStatusLabel', label: '保修单状态', visible: true, width: 120 },
+        { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 120 },
+        {
+          props: 'dealerCode',
+          label: '门店编码',
+          visible: true,
+          width: 200,
+          buttons: [{
+            type: 'primary',
+            click: (rowIndex, row) => {
+              window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+            }
+          }]
+        },
+        { props: 'dealerName', label: '门店名称', visible: true, width: 140 },
+        { props: 'dealerRegionName', label: '门店所属区域', visible: true, width: 140 },
+        { props: 'currentSubmitTime', label: '当前提交时间', visible: true, width: 200 },
+        { props: 'approvalTime', label: '审批时间', visible: true, width: 200 },
+        { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 160, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vehiclePlateNo') },
+        { props: 'ownerName', label: '车主姓名', visible: true, width: 120, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'ownerName') },
+        { props: 'vehicleModelName', label: '车型', visible: true, width: 180 },
+        { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 200 },
+        { props: 'repairStartTime', label: '维修开始日期', visible: true, width: 200 },
+        { props: 'mainPartCode', label: '主因件编码', visible: true, width: 200 },
+        { props: 'mainPartName', label: '主因件名称', visible: true, width: 200 },
+        { props: 'mileage', label: '进店里程 KM', visible: true, width: 160, align: 'right' },
+        { props: 'serviceMonth', label: '服务月份', visible: true, width: 120, align: 'right' },
+        { props: 'laborClaimTotal', label: '工时索赔小计', visible: true, width: 160, align: 'right' },
+        { props: 'partsClaimTotal', label: '备件索赔小计', visible: true, width: 160, align: 'right' },
+        { props: 'otherClaimTotal', label: '其他索赔小计', visible: true, width: 160, align: 'right' },
+        { props: 'totalClaimAmount', label: '索赔总金额', visible: true, width: 160, align: 'right' },
+        { props: 'workCostCount', label: '工时费用小计', visible: true, width: 160, align: 'right' },
+        { props: 'partsCostTotal', label: '备件费用小计', visible: true, width: 160, align: 'right' },
+        { props: 'otherCostTotal', label: '其他费用小计', visible: true, width: 160, align: 'right' },
+        { props: 'laborShareRatio', label: '工时分担比例', visible: true, width: 160, align: 'right' },
+        { props: 'partsShareRatio', label: '备件分担比例', visible: true, width: 160, align: 'right' },
+        { props: 'otherShareRatio', label: '其他分担比例', visible: true, width: 160, align: 'right' },
+        { props: 'faultPhenomenon', label: '故障信息描述', visible: true, width: 200 },
+        { props: 'troubleshootingFlow', label: '故障流程排查', visible: true, width: 200 },
+        { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+        { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+        {
+          props: 'operate',
+          label: '操作',
+          type: 'operate',
+          visible: true,
+          fixed: 'right',
+          buttons: [
+            {
+              name: '编辑 ',
+              show: (row) => {
+                return this.edit && (row.applyStatus === '10' || row.applyStatus === '30');
+              },
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantyApply/edit',
+                  query: {
+                    id: row.id,
+                    isEditing: true
+                  }
+                });
+              },
+              type: 'info'
+            }, {
+              name: '提交',
+              // popconfirmTitle: '确认提交?',
+              click: (rowIndex, row) => {
+                submit({
+                  id: row.id,
+                }).then(res => {
+                  this.$message.success('提交成功');
+                  this.getData();
+                });
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.submit) {
+                  return false;
+                }
+                // 未提交，已驳回
+                if (EDITABLE_STATUSES.includes(row.applyStatus)) {
+                  return true;
+                }
+                return false;
+              },
+            },
+            {
+              name: '同意',
+              click: (rowIndex, row) => {
+                this.handleApprove([row.id]);
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.approve) {
+                  return false;
+                }
+                return this.isRowPendingCurrentUserReview(row);
+              },
+            },
+            {
+              name: '驳回',
+              click: (rowIndex, row) => {
+                this.handleReject([row.id], false);
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.reject) {
+                  return false;
+                }
+                return this.isRowPendingCurrentUserReview(row);
+              },
+            },
+            {
+              name: '申请驳回',
+              click: (rowIndex, row) => {
+                this.handleReject([row.id], true);
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.applyReject) {
+                  return false;
+                }
+                return this.isRowPendingCurrentUserReview(row) || row.applyStatus === APPLY_STATUS.APPROVED;
+              },
+            },
+            {
+              name: '撤回',
+              click: (rowIndex, row) => {
+                this.handleWithdraw([row.id]);
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.withdraw) {
+                  return false;
+                }
+                // 【保修单状态】为审核通过，已拒赔 显示此按钮
+                if (WITHDRAWABLE_STATUSES.includes(row.applyStatus)) {
+                  return true;
+                }
+                return false;
+              },
+            },
+            {
+              name: '拒赔',
+              click: (rowIndex, row) => {
+                this.handleDeny([row.id]);
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.deny) {
+                  return false;
+                }
+                return this.isRowPendingCurrentUserReview(row);
+              },
+            },
+            {
+              name: '作废',
+              click: (rowIndex, row) => {
+                this.handleCancel([row.id]);
+              },
+              type: 'info',
+              show: (row) => {
+                if (!this.cancel) {
+                  return false;
+                }
+                // 保修单状态】为未提交，已驳回，显示此按钮
+                if (EDITABLE_STATUSES.includes(row.applyStatus)) {
+                  return true;
+                }
+                return false;
+              },
+            },
+            {
+              name: '打印标签',
+              click: (rowIndex, row) => {
+                this.handlePrint([row.id]);
+              },
+              type: 'info',
+            },
+            {
+              name: '查看权益',
+              show: () => {
+                return this.detail;
+              },
+              click: (rowIndex, row) => {
+                this.rightsDialogVisible = true;
+                this.vehicleProfileId = row.vehicleProfileId;
+                this.rowId = row.id;
+              },
+              type: 'info',
+            },
+          ]
+        }
+      ],
     };
   },
   computed: {
@@ -567,278 +839,7 @@ export default {
         id: 'warrantyApplyTable',
         dataList: this.tableDataList,
         form: this.tableForm,
-        dataProp: [
-          {
-            props: 'alarmLevelLabel',
-            label: '三包预警',
-            visible: true,
-            width: 200,
-            // buttons: [{ type: 'primary' }],
-          },
-          {
-            props: 'applyNo',
-            label: '保修申请单',
-            visible: true,
-            width: 200,
-            buttons: [{
-              type: 'primary',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/claimreturn/claim/warrantyApply/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              }
-            }]
-          },
-          {
-            props: 'vin',
-            label: 'VIN',
-            visible: true,
-            width: 200,
-            mask: true,
-            getValue: (row) => getDetailDecryptField(row.id, 'vin'),
-            buttons: [{
-              type: 'primary',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/datacenter/vehicle/vehicleProfile/edit',
-                  query: {
-                    id: row.vehicleProfileId
-                  }
-                });
-              }
-            }]
-          },
-          {
-            props: 'serviceProxyNo',
-            label: '施工单',
-            visible: true,
-            width: 200,
-            buttons: [{
-              type: 'primary',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/maintain/sp/serviceProxy/edit',
-                  query: {
-                    id: row.serviceProxyId
-                  }
-                });
-              }
-            }]
-          },
-          {
-            props: 'statementCode',
-            label: '结算单号',
-            visible: true,
-            width: 200,
-            buttons: [{
-              type: 'primary',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/maintain/sp/serviceStatement/edit',
-                  query: {
-                    id: row.statementId
-                  }
-                });
-              }
-            }]
-          },
-          { props: 'applyStatusLabel', label: '保修单状态', visible: true, width: 120 },
-          { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 120 },
-          {
-            props: 'dealerCode',
-            label: '门店编码',
-            visible: true,
-            width: 200,
-            buttons: [{
-              type: 'primary',
-              click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
-              }
-            }]
-          },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 140 },
-          { props: 'dealerRegionName', label: '门店所属区域', visible: true, width: 140 },
-          { props: 'currentSubmitTime', label: '当前提交时间', visible: true, width: 200 },
-          { props: 'approvalTime', label: '审批时间', visible: true, width: 200 },
-          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 160, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'vehiclePlateNo') },
-          { props: 'ownerName', label: '车主姓名', visible: true, width: 120, mask: true, getValue: (row) => getDetailDecryptField(row.id, 'ownerName') },
-          { props: 'vehicleModelName', label: '车型', visible: true, width: 180 },
-          { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 200 },
-          { props: 'repairStartTime', label: '维修开始日期', visible: true, width: 200 },
-          { props: 'mainPartCode', label: '主因件编码', visible: true, width: 200 },
-          { props: 'mainPartName', label: '主因件名称', visible: true, width: 200 },
-          { props: 'mileage', label: '进店里程 KM', visible: true, width: 160, align: 'right' },
-          { props: 'serviceMonth', label: '服务月份', visible: true, width: 120, align: 'right' },
-          { props: 'laborClaimTotal', label: '工时索赔小计', visible: true, width: 160, align: 'right' },
-          { props: 'partsClaimTotal', label: '备件索赔小计', visible: true, width: 160, align: 'right' },
-          { props: 'otherClaimTotal', label: '其他索赔小计', visible: true, width: 160, align: 'right' },
-          { props: 'totalClaimAmount', label: '索赔总金额', visible: true, width: 160, align: 'right' },
-          { props: 'workCostCount', label: '工时费用小计', visible: true, width: 160, align: 'right' },
-          { props: 'partsCostTotal', label: '备件费用小计', visible: true, width: 160, align: 'right' },
-          { props: 'otherCostTotal', label: '其他费用小计', visible: true, width: 160, align: 'right' },
-          { props: 'laborShareRatio', label: '工时分担比例', visible: true, width: 160, align: 'right' },
-          { props: 'partsShareRatio', label: '备件分担比例', visible: true, width: 160, align: 'right' },
-          { props: 'otherShareRatio', label: '其他分担比例', visible: true, width: 160, align: 'right' },
-          { props: 'faultPhenomenon', label: '故障信息描述', visible: true, width: 200 },
-          { props: 'troubleshootingFlow', label: '故障流程排查', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
-            visible: true,
-            fixed: 'right',
-            buttons: [
-              {
-                name: '编辑 ',
-                show: (row) => {
-                  return this.edit && (row.applyStatus === '10' || row.applyStatus === '30');
-                },
-                click: (rowIndex, row) => {
-                  this.$router.push({
-                    path: '/claimreturn/claim/warrantyApply/edit',
-                    query: {
-                      id: row.id,
-                      isEditing: true
-                    }
-                  });
-                },
-                type: 'info'
-              }, {
-                name: '提交',
-                // popconfirmTitle: '确认提交?',
-                click: (rowIndex, row) => {
-                  submit({
-                    id: row.id,
-                  }).then(res => {
-                    this.$message.success('提交成功');
-                    this.getData();
-                  });
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.submit) {
-                    return false;
-                  }
-                  // 未提交，已驳回
-                  if (EDITABLE_STATUSES.includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
-                },
-              },
-              {
-                name: '同意',
-                click: (rowIndex, row) => {
-                  this.handleApprove([row.id]);
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.approve) {
-                    return false;
-                  }
-                  return this.isRowPendingCurrentUserReview(row);
-                },
-              },
-              {
-                name: '驳回',
-                click: (rowIndex, row) => {
-                  this.handleReject([row.id], false);
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.reject) {
-                    return false;
-                  }
-                  return this.isRowPendingCurrentUserReview(row);
-                },
-              },
-              {
-                name: '申请驳回',
-                click: (rowIndex, row) => {
-                  this.handleReject([row.id], true);
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.applyReject) {
-                    return false;
-                  }
-                  return this.isRowPendingCurrentUserReview(row) || row.applyStatus === APPLY_STATUS.APPROVED;
-                },
-              },
-              {
-                name: '撤回',
-                click: (rowIndex, row) => {
-                  this.handleWithdraw([row.id]);
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.withdraw) {
-                    return false;
-                  }
-                  // 【保修单状态】为审核通过，已拒赔 显示此按钮
-                  if (WITHDRAWABLE_STATUSES.includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
-                },
-              },
-              {
-                name: '拒赔',
-                click: (rowIndex, row) => {
-                  this.handleDeny([row.id]);
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.deny) {
-                    return false;
-                  }
-                  return this.isRowPendingCurrentUserReview(row);
-                },
-              },
-              {
-                name: '作废',
-                click: (rowIndex, row) => {
-                  this.handleCancel([row.id]);
-                },
-                type: 'info',
-                show: (row) => {
-                  if (!this.cancel) {
-                    return false;
-                  }
-                  // 保修单状态】为未提交，已驳回，显示此按钮
-                  if (EDITABLE_STATUSES.includes(row.applyStatus)) {
-                    return true;
-                  }
-                  return false;
-                },
-              },
-              {
-                name: '打印标签',
-                click: (rowIndex, row) => {
-                  this.handlePrint([row.id]);
-                },
-                type: 'info',
-              },
-              {
-                name: '查看权益',
-                show: () => {
-                  return this.detail;
-                },
-                click: (rowIndex, row) => {
-                  this.rightsDialogVisible = true;
-                  this.vehicleProfileId = row.vehicleProfileId;
-                  this.rowId = row.id;
-                },
-                type: 'info',
-              },
-            ]
-          }
-        ],
+        dataProp: this.tableColumns.map(c => ({ sortable: false, ...c })),
         total: this.tableTotal
       };
     },
