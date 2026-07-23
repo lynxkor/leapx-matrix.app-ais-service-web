@@ -148,4 +148,10 @@ export function createEmptyGroup (logic = 'AND') {
 // 工具:深度克隆条件树
 export function cloneTree (tree) {
   return JSON.parse(JSON.stringify(tree));
-}
+}
+
+// 工具:camelCase → snake_case (createTime → create_time)
+export function toSnakeCase (field) {
+  if (!field) return '';
+  return field.replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, '');
+}
