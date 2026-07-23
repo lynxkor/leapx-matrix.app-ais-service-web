@@ -58,49 +58,26 @@
     </div>
 
     <div class="ais-table-c">
-      <vxe-table
-        ref="xTable"
+      <LPVxeTable
+        ref="tableRef"
         v-loading="loading"
-        :data="optionObj.dataList"
-        max-height="800"
-        size="small"
-        resizable
-        stripe
-        border="inner"
-        show-overflow
-        highlight-hover-row
-        :auto-resize="true"
-      >
-        <vxe-column
-          v-for="col in tableColumns"
-          :key="col.props"
-          :field="col.props"
-          :title="col.label"
-          :width="col.width"
-          :align="col.align || 'left'"
-        />
-      </vxe-table>
-      <el-pagination
-        v-if="optionObj.total > 0"
-        class="ais-pagination"
-        background
-        :current-page.sync="optionObj.form.page"
-        :page-sizes="[10, 20, 50, 100]"
-        :page-size.sync="optionObj.form.size"
-        :total="optionObj.total"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @current-change="handlePageChange"
+        is-page
+        :option-obj="optionObj"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
       />
     </div>
   </div>
 </template>
 
 <script>
+import debounce from 'lodash.debounce';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import FetchSelect from '@/libs/components/FetchSelect';
+import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import { pageStoreRevenue } from '@/api/datareport/storeRevenue';
-import { listOrgStoreInfoByParam, exportTable } from '@/api/common';
+import { listOrgStoreInfoByParam, exportTable, getTableConfig, tableAddOrUpdate } from '@/api/common';
 import { downloadExcel } from '@/libs/utils';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
@@ -116,7 +93,7 @@ const defaultForm = {
 export default {
   name: 'StoreRevenue',
   mixins: [responsiveSearchForm, permissions, commonMixins],
-  components: { PageSearchAction, FetchSelect },
+  components: { PageSearchAction, FetchSelect, LPVxeTable },
   data () {
     return {
       pageTitle: '门店营收报表',
@@ -142,13 +119,11 @@ export default {
           }
         }]
       },
-      // 字段顺序严格按 Excel 【业务已确认】门店营收报表 sheet(38 字段)
       optionObj: {
         id: 'storeRevenueTable',
         dataList: [],
         form: { page: 1, size: pageSize },
         dataProp: [
-          // ===== 门店维度(11)=====
           { props: 'region', label: '区域', visible: true, width: 120 },
           { props: 'province', label: '省', visible: true, width: 100 },
           { props: 'city', label: '市', visible: true, width: 100 },
@@ -158,7 +133,6 @@ export default {
           { props: 'cooperationTypeLabel', label: '合作伙伴', visible: true, width: 120 },
           { props: 'companyName', label: '母公司名称', visible: true, width: 180 },
           { props: 'companyCode', label: '母公司编码', visible: true, width: 140 },
-          // ===== 单据维度(9)=====
           { props: 'vin', label: 'VIN', visible: true, width: 180 },
           { props: 'carPlate', label: '车牌号', visible: true, width: 130 },
           { props: 'creatorName', label: '开单人', visible: true, width: 110 },
@@ -168,11 +142,9 @@ export default {
           { props: 'warrantyApplyCode', label: '保修申请单', visible: true, width: 200 },
           { props: 'serviceOrderCreateTime', label: '开单日期', visible: true, width: 170 },
           { props: 'orderStatusLabel', label: '工单状态', visible: true, width: 110 },
-          // ===== 时间维度(3)=====
           { props: 'factoryOutTime', label: '出厂日期', visible: true, width: 170 },
           { props: 'receiveOrApproveTime', label: '收款/审批通过日期', visible: true, width: 170 },
           { props: 'statementTypeLabel', label: '结算类型', visible: true, width: 110 },
-          // ===== 金额维度(14)=====
           { props: 'itemCustomerPayable', label: '项目客户应付', visible: true, width: 140, align: 'right', sum: true },
           { props: 'itemCustomerDiscount', label: '项目客户优惠', visible: true, width: 140, align: 'right', sum: true },
           { props: 'itemDealerReceivable', label: '项目门店应收', visible: true, width: 140, align: 'right', sum: true },
@@ -191,12 +163,6 @@ export default {
       }
     };
   },
-  computed: {
-    // 表格列定义(取自 optionObj.dataProp,过滤掉 visible: false 的列)
-    tableColumns () {
-      return this.optionObj.dataProp.filter(c => c.visible !== false);
-    }
-  },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     // 默认近一个月
@@ -206,7 +172,6 @@ export default {
     const fmt = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
     start.setHours(0, 0, 0, 0); now.setHours(23, 59, 59, 999);
     this.form.receiveTime = [fmt(start), fmt(now)];
-    // 首次进入页面加载数据(commonMixins.activated 故意跳过首次激活,首次加载由页面 created 负责)
     this.getData();
   },
   methods: {
@@ -220,7 +185,6 @@ export default {
       }
     },
     onSubmit () {
-      // 校验时间范围
       if (!this.form.receiveTime || this.form.receiveTime.length < 2) {
         this.$message({ type: 'warning', message: '请选择收款/审批时间范围(必填)' });
         return;
@@ -267,13 +231,11 @@ export default {
     },
     getFormData () {
       const data = { ...this.form };
-      // 清除空值(空数组也清掉,让后端走"全权限"分支)
       Object.keys(data).forEach(k => {
         const v = data[k];
         if (v === '' || v === null) delete data[k];
         else if (Array.isArray(v) && v.length === 0) delete data[k];
       });
-      // 时间区间拆分
       if (data.receiveTime && data.receiveTime.length === 2) {
         data.receiveStartTime = data.receiveTime[0];
         data.receiveEndTime = data.receiveTime[1];
@@ -281,15 +243,30 @@ export default {
       }
       return data;
     },
-    handleSizeChange (size) {
-      this.optionObj.form.size = size;
-      this.optionObj.form.page = 1;
-      this.getData();
+    getConfig () {
+      return new Promise((resolve) => {
+        getTableConfig(this.optionObj.id).then(data => {
+          resolve({ data });
+        }).catch(err => {
+          console.error(err);
+          resolve({ data: null });
+        });
+      });
     },
-    handlePageChange (page) {
-      this.optionObj.form.page = page;
-      this.getData();
+    saveOrUpdate (data) {
+      return tableAddOrUpdate(data);
     },
+    paginationChange (type, num) {
+      if (type === 'page') {
+        this.optionObj.form.page = num;
+      } else {
+        this.optionObj.form.size = num;
+      }
+      this.debouncedGetData();
+    },
+    debouncedGetData: debounce(function () {
+      this.getData();
+    }, 300),
     exportExcel () {
       if (!this.form.receiveTime || this.form.receiveTime.length < 2) {
         this.$message({ type: 'warning', message: '请先选择收款/审批时间范围' });
@@ -300,7 +277,7 @@ export default {
         businessType: '门店营收报表',
         dataFetchPath: 'datareport/web/revenue/storeRevenue/page',
         reqParams: this.getFormData(),
-        titleMap: Object.fromEntries(this.tableColumns.map(col => [col.props, col.label])),
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -327,10 +304,6 @@ export default {
 .m-store-revenue-list {
   .ais-actions {
     margin-bottom: 12px;
-  }
-  .ais-pagination {
-    margin-top: 16px;
-    text-align: right;
   }
 }
 </style>
