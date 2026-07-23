@@ -135,7 +135,7 @@ import {
   addPreset,
   renamePreset,
   deletePreset,
-  updatePresetTree,
+  updatePreset,
   setPresetPerfStatus,
   PERF_STATUS,
   PERF_THRESHOLD_MS
@@ -262,12 +262,14 @@ export default {
           logic: 'AND',
           conditions: [createEmptyRow()]
         };
+        this.workingSort = this.makeInitialSort();
         this.$emit('update:active-preset-id', null);
         return;
       }
       const preset = this.presets.find(p => p.id === id);
       if (preset) {
         this.workingTree = cloneTree(preset.tree);
+        this.workingSort = preset.sort ? { ...preset.sort } : this.makeInitialSort();
         this.$emit('update:active-preset-id', id);
       }
     },
@@ -299,7 +301,9 @@ export default {
           }
           deletePreset(dup.id);
         }
-        const preset = addPreset(name, this.workingTree);
+        const preset = addPreset(name, this.workingTree, this.workingSort.field
+          ? { field: this.workingSort.field, order: this.workingSort.order }
+          : null);
         this.presets = loadPresets();
         this.selectedPresetId = preset.id;
         this.$emit('update:active-preset-id', preset.id);
@@ -344,6 +348,7 @@ export default {
           logic: 'AND',
           conditions: [createEmptyRow()]
         };
+        this.workingSort = this.makeInitialSort();
         this.$emit('update:active-preset-id', null);
         this.$message.success('已删除视图');
       }).catch(() => {});
@@ -369,18 +374,29 @@ export default {
       );
     },
     onApply () {
-      const result = this.validateTree(this.workingTree);
-      if (!result.valid) {
-        this.errorSummary = result.summary;
+      const treeResult = this.validateTree(this.workingTree);
+      const sortResult = this.validateSort();
+      const summary = [...treeResult.summary, ...sortResult.summary];
+      if (summary.length > 0) {
+        this.errorSummary = summary;
         return;
       }
       this.errorSummary = [];
-      // 选中预设:把改动写回预设(否则只更新 appliedCustomConditions,预设不变)
+      // 选中预设:把改动写回预设(tree + sort 一起)
       if (this.selectedPresetId) {
-        this.presets = updatePresetTree(this.selectedPresetId, this.workingTree);
+        this.presets = updatePreset(this.selectedPresetId, {
+          tree: this.workingTree,
+          sort: this.workingSort.field
+            ? { field: this.workingSort.field, order: this.workingSort.order }
+            : null
+        });
       }
       this.$emit('input', cloneTree(this.workingTree));
-      this.$message.success(`已应用 ${this.countNodes(this.workingTree)} 个自定义条件`);
+      this.$emit('update:sort', this.workingSort.field
+        ? { field: this.workingSort.field, order: this.workingSort.order }
+        : null);
+      const tipExtra = this.workingSort.field ? `,排序:${this.workingSort.field} ${this.workingSort.order}` : '';
+      this.$message.success(`已应用 ${this.countNodes(this.workingTree)} 个自定义条件${tipExtra}`);
       this.$emit('update:visible', false);
     },
     onClear () {
@@ -393,6 +409,7 @@ export default {
           logic: 'AND',
           conditions: [createEmptyRow()]
         };
+        this.workingSort = this.makeInitialSort();
         this.selectedPresetId = null;
         this.errorSummary = [];
         this.$emit('update:active-preset-id', null);
@@ -437,6 +454,17 @@ export default {
         }
       });
 
+      return { valid: summary.length === 0, summary };
+    },
+    /**
+     * 排序校验:返回 { valid, summary }
+     * 规则:选了字段就必须选 order;两者皆空视为"不指定排序",合法。
+     */
+    validateSort () {
+      const summary = [];
+      if (this.workingSort.field && !this.workingSort.order) {
+        summary.push('排序:请选择顺序');
+      }
       return { valid: summary.length === 0, summary };
     },
     countNodes (group) {
