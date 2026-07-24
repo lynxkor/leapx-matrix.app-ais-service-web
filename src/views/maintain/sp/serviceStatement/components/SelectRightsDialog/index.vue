@@ -297,9 +297,9 @@ export default {
       return { threshold: 0, discount: 0 };
     },
 
-    // 计算指定维修类型的项目+零件总金额
-    calculateRepairTypeAmount (repairTypeNames, repairTypeIds = '') {
-      if (!repairTypeNames || repairTypeNames.length === 0) return 0;
+    // 计算指定维修类型的金额：gross=项目+零件原值(毛额)，net=毛额−该类型已核销券(净额)
+    calculateRepairTypeAmount (repairTypeNames, repairTypeIds = []) {
+      if (!repairTypeNames || repairTypeNames.length === 0) return { gross: 0, net: 0 };
 
       const repairItemAmount = (this.formData.repairItemResps || [])
         .filter(item => repairTypeNames.includes(item.repairItemTypeName))
@@ -314,11 +314,8 @@ export default {
         .filter(item => repairTypeIds.includes(item.repairTypeId))
         .reduce((sum, item) => sum + parseFloat(item.deductibleAmount || 0), 0);
 
-      const res = {
-        total: repairItemAmount + partAmount,
-        remain: repairItemAmount + partAmount - usedCoupons
-      };
-      return res;
+      const gross = repairItemAmount + partAmount;
+      return { gross: gross, net: gross - usedCoupons };
     },
 
     // 校验优惠券基础可用性（不考虑累计使用）
@@ -350,37 +347,63 @@ export default {
         };
       }
 
-      // 校验2: 满减金额校验（基础校验，检查单次使用是否满足门槛）
-      const totalAmount = this.calculateRepairTypeAmount(repairTypeNames, repairTypeIds);
+      // 校验2: 满减金额校验（基础校验，检查单次使用是否满足门槛），门槛按各类型毛额判定
+      const amountInfoCalc = this.calculateRepairTypeAmount(repairTypeNames, repairTypeIds);
 
-      if (amountInfo.threshold > 0 && amountInfo.threshold > totalAmount.total) {
+      if (amountInfo.threshold > 0 && amountInfo.threshold > amountInfoCalc.gross) {
         return {
           valid: false,
           reason: 'amount_not_enough',
-          message: `维修类型${repairTypeNames}可用金额为 ${totalAmount.remain} 元，不满满减门槛 ${amountInfo.threshold} 元`
+          message: `维修类型${repairTypeNames}订单金额为 ${amountInfoCalc.gross} 元，不满满减门槛 ${amountInfo.threshold} 元`
         };
       }
 
-      return { valid: true, amountInfo, totalAmount: totalAmount.remain, repairTypeNames };
+      return { valid: true, amountInfo, totalAmount: amountInfoCalc.net, repairTypeNames };
     },
 
-    // 初始化各维修类型的可用金额
+    // 初始化各维修类型的可用金额（净额，负值溢出转移到其他类型，保证全 ≥ 0）
     initTypeAmounts () {
       const typeAmounts = {};
 
-      // 收集所有维修类型
-      const allTypes = new Set();
+      // 收集所有维修类型：类型名 -> 类型Id（按名去重）
+      const typeIdMap = {};
       (this.formData.repairItemResps || []).forEach(item => {
-        allTypes.add(item);
+        typeIdMap[item.repairItemTypeName] = item.repairItemTypeId;
       });
       (this.formData.partResps || []).forEach(part => {
-        allTypes.add(part);
+        typeIdMap[part.repairItemTypeName] = part.repairItemTypeId;
       });
 
-      // 计算每个类型的总金额
-      allTypes.forEach(el => {
-        const amountInfo = this.calculateRepairTypeAmount([el.repairItemTypeName], [el.repairItemTypeId]);
-        typeAmounts[el.repairItemTypeName] = amountInfo.remain;
+      // 1. 计算每个类型的初始净额（项目+零件 − 该类型已核销）
+      const nets = {};
+      Object.keys(typeIdMap).forEach(typeName => {
+        nets[typeName] = this.calculateRepairTypeAmount([typeName], [typeIdMap[typeName]]).net;
+      });
+
+      // 2. 汇总负值类型的溢出量，负值类型 remain 置 0
+      let overflow = 0;
+      Object.keys(nets).forEach(typeName => {
+        if (nets[typeName] < 0) {
+          overflow += -nets[typeName];
+          nets[typeName] = 0;
+        }
+      });
+
+      // 3. 把溢出量按可用容量降序，从正值类型贪心扣除
+      if (overflow > 0) {
+        const positiveTypes = Object.keys(nets).filter(t => nets[t] > 0)
+          .sort((a, b) => nets[b] - nets[a]);
+        for (const typeName of positiveTypes) {
+          if (overflow <= 0) break;
+          const deduct = Math.min(overflow, nets[typeName]);
+          nets[typeName] -= deduct;
+          overflow -= deduct;
+        }
+      }
+
+      // 4. 兜底：若正值类型不足以消化溢出，保留剩余溢出（不应发生）
+      Object.keys(nets).forEach(typeName => {
+        typeAmounts[typeName] = Math.max(0, nets[typeName]);
       });
 
       return typeAmounts;
@@ -422,7 +445,7 @@ export default {
         }
       }
 
-      // 只要能分配一部分就成功，因为实际优惠不会超过订单金额
+      // 只要能分配一部分就成功
       const totalAllocated = discount - remaining;
       return totalAllocated > 0;
     },
@@ -489,7 +512,7 @@ export default {
           return {
             valid: false,
             reason: 'exceed_available_amount',
-            message: `已选的优惠券金额已经大于${itemTypes}剩余应付款金额，不能再选择新的抵扣券`
+            message: `所选权益减免金额已超过适用维修类型（${itemTypes}）的剩余应付款，不能再选择新的抵扣券`
             // `优惠券"${item.rightsName}"（减免${itemDiscount}元，适用：${itemTypes}）无法分配。${details}`
           };
         }
