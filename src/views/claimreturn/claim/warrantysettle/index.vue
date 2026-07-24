@@ -74,6 +74,30 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <el-form-item label="发票验收日期">
+          <el-date-picker
+            v-model="form.invoiceCheckTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="付款确认日期">
+          <el-date-picker
+            v-model="form.paymentConfirmTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -163,6 +187,8 @@ const defaultForm = {
   invoiceAccountNameLike: '',
   createTime: '',
   updateTime: '',
+  invoiceCheckTime: '',
+  paymentConfirmTime: '',
 };
 
 const pageSize = 20;
@@ -336,6 +362,8 @@ export default {
           },
           { props: 'createTime', label: '创建时间', visible: true, width: 180 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
+          { props: 'invoiceCheckTime', label: '发票验收日期', visible: true, width: 180 },
+          { props: 'paymentConfirmTime', label: '付款确认日期', visible: true, width: 180 },
           {
             props: 'operate',
             label: '操作',
@@ -590,6 +618,20 @@ export default {
         if (this.form.updateTime.length > 1) {
           data.updateTimeStart = this.form.updateTime[0];
           data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
+        }
+      }
+      if (this.form.invoiceCheckTime) {
+        delete data.invoiceCheckTime;
+        if (this.form.invoiceCheckTime.length > 1) {
+          data.invoiceCheckTimeStart = this.form.invoiceCheckTime[0];
+          data.invoiceCheckTimeEnd = getEndOfDayString(this.form.invoiceCheckTime[1]);
+        }
+      }
+      if (this.form.paymentConfirmTime) {
+        delete data.paymentConfirmTime;
+        if (this.form.paymentConfirmTime.length > 1) {
+          data.paymentConfirmTimeStart = this.form.paymentConfirmTime[0];
+          data.paymentConfirmTimeEnd = getEndOfDayString(this.form.paymentConfirmTime[1]);
         }
       }
 
