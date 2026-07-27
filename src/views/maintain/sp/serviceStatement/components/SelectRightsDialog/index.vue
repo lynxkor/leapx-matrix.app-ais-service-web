@@ -9,8 +9,8 @@
       <!-- 数据表格 -->
       <div class="table-section">
         <vxe-table ref="rightsTable" :data="tableData" stripe :row-config="{ isHover: true }" resizable max-height="500"
-          border="inner" size="medium" :checkbox-config="{ checkField: 'checked', checkMethod: checkMethod }"
-          @checkbox-change="handleSelectionChange" @checkbox-all="handleSelectAll"
+          border="inner" size="medium" :checkbox-config="{ checkField: 'checked', checkMethod: checkMethod, showHeader: false }"
+          @checkbox-change="handleSelectionChange"
           :row-class-name="tableRowClassName">
           <vxe-column type="checkbox" width="60" align="center" />
           <vxe-column field="useId" title="权益ID" width="250" show-overflow="tooltip" />
@@ -122,107 +122,6 @@ export default {
           });
         }
       }
-    },
-
-    // 判断单行是否应当被选中（全选拦截回滚时按此规则统一重算）
-    // 业务规则：可用(isChange) + 剩余为0时仅允许(0,0)券 + 通过基础校验
-    shouldRowBeChecked (row, isRemainZero) {
-      if (row.isChange !== true) return false;
-      if (isRemainZero) {
-        const { threshold, discount } = this.parsePaymentAmount(row.paymentAmount);
-        if (!(threshold === 0 && discount === 0)) return false;
-      }
-      return this.validateCoupon(row).valid;
-    },
-
-    // 处理全选事件
-    handleSelectAll ({ checked, records }) {
-      if (!checked) return;
-
-      const isRemainZero = this.isRemainAmountZero();
-      // 全选时，剩余应付款金额为0时只允许满减金额为(0,0)的券
-      let availableRecords = records;
-      if (isRemainZero) {
-        availableRecords = records.filter(coupon => {
-          const amountInfo = this.parsePaymentAmount(coupon.paymentAmount);
-          return amountInfo.threshold === 0 && amountInfo.discount === 0;
-        });
-        if (availableRecords.length === 0) {
-          this.$nextTick(() => {
-            this.tableData.forEach(row => {
-              row.checked = this.shouldRowBeChecked(row, isRemainZero);
-            });
-            this.$refs.rightsTable.checkSelectionStatus();
-            this.$message.warning('剩余应付款金额为0，不能再选择新的抵扣券');
-          });
-          return;
-        }
-      }
-
-      // 计算最大可行子集（剩余应付款约束下能同时核销的券）
-      const result = this.findMaximalFeasibleSubset(availableRecords);
-      const selectedIdSet = new Set(result.selectedIds);
-
-      this.$nextTick(() => {
-        this.tableData.forEach(row => {
-          row.checked = selectedIdSet.has(row.useId) ? this.shouldRowBeChecked(row, isRemainZero) : false;
-        });
-        this.$refs.rightsTable.checkSelectionStatus();
-        if (result.feasibleCount < result.requestedCount) {
-          this.$message.warning('部分优惠券无法同时使用，已为您选择最优组合');
-        }
-      });
-    },
-
-    // 计算最大可行子集：在剩余应付款约束下，求能同时核销的最大券集合
-    // 返回 { selectedIds, feasibleCount, requestedCount }
-    findMaximalFeasibleSubset (allCoupons) {
-      const requestedCount = allCoupons.length;
-      const typeCaps = this.computeTypeCaps();
-
-      // 分离：(0,0) 券无减免，无条件纳入结果；其余券需通过门禁并参与可行性判定
-      const zeroCouponIds = [];
-      const gated = [];
-      allCoupons.forEach(coupon => {
-        const { discount } = this.parsePaymentAmount(coupon.paymentAmount);
-        if (discount === 0) {
-          zeroCouponIds.push(coupon.useId);
-          return;
-        }
-        if (this.validateCoupon(coupon).valid) {
-          gated.push(coupon);
-        }
-      });
-
-      // 候选券按专用优先（适用类型数升序）排序：专用券先占用其类型额度，通用券后吃剩余，避免通用券抢占专用券额度
-      const byPriority = [...gated].sort((a, b) => {
-        const aTypes = (a.relatedRepairTypeList || []).length;
-        const bTypes = (b.relatedRepairTypeList || []).length;
-        return aTypes - bTypes;
-      });
-
-      // 从全部通过门禁的券出发；不可行时每次剔除"最难安放"（减免/适用类型数 比值最大）的券，重测
-      const remaining = [...byPriority];
-      while (remaining.length > 0 && !this.isFeasible(remaining, typeCaps).feasible) {
-        let worstIdx = 0;
-        let worstScore = -Infinity;
-        remaining.forEach((c, i) => {
-          const { discount } = this.parsePaymentAmount(c.paymentAmount);
-          const typeCount = Math.max(1, (c.relatedRepairTypeList || []).length);
-          const score = discount / typeCount;
-          if (score > worstScore) {
-            worstScore = score;
-            worstIdx = i;
-          }
-        });
-        remaining.splice(worstIdx, 1);
-      }
-
-      return {
-        selectedIds: [...zeroCouponIds, ...remaining.map(c => c.useId)],
-        feasibleCount: remaining.length,
-        requestedCount
-      };
     },
 
     // 获取权益列表
@@ -398,24 +297,27 @@ export default {
       });
     },
 
-    // 整体可行性判定：按 [已核销券, 候选券(给定顺序)] 顺序分配，检查每张候选券是否都抵到 >0
-    // 候选券按调用方传入的顺序消耗（单选=已选在前、新券在后；全选=专用优先），
-    // 既贴合用户勾选时序，又使通用券可让位给后到的专用券（专用优先序下先扣，通用后扣吃剩余）
+    // 整体可行性判定：勾选时全局重算——候选券优先于已核销券占用类型额度，使已核销的通用券
+    // 可让位到其他类型，从而给候选的专用券腾出额度。每组内按专用优先（适用类型数升序）排序。
+    // 候选券仅取减免>0（减免0的券不影响额度，单独放行）；检查每张候选券是否都抵到 >0
     isFeasible (candidateCoupons, typeCaps) {
-      // 统一券结构：{ deduction, typeNames[] }；候选券仅取减免>0（减免0的券不影响额度，单独放行）
-      const writtenOff = this.getWrittenOffCoupons();
+      const byPriority = (a, b) => a.typeNames.length - b.typeNames.length;
+
+      const writtenOff = this.getWrittenOffCoupons().slice().sort(byPriority);
       const activeCandidates = candidateCoupons
         .filter(c => this.parsePaymentAmount(c.paymentAmount).discount > 0)
         .map(c => ({
           deduction: this.parsePaymentAmount(c.paymentAmount).discount,
           typeNames: (c.relatedRepairTypeList || []).map(t => t.repairTypeName).filter(Boolean)
-        }));
+        }))
+        .sort(byPriority);
 
       if (activeCandidates.length === 0) return { feasible: true };
 
-      const got = this.allocateCoupons([...writtenOff, ...activeCandidates], typeCaps);
-      // 跳过已核销券部分，只检查候选券每张>0
-      const candidateGot = got.slice(writtenOff.length);
+      // 候选券先分配（优先占额度），已核销券后分配（让位）
+      const got = this.allocateCoupons([...activeCandidates, ...writtenOff], typeCaps);
+      // 只检查候选券部分（前 activeCandidates.length 张）每张>0
+      const candidateGot = got.slice(0, activeCandidates.length);
       const feasible = candidateGot.every(g => g > 0);
       return { feasible };
     },
