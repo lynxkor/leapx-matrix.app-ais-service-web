@@ -8,6 +8,7 @@
       label-width="150px"
       class="ais-search-form"
     >
+      <!-- 基础查询条件（始终可见） -->
       <el-form-item label="保修结算单">
         <tag-input
           v-model="form.settleCodeList"
@@ -17,7 +18,21 @@
       <el-form-item label="门店：">
         <dealer-select v-model="form.dealerCodeList" multiple/>
       </el-form-item>
-      <template v-if="show">
+      <el-form-item label="订单创建时间">
+        <el-date-picker
+          v-model="form.createTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
+
+      <!-- 第一页签「保修结算通知书」扩展查询条件 -->
+      <template v-if="show && activeTab === 'list'">
         <el-form-item label="月度">
           <el-input v-model="form.month" placeholder="请输入" clearable/>
         </el-form-item>
@@ -48,18 +63,6 @@
             v-model="form.invoiceAccountNameLike"
             placeholder="请输入"
             clearable
-          />
-        </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-            v-model="form.createTime"
-            type="daterange"
-            unlink-panels
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
           />
         </el-form-item>
         <el-form-item label="修改时间">
@@ -99,6 +102,301 @@
           />
         </el-form-item>
       </template>
+
+      <!-- 第二页签「通知书明细」扩展查询条件 -->
+      <template v-if="show && activeTab === 'detail'">
+        <el-form-item label="月度">
+          <el-input v-model="form.month" placeholder="请输入" clearable/>
+        </el-form-item>
+        <el-form-item label="门店状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="DealerStatusEnum"
+            v-model="form.storeStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="通知书状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="settle_status"
+            v-model="form.settleStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="银行户主">
+          <el-input
+            v-model="form.invoiceAccountNameLike"
+            placeholder="请输入"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="订单修改时间">
+          <el-date-picker
+            v-model="form.updateTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="保修申请单">
+          <tag-input
+            v-model="form.applyNoList"
+            placeholder="请输入保修申请单号"
+          />
+        </el-form-item>
+        <el-form-item label="保修类型">
+          <fetch-select
+            filterable
+            clearable
+            remote
+            reserve-keyword
+            multiple
+            v-model="form.repairItemTypeIdList"
+            :remote-method="repairItemTypeRemote"
+            params=""
+            value-key="id"
+            label-key="name"
+            sub-label-key="code"
+          />
+        </el-form-item>
+        <el-form-item label="VIN">
+          <tag-input
+            v-model="form.vinList"
+            placeholder="请输入VIN"
+          />
+        </el-form-item>
+        <el-form-item label="发票验收日期">
+          <el-date-picker
+            v-model="form.invoiceCheckTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="付款确认日期">
+          <el-date-picker
+            v-model="form.paymentConfirmTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+      </template>
+
+      <!-- 第三页签「追溯明细」扩展查询条件 -->
+      <template v-if="show && activeTab === 'trace'">
+        <el-form-item label="月度">
+          <el-input v-model="form.month" placeholder="请输入" clearable/>
+        </el-form-item>
+        <el-form-item label="门店状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="DealerStatusEnum"
+            v-model="form.storeStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="通知书状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="settle_status"
+            v-model="form.settleStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="银行户主">
+          <el-input
+            v-model="form.invoiceAccountNameLike"
+            placeholder="请输入"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="订单修改时间">
+          <el-date-picker
+            v-model="form.updateTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="追溯明细">
+          <tag-input
+            v-model="form.traceDetailCodeList"
+            placeholder="请输入追溯明细单号"
+          />
+        </el-form-item>
+        <el-form-item label="追溯类型">
+          <el-select v-model="form.traceTypeList" placeholder="请选择" clearable multiple collapse-tags>
+            <el-option label="索赔追溯" :value="'10'" />
+            <el-option label="审计追溯" :value="'20'" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="追溯业务单据">
+          <tag-input
+            v-model="form.businessCodeList"
+            placeholder="请输入追溯业务单据"
+          />
+        </el-form-item>
+        <el-form-item label="保修申请单">
+          <tag-input
+            v-model="form.applyNoList"
+            placeholder="请输入保修申请单号"
+          />
+        </el-form-item>
+        <el-form-item label="VIN">
+          <tag-input
+            v-model="form.vinList"
+            placeholder="请输入VIN"
+          />
+        </el-form-item>
+        <el-form-item label="发票验收日期">
+          <el-date-picker
+            v-model="form.invoiceCheckTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="付款确认日期">
+          <el-date-picker
+            v-model="form.paymentConfirmTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+      </template>
+
+      <!-- 第四页签「开票明细」扩展查询条件 -->
+      <template v-if="show && activeTab === 'invoice'">
+        <el-form-item label="月度">
+          <el-input v-model="form.month" placeholder="请输入" clearable/>
+        </el-form-item>
+        <el-form-item label="门店状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="DealerStatusEnum"
+            v-model="form.storeStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="通知书状态">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="settle_status"
+            v-model="form.settleStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="银行户主">
+          <el-input
+            v-model="form.invoiceAccountNameLike"
+            placeholder="请输入"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="订单修改时间">
+          <el-date-picker
+            v-model="form.updateTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="发票号">
+          <tag-input
+            v-model="form.invoiceNoList"
+            placeholder="请输入发票号"
+          />
+        </el-form-item>
+        <el-form-item label="开票公司名称">
+          <el-input v-model="form.invoiceCompanyName" placeholder="请输入开票公司名称" clearable/>
+        </el-form-item>
+        <el-form-item label="发票开具日期">
+          <el-date-picker
+            v-model="form.invoiceDate"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="发票验收日期">
+          <el-date-picker
+            v-model="form.invoiceCheckTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="付款确认日期">
+          <el-date-picker
+            v-model="form.paymentConfirmTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+      </template>
+
       <page-search-action
         v-if="canList"
         v-model="show"
@@ -108,14 +406,26 @@
         @reset="onReset"
       />
     </el-form>
+
     <div class="ais-actions">
       <el-button v-if="canExport" :loading="exportLoadingTable" size="small" @click="exportExcel">导出</el-button>
-      <el-button v-if="exportInvoice" :loading="exportLoading" size="small" @click="onExport">导出发票</el-button>
-      <el-button v-if="canPayConfirm" size="small" @click="handleBatchPayConfirm">批量付款</el-button>
+      <template v-if="activeTab === 'list'">
+        <el-button v-if="exportInvoice" :loading="exportLoading" size="small" @click="onExport">导出发票</el-button>
+        <el-button v-if="canPayConfirm" size="small" @click="handleBatchPayConfirm">批量付款</el-button>
+      </template>
     </div>
+
+    <el-tabs v-model="activeTab" @tab-click="handleTabChange">
+      <el-tab-pane label="保修结算通知书" name="list" />
+      <el-tab-pane label="通知书明细" name="detail" />
+      <el-tab-pane label="追溯明细" name="trace" />
+      <el-tab-pane label="开票明细" name="invoice" />
+    </el-tabs>
+
     <div class="ais-table-c">
       <LPVxeTable
         ref="tableRef"
+        :key="activeTab"
         v-loading="loading"
         is-checkbox
         is-page
@@ -162,7 +472,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, confirm, exportInvoiceZip } from '@/api/claimreturn/claim/warrantysettle/index';
+import { getList, getDetailList, getTraceList, getInvoiceList, confirm, exportInvoiceZip } from '@/api/claimreturn/claim/warrantysettle/index';
 import { getTableConfig, tableAddOrUpdate, getEnum, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import TagInput from '@/libs/components/TagInput';
@@ -170,12 +480,21 @@ import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getEndOfDayString, downloadExcel } from '@/libs/utils';
+import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
+import { getDetailDecryptField } from '@/api/claimreturn/claim/warrantyapply/index';
+import { getList as repairGetList } from '@/api/maintain/basic/repairItemType';
 import EditPage from './edit.vue';
 import CompleteDialog from './components/CompleteDialog';
 import InvoiceAcceptDialog from './components/InvoiceAcceptDialog';
 import InvoiceReturnDialog from './components/InvoiceReturnDialog';
 import PayConfirmDialog from './components/PayConfirmDialog';
 import DealerSelect from '@/components/dealer-select';
+
+// 订单创建时间默认值：最近 1 个月（通知书明细页签）
+function getDefaultCreateTime () {
+  const { startTime, endTime } = getTimeRangeByTypeFormat('最近一个月');
+  return [startTime, endTime];
+}
 
 const defaultForm = {
   settleCodeList: [],
@@ -189,6 +508,17 @@ const defaultForm = {
   updateTime: '',
   invoiceCheckTime: '',
   paymentConfirmTime: '',
+  applyNoList: [],
+  vinList: [],
+  repairItemTypeIdList: [],
+  // 追溯明细页签专属
+  traceDetailCodeList: [],
+  traceTypeList: [],
+  businessCodeList: [],
+  // 开票明细页签专属
+  invoiceNoList: [],
+  invoiceCompanyName: '',
+  invoiceDate: '',
 };
 
 const pageSize = 20;
@@ -222,15 +552,21 @@ export default {
       pageType: 'list',
       moduleKey: 'AISCR-warrantySettle',
       form: {
-        ...defaultForm
+        ...defaultForm,
+        createTime: getDefaultCreateTime()
       },
       selectionList: [],
       show: false,
       loading: false,
+      activeTab: 'list',
       clickItemId: '',
       tableDataList: [],
       tableTotal: 0,
       tableForm: { page: 1, size: pageSize },
+      // 排序字段
+      sortColumns: [
+        { column: 'create_time', sort: 'DESC' }
+      ],
       // 操作按钮权限
       canConfirm: false,
       canComplete: false,
@@ -256,6 +592,12 @@ export default {
   },
   computed: {
     optionObj () {
+      if (this.activeTab === 'detail') return this.optionObjDetail;
+      if (this.activeTab === 'trace') return this.optionObjTrace;
+      if (this.activeTab === 'invoice') return this.optionObjInvoice;
+      return this.optionObjSettle;
+    },
+    optionObjSettle () {
       return {
         id: 'warrantySettleTable',
         dataList: this.tableDataList,
@@ -272,9 +614,7 @@ export default {
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/claimreturn/claim/warrantySettle/edit',
-                  query: {
-                    id: row.id
-                  }
+                  query: { id: row.id }
                 });
               }
             }]
@@ -360,10 +700,10 @@ export default {
             formatter: (row) => this.formatAmount(row.invoiceAmount6),
             align: 'right'
           },
-          { props: 'createTime', label: '创建时间', visible: true, width: 180 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
           { props: 'invoiceCheckTime', label: '发票验收日期', visible: true, width: 180 },
           { props: 'paymentConfirmTime', label: '付款确认日期', visible: true, width: 180 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 180 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
           {
             props: 'operate',
             label: '操作',
@@ -374,61 +714,548 @@ export default {
             buttons: [
               {
                 name: '确认',
-                click: (rowIndex, row) => {
-                  this.handleConfirm(row);
-                },
+                click: (rowIndex, row) => { this.handleConfirm(row); },
                 type: 'info',
-                show: (row) => {
-                  // 待门店验证
-                  return this.canConfirm && row.settleStatus === '10';
-                }
+                show: (row) => this.canConfirm && row.settleStatus === '10'
               },
               {
                 name: '开票完成',
-                click: (rowIndex, row) => {
-                  this.handleComplete(row);
-                },
+                click: (rowIndex, row) => { this.handleComplete(row); },
                 type: 'info',
-                show: (row) => {
-                  // 待开票 已退回
-                  return this.canComplete && (row.settleStatus === '60' || row.settleStatus === '110');
-                }
+                show: (row) => this.canComplete && (row.settleStatus === '60' || row.settleStatus === '110')
               },
               {
                 name: '发票验收',
-                click: (rowIndex, row) => {
-                  this.handleInvoiceAccept(row);
-                },
+                click: (rowIndex, row) => { this.handleInvoiceAccept(row); },
                 type: 'info',
-                show: (row) => {
-                  // 已开票
-                  return this.canInvoiceAccept && row.settleStatus === '65';
-                }
+                show: (row) => this.canInvoiceAccept && row.settleStatus === '65'
               },
               {
                 name: '发票退回',
-                click: (rowIndex, row) => {
-                  this.handleInvoiceReturn(row);
-                },
+                click: (rowIndex, row) => { this.handleInvoiceReturn(row); },
                 type: 'info',
-                show: (row) => {
-                  // 已开票
-                  return this.canInvoiceReturn && row.settleStatus === '65';
-                }
+                show: (row) => this.canInvoiceReturn && row.settleStatus === '65'
               },
               {
                 name: '确认付款',
-                click: (rowIndex, row) => {
-                  this.handlePayConfirm(row);
-                },
+                click: (rowIndex, row) => { this.handlePayConfirm(row); },
                 type: 'info',
-                show: (row) => {
-                  // 已验收
-                  return this.canPayConfirm && row.settleStatus === '90';
-                }
+                show: (row) => this.canPayConfirm && row.settleStatus === '90'
               }
             ]
           }
+        ],
+        total: this.tableTotal
+      };
+    },
+    optionObjDetail () {
+      return {
+        id: 'warrantySettleDetailTable',
+        dataList: this.tableDataList,
+        form: this.tableForm,
+        dataProp: [
+          {
+            props: 'settleCode',
+            label: '保修结算单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantySettle/edit',
+                  query: { id: row.id }
+                });
+              }
+            }]
+          },
+          { props: 'month', label: '月度', visible: true, width: 120 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              }
+            }]
+          },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
+          { props: 'storeStatusLabel', label: '门店状态', visible: true, width: 120 },
+          { props: 'settleStatusLabel', label: '通知书状态', visible: true, width: 120 },
+          { props: 'invoiceAccountName', label: '银行户主', visible: true, width: 150 },
+          {
+            props: 'workHourTotal',
+            label: '结算工时总额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.workHourTotal),
+            align: 'right'
+          },
+          {
+            props: 'partTotal',
+            label: '结算备件总额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.partTotal),
+            align: 'right'
+          },
+          {
+            props: 'otherTotal',
+            label: '结算其他总额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.otherTotal),
+            align: 'right'
+          },
+          {
+            props: 'totalAmount',
+            label: '结算总金额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.totalAmount),
+            align: 'right'
+          },
+          {
+            props: 'tracebackAmount',
+            label: '追溯金额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.tracebackAmount),
+            align: 'right'
+          },
+          {
+            props: 'determineAmount',
+            label: '判定金额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.determineAmount),
+            align: 'right'
+          },
+          {
+            props: 'invoiceAmount13',
+            label: '开票金额一（13%）',
+            visible: true,
+            width: 160,
+            formatter: (row) => this.formatAmount(row.invoiceAmount13),
+            align: 'right'
+          },
+          {
+            props: 'invoiceAmount6',
+            label: '开票金额二（6%）',
+            visible: true,
+            width: 160,
+            formatter: (row) => this.formatAmount(row.invoiceAmount6),
+            align: 'right'
+          },
+          { props: 'invoiceCheckTime', label: '发票验收日期', visible: true, width: 180 },
+          { props: 'paymentConfirmTime', label: '付款确认日期', visible: true, width: 180 },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 180 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 180 },
+          {
+            props: 'applyNo',
+            label: '保修申请单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              show: (row) => Boolean(row.warrantyApplyId),
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantyApply/edit',
+                  query: { id: row.warrantyApplyId }
+                });
+              }
+            }]
+          },
+          { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 140 },
+          {
+            props: 'vin',
+            label: 'VIN',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.warrantyApplyId, 'vin'),
+            buttons: [{
+              type: 'primary',
+              show: (row) => Boolean(row.vehicleProfileId),
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/datacenter/vehicle/vehicleProfile/edit',
+                  query: { id: row.vehicleProfileId }
+                });
+              }
+            }]
+          },
+          {
+            props: 'detailWorkHourTotal',
+            label: '明细工时总额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.detailWorkHourTotal),
+            align: 'right'
+          },
+          {
+            props: 'detailPartTotal',
+            label: '明细备件总额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.detailPartTotal),
+            align: 'right'
+          },
+          {
+            props: 'detailOtherTotal',
+            label: '明细其他总额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.detailOtherTotal),
+            align: 'right'
+          },
+          {
+            props: 'detailTotalAmount',
+            label: '明细总金额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.detailTotalAmount),
+            align: 'right'
+          },
+          {
+            props: 'detailDetermineAmount',
+            label: '明细判定金额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.detailDetermineAmount),
+            align: 'right'
+          }
+        ],
+        total: this.tableTotal
+      };
+    },
+    optionObjTrace () {
+      return {
+        id: 'warrantySettleTraceTable',
+        dataList: this.tableDataList,
+        form: this.tableForm,
+        dataProp: [
+          {
+            props: 'settleCode',
+            label: '保修结算单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantySettle/edit',
+                  query: { id: row.id }
+                });
+              }
+            }]
+          },
+          { props: 'month', label: '月度', visible: true, width: 120 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              }
+            }]
+          },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
+          { props: 'storeStatusLabel', label: '门店状态', visible: true, width: 120 },
+          { props: 'settleStatusLabel', label: '通知书状态', visible: true, width: 120 },
+          { props: 'invoiceAccountName', label: '银行户主', visible: true, width: 150 },
+          {
+            props: 'workHourTotal',
+            label: '结算工时总额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.workHourTotal),
+            align: 'right'
+          },
+          {
+            props: 'partTotal',
+            label: '结算备件总额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.partTotal),
+            align: 'right'
+          },
+          {
+            props: 'otherTotal',
+            label: '结算其他总额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.otherTotal),
+            align: 'right'
+          },
+          {
+            props: 'totalAmount',
+            label: '结算总金额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.totalAmount),
+            align: 'right'
+          },
+          {
+            props: 'tracebackAmount',
+            label: '追溯金额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.tracebackAmount),
+            align: 'right'
+          },
+          {
+            props: 'determineAmount',
+            label: '判定金额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.determineAmount),
+            align: 'right'
+          },
+          {
+            props: 'invoiceAmount13',
+            label: '开票金额一（13%）',
+            visible: true,
+            width: 160,
+            formatter: (row) => this.formatAmount(row.invoiceAmount13),
+            align: 'right'
+          },
+          {
+            props: 'invoiceAmount6',
+            label: '开票金额二（6%）',
+            visible: true,
+            width: 160,
+            formatter: (row) => this.formatAmount(row.invoiceAmount6),
+            align: 'right'
+          },
+          { props: 'invoiceCheckTime', label: '发票验收日期', visible: true, width: 180 },
+          { props: 'paymentConfirmTime', label: '付款确认日期', visible: true, width: 180 },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 180 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 180 },
+          { props: 'traceDetailCode', label: '追溯明细', visible: true, width: 180 },
+          {
+            props: 'traceTypeLabel',
+            label: '追溯类型',
+            visible: true,
+            width: 120
+          },
+          {
+            props: 'businessCode',
+            label: '追溯业务单据',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              show: (row) => Boolean(row.businessId),
+              click: (rowIndex, row) => {
+                // 追溯业务单据：10=索赔追溯 -> 索赔追溯详情；20=审计追溯 -> 审计详情
+                const path = row.traceType === '10'
+                  ? '/claimreturn/claim/claimtrace/claimTraceOrder/edit'
+                  : '/claimreturn/claim/warrantyaudit/warrantyAudit/edit';
+                this.$router.push({
+                  path,
+                  query: { id: row.businessId }
+                });
+              }
+            }]
+          },
+          {
+            props: 'applyNo',
+            label: '保修申请单',
+            visible: true,
+            width: 200,
+            buttons: [{
+              type: 'primary',
+              show: (row) => Boolean(row.warrantyApplyId),
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantyApply/edit',
+                  query: { id: row.warrantyApplyId }
+                });
+              }
+            }]
+          },
+          {
+            props: 'vin',
+            label: 'VIN',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDetailDecryptField(row.warrantyApplyId, 'vin'),
+            buttons: [{
+              type: 'primary',
+              show: (row) => Boolean(row.vehicleProfileId),
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/datacenter/vehicle/vehicleProfile/edit',
+                  query: { id: row.vehicleProfileId }
+                });
+              }
+            }]
+          },
+          {
+            props: 'currentTraceAmount',
+            label: '本次追溯金额',
+            visible: true,
+            width: 160,
+            formatter: (row) => this.formatAmount(row.currentTraceAmount),
+            align: 'right'
+          }
+        ],
+        total: this.tableTotal
+      };
+    },
+    optionObjInvoice () {
+      return {
+        id: 'warrantySettleInvoiceTable',
+        dataList: this.tableDataList,
+        form: this.tableForm,
+        dataProp: [
+          {
+            props: 'settleCode',
+            label: '保修结算单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/claimreturn/claim/warrantySettle/edit',
+                  query: { id: row.id }
+                });
+              }
+            }]
+          },
+          { props: 'month', label: '月度', visible: true, width: 120 },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+              }
+            }]
+          },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
+          { props: 'storeStatusLabel', label: '门店状态', visible: true, width: 120 },
+          { props: 'settleStatusLabel', label: '通知书状态', visible: true, width: 120 },
+          { props: 'invoiceAccountName', label: '银行户主', visible: true, width: 150 },
+          {
+            props: 'workHourTotal',
+            label: '结算工时总额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.workHourTotal),
+            align: 'right'
+          },
+          {
+            props: 'partTotal',
+            label: '结算备件总额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.partTotal),
+            align: 'right'
+          },
+          {
+            props: 'otherTotal',
+            label: '结算其他总额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.otherTotal),
+            align: 'right'
+          },
+          {
+            props: 'totalAmount',
+            label: '结算总金额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.totalAmount),
+            align: 'right'
+          },
+          {
+            props: 'tracebackAmount',
+            label: '追溯金额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.tracebackAmount),
+            align: 'right'
+          },
+          {
+            props: 'determineAmount',
+            label: '判定金额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.determineAmount),
+            align: 'right'
+          },
+          {
+            props: 'invoiceAmount13',
+            label: '开票金额一（13%）',
+            visible: true,
+            width: 160,
+            formatter: (row) => this.formatAmount(row.invoiceAmount13),
+            align: 'right'
+          },
+          {
+            props: 'invoiceAmount6',
+            label: '开票金额二（6%）',
+            visible: true,
+            width: 160,
+            formatter: (row) => this.formatAmount(row.invoiceAmount6),
+            align: 'right'
+          },
+          { props: 'invoiceCheckTime', label: '发票验收日期', visible: true, width: 180 },
+          { props: 'paymentConfirmTime', label: '付款确认日期', visible: true, width: 180 },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 180 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 180 },
+          { props: 'invoiceNo', label: '发票号', visible: true, width: 200 },
+          { props: 'invoiceCompanyName', label: '开票公司名称', visible: true, width: 200 },
+          { props: 'invoiceDate', label: '发票开具日期', visible: true, width: 180 },
+          {
+            props: 'amount',
+            label: '发票金额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.amount),
+            align: 'right'
+          },
+          {
+            props: 'taxRate',
+            label: '发票税点',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'noTaxAmount',
+            label: '发票不含税金额',
+            visible: true,
+            width: 160,
+            formatter: (row) => this.formatAmount(row.noTaxAmount),
+            align: 'right'
+          },
+          {
+            props: 'taxAmount',
+            label: '发票税额',
+            visible: true,
+            width: 140,
+            formatter: (row) => this.formatAmount(row.taxAmount),
+            align: 'right'
+          },
+          { props: 'invoiceCreateTime', label: '发票创建时间', visible: true, width: 180 }
         ],
         total: this.tableTotal
       };
@@ -443,7 +1270,6 @@ export default {
     this.canInvoiceReturn = this.permissions.has(`${this.moduleKey}-returnInvoice`);
     this.canPayConfirm = this.permissions.has(`${this.moduleKey}-confirmPay`);
     this.exportInvoice = this.permissions.has(`${this.moduleKey}-exportInvoice`);
-    console.log(this.permissions);
   },
   methods: {
     // 格式化金额
@@ -507,14 +1333,50 @@ export default {
       this.payConfirmRow = {};
       this.payConfirmDialogVisible = true;
     },
+    /**
+     * 校验日期范围跨度（detail tab 的 createTime 上限半年）
+     */
+    validateDateSpan (dateRange, fieldName, maxDays = 365) {
+      if (dateRange?.length > 1) {
+        const span = new Date(dateRange[1]).getTime() - new Date(dateRange[0]).getTime();
+        if (span > maxDays * 24 * 60 * 60 * 1000) {
+          this.$message.warning(`${fieldName}范围不能超过 ${maxDays === 183 ? '半年' : maxDays + ' 天'}`);
+          return false;
+        }
+      }
+      return true;
+    },
     onSubmit () {
+      if (this.activeTab === 'detail' || this.activeTab === 'trace' || this.activeTab === 'invoice') {
+        // 通知书明细 / 追溯明细 / 开票明细：3 项必填校验
+        const hasSettleCode = this.form.settleCodeList?.length > 0;
+        const hasDealer = this.form.dealerCodeList?.length > 0;
+        const hasCreateTime = this.form.createTime && this.form.createTime.length > 0;
+        if (!hasSettleCode && !hasDealer && !hasCreateTime) {
+          this.$message.warning('【保修结算单】【门店编码】【订单创建时间】不允许都为空');
+          return;
+        }
+        // detail/trace/invoice tab 的 createTime 上限 183 天
+        if (!this.validateDateSpan(this.form.createTime, '订单创建时间', 183)) return;
+      }
+      // 其余日期上限 365 天
+      if (!this.validateDateSpan(this.form.updateTime, '订单修改时间')) return;
+      if (!this.validateDateSpan(this.form.invoiceCheckTime, '发票验收日期')) return;
+      if (!this.validateDateSpan(this.form.paymentConfirmTime, '付款确认日期')) return;
+      // invoice tab 的发票开具日期校验
+      if (!this.validateDateSpan(this.form.invoiceDate, '发票开具日期')) return;
+
       this.tableForm.page = 1;
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      this.form = { ...defaultForm, createTime: getDefaultCreateTime() };
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
+      this.getData();
+    },
+    handleTabChange () {
+      this.tableForm.page = 1;
       this.getData();
     },
     exportExcel () {
@@ -524,8 +1386,34 @@ export default {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
+      // 与 warrantyapply/index.vue 的"好用的导出"保持一致：4 个页签统一走 /page 接口。
+      // 原因：通用导出微服务 (/data/excelOperate/commonExport) 对新接口兼容性有问题
+      // （warrantyapply 的 /partsPage、/workhourPage 也存在同样问题，参考其注释）。
+      // /page 返回 WarrantySettleResp，涵盖通知书层面的基础字段；
+      // 各页签专属字段（applyNo / vin / detailWorkHourTotal / traceDetailCode / invoiceNo 等）
+      // 在导出中会留空，但通知书级数据（settleCode / dealerCode / 各总额 / 验收付款日期等）
+      // 完整可用。
+      const tabExportMap = {
+        list: {
+          businessType: '保修结算通知书',
+          fileName: '保修结算通知书.xlsx'
+        },
+        detail: {
+          businessType: '保修结算通知书明细',
+          fileName: '保修结算通知书明细.xlsx'
+        },
+        trace: {
+          businessType: '保修结算追溯明细',
+          fileName: '保修结算追溯明细.xlsx'
+        },
+        invoice: {
+          businessType: '保修结算开票明细',
+          fileName: '保修结算开票明细.xlsx'
+        }
+      };
+      const { businessType, fileName } = tabExportMap[this.activeTab] || tabExportMap.list;
       exportTable({
-        businessType: '保修结算通知书',
+        businessType,
         dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantySettle/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -533,12 +1421,9 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '保修结算通知书.xlsx');
+            await downloadExcel(res.excelUrl, fileName);
           } catch (error) {
-            this.$message({
-              type: 'error',
-              message: '文件导出失败'
-            });
+            this.$message({ type: 'error', message: '文件导出失败' });
           }
         } else {
           this.$confirmExport(
@@ -554,14 +1439,23 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
+      const reqData = { ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size };
+      let apiCall;
+      if (this.activeTab === 'detail') {
+        apiCall = getDetailList(reqData);
+      } else if (this.activeTab === 'trace') {
+        apiCall = getTraceList(reqData);
+      } else if (this.activeTab === 'invoice') {
+        apiCall = getInvoiceList(reqData);
+      } else {
+        apiCall = getList(reqData);
+      }
+      apiCall
         .then(res => {
-          this.tableDataList = (res?.records || []).map(item => {
-            return {
-              ...item,
-              deleteLoading: false
-            };
-          });
+          this.tableDataList = (res?.records || []).map(item => ({
+            ...item,
+            deleteLoading: false
+          }));
           this.tableTotal = res.total;
         }).finally(() => {
           this.loading = false;
@@ -606,34 +1500,50 @@ export default {
         }
       });
 
-      if (this.form.createTime) {
-        delete data.createTime;
-        if (this.form.createTime.length > 1) {
-          data.createTimeStart = this.form.createTime[0];
-          data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
+      // 日期区间拆分
+      const splitDate = (key) => {
+        if (this.form[key]) {
+          delete data[key];
+          if (this.form[key].length > 1) {
+            data[`${key}Start`] = this.form[key][0];
+            data[`${key}End`] = getEndOfDayString(this.form[key][1]);
+          }
         }
+      };
+      splitDate('createTime');
+      splitDate('updateTime');
+      splitDate('invoiceCheckTime');
+      splitDate('paymentConfirmTime');
+      splitDate('invoiceDate');
+
+      // 按页签清理专属参数
+      const detailOnlyKeys = [
+        'applyNoList', 'vinList', 'repairItemTypeIdList', 'dealerNameList'
+      ];
+      const traceOnlyKeys = [
+        'traceDetailCodeList', 'traceTypeList', 'businessCodeList'
+      ];
+      const invoiceOnlyKeys = [
+        'invoiceNoList', 'invoiceCompanyName', 'invoiceDateStart', 'invoiceDateEnd'
+      ];
+      if (this.activeTab === 'list') {
+        detailOnlyKeys.forEach(key => delete data[key]);
+        traceOnlyKeys.forEach(key => delete data[key]);
+        invoiceOnlyKeys.forEach(key => delete data[key]);
+      } else if (this.activeTab === 'detail') {
+        traceOnlyKeys.forEach(key => delete data[key]);
+        invoiceOnlyKeys.forEach(key => delete data[key]);
+      } else if (this.activeTab === 'trace') {
+        // trace tab 不需要保修类型筛选
+        delete data.repairItemTypeIdList;
+        invoiceOnlyKeys.forEach(key => delete data[key]);
+      } else if (this.activeTab === 'invoice') {
+        detailOnlyKeys.forEach(key => delete data[key]);
+        traceOnlyKeys.forEach(key => delete data[key]);
       }
-      if (this.form.updateTime) {
-        delete data.updateTime;
-        if (this.form.updateTime.length > 1) {
-          data.updateTimeStart = this.form.updateTime[0];
-          data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
-        }
-      }
-      if (this.form.invoiceCheckTime) {
-        delete data.invoiceCheckTime;
-        if (this.form.invoiceCheckTime.length > 1) {
-          data.invoiceCheckTimeStart = this.form.invoiceCheckTime[0];
-          data.invoiceCheckTimeEnd = getEndOfDayString(this.form.invoiceCheckTime[1]);
-        }
-      }
-      if (this.form.paymentConfirmTime) {
-        delete data.paymentConfirmTime;
-        if (this.form.paymentConfirmTime.length > 1) {
-          data.paymentConfirmTimeStart = this.form.paymentConfirmTime[0];
-          data.paymentConfirmTimeEnd = getEndOfDayString(this.form.paymentConfirmTime[1]);
-        }
-      }
+
+      // 排序
+      data.sortColumns = this.sortColumns;
 
       return data;
     },
@@ -642,6 +1552,23 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 保修类型远程搜索（与 warrantyapply/index.vue 一致）
+    repairItemTypeRemote (query) {
+      return new Promise((resolve, reject) => {
+        repairGetList({
+          nameLike: query,
+          pageSize: 20,
+          pageNum: 1,
+          categorys: ['20'],
+        }).then(res => {
+          const data = res.records?.filter(item => ['保修', '合同'].includes(item.checkoutTypeName));
+          resolve(data);
+        }).catch(err => {
+          console.error(err);
+          resolve([]);
+        });
+      });
     },
     onExport () {
       if (this.selectionList.length === 0) {
