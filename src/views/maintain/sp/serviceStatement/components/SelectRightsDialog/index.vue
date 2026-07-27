@@ -194,8 +194,15 @@ export default {
         }
       });
 
+      // 候选券按专用优先（适用类型数升序）排序：专用券先占用其类型额度，通用券后吃剩余，避免通用券抢占专用券额度
+      const byPriority = [...gated].sort((a, b) => {
+        const aTypes = (a.relatedRepairTypeList || []).length;
+        const bTypes = (b.relatedRepairTypeList || []).length;
+        return aTypes - bTypes;
+      });
+
       // 从全部通过门禁的券出发；不可行时每次剔除"最难安放"（减免/适用类型数 比值最大）的券，重测
-      const remaining = [...gated];
+      const remaining = [...byPriority];
       while (remaining.length > 0 && !this.isFeasible(remaining, typeCaps).feasible) {
         let worstIdx = 0;
         let worstScore = -Infinity;
@@ -366,15 +373,36 @@ export default {
       return parseFloat(this.formData.remainAmount || 0) === 0;
     },
 
-    // 整体可行性判定：把"已核销券 + 候选券"统一放入最大流图，对毛额总池做分配
-    // 通用券（已核销或候选）可被算法重排到任意适用类型，从而给专用券腾位
-    // 可行 ⇔ maxflow == Σ(已核销减免 + 候选减免)；不可行则候选券多余
-    // 注意：已核销券必然存在合法分配（后端已成功核销），因此整体不可行必由候选券引起
-    // 类型节点以"维修类型名"为键，避免 relatedRepairTypeList.repairTypeId 与 repairItemTypeId 体系不一致导致连不上边
-    isFeasible (candidateCoupons, typeCaps) {
+    // 按给定顺序对券做"按面值贪心扣减"分配，返回每张券实际抵扣额数组
+    // 业务规则：每张券尽量按面值核销（可部分核销，超出部分浪费），优先扣减适用类型中剩余可抵额最多的类型
+    // 类型容量为毛额（项目+零件），逐张消耗；券面值与 relatedRepairTypeList.repairTypeName / applicableMaintenanceType 对齐
+    allocateCoupons (orderedCoupons, typeCaps) {
       const round2 = n => Math.round(n * 100) / 100;
+      const remain = {};
+      Object.keys(typeCaps).forEach(name => { remain[name] = typeCaps[name]; });
 
-      // 统一券结构：{ deduction, typeNames[] }，已核销券 + 候选券（候选券仅取减免>0）
+      return orderedCoupons.map(coupon => {
+        let need = coupon.deduction;
+        let allocated = 0;
+        const types = [...coupon.typeNames].sort((a, b) => (remain[b] || 0) - (remain[a] || 0));
+        for (const typeName of types) {
+          if (allocated >= need) break;
+          const available = remain[typeName] || 0;
+          if (available > 0) {
+            const deduct = Math.min(need - allocated, available);
+            allocated += deduct;
+            remain[typeName] -= deduct;
+          }
+        }
+        return round2(allocated);
+      });
+    },
+
+    // 整体可行性判定：按 [已核销券, 候选券(给定顺序)] 顺序分配，检查每张候选券是否都抵到 >0
+    // 候选券按调用方传入的顺序消耗（单选=已选在前、新券在后；全选=专用优先），
+    // 既贴合用户勾选时序，又使通用券可让位给后到的专用券（专用优先序下先扣，通用后扣吃剩余）
+    isFeasible (candidateCoupons, typeCaps) {
+      // 统一券结构：{ deduction, typeNames[] }；候选券仅取减免>0（减免0的券不影响额度，单独放行）
       const writtenOff = this.getWrittenOffCoupons();
       const activeCandidates = candidateCoupons
         .filter(c => this.parsePaymentAmount(c.paymentAmount).discount > 0)
@@ -382,90 +410,14 @@ export default {
           deduction: this.parsePaymentAmount(c.paymentAmount).discount,
           typeNames: (c.relatedRepairTypeList || []).map(t => t.repairTypeName).filter(Boolean)
         }));
-      const allCoupons = [...writtenOff, ...activeCandidates];
 
-      const sumDiscounts = round2(allCoupons.reduce((sum, c) => sum + c.deduction, 0));
-      if (sumDiscounts === 0) return { feasible: true, totalFlow: 0, sumDiscounts: 0 };
+      if (activeCandidates.length === 0) return { feasible: true };
 
-      // 仅保留有正毛额的类型节点
-      const typeNames = Object.keys(typeCaps).filter(name => typeCaps[name] > 0);
-
-      // 节点编号：0=源, 1..n=券, n+1..n+m=类型, 末=汇
-      const n = allCoupons.length;
-      const m = typeNames.length;
-      const SOURCE = 0;
-      const SINK = n + m + 1;
-      const typeNameToNode = {};
-      typeNames.forEach((name, i) => { typeNameToNode[name] = n + 1 + i; });
-
-      // 残量图：cap[u][v]
-      const cap = {};
-      const addEdge = (u, v, c) => {
-        if (!cap[u]) cap[u] = {};
-        if (!cap[v]) cap[v] = {};
-        cap[u][v] = (cap[u][v] || 0) + c;
-        cap[v][u] = cap[v][u] || 0; // 反向边初始为 0
-      };
-
-      allCoupons.forEach((c, i) => {
-        const couponNode = i + 1;
-        addEdge(SOURCE, couponNode, c.deduction);
-        c.typeNames.forEach(typeName => {
-          const node = typeNameToNode[typeName];
-          if (node) addEdge(couponNode, node, sumDiscounts); // 券→类型 容量无穷（用 sumDiscounts 哨兵）
-        });
-      });
-      typeNames.forEach(name => addEdge(typeNameToNode[name], SINK, typeCaps[name]));
-
-      // Edmonds-Karp：BFS 增广路
-      let totalFlow = 0;
-      const bfs = () => {
-        const prev = new Array(SINK + 1).fill(-1);
-        prev[SOURCE] = SOURCE;
-        const queue = [SOURCE];
-        while (queue.length) {
-          const u = queue.shift();
-          if (u === SINK) break;
-          const edges = cap[u] || {};
-          for (const v in edges) {
-            const vv = +v;
-            if (prev[vv] === -1 && edges[vv] > 0) {
-              prev[vv] = u;
-              queue.push(vv);
-            }
-          }
-        }
-        if (prev[SINK] === -1) return null;
-        // 求瓶颈
-        let bottleneck = Infinity;
-        let cur = SINK;
-        while (cur !== SOURCE) {
-          const p = prev[cur];
-          bottleneck = Math.min(bottleneck, cap[p][cur]);
-          cur = p;
-        }
-        // 推进
-        cur = SINK;
-        while (cur !== SOURCE) {
-          const p = prev[cur];
-          cap[p][cur] -= bottleneck;
-          cap[cur][p] += bottleneck;
-          cur = p;
-        }
-        return bottleneck;
-      };
-
-      let path;
-      while ((path = bfs())) {
-        totalFlow += path;
-      }
-
-      totalFlow = round2(totalFlow);
-      return {
-        feasible: Math.abs(totalFlow - sumDiscounts) < 0.005,
-        totalFlow,
-        sumDiscounts
-      };
+      const got = this.allocateCoupons([...writtenOff, ...activeCandidates], typeCaps);
+      // 跳过已核销券部分，只检查候选券每张>0
+      const candidateGot = got.slice(writtenOff.length);
+      const feasible = candidateGot.every(g => g > 0);
+      return { feasible };
     },
 
     // 单选整体校验：逐券门禁 + 整体可行性判定
