@@ -10,14 +10,16 @@
         <template #extraButtons>
           <el-button v-if="permissions.has(`${moduleKey}-cancel`) && detailButtons.includes('作废')" size="small" @click="handleCancelOrder">作废</el-button>
           <el-button v-if="permissions.has(`${moduleKey}-adjustAmount`) && detailButtons.includes('调整追溯金额')" size="small" @click="handleAdjustAmount">调整追溯金额</el-button>
-          <el-button v-if="permissions.has(`${moduleKey}-rejectModify`) && detailButtons.includes('驳回修改')" size="small" @click="handleRejectModify">驳回修改</el-button>
+          <!-- 【已废弃-2026-07-24】rejectForModify 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。 -->
+          <!-- <el-button v-if="permissions.has(`${moduleKey}-rejectModify`) && detailButtons.includes('驳回修改')" size="small" @click="handleRejectModify">驳回修改</el-button> -->
           <el-button v-if="permissions.has(`${moduleKey}-appeal`) && detailButtons.includes('申诉')" size="small" @click="handleAppeal">申诉</el-button>
           <el-button v-if="permissions.has(`${moduleKey}-rejectAppeal`) && detailButtons.includes('驳回申诉')" size="small" @click="handleRejectAppeal">驳回申诉</el-button>
           <el-button v-if="permissions.has(`${moduleKey}-rejectForAppeal`) && detailButtons.includes('拒绝申诉')" size="small" @click="handleRefuseAppeal">拒绝申诉</el-button>
-          <el-button v-if="permissions.has(`${moduleKey}-submitForAudit`) && detailButtons.includes('提交审核')" size="small" type="primary"
-            @click="handleSubmitAudit">提交审核</el-button>
-          <el-button v-if="permissions.has(`${moduleKey}-agreeIssue`) && detailButtons.includes('同意下发')" size="small" type="primary"
-            :loading="agreeIssueLoading" @click="handleAgreeIssue">同意下发</el-button>
+          <el-button v-if="permissions.has(`${moduleKey}-submitForAudit`) && detailButtons.includes('审核下发')" size="small" type="primary"
+            @click="handleSubmitAudit">审核下发</el-button>
+          <!-- 【已废弃-2026-07-24】agreeIssue 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。 -->
+          <!-- <el-button v-if="permissions.has(`${moduleKey}-agreeIssue`) && detailButtons.includes('同意下发')" size="small" type="primary"
+            @click="handleAgreeIssue">同意下发</el-button> -->
           <el-button v-if="permissions.has(`${moduleKey}-agreeTrace`) && detailButtons.includes('同意追溯')" size="small" type="primary"
             :loading="agreeTraceLoading" @click="handleAgreeTrace">同意追溯</el-button>
           <el-button v-if="permissions.has(`${moduleKey}-agreeAppeal`) && detailButtons.includes('同意申诉')" size="small" type="primary"
@@ -211,7 +213,7 @@
                 attachType="不合格凭证"
                 configCode="mcs_claimtrack_form"
                 emptyText="暂无不合格凭证"
-                :readonly="!detailButtons.includes('提交审核')"
+                :readonly="!detailButtons.includes('审核下发')"
               />
             </div>
           </section>
@@ -262,7 +264,8 @@
           <CancelOrderDialog :visible.sync="cancelOrderDialogVisible" :traceOrderId="_id" @success="refreshDetail" />
           <AdjustAmountDialog :visible.sync="adjustAmountDialogVisible" :traceOrderId="_id" :formData="form"
             @success="refreshDetail" />
-          <RejectModifyDialog :visible.sync="rejectModifyDialogVisible" :traceOrderId="_id" @success="refreshDetail" />
+          <!-- 【已废弃-2026-07-24】rejectForModify 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。 -->
+          <!-- <RejectModifyDialog :visible.sync="rejectModifyDialogVisible" :traceOrderId="_id" @success="refreshDetail" /> -->
           <AppealDialog :visible.sync="appealDialogVisible" :traceOrderId="_id" @success="refreshDetail" />
           <AgreeAppealDialog :visible.sync="agreeAppealDialogVisible" :traceOrderId="_id" @success="refreshDetail" />
           <RejectAppealDialog :visible.sync="rejectAppealDialogVisible" :traceOrderId="_id" :formData="form"
@@ -280,7 +283,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, agreeIssue, agreeTrace } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
+import { getDetail, addOrUpdate, agreeTrace } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
 import { claimTraceOrderDetailList } from '@/api/claimreturn/claim/claimtrace/claimTraceOrderDetail/index';
 import { getList } from '@/api/claimreturn/claim/warrantyapply/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -295,7 +298,6 @@ import { getDetailVisibleButtons, TRACE_STATUS, TRACE_TYPE } from './constant';
 import SubmitAuditDialog from './components/SubmitAuditDialog';
 import CancelOrderDialog from './components/CancelOrderDialog';
 import AdjustAmountDialog from './components/AdjustAmountDialog';
-import RejectModifyDialog from './components/RejectModifyDialog';
 import AppealDialog from './components/AppealDialog';
 import AgreeAppealDialog from './components/AgreeAppealDialog';
 import RejectAppealDialog from './components/RejectAppealDialog';
@@ -360,7 +362,6 @@ export default {
     SubmitAuditDialog,
     CancelOrderDialog,
     AdjustAmountDialog,
-    RejectModifyDialog,
     AppealDialog,
     AgreeAppealDialog,
     RejectAppealDialog,
@@ -495,9 +496,14 @@ export default {
     handleAdjustAmount () {
       this.adjustAmountDialogVisible = true;
     },
+    /*
+     * 【已废弃-2026-07-24】rejectForModify 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。
     handleRejectModify () {
       this.rejectModifyDialogVisible = true;
     },
+    */
+    /*
+     * 【已废弃-2026-07-24】agreeIssue 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。
     handleAgreeIssue () {
       this.$confirm('确定同意下发？', '提示', {
         confirmButtonText: '确定',
@@ -513,6 +519,7 @@ export default {
         });
       }).catch(() => { });
     },
+    */
     handleAgreeTrace () {
       this.$confirm('确定同意追溯？', '提示', {
         confirmButtonText: '确定',
