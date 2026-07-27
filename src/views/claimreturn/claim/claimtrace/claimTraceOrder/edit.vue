@@ -21,7 +21,7 @@
           <!-- <el-button v-if="permissions.has(`${moduleKey}-agreeIssue`) && detailButtons.includes('同意下发')" size="small" type="primary"
             @click="handleAgreeIssue">同意下发</el-button> -->
           <el-button v-if="permissions.has(`${moduleKey}-agreeTrace`) && detailButtons.includes('同意追溯')" size="small" type="primary"
-            @click="handleAgreeTrace">同意追溯</el-button>
+            :loading="agreeTraceLoading" @click="handleAgreeTrace">同意追溯</el-button>
           <el-button v-if="permissions.has(`${moduleKey}-agreeAppeal`) && detailButtons.includes('同意申诉')" size="small" type="primary"
             @click="handleAgreeAppeal">同意申诉</el-button>
         </template>
@@ -399,6 +399,8 @@ export default {
       moduleKey: 'AISCR-claimTraceOrder',
       loading: false,
       submitLoading: false,
+      agreeIssueLoading: false,
+      agreeTraceLoading: false,
       form: { ...form },
       originalForm: { ...form },
       TRACE_STATUS,
@@ -508,9 +510,12 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.agreeIssueLoading = true;
         agreeIssue(this._id).then(() => {
           this.$message.success('同意下发成功');
           this.refreshDetail();
+        }).finally(() => {
+          this.agreeIssueLoading = false;
         });
       }).catch(() => { });
     },
@@ -521,9 +526,12 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.agreeTraceLoading = true;
         agreeTrace(this._id).then(() => {
           this.$message.success('同意追溯成功');
           this.refreshDetail();
+        }).finally(() => {
+          this.agreeTraceLoading = false;
         });
       }).catch(() => { });
     },

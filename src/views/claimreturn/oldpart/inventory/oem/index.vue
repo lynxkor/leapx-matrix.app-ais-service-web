@@ -134,8 +134,11 @@
         </el-form-item>
         <el-form-item label="审批通过时间">
           <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
             v-model="warrantyApproveTimeRange"
-            type="datetimerange"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
             value-format="yyyy-MM-dd HH:mm:ss"
             range-separator="至"
             start-placeholder="开始日期"
@@ -182,8 +185,11 @@
         </el-form-item>
         <el-form-item label="维修开始时间">
           <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
             v-model="repairStartTimeRange"
-            type="datetimerange"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
             value-format="yyyy-MM-dd HH:mm:ss"
             range-separator="至"
             start-placeholder="开始日期"
@@ -733,13 +739,13 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          this.optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });

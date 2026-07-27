@@ -164,7 +164,7 @@
           </el-main>
           <el-footer height="60px" v-if="!_id">
             <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-            <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
+            <el-button size="small" type="primary" @click="submitForm('ruleForm', true)" :loading="submitLoading">保存并下一个</el-button>
             <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
             <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
           </el-footer>
@@ -318,6 +318,11 @@ export default {
         {
           field: 'outboundQty',
           title: '出库数量',
+          width: '8%',
+        },
+        {
+          field: 'returnApplicationQty',
+          title: '退料数量',
           width: '8%',
         },
         {
