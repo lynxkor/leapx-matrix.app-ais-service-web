@@ -734,7 +734,7 @@ export default {
                 name: '发票退回',
                 click: (rowIndex, row) => { this.handleInvoiceReturn(row); },
                 type: 'info',
-                show: (row) => this.canInvoiceReturn && row.settleStatus === '65'
+                show: (row) => this.canInvoiceReturn && (row.settleStatus === '65' || row.settleStatus === '90')
               },
               {
                 name: '确认付款',
