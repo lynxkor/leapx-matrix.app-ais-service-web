@@ -106,15 +106,19 @@ export default {
           }
         }
 
-        const selectedRows = this.tableData.filter(r => r.checked && r.useId !== row.useId);
-        const validationResult = this.canSelectCoupon(row, selectedRows);
+        // 候选集 = 已勾选券 + 本次勾选券，整体做可行性判定
+        const candidateRows = [
+          ...this.tableData.filter(r => r.checked && r.useId !== row.useId),
+          row
+        ];
+        const result = this.validateSelection(candidateRows);
 
-        if (!validationResult.valid) {
+        if (!result.valid) {
           // 阻止选中，恢复复选框状态
           this.$nextTick(() => {
             row.checked = false;
             this.$refs.rightsTable.checkSelectionStatus();
-            this.$message.warning(validationResult.message || '该优惠券不可用');
+            this.$message.warning(result.message || '该优惠券不可用');
           });
         }
       }
@@ -133,128 +137,84 @@ export default {
 
     // 处理全选事件
     handleSelectAll ({ checked, records }) {
-      if (checked) {
-        const isRemainZero = this.isRemainAmountZero();
-        // 全选时，剩余应付款金额为0时只允许满减金额为(0,0)的券
-        let availableRecords = records;
-        if (isRemainZero) {
-          availableRecords = records.filter(coupon => {
-            const amountInfo = this.parsePaymentAmount(coupon.paymentAmount);
-            return amountInfo.threshold === 0 && amountInfo.discount === 0;
-          });
-          if (availableRecords.length === 0) {
-            this.$nextTick(() => {
-              // 全选拦截：按业务规则重算选中状态（此分支无可用(0,0)券，结果为全 false）
-              this.tableData.forEach(row => {
-                row.checked = this.shouldRowBeChecked(row, isRemainZero);
-              });
-              this.$refs.rightsTable.checkSelectionStatus();
-              this.$message.warning('剩余应付款金额为0，不能再选择新的抵扣券');
-            });
-            return;
-          }
-        }
+      if (!checked) return;
 
-        // 找出最优的优惠券组合
-        const optimalCombination = this.findOptimalCouponCombination(availableRecords);
-
-        if (!optimalCombination.success) {
-          // 如果无法全选，回滚到全选前的选择状态并给出提示
+      const isRemainZero = this.isRemainAmountZero();
+      // 全选时，剩余应付款金额为0时只允许满减金额为(0,0)的券
+      let availableRecords = records;
+      if (isRemainZero) {
+        availableRecords = records.filter(coupon => {
+          const amountInfo = this.parsePaymentAmount(coupon.paymentAmount);
+          return amountInfo.threshold === 0 && amountInfo.discount === 0;
+        });
+        if (availableRecords.length === 0) {
           this.$nextTick(() => {
             this.tableData.forEach(row => {
               row.checked = this.shouldRowBeChecked(row, isRemainZero);
             });
             this.$refs.rightsTable.checkSelectionStatus();
-            this.$message.warning(optimalCombination.message || '部分优惠券无法同时使用');
+            this.$message.warning('剩余应付款金额为0，不能再选择新的抵扣券');
           });
           return;
         }
-
-        // 按照最优组合设置选中状态
-        this.$nextTick(() => {
-          this.tableData.forEach(row => {
-            row.checked = optimalCombination.selectedIds.includes(row.useId);
-          });
-          this.$refs.rightsTable.checkSelectionStatus();
-
-          // 打印最优组合信息
-          console.group('🎯 全选最优组合');
-          console.log('可选优惠券总数：', records.length);
-          console.log('实际选中数量：', optimalCombination.selectedIds.length);
-          console.table(
-            optimalCombination.allocationDetails.map(detail => ({
-              维修类型: detail.type,
-              总金额: detail.total,
-              已抵扣: detail.deducted,
-              剩余金额: detail.remaining,
-              使用率: detail.usageRate
-            }))
-          );
-          console.groupEnd();
-        });
       }
+
+      // 计算最大可行子集（剩余应付款约束下能同时核销的券）
+      const result = this.findMaximalFeasibleSubset(availableRecords);
+      const selectedIdSet = new Set(result.selectedIds);
+
+      this.$nextTick(() => {
+        this.tableData.forEach(row => {
+          row.checked = selectedIdSet.has(row.useId) ? this.shouldRowBeChecked(row, isRemainZero) : false;
+        });
+        this.$refs.rightsTable.checkSelectionStatus();
+        if (result.feasibleCount < result.requestedCount) {
+          this.$message.warning('部分优惠券无法同时使用，已为您选择最优组合');
+        }
+      });
     },
 
-    // 找出最优的优惠券组合（贪心算法）
-    findOptimalCouponCombination (allCoupons) {
-      // 1. 过滤出基础可用的优惠券
-      const availableCoupons = allCoupons.filter(coupon => {
-        const validation = this.validateCoupon(coupon);
-        return validation.valid;
-      });
+    // 计算最大可行子集：在剩余应付款约束下，求能同时核销的最大券集合
+    // 返回 { selectedIds, feasibleCount, requestedCount }
+    findMaximalFeasibleSubset (allCoupons) {
+      const requestedCount = allCoupons.length;
+      const typeCaps = this.computeTypeCaps();
 
-      if (availableCoupons.length === 0) {
-        return {
-          success: false,
-          message: '没有可用的优惠券'
-        };
-      }
-
-      // 2. 初始化各维修类型的可用金额
-      const typeAmounts = this.initTypeAmounts();
-
-      // 3. 按优先级排序：专用券 > 通用券
-      const sortedCoupons = [...availableCoupons].sort((a, b) => {
-        const aTypes = (a.relatedRepairTypeList || []).length;
-        const bTypes = (b.relatedRepairTypeList || []).length;
-        return aTypes - bTypes;
-      });
-
-      // 4. 贪心算法：依次尝试选择每张券
-      const allocation = {};
-      const selectedIds = [];
-
-      for (const coupon of sortedCoupons) {
-        // 尝试分配当前优惠券
-        const testAllocation = { ...allocation };
-        const success = this.tryAllocateCoupon(coupon, typeAmounts, testAllocation);
-
-        if (success) {
-          // 可以选择，更新分配结果
-          Object.assign(allocation, testAllocation);
-          selectedIds.push(coupon.useId);
+      // 分离：(0,0) 券无减免，无条件纳入结果；其余券需通过门禁并参与可行性判定
+      const zeroCouponIds = [];
+      const gated = [];
+      allCoupons.forEach(coupon => {
+        const { discount } = this.parsePaymentAmount(coupon.paymentAmount);
+        if (discount === 0) {
+          zeroCouponIds.push(coupon.useId);
+          return;
         }
-        // 如果无法分配，跳过这张券
-      }
-
-      // 5. 构建分配详情
-      const allocationDetails = Object.keys(allocation).map(typeName => {
-        const total = typeAmounts[typeName] || 0;
-        const deducted = allocation[typeName] || 0;
-        const remaining = total - deducted;
-        return {
-          type: typeName,
-          total: total.toFixed(2),
-          deducted: deducted.toFixed(2),
-          remaining: remaining.toFixed(2),
-          usageRate: total > 0 ? ((deducted / total) * 100).toFixed(1) : '0.0'
-        };
+        if (this.validateCoupon(coupon).valid) {
+          gated.push(coupon);
+        }
       });
+
+      // 从全部通过门禁的券出发；不可行时每次剔除"最难安放"（减免/适用类型数 比值最大）的券，重测
+      const remaining = [...gated];
+      while (remaining.length > 0 && !this.isFeasible(remaining, typeCaps).feasible) {
+        let worstIdx = 0;
+        let worstScore = -Infinity;
+        remaining.forEach((c, i) => {
+          const { discount } = this.parsePaymentAmount(c.paymentAmount);
+          const typeCount = Math.max(1, (c.relatedRepairTypeList || []).length);
+          const score = discount / typeCount;
+          if (score > worstScore) {
+            worstScore = score;
+            worstIdx = i;
+          }
+        });
+        remaining.splice(worstIdx, 1);
+      }
 
       return {
-        success: true,
-        selectedIds: selectedIds,
-        allocationDetails: allocationDetails
+        selectedIds: [...zeroCouponIds, ...remaining.map(c => c.useId)],
+        feasibleCount: remaining.length,
+        requestedCount
       };
     },
 
@@ -324,7 +284,6 @@ export default {
 
       // 特殊处理：减免金额为0的优惠券无条件通过基础校验
       if (amountInfo.discount === 0) {
-        console.log('减免金额为0的优惠券通过基础校验:', coupon.rightsName);
         return { valid: true, amountInfo, totalAmount: 0, repairTypeNames: [], isZeroDiscount: true };
       }
 
@@ -361,93 +320,45 @@ export default {
       return { valid: true, amountInfo, totalAmount: amountInfoCalc.net, repairTypeNames };
     },
 
-    // 初始化各维修类型的可用金额（净额，负值溢出转移到其他类型，保证全 ≥ 0）
-    initTypeAmounts () {
-      const typeAmounts = {};
+    // 各维修类型的毛额容量（项目 repairAmount + 零件 partsAmount，不减已核销）
+    // 已核销券不在此预扣，而是作为可重排资源参与 isFeasible 的整体分配（通用券可让位给专用券）
+    // 以维修类型名为键（与 relatedRepairTypeList[].repairTypeName / applicableMaintenanceType 对齐）
+    computeTypeCaps () {
+      const round2 = n => Math.round(n * 100) / 100;
+      const typeCaps = {};
 
-      // 收集所有维修类型：类型名 -> 类型Id（按名去重）
-      const typeIdMap = {};
+      // 收集本单出现的所有维修类型名（去重）
+      const typeNameSet = {};
       (this.formData.repairItemResps || []).forEach(item => {
-        typeIdMap[item.repairItemTypeName] = item.repairItemTypeId;
+        if (item.repairItemTypeName) typeNameSet[item.repairItemTypeName] = true;
       });
       (this.formData.partResps || []).forEach(part => {
-        typeIdMap[part.repairItemTypeName] = part.repairItemTypeId;
+        if (part.repairItemTypeName) typeNameSet[part.repairItemTypeName] = true;
       });
 
-      // 1. 计算每个类型的初始净额（项目+零件 − 该类型已核销）
-      const nets = {};
-      Object.keys(typeIdMap).forEach(typeName => {
-        nets[typeName] = this.calculateRepairTypeAmount([typeName], [typeIdMap[typeName]]).net;
+      Object.keys(typeNameSet).forEach(typeName => {
+        const gross = this.calculateRepairTypeAmount([typeName], []).gross;
+        typeCaps[typeName] = round2(Math.max(0, gross));
       });
 
-      // 2. 汇总负值类型的溢出量，负值类型 remain 置 0
-      let overflow = 0;
-      Object.keys(nets).forEach(typeName => {
-        if (nets[typeName] < 0) {
-          overflow += -nets[typeName];
-          nets[typeName] = 0;
-        }
-      });
-
-      // 3. 把溢出量按可用容量降序，从正值类型贪心扣除
-      if (overflow > 0) {
-        const positiveTypes = Object.keys(nets).filter(t => nets[t] > 0)
-          .sort((a, b) => nets[b] - nets[a]);
-        for (const typeName of positiveTypes) {
-          if (overflow <= 0) break;
-          const deduct = Math.min(overflow, nets[typeName]);
-          nets[typeName] -= deduct;
-          overflow -= deduct;
-        }
-      }
-
-      // 4. 兜底：若正值类型不足以消化溢出，保留剩余溢出（不应发生）
-      Object.keys(nets).forEach(typeName => {
-        typeAmounts[typeName] = Math.max(0, nets[typeName]);
-      });
-
-      return typeAmounts;
+      return typeCaps;
     },
 
-    // 尝试分配单张优惠券
-    tryAllocateCoupon (coupon, typeAmounts, allocation) {
-      const amountInfo = this.parsePaymentAmount(coupon.paymentAmount);
-      const discount = amountInfo.discount;
-      const repairTypes = coupon.relatedRepairTypeList || [];
-
-      // 特殊处理：减免金额为0的优惠券无条件通过
-      if (discount === 0) {
-        console.log('减免金额为0的优惠券无条件通过:', coupon.rightsName);
-        return true;
-      }
-
-      let remaining = discount;
-
-      // 按优先级选择维修类型进行分配：优先选择剩余金额最多的类型
-      const sortedTypes = [...repairTypes].sort((a, b) => {
-        const aAvailable = (typeAmounts[a.repairTypeName] || 0) - (allocation[a.repairTypeName] || 0);
-        const bAvailable = (typeAmounts[b.repairTypeName] || 0) - (allocation[b.repairTypeName] || 0);
-        return bAvailable - aAvailable; // 降序，剩余多的优先
+    // 解析已核销券（rightsUsageRecordResps）为统一券结构 { deduction, typeNames[] }
+    // 适用类型直接取自 applicableMaintenanceType（逗号/全角逗号分隔的名字），无需映射 ID
+    getWrittenOffCoupons () {
+      const list = [];
+      (this.formData.rightsUsageRecordResps || []).forEach(record => {
+        const deduction = parseFloat(record.deductionAmount || 0);
+        if (deduction <= 0) return;
+        const typeNames = String(record.applicableMaintenanceType || '')
+          .split(/[,，]/)
+          .map(s => s.trim())
+          .filter(Boolean);
+        if (typeNames.length === 0) return;
+        list.push({ deduction, typeNames });
       });
-
-      for (const type of sortedTypes) {
-        if (remaining <= 0) break;
-
-        const typeName = type.repairTypeName;
-        const totalAmount = typeAmounts[typeName] || 0;
-        const allocated = allocation[typeName] || 0;
-        const available = totalAmount - allocated;
-
-        if (available > 0) {
-          const deduct = Math.min(remaining, available);
-          allocation[typeName] = allocated + deduct;
-          remaining -= deduct;
-        }
-      }
-
-      // 只要能分配一部分就成功
-      const totalAllocated = discount - remaining;
-      return totalAllocated > 0;
+      return list;
     },
 
     // 判断结算单剩余应付款金额是否为0
@@ -455,107 +366,125 @@ export default {
       return parseFloat(this.formData.remainAmount || 0) === 0;
     },
 
-    // 校验优惠券是否可以被选中（考虑全局最优分配）
-    canSelectCoupon (coupon, selectedRows) {
-      // 剩余应付款金额为0时，只允许满减金额为(0,0)的券
-      if (this.isRemainAmountZero()) {
-        const amountInfo = this.parsePaymentAmount(coupon.paymentAmount);
-        if (!(amountInfo.threshold === 0 && amountInfo.discount === 0)) {
-          return {
-            valid: false,
-            reason: 'remain_amount_zero',
-            message: '剩余应付款金额为0，不能再选择新的抵扣券'
-          };
-        }
-      }
+    // 整体可行性判定：把"已核销券 + 候选券"统一放入最大流图，对毛额总池做分配
+    // 通用券（已核销或候选）可被算法重排到任意适用类型，从而给专用券腾位
+    // 可行 ⇔ maxflow == Σ(已核销减免 + 候选减免)；不可行则候选券多余
+    // 注意：已核销券必然存在合法分配（后端已成功核销），因此整体不可行必由候选券引起
+    // 类型节点以"维修类型名"为键，避免 relatedRepairTypeList.repairTypeId 与 repairItemTypeId 体系不一致导致连不上边
+    isFeasible (candidateCoupons, typeCaps) {
+      const round2 = n => Math.round(n * 100) / 100;
 
-      // 基础校验
-      const baseValidation = this.validateCoupon(coupon);
-      if (!baseValidation.valid) {
-        return baseValidation;
-      }
+      // 统一券结构：{ deduction, typeNames[] }，已核销券 + 候选券（候选券仅取减免>0）
+      const writtenOff = this.getWrittenOffCoupons();
+      const activeCandidates = candidateCoupons
+        .filter(c => this.parsePaymentAmount(c.paymentAmount).discount > 0)
+        .map(c => ({
+          deduction: this.parsePaymentAmount(c.paymentAmount).discount,
+          typeNames: (c.relatedRepairTypeList || []).map(t => t.repairTypeName).filter(Boolean)
+        }));
+      const allCoupons = [...writtenOff, ...activeCandidates];
 
-      // 模拟选择：将当前优惠券加入已选列表
-      const allSelected = [...selectedRows, coupon];
+      const sumDiscounts = round2(allCoupons.reduce((sum, c) => sum + c.deduction, 0));
+      if (sumDiscounts === 0) return { feasible: true, totalFlow: 0, sumDiscounts: 0 };
 
-      // 按优先级排序：适用类型越少，优先级越高（专用券 > 通用券）
-      const priorityOrder = (a, b) => {
-        const aTypes = (a.relatedRepairTypeList || []).length;
-        const bTypes = (b.relatedRepairTypeList || []).length;
-        return aTypes - bTypes;
+      // 仅保留有正毛额的类型节点
+      const typeNames = Object.keys(typeCaps).filter(name => typeCaps[name] > 0);
+
+      // 节点编号：0=源, 1..n=券, n+1..n+m=类型, 末=汇
+      const n = allCoupons.length;
+      const m = typeNames.length;
+      const SOURCE = 0;
+      const SINK = n + m + 1;
+      const typeNameToNode = {};
+      typeNames.forEach((name, i) => { typeNameToNode[name] = n + 1 + i; });
+
+      // 残量图：cap[u][v]
+      const cap = {};
+      const addEdge = (u, v, c) => {
+        if (!cap[u]) cap[u] = {};
+        if (!cap[v]) cap[v] = {};
+        cap[u][v] = (cap[u][v] || 0) + c;
+        cap[v][u] = cap[v][u] || 0; // 反向边初始为 0
       };
 
-      const sortedCoupons = [...allSelected].sort(priorityOrder);
+      allCoupons.forEach((c, i) => {
+        const couponNode = i + 1;
+        addEdge(SOURCE, couponNode, c.deduction);
+        c.typeNames.forEach(typeName => {
+          const node = typeNameToNode[typeName];
+          if (node) addEdge(couponNode, node, sumDiscounts); // 券→类型 容量无穷（用 sumDiscounts 哨兵）
+        });
+      });
+      typeNames.forEach(name => addEdge(typeNameToNode[name], SINK, typeCaps[name]));
 
-      // 初始化各维修类型的可用金额
-      const typeAmounts = this.initTypeAmounts();
-
-      // 按优先级依次分配，构建抵扣映射表
-      const allocation = {};
-
-      for (const item of sortedCoupons) {
-        const success = this.tryAllocateCoupon(item, typeAmounts, allocation);
-        if (!success) {
-          // 分配失败，返回具体错误
-          const itemTypes = (item.relatedRepairTypeList || []).map(t => t.repairTypeName).join('、');
-          // const itemDiscount = this.parsePaymentAmount(item.paymentAmount).discount;
-
-          // 计算各类型的剩余金额和已抵扣金额
-          // const details = item.relatedRepairTypeList.map(type => {
-          //   const typeName = type.repairTypeName;
-          //   const total = typeAmounts[typeName] || 0;
-          //   const deducted = allocation[typeName] || 0;
-          //   const remaining = total - deducted;
-          //   return `${typeName}(总额${total}元，已抵扣${deducted}元，剩余${remaining}元)`;
-          // }).join('；');
-
-          return {
-            valid: false,
-            reason: 'exceed_available_amount',
-            message: `所选权益减免金额已超过适用维修类型（${itemTypes}）的剩余应付款，不能再选择新的抵扣券`
-            // `优惠券"${item.rightsName}"（减免${itemDiscount}元，适用：${itemTypes}）无法分配。${details}`
-          };
+      // Edmonds-Karp：BFS 增广路
+      let totalFlow = 0;
+      const bfs = () => {
+        const prev = new Array(SINK + 1).fill(-1);
+        prev[SOURCE] = SOURCE;
+        const queue = [SOURCE];
+        while (queue.length) {
+          const u = queue.shift();
+          if (u === SINK) break;
+          const edges = cap[u] || {};
+          for (const v in edges) {
+            const vv = +v;
+            if (prev[vv] === -1 && edges[vv] > 0) {
+              prev[vv] = u;
+              queue.push(vv);
+            }
+          }
         }
+        if (prev[SINK] === -1) return null;
+        // 求瓶颈
+        let bottleneck = Infinity;
+        let cur = SINK;
+        while (cur !== SOURCE) {
+          const p = prev[cur];
+          bottleneck = Math.min(bottleneck, cap[p][cur]);
+          cur = p;
+        }
+        // 推进
+        cur = SINK;
+        while (cur !== SOURCE) {
+          const p = prev[cur];
+          cap[p][cur] -= bottleneck;
+          cap[cur][p] += bottleneck;
+          cur = p;
+        }
+        return bottleneck;
+      };
+
+      let path;
+      while ((path = bfs())) {
+        totalFlow += path;
       }
 
-      // 分配成功，打印各项目的抵扣情况
-      console.group('🎫 优惠券分配成功');
-      console.log('已选优惠券数量：', sortedCoupons.length);
+      totalFlow = round2(totalFlow);
+      return {
+        feasible: Math.abs(totalFlow - sumDiscounts) < 0.005,
+        totalFlow,
+        sumDiscounts
+      };
+    },
 
-      // 打印维修类型抵扣详情表格
-      console.table(
-        Object.keys(allocation).map(typeName => {
-          const total = typeAmounts[typeName] || 0;
-          const deducted = allocation[typeName] || 0;
-          const remaining = total - deducted;
-          return {
-            维修类型: typeName,
-            总金额: total.toFixed(2),
-            已抵扣: deducted.toFixed(2),
-            剩余金额: remaining.toFixed(2),
-            使用率: total > 0 ? ((deducted / total) * 100).toFixed(1) : '0.0'
-          };
-        })
-      );
+    // 单选整体校验：逐券门禁 + 整体可行性判定
+    validateSelection (candidateRows) {
+      // 逐券基础门禁
+      for (const row of candidateRows) {
+        const base = this.validateCoupon(row);
+        if (!base.valid) return base;
+      }
 
-      console.log('优惠券明细：');
-      // 打印优惠券列表表格
-      console.table(
-        sortedCoupons.map((item, index) => {
-          const discount = this.parsePaymentAmount(item.paymentAmount).discount;
-          const types = (item.relatedRepairTypeList || []).map(t => t.repairTypeName).join('、');
-          return {
-            编码: item.rightsCode,
-            优惠券名称: item.rightsName,
-            减免金额: discount,
-            适用类型: types
-          };
-        })
-      );
-
-      console.groupEnd();
-
-      // 所有优惠券都能成功分配，允许选择
+      // 整体可行性
+      const result = this.isFeasible(candidateRows, this.computeTypeCaps());
+      if (!result.feasible) {
+        return {
+          valid: false,
+          reason: 'exceed_available_amount',
+          message: '所选权益减免金额已超过适用维修类型的剩余应付款，券多余'
+        };
+      }
       return { valid: true };
     },
 
