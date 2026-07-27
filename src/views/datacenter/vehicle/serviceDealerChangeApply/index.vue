@@ -34,6 +34,13 @@
             clearable
           />
         </el-form-item>
+        <el-form-item label="申请原因">
+          <el-input
+            placeholder="请输入"
+            v-model="form.applyReasonLike"
+            clearable
+          />
+        </el-form-item>
         <el-form-item label="申请时间">
           <el-date-picker
           :default-time="['00:00:00', '23:59:59']"
@@ -127,6 +134,7 @@
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
+      <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
     </div>
     <div class="ais-table-c">
       <LPVxeTable
@@ -179,12 +187,13 @@ import {
   finalApprovePass,
   submit,
 } from '@/api/datacenter/vehicle/serviceDealerChangeApply/index';
-import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
+import { downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
@@ -198,6 +207,7 @@ const defaultForm = {
   applyNoList: [],
   applyStatusList: [],
   applierNameLike: '',
+  applyReasonLike: '',
   applyTime: '',
   firstApproverNameLike: '',
   firstApproveTime: '',
@@ -393,6 +403,39 @@ export default {
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
+    },
+    exportExcel () {
+      this.exportLoading = true;
+      const reqParams = this.getFormData() || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
+      exportTable({
+        businessType: '专属服务门店变更',
+        dataFetchPath: 'datacenter/web/vehicle/serviceDealerChangeApply/page',
+        reqParams,
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '专属服务门店变更.xlsx');
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$confirmExport(
+            () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+          );
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
     },
     handleAdd () {
       this.$router.push({
