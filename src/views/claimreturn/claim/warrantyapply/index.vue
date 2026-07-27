@@ -2117,18 +2117,44 @@ export default {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
+      // 通用导出微服务回调后端分页接口时不会自动补 pageNum/pageSize；
+      // 后端新接口（partsPage/workhourPage/otherPage/approvalPage）在
+      // `new Page<>(qo.getPageNum(), qo.getPageSize())` 时 pageNum=null 会因 long
+      // 自动拆箱抛出 NPE → 500。这里主动补 pageNum=1, pageSize=99999。
+      reqParams.pageNum = reqParams.pageNum || 1;
+      reqParams.pageSize = reqParams.pageSize || 99999;
       const tab = this.activeTab;
       const isParts = tab === 'parts';
       const isWorkhours = tab === 'workhours';
-      // 与「其他清单 / 审批记录」的"好用的导出"行为保持一致：统一走 /page 接口
-      // 该接口返回 WarrantyApplyResp，已带 applyStatusLabel / alarmLevelLabel 等枚举文本，
-      // 通用导出微服务可以正常处理；/partsPage、/workhourPage 新接口导出报错暂规避。
-      const dataFetchPath = 'claimreturn/claim/web/warrantyapply/warrantyApply/page';
-      const businessType = isParts
-        ? '保修备件清单'
-        : isWorkhours
-          ? '保修工时清单'
-          : '保修申请单';
+      const isOther = tab === 'other';
+      const isApproval = tab === 'approval';
+      // all / manager / gm 走原来的 /page 接口（与原本可用的逻辑保持一致）
+      // parts / workhours / other / approval 各自走专属分页接口
+      let dataFetchPath;
+      let businessType;
+      let fileName;
+      if (isParts) {
+        dataFetchPath = 'claimreturn/claim/web/warrantyapply/warrantyApply/partsPage';
+        businessType = '保修备件清单';
+        fileName = '保修备件清单.xlsx';
+      } else if (isWorkhours) {
+        dataFetchPath = 'claimreturn/claim/web/warrantyapply/warrantyApply/workhourPage';
+        businessType = '保修工时清单';
+        fileName = '保修工时清单.xlsx';
+      } else if (isOther) {
+        dataFetchPath = 'claimreturn/claim/web/warrantyapply/warrantyApply/otherPage';
+        businessType = '保修其他清单';
+        fileName = '保修其他清单.xlsx';
+      } else if (isApproval) {
+        dataFetchPath = 'claimreturn/claim/web/warrantyapply/warrantyApply/approvalPage';
+        businessType = '保修审批记录';
+        fileName = '保修审批记录.xlsx';
+      } else {
+        // all / manager / gm 沿用原逻辑，统一走 /page，businessType 为「保修申请单」
+        dataFetchPath = 'claimreturn/claim/web/warrantyapply/warrantyApply/page';
+        businessType = '保修申请单';
+        fileName = '保修申请单.xlsx';
+      }
       exportTable({
         businessType,
         dataFetchPath,
@@ -2138,11 +2164,6 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            const fileName = isParts
-              ? '保修备件清单.xlsx'
-              : isWorkhours
-                ? '保修工时清单.xlsx'
-                : '保修申请单.xlsx';
             await downloadExcel(res.excelUrl, fileName);
           } catch (error) {
             this.$message({

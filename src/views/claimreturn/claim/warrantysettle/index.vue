@@ -1386,35 +1386,39 @@ export default {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
-      // 与 warrantyapply/index.vue 的"好用的导出"保持一致：4 个页签统一走 /page 接口。
-      // 原因：通用导出微服务 (/data/excelOperate/commonExport) 对新接口兼容性有问题
-      // （warrantyapply 的 /partsPage、/workhourPage 也存在同样问题，参考其注释）。
-      // /page 返回 WarrantySettleResp，涵盖通知书层面的基础字段；
-      // 各页签专属字段（applyNo / vin / detailWorkHourTotal / traceDetailCode / invoiceNo 等）
-      // 在导出中会留空，但通知书级数据（settleCode / dealerCode / 各总额 / 验收付款日期等）
-      // 完整可用。
+      // 通用导出微服务回调后端分页接口时不会自动补 pageNum/pageSize；
+      // 后端新接口（detailPage/tracePage/invoicePage）使用 `new Page<>(qo.getPageNum(), qo.getPageSize())`，
+      // pageNum=null 时会因 long 自动拆箱抛出 NPE → 500。
+      // 这里主动补 pageNum=1, pageSize 设为较大值，让新接口一次拿到全量数据用于导出。
+      reqParams.pageNum = reqParams.pageNum || 1;
+      reqParams.pageSize = reqParams.pageSize || 99999;
+      // 按当前页签分发到对应的分页接口（包含 JOIN 后的完整字段）
       const tabExportMap = {
         list: {
+          dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantySettle/page',
           businessType: '保修结算通知书',
           fileName: '保修结算通知书.xlsx'
         },
         detail: {
+          dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantySettle/detailPage',
           businessType: '保修结算通知书明细',
           fileName: '保修结算通知书明细.xlsx'
         },
         trace: {
+          dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantySettle/tracePage',
           businessType: '保修结算追溯明细',
           fileName: '保修结算追溯明细.xlsx'
         },
         invoice: {
+          dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantySettle/invoicePage',
           businessType: '保修结算开票明细',
           fileName: '保修结算开票明细.xlsx'
         }
       };
-      const { businessType, fileName } = tabExportMap[this.activeTab] || tabExportMap.list;
+      const { dataFetchPath, businessType, fileName } = tabExportMap[this.activeTab] || tabExportMap.list;
       exportTable({
         businessType,
-        dataFetchPath: 'claimreturn/claim/web/warrantysettle/warrantySettle/page',
+        dataFetchPath,
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
