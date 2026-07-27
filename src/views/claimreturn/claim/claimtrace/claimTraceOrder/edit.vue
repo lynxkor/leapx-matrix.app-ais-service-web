@@ -208,12 +208,13 @@
               <h2>追溯凭证</h2>
             </div>
             <div class="common-section-body">
+              <!-- 追溯凭证：仅主机厂账号在【草稿/已驳回/申诉中】状态下可上传/删除/编辑 -->
               <AisAttachment
                 :business-id="_id"
                 attachType="不合格凭证"
                 configCode="mcs_claimtrack_form"
                 emptyText="暂无不合格凭证"
-                :readonly="!detailButtons.includes('审核下发')"
+                :readonly="!traceCertEditable"
               />
             </div>
           </section>
@@ -304,6 +305,7 @@ import RejectAppealDialog from './components/RejectAppealDialog';
 import RefuseAppealDialog from './components/RefuseAppealDialog';
 import AisAttachment from '@/libs/components/AisAttachment';
 import ListSelect from '@/libs/components/list-select';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   claimTraceCode: '',
@@ -380,6 +382,11 @@ export default {
       if (this.isEditing) return [];
       return getDetailVisibleButtons(this.form.traceStatus);
     },
+    // 追溯凭证是否可编辑：仅主机厂账号在【草稿/已驳回/申诉中】状态下可上传/删除/编辑
+    traceCertEditable () {
+      const editableStatuses = [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED, TRACE_STATUS.APPEALING];
+      return this.isOem && editableStatuses.includes(this.form.traceStatus);
+    },
   },
   watch: {
     id: {
@@ -423,12 +430,19 @@ export default {
       traceCurrent: 1,
       tracePageSize: 10,
       traceTotal: 0,
+      // 是否主机厂账号（accountFlag=false 为主机厂，true 为门店）
+      isOem: false,
     };
   },
   mounted () {
     if (this._id) {
       this.getTraceTableData();
     }
+    // 获取当前登录账号类型，用于控制追溯凭证的编辑权限
+    // 参考 sparePart/edit.vue、returnorder/edit.vue 现有写法：accountFlag 为真=门店，取反即主机厂
+    loginUserGet().then(data => {
+      this.isOem = !data.accountFlag;
+    });
   },
   methods: {
     queryListData (query) {
