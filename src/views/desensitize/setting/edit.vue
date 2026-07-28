@@ -163,7 +163,7 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
-                <el-button type="primary"  size="small" @click="addPositionRow">添加</el-button>
+                <el-button v-if="canOperate" type="primary" plain icon="el-icon-plus" size="small" @click="addPositionRow">添加</el-button>
               </div>
               <div class="common-section-table">
                 <vxe-table
@@ -174,6 +174,7 @@
                   resizable
                   border="inner"
                   size="medium"
+                  :row-config="{ isHover: true }"
                   empty-text="暂无岗位配置，点击右上方“添加”按钮新增"
                   min-height="0"
                   max-height="400px"
@@ -222,7 +223,7 @@
                   </vxe-column>
                   <vxe-column  title="操作" width="160">
                     <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger"  @confirm="removePositionRow(rowIndex)">
+                      <el-popconfirm v-if="canOperate" title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger"  @confirm="removePositionRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
@@ -239,7 +240,7 @@
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
-                <el-button type="primary"  size="small" @click="addUserRow">添加</el-button>
+                <el-button v-if="canOperate" type="primary" plain icon="el-icon-plus" size="small" @click="addUserRow">添加</el-button>
               </div>
               <div class="common-section-table">
                 <vxe-table
@@ -250,6 +251,7 @@
                   resizable
                   border="inner"
                   size="medium"
+                  :row-config="{ isHover: true }"
                   empty-text="暂无用户配置，点击右上方“添加”按钮新增"
                   min-height="0"
                   max-height="400px"
@@ -306,7 +308,7 @@
                   </vxe-column>
                   <vxe-column  title="操作" width="160">
                     <template #default="{ rowIndex }">
-                      <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger"  @confirm="removeUserRow(rowIndex)">
+                      <el-popconfirm v-if="canOperate" title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger"  @confirm="removeUserRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
                       </el-popconfirm>
                     </template>
@@ -403,6 +405,10 @@ export default {
     title () {
       return this._id ? '脱敏设置详情' : '脱敏设置';
     },
+    // 详情查看态下禁止添加/删除子配置，仅编辑态或新增态可操作
+    canOperate () {
+      return this.isEditing || !this._id;
+    },
     // 表名下拉参数（用于字段下拉）
     tableParams () {
       return {
@@ -428,6 +434,13 @@ export default {
         this.form.tableNameZh = '';
         this.form.columnName = '';
         this.form.columnNameZh = '';
+      }
+    },
+    // 进入编辑态时预加载岗位选项、预置已选用户选项，保证岗位/用户能回显中文名
+    isEditing (val) {
+      if (val) {
+        this.fetchPositionOptions();
+        this.seedUserOptionsFromRows();
       }
     }
   },
@@ -524,6 +537,19 @@ export default {
         this.positionOptions = [];
       }
     },
+    // 把已选用户补进 userOptions，避免选项列表里无匹配项导致 el-select 直接显示 userId
+    seedUserOptionsFromRows () {
+      const exist = new Set(this.userOptions.map(u => u.userId));
+      (this.form.userList || []).forEach(u => {
+        if (u.userId && !exist.has(u.userId)) {
+          this.userOptions.push({
+            userId: u.userId,
+            userName: u.userName || '',
+            mobile: u.mobile || ''
+          });
+        }
+      });
+    },
     searchUserOptions (query) {
       this.userSearchLoading = true;
       findUserList({
@@ -537,6 +563,8 @@ export default {
           userName: item.username || item.name || '',
           mobile: item.mobile || ''
         }));
+        // 合并各行已选用户，防止搜索结果覆盖后其他行回显丢失
+        this.seedUserOptionsFromRows();
       }).catch(err => {
         console.error('用户搜索失败', err);
         this.userOptions = [];
