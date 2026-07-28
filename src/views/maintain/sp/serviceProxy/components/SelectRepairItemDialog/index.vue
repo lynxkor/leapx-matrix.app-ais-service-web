@@ -247,7 +247,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE || row.packageType == PackageTypeEnum.TECH_ACTIVITY || row.packageType == PackageTypeEnum.CARE_ACTIVITY">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || packageTypeIncluded(row.packageType)">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -393,7 +393,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE || row.packageType == PackageTypeEnum.TECH_ACTIVITY || row.packageType == PackageTypeEnum.CARE_ACTIVITY">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || packageTypeIncluded(row.packageType)">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -1380,9 +1380,10 @@ export default {
       return null;
     },
 
-    // 套餐类型是否为商城订单
+    // 套餐类型是否为商城订单、技术和关爱服务活动、免保、权益套餐
     packageTypeIncluded (type) {
-      return (type || '').toString() === PackageTypeEnum.STORE;
+      const includesTypes = [PackageTypeEnum.STORE, PackageTypeEnum.TECH_ACTIVITY, PackageTypeEnum.CARE_ACTIVITY, PackageTypeEnum.FREE, PackageTypeEnum.EQUITY];
+      return includesTypes.includes((type || '').toString());
     },
 
     // 【结算类型】为保修，【保修类型】为：技术服务活动 选不到
