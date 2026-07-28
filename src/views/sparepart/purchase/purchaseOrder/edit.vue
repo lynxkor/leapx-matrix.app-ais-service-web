@@ -18,8 +18,8 @@
           <span class="status primary">{{ form.orderStatusLabel }}</span>
         </template>
         <template #extraButtons>
-          <el-button plain size="small" v-if="form.orderStatus === '2'" @click="handleSign(false)">签收</el-button>
-          <el-button plain size="small" v-if="form.orderStatus === '2'" @click="handleSign(true)">签收并入库</el-button>
+          <el-button plain size="small" v-if="form.orderStatus === '2' && permissions.has('AISPART-purchaseOrder-sign')" @click="handleSign(false)">签收</el-button>
+          <el-button plain size="small" v-if="form.orderStatus === '2' && permissions.has('AISPART-purchaseOrder-signIn')" @click="handleSign(true)">签收并入库</el-button>
         </template>
         <el-main>
           <section class="common-section">
