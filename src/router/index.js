@@ -2669,7 +2669,7 @@ const routes = [
       }
     }, {
       path: '/claimreturn/claim/warrantyApplyCustom',
-      name: 'warrantyApply',
+      name: 'warrantyApplyCustom',
       component: () => import('@/views/claimreturn/claim/warrantyapply/index_custum_query.vue'),
 
       meta: {
