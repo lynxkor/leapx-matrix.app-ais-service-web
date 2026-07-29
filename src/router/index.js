@@ -2668,6 +2668,17 @@ const routes = [
         notRefresh: true,
       }
     }, {
+      path: '/claimreturn/claim/warrantyApplyCustom',
+      name: 'warrantyApply',
+      component: () => import('@/views/claimreturn/claim/warrantyapply/index_custum_query.vue'),
+
+      meta: {
+        name: '自定义查询',
+        keepAlive: true,
+        notRefresh: true,
+      }
+    },
+    {
       path: '/claimreturn/claim/warrantyApply/edit',
       name: 'warrantyApplyEdit',
       component: () => import('@/views/claimreturn/claim/warrantyapply/edit.vue'),
