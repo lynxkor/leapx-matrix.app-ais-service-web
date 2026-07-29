@@ -2,7 +2,7 @@
     <el-dialog class="m-start-work-dialog" title="打印设置" width="500px" :visible.sync="dialogVisible" @close="close">
         <el-form :model="form" ref="ruleForm" label-width="120px" class="common-section-body">
             <el-form-item label="排序">
-                <fetch-select size="small" :request="fetchOptions" enumCode="MaintenanceOutboundPrintSortEnum"
+                <fetch-select size="small" :options="options"
                     v-model="form.sortOrder" placeholder="请选择" clearable filterable />
             </el-form-item>
         </el-form>
@@ -34,7 +34,8 @@ export default {
     return {
       dialogVisible: this.visible,
       form: {},
-      submitLoading: false
+      submitLoading: false,
+      options: []
     };
   },
   watch: {
@@ -42,6 +43,7 @@ export default {
       this.dialogVisible = val;
       if (val) {
         this.initData();
+        this.fetchOptions();
       }
     },
   },
@@ -69,10 +71,10 @@ export default {
       }
     },
     async fetchOptions (code) {
-      if (code) {
-        return getEnum(code);
-      }
-      return [];
+      getEnum('MaintenanceOutboundPrintSortEnum').then(res => {
+        const target = (res || []).filter(item => item.code !== '2'); // 2:按创建时间升序，此处不需要
+        this.options = target;
+      });
     },
   }
 };
