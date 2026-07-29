@@ -2940,6 +2940,16 @@ const routes = [
         name: '门店营收报表',
         keepAlive: true
       }
+    }, {
+      // 数据上报 - 门店产值报表
+      path: '/datareport/storeOutputValue',
+      name: 'storeOutputValue',
+      component: () => import('@/views/datareport/storeOutputValue/index.vue'),
+
+      meta: {
+        name: '门店产值报表',
+        keepAlive: true
+      }
     }]
   }
 ];
