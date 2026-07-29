@@ -117,6 +117,7 @@
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
       <el-tab-pane label="缺货明细看板" name="outOfStock"></el-tab-pane>
+      <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
     </el-tabs>
     <div
       class="ais-table-c"
@@ -211,6 +212,27 @@
         checkboxFixed
         centralized
         :option-obj="optionObjStock"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
+    </div>
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'allSpareParts'"
+    >
+      <LPVxeTable
+        :key="3"
+        ref="tableRefAll"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        :option-obj="optionObjAll"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
@@ -472,6 +494,73 @@ export default {
           }
         ],
         total: 0
+      },
+      optionObjAll: {
+        id: 'backOrderTableAll',
+        dataList: [],
+        form: {
+          page: 1,
+          size: 20
+        },
+        dataProp: [
+          {
+            props: 'code',
+            label: '缺货单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/backOrder/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'purchaseApplyCode',
+            label: '采购申请单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseApply/edit',
+                  query: {
+                    id: row.purchaseApplyId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
+          { props: 'pendingVarietyCount', label: '待处理品种数', visible: true, align: 'right', width: 140 },
+          { props: 'processedVarietyCount', label: '已处理品种数', visible: true, align: 'right', width: 140 },
+          { props: 'backStatusLabel', label: '缺货单状态', visible: true, width: 120 },
+          { props: 'remark', label: '备注', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+        ],
+        total: 0
       }
     };
   },
@@ -481,7 +570,7 @@ export default {
   },
   methods: {
     handleListSelect (row) {
-      if (this.activeName === 'homePage') {
+      if (this.activeName === 'homePage' || this.activeName === 'allSpareParts') {
         this.clickItemId = row.id;
       } else {
         this.clickItemId = row.backOrderId;
@@ -502,6 +591,8 @@ export default {
       let optionObj = this.optionObj;
       if (this.activeName === 'homePage') {
         optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
       } else {
         optionObj = this.optionObjStock;
       }
@@ -513,6 +604,8 @@ export default {
       let optionObj = this.optionObj;
       if (this.activeName === 'homePage') {
         optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
       } else {
         optionObj = this.optionObjStock;
       }
@@ -527,6 +620,9 @@ export default {
       let tableRef = this.$refs.tableRef;
       if (this.activeName === 'homePage') {
         tableRef = this.$refs.tableRef;
+        fetchPath = 'sp/web/purchase/backOrder/page';
+      } else if (this.activeName === 'allSpareParts') {
+        tableRef = this.$refs.tableRefAll;
         fetchPath = 'sp/web/purchase/backOrder/page';
       } else {
         tableRef = this.$refs.tableRefStock;
@@ -570,6 +666,9 @@ export default {
       if (this.activeName === 'homePage') {
         fetchApi = getList;
         optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        fetchApi = getList;
+        optionObj = this.optionObjAll;
       } else {
         fetchApi = reportPage;
         optionObj = this.optionObjStock;
@@ -596,6 +695,8 @@ export default {
       let optionObj = this.optionObj;
       if (this.activeName === 'homePage') {
         optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
       } else {
         optionObj = this.optionObjStock;
       }
@@ -616,6 +717,8 @@ export default {
       let optionObj = this.optionObj;
       if (this.activeName === 'homePage') {
         optionObj = this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        optionObj = this.optionObjAll;
       } else {
         optionObj = this.optionObjStock;
       }

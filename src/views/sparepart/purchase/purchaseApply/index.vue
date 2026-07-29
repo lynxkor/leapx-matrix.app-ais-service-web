@@ -165,6 +165,24 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <!-- ===== 备件列表 tab 专用查询 ===== -->
+        <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.partCodeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="备件名称" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input
+            placeholder="请输入"
+            v-model="form.partName"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="明细备注" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input
+            placeholder="请输入"
+            v-model="form.detailRemark"
+            clearable
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -274,7 +292,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import {
-  getList, deleteItem, enableItem, purchaseApplyReject,
+  getList, detailPage, deleteItem, enableItem, purchaseApplyReject,
   purchaseApplyBatchReject, purchaseApplyListUnPurchaseDetail, purchaseApplySubmit, purchaseApplyCopy,
   batchAgree, purchaseApplyGetCoupon, purchaseApplyBatchSubmit
 } from '@/api/sparepart/purchase/purchaseApply/index';
@@ -302,14 +320,21 @@ const defaultForm = {
   companyName: '',
   warehouseName: '',
   warehouseId: '',
+  warehouseIdList: null,
   purchaseOrderType: '',
-  purchaseAmount: '',
+  purchaseOrderTypeList: null,
   orderStatus: '',
+  orderStatusList: null,
+  backOrderCode: '',
   submitTime: '',
   submitter: '',
   approver: '',
   approvalTime: '',
   remark: '',
+  // ===== 备件列表 tab 专用（仅 allSpareParts 用） =====
+  partCodeList: null,
+  partName: '',
+  detailRemark: '',
   createTime: '',
   updateTime: '',
 };
@@ -549,8 +574,9 @@ export default {
           size: pageSize
         },
         dataProp: [
+          /* ========== 订单维度 ========== */
           {
-            props: 'code',
+            props: 'purchaseApplyCode',
             label: '采购申请单',
             visible: true,
             width: 200,
@@ -559,9 +585,7 @@ export default {
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/purchase/purchaseApply/edit',
-                  query: {
-                    id: row.id
-                  }
+                  query: { id: row.purchaseApplyId || row.id }
                 });
               },
               type: 'primary'
@@ -584,7 +608,7 @@ export default {
           { props: 'companyName', label: '公司名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '仓库名称', visible: true, width: 200 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
-          { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
+          { props: 'purchaseAmount', label: '采购金额(订单)', visible: true, align: 'right', width: 140 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
           {
             props: 'backOrderCode',
@@ -595,9 +619,7 @@ export default {
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/purchase/backOrder/edit',
-                  query: {
-                    id: row.backOrderId
-                  }
+                  query: { id: row.backOrderId }
                 });
               },
               type: 'primary'
@@ -607,118 +629,58 @@ export default {
           { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
           { props: 'approverName', label: '审批人', visible: true, width: 100 },
           { props: 'approvalTime', label: '审批时间', visible: true, width: 200 },
-          { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'remark', label: '订单备注', visible: true, width: 200 },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+
+          /* ========== 明细维度 ========== */
           {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
+            props: 'partCode',
+            label: '备件编码',
             visible: true,
-            fixed: 'right',
+            width: 180,
             buttons: [{
-              name: '编辑',
-              show: (row) => {
-                return row.orderStatus === '0' || row.orderStatus === '3';
-              },
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/purchase/purchaseApply/edit',
-                  query: {
-                    id: row.id,
-                    isEditing: true
-                  }
+                  path: '/sparepart/basic/sparePart/detail',
+                  query: { id: row.sparePartId }
                 });
               },
-              type: 'info'
-            }, {
-              name: '删除',
-              show: (row) => {
-                return (row.orderStatus === '0' || row.orderStatus === '3') && this.permissions.has('AISPART-purchaseApply-delete');
-              },
-              popconfirmTitle: '此操作将删除此申请单, 是否继续?',
-              popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '删除',
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    message: '删除成功',
-                    type: 'success'
-                  });
-                  this.getData();
-                });
-              },
-              type: 'danger'
-            }, {
-              name: '提交',
-              show: (row) => {
-                // 必须满足订单状态条件
-                if (row.orderStatus !== '0' && row.orderStatus !== '3') {
-                  return false;
-                }
-                // 门店账号需要额外检查订单类型
-                if (this.accountFlag) {
-                  return ((row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId) && this.permissions.has('AISPART-purchaseApply-submit');
-                }
-                // 主机厂账号直接显示
-                return true;
-              },
-              click: (rowIndex, row) => {
-                this.handleSubmit(row);
-              },
-              type: 'info'
-            }, {
-              name: '同意',
-              show: (row) => {
-                // 必须满足订单状态条件
-                if (row.orderStatus !== '1') {
-                  return false;
-                }
-                // 门店账号需要额外检查订单类型
-                if (this.accountFlag) {
-                  return ((row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId) && this.permissions.has('AISPART-purchaseApply-agree');
-                }
-                // 主机厂账号直接显示
-                return true;
-              },
-              click: (rowIndex, row) => {
-                this.handleAgree(row);
-              },
-              type: 'info'
-            }, {
-              name: '驳回',
-              show: (row) => {
-                // 必须满足订单状态条件
-                if (row.orderStatus !== '1') {
-                  return false;
-                }
-                // 门店账号需要额外检查订单类型
-                if (this.accountFlag) {
-                  return ((row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId) && this.permissions.has('AISPART-purchaseApply-reject');
-                }
-                // 主机厂账号直接显示
-                return true;
-              },
-              click: (rowIndex, row) => {
-                this.handleReject(row);
-              },
-              type: 'info'
-            }, {
-              name: '复制',
-              show: (row) => {
-                // 门店账号需要额外检查订单类型
-                if (this.accountFlag) {
-                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && this.permissions.has('AISPART-purchaseApply-copy');
-                }
-                // 主机厂账号直接显示
-                return true;
-              },
-              click: (rowIndex, row) => {
-                this.handleCopy(row);
-              },
-              type: 'info'
+              type: 'primary'
             }]
-          }
+          },
+          { props: 'partName', label: '备件名称', visible: true, width: 200 },
+          { props: 'originalPrice', label: '原价', visible: true, align: 'right', width: 120 },
+          {
+            props: 'originalPriceSource',
+            label: '原价来源',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/sparePartPurchasePrice/detail',
+                  query: { id: row.originalPriceSource }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'purchasePrice', label: '采购价', visible: true, align: 'right', width: 120 },
+          { props: 'detailPurchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
+          { props: 'cashUnitPrice', label: '现金单价', visible: true, align: 'right', width: 120 },
+          { props: 'cashAmount', label: '现金金额', visible: true, align: 'right', width: 120 },
+          { props: 'rebateUnitPrice', label: '返利单价', visible: true, align: 'right', width: 120 },
+          { props: 'rebateAmount', label: '返利金额', visible: true, align: 'right', width: 120 },
+          { props: 'purchaseQty', label: '采购数量', visible: true, align: 'right', width: 120 },
+          { props: 'priceAdjustmentTypeLabel', label: '调价类型', visible: true, width: 120 },
+          { props: 'priceAdjustmentRatio', label: '调价比例', visible: true, align: 'right', width: 120 },
+          { props: 'detailRemark', label: '明细备注', visible: true, width: 200 },
+          { props: 'boQty', label: 'BO数量', visible: true, align: 'right', width: 120 },
+          { props: 'soQty', label: 'SO数量', visible: true, align: 'right', width: 120 },
+          { props: 'cancelQty', label: '取消数量', visible: true, align: 'right', width: 120 },
+          { props: 'oemOutboundQty', label: 'OEM出库数量', visible: true, align: 'right', width: 140 },
+          { props: 'dealerInboundQty', label: '门店入库数量', visible: true, align: 'right', width: 140 }
         ],
         total: 0
       }
@@ -806,27 +768,43 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      // 备件列表 tab：默认创建时间 = 最近一个月
+      const extraDefaults = this.activeName === 'allSpareParts'
+        ? { createTime: this.getLastMonthRange() }
+        : {};
+      this.form = { ...defaultForm, ...extraDefaults };
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
+      optionObj.form.size = pageSize;
       this.getData();
     },
     exportExcel () {
       this.exportLoading = true;
-      const reqParams = this.getFormData() || {};
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.exportLoading = false;
+        return;
+      }
+      const reqParams = formData || {};
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
+      const isAllSpareParts = this.activeName === 'allSpareParts';
+      const fetchPath = isAllSpareParts
+        ? 'sp/web/purchase/purchaseApply/detailPage'
+        : 'sp/web/purchase/purchaseApply/page';
+      const tableRef = isAllSpareParts ? this.$refs.tableRefAll : this.$refs.tableRef;
       exportTable({
         businessType: '备件采购申请',
-        dataFetchPath: 'sp/web/purchase/purchaseApply/page',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: tableRef && tableRef.getVisibleCols ? Object.fromEntries(tableRef.getVisibleCols()) : {},
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -864,10 +842,16 @@ export default {
       if (this.activeName === 'homePage') {
         fetchApi = getList;
       } else if (this.activeName === 'allSpareParts') {
-        fetchApi = getList;
+        fetchApi = detailPage;
       }
       let optionObj = this.getOptionObj();
-      fetchApi({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
+      const formData = this.getFormData();
+      // 默认条件校验未通过：getFormData 返回 null，不发请求
+      if (formData === null) {
+        this.loading = false;
+        return;
+      }
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           optionObj.dataList = (res?.records || []).map(item => {
             return {
@@ -913,6 +897,12 @@ export default {
     handleClick (item) {
       this.activeName = item.name;
       this.show = false;
+      // 跨 tab 切换时，把所有 tab 的分页状态都重置为 page 1 + 默认 size，
+      // 避免「在 tab2 翻到 page 3 → 切 tab1 → 切回 tab2 还是 page 3」的脏状态
+      this.optionObj.form.page = 1;
+      this.optionObj.form.size = pageSize;
+      this.optionObjAll.form.page = 1;
+      this.optionObjAll.form.size = pageSize;
       this.onReset();
     },
     // 多选框选中数据
@@ -960,7 +950,29 @@ export default {
         }
       }
 
+      // ===== 备件列表 tab 默认条件校验 =====
+      // 采购申请单（codeList）+ 订单创建时间 不允许同时为空
+      if (this.activeName === 'allSpareParts') {
+        const hasCode = !!(data.codeList && data.codeList.length);
+        const hasCreateTime = !!(data.createTimeStart && data.createTimeEnd);
+        if (!hasCode && !hasCreateTime) {
+          this.$message.warning('请至少填写【采购申请单】或【订单创建时间】');
+          return null;
+        }
+      }
+
       return data;
+    },
+    // 备件列表 tab：默认「最近一个月」的时间区间
+    getLastMonthRange () {
+      const end = new Date();
+      const start = new Date();
+      start.setMonth(start.getMonth() - 1);
+      const fmt = (d) => {
+        const pad = (n) => (n < 10 ? `0${n}` : n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} 00:00:00`;
+      };
+      return [fmt(start), fmt(end)];
     },
     async fetchOptions (code) {
       if (code) {

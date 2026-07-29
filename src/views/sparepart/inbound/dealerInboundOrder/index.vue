@@ -106,8 +106,13 @@
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
     </div>
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
+      <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
+    </el-tabs>
     <div
       class="ais-table-c"
+      v-if="activeName === 'homePage'"
     >
       <LPVxeTable
         ref="tableRef"
@@ -123,6 +128,27 @@
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
         @sortChange="handleSortChange"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
+    </div>
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'allSpareParts'"
+    >
+      <LPVxeTable
+        :key="2"
+        ref="tableRefAll"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        :option-obj="optionObjAll"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
@@ -209,8 +235,182 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      activeName: 'homePage',
       optionObj: {
         id: 'dealerInboundOrderTable',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
+          {
+            props: 'code',
+            label: '外购入库单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/inbound/dealerInboundOrder/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
+          { props: 'supplierName', label: '供应商名称', visible: true, width: 200 },
+          { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 140 },
+          { props: 'inboundStatusLabel', label: '入库状态', visible: true, width: 140 },
+          { props: 'totalAmount', label: '入库总金额', visible: true, width: 140, align: 'right' },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            buttons: [{
+              name: '编辑',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '40';
+              },
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/inbound/dealerInboundOrder/edit',
+                  query: {
+                    id: row.id,
+                    isEditing: true
+                  }
+                });
+              },
+              type: 'info'
+            }, {
+              name: '删除',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '40';
+              },
+              popconfirmTitle: '此操作将永久删除, 是否继续?',
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '删除',
+              click: (rowIndex, row) => {
+                deleteItem([row.id]).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '删除成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '删除失败!'
+                  });
+                });
+              },
+              type: 'danger'
+            }, {
+              name: '打印入库单',
+              show: (row) => {
+                return this.permissions.has('AISPART-dealerInboundOrder-printInbound');
+              },
+              click: (rowIndex, row) => {
+                this.handlePrint(row);
+              },
+              type: 'info'
+            }, {
+              name: '提交',
+              show: (row) => {
+                return (row.orderStatus === '10' || row.orderStatus === '40') && this.permissions.has('AISPART-dealerInboundOrder-commit');
+              },
+              popconfirmTitle: '此操作将提交订单, 是否继续?',
+              click: (rowIndex, row) => {
+                dealerInboundOrderCommit({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '提交成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                });
+              },
+              type: 'info'
+            }, {
+              name: '通过',
+              show: (row) => {
+                return row.orderStatus === '20' && this.permissions.has('AISPART-dealerInboundOrder-agree');
+              },
+              popconfirmTitle: '此操作将通过订单, 是否继续?',
+              click: (rowIndex, row) => {
+                dealerInboundOrderAgree({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '通过成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                });
+              },
+              type: 'info'
+            }, {
+              name: '驳回',
+              show: (row) => {
+                return row.orderStatus === '20' && this.permissions.has('AISPART-dealerInboundOrder-reject');
+              },
+              click: (rowIndex, row) => {
+                this.handleReject(row);
+              },
+              type: 'info'
+            }, {
+              name: '入库',
+              show: (row) => {
+                return row.orderStatus === '30' && row.inboundStatus === '10' && this.permissions.has('AISPART-dealerInboundOrder-inbound');
+              },
+              popconfirmTitle: '此操作将入库订单, 是否继续?',
+              click: (rowIndex, row) => {
+                dealerInboundOrderInbound({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '入库成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                });
+              },
+              type: 'info'
+            }, {
+              name: '申请退货',
+              show: (row) => {
+                return row.orderStatus === '30' && row.inboundStatus === '20' && this.permissions.has('AISPART-dealerInboundOrder-returnApply');
+              },
+              click: (rowIndex, row) => {
+                this.handleReturn(row);
+              },
+              type: 'info'
+            }]
+          }
+        ],
+        total: 0
+      },
+      optionObjAll: {
+        id: 'dealerInboundOrderTableAll',
         dataList: [],
         form: {
           page: 1,
@@ -420,6 +620,19 @@ export default {
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
+    getOptionObj () {
+      if (this.activeName === 'homePage') {
+        return this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        return this.optionObjAll;
+      }
+      return this.optionObj;
+    },
+    handleClick (item) {
+      this.activeName = item.name;
+      this.show = false;
+      this.onReset();
+    },
     handleImport () {
       this.uploadDialogVisible = true;
     },
@@ -432,13 +645,15 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
       this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
+      optionObj.form.pageSize = pageSize;
       this.getData();
     },
     exportExcel () {
@@ -477,17 +692,18 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
+      const optionObj = this.getOptionObj();
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          optionObj.dataList = res.records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          optionObj.total = res.total;
         }).finally(() => {
           this.loading = false;
         });
@@ -497,8 +713,9 @@ export default {
       this.getData();
     }, 300),
     getConfig () {
+      const optionObj = this.getOptionObj();
       return new Promise((resolve, reject) => {
-        getTableConfig(this.optionObj.id).then(data => {
+        getTableConfig(optionObj.id).then(data => {
           resolve({ data });
         }).catch(err => {
           // 容错：此处如果接口挂了，也不应该影响正常使用
@@ -511,10 +728,11 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
+      const optionObj = this.getOptionObj();
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        optionObj.form.page = num;
       } else {
-        this.optionObj.form.size = num;
+        optionObj.form.size = num;
       }
       this.debouncedGetData();
     },

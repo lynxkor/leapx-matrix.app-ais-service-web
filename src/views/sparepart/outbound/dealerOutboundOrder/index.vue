@@ -103,8 +103,13 @@
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
     </div>
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
+      <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
+    </el-tabs>
     <div
       class="ais-table-c"
+      v-if="activeName === 'homePage'"
     >
       <LPVxeTable
         ref="tableRef"
@@ -114,6 +119,28 @@
         checkboxFixed
         centralized
         :option-obj="optionObj"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
+        @sortChange="handleSortChange"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
+    </div>
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'allSpareParts'"
+    >
+      <LPVxeTable
+        :key="2"
+        ref="tableRefAll"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        :option-obj="optionObjAll"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
@@ -194,8 +221,276 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      activeName: 'homePage',
       optionObj: {
         id: 'dealerOutboundOrderTable',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
+          {
+            props: 'code',
+            label: '内部领料单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/outbound/dealerOutboundOrder/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
+          { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
+          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
+          { props: 'inboundStatusLabel', label: '入库状态', visible: true, width: 120 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            buttons: [{
+              name: '打印出库单',
+              show: (row) => this.permissions.has('AISPART-dealerOutboundOrder-printOutbound'),
+              click: (rowIndex, row) => {
+                this.handlePrint(row);
+              },
+              type: 'info'
+            }, {
+              name: '编辑',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '30';
+              },
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/outbound/dealerOutboundOrder/edit',
+                  query: {
+                    id: row.id,
+                    isEditing: true
+                  }
+                });
+              },
+              type: 'info'
+            }, {
+              name: '删除',
+              popconfirmTitle: '此操作将永久删除, 是否继续?',
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '删除',
+              show: (row) => {
+                return row.orderStatus === '10' || row.orderStatus === '30';
+              },
+              click: (rowIndex, row) => {
+                deleteItem([row.id]).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '删除成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                  this.$message({
+                    type: 'error',
+                    message: '删除失败!'
+                  });
+                });
+              },
+              type: 'danger'
+            }, {
+              name: '申请领料',
+              popconfirmTitle: '是否申请领料?',
+              show: (row) => {
+                return (row.orderStatus === '10' || row.orderStatus === '30') && this.permissions.has('AISPART-dealerOutboundOrder-applyRequest');
+              },
+              click: (rowIndex, row) => {
+                applyRequest({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '申请成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                });
+              },
+              type: 'info'
+            }, {
+              name: '同意领料',
+              popconfirmTitle: '是否同意领料?',
+              show: (row) => {
+                return row.orderStatus === '20' && this.permissions.has('AISPART-dealerOutboundOrder-agreeRequest');
+              },
+              click: (rowIndex, row) => {
+                agreeRequest({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '同意成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                });
+              },
+              type: 'info'
+            }, {
+              name: '驳回领料',
+              show: (row) => {
+                return row.orderStatus === '20' && this.permissions.has('AISPART-dealerOutboundOrder-rejectRequest');
+              },
+              click: (rowIndex, row) => {
+                this.$prompt('请输入驳回原因', '驳回领料', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  inputValue: ''
+                }).then(({ value }) => {
+                  rejectRequest({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '驳回成功!'
+                    });
+                    this.getData();
+                  }).catch(() => {
+                  });
+                }).catch(() => {
+                  this.$message({
+                    type: 'info',
+                    message: '已取消驳回'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '出库',
+              popconfirmTitle: '是否出库?',
+              show: (row) => {
+                return row.orderStatus === '40' && row.outboundStatus === '0' && this.permissions.has('AISPART-dealerOutboundOrder-outbound');
+              },
+              click: (rowIndex, row) => {
+                outbound({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '出库成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                });
+              },
+              type: 'info'
+            }, {
+              name: '申请退料',
+              show: (row) => {
+                return (row.orderStatus === '40' || row.outboundStatus === '60') && row.outboundStatus === '1' && this.permissions.has('AISPART-dealerOutboundOrder-applyReturn');
+              },
+              click: (rowIndex, row) => {
+                this.$prompt('请输入申请退料原因', '申请退料', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  inputValue: ''
+                }).then(({ value }) => {
+                  applyReturn({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '申请退料成功!'
+                    });
+                    this.getData();
+                  }).catch(() => {
+                  });
+                }).catch(() => {
+                  this.$message({
+                    type: 'info',
+                    message: '已取消申请退料'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '同意退料',
+              popconfirmTitle: '是否同意退料?',
+              show: (row) => {
+                return row.orderStatus === '50' && this.permissions.has('AISPART-dealerOutboundOrder-agreeReturn');
+              },
+              click: (rowIndex, row) => {
+                agreeReturn({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '同意退料成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                });
+              },
+              type: 'info'
+            }, {
+              name: '驳回退料',
+              show: (row) => {
+                return row.orderStatus === '50' && this.permissions.has('AISPART-dealerOutboundOrder-rejectReturn');
+              },
+              click: (rowIndex, row) => {
+                this.$prompt('请输入驳回退料原因', '驳回退料', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  inputValue: ''
+                }).then(({ value }) => {
+                  rejectReturn({ id: row.id, description: value }).then(() => {
+                    this.$message({
+                      type: 'success',
+                      message: '驳回退料成功!'
+                    });
+                    this.getData();
+                  }).catch(() => {
+                  });
+                }).catch(() => {
+                  this.$message({
+                    type: 'info',
+                    message: '已取消驳回退料'
+                  });
+                });
+              },
+              type: 'info'
+            }, {
+              name: '入库',
+              popconfirmTitle: '是否入库?',
+              show: (row) => {
+                return row.orderStatus === '70' && row.inboundStatus === '0' && this.permissions.has('AISPART-dealerOutboundOrder-inbound');
+              },
+              click: (rowIndex, row) => {
+                inbound({ id: row.id }).then(() => {
+                  this.$message({
+                    type: 'success',
+                    message: '入库成功!'
+                  });
+                  this.getData();
+                }).catch(() => {
+                });
+              },
+              type: 'info'
+            }]
+          }
+        ],
+        total: 0
+      },
+      optionObjAll: {
+        id: 'dealerOutboundOrderTableAll',
         dataList: [],
         form: {
           page: 1,
@@ -538,6 +833,19 @@ export default {
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
+    getOptionObj () {
+      if (this.activeName === 'homePage') {
+        return this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        return this.optionObjAll;
+      }
+      return this.optionObj;
+    },
+    handleClick (item) {
+      this.activeName = item.name;
+      this.show = false;
+      this.onReset();
+    },
     handleImport () {
       this.uploadDialogVisible = true;
     },
@@ -550,13 +858,15 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
       this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
+      optionObj.form.pageSize = pageSize;
       this.getData();
     },
     exportExcel () {
@@ -595,17 +905,18 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
+      const optionObj = this.getOptionObj();
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      getList({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = (res?.records || []).map(item => {
+          optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res?.total || 0;
+          optionObj.total = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });
@@ -615,8 +926,9 @@ export default {
       this.getData();
     }, 300),
     getConfig () {
+      const optionObj = this.getOptionObj();
       return new Promise((resolve, reject) => {
-        getTableConfig(this.optionObj.id).then(data => {
+        getTableConfig(optionObj.id).then(data => {
           resolve({ data });
         }).catch(err => {
           // 容错：此处如果接口挂了，也不应该影响正常使用
@@ -629,10 +941,11 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
+      const optionObj = this.getOptionObj();
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        optionObj.form.page = num;
       } else {
-        this.optionObj.form.size = num;
+        optionObj.form.size = num;
       }
       this.debouncedGetData();
     },
