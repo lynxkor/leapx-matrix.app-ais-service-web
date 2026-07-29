@@ -15,13 +15,26 @@
       <el-form-item label="业务单号">
         <tag-input v-model="form.businessOrderCodeList" placeholder="请输入" />
       </el-form-item>
+      <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
+        <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
       <template v-if="show">
-        <el-form-item label="门店">
+        <el-form-item label="门店编码">
           <fetch-select
             :remote-method="getDealerList"
             remote
             v-model="form.dealerCodeList"
-            placeholder="请输入门店编码或名称"
+            placeholder="请输入门店编码"
             labelKey="orgName"
             valueKey="orgCode"
             subLabelKey="orgCode"
@@ -29,7 +42,7 @@
             multiple
             collapseTags
             filterable
-            />
+          />
         </el-form-item>
         <el-form-item label="备件仓库">
           <fetch-select
@@ -67,19 +80,6 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            unlink-panels
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -93,6 +93,15 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <!-- 仅「全部备件」tab 展示：备件编码/名称筛选 -->
+        <template v-if="activeName === 'allSpareParts'">
+          <el-form-item label="备件编码">
+            <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
+          </el-form-item>
+          <el-form-item label="备件名称">
+            <el-input v-model="form.sparePartNameLike" placeholder="请输入" clearable />
+          </el-form-item>
+        </template>
       </template>
       <page-search-action
         v-if="canList"
@@ -108,11 +117,19 @@
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button size="small" @click="handlePrintSetting">打印设置</el-button>
     </div>
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
+      <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
+    </el-tabs>
+    <!-- 全部订单 tab：订单维度 -->
     <div
+      v-if="activeName === 'homePage'"
       class="ais-table-c"
     >
       <LPVxeTable
+        :key="1"
         ref="tableRef"
         v-loading="loading"
         is-checkbox
@@ -129,11 +146,32 @@
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
     </div>
+    <!-- 全部备件 tab：明细维度（一行=一条备件明细 + 所属入库单信息） -->
+    <div
+      v-else-if="activeName === 'allSpareParts'"
+      class="ais-table-c"
+    >
+      <LPVxeTable
+        :key="2"
+        ref="tableRefAll"
+        v-loading="loading"
+        is-page
+        :option-obj="optionObjAll"
+        :get-config="getConfig"
+        @paginationChange="paginationChange"
+      />
+    </div>
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
       :id="'1'"
       @close="handleUploadDialogClose"
+    />
+    <!-- 打印设置弹窗 -->
+    <PrintSettings
+      :visible="printSettingsVisible"
+      @close="handlePrintSettingClose"
+      @success="handlePrintSettingSuccess"
     />
   </div>
 </template>
@@ -142,7 +180,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, warehousing } from '@/api/sparepart/inbound/inboundOrder/index';
+import { getList, pageAll, deleteItem, enableItem, warehousing } from '@/api/sparepart/inbound/inboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -153,23 +191,44 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import TagInput from '@/libs/components/TagInput';
+import PrintSettings from './PrintSettings.vue';
 
 const defaultForm = {
-  // TIPS:多选时字段名称会有变化，自行校对
-  code: '',
-  businessOrderCode: '',
-  dealerCode: '',
+  // 注意：字段名须与 template 的 v-model、后端 pageAll 入参一致
+  codeList: [],
+  businessOrderCodeList: [],
+  dealerCodeList: [],
+  dealerNameList: [],
   warehouseId: '',
   inboundTypeList: [],
   inboundStatusList: [],
   createTime: '',
   updateTime: '',
+  sparePartCodeList: [],
+  sparePartNameLike: ''
 };
 
 const pageSize = 20;
 const mockConfig = {
   data: null
 };
+
+/**
+ * 「全部备件」tab 的默认查询条件：创建时间默认最近一个月，入库状态默认未入库。
+ * 注意：仅全部备件 tab 带默认值；全部订单 tab 保持无默认值。
+ */
+function buildAllSparePartsDefaultForm () {
+  const end = new Date();
+  end.setHours(23, 59, 59, 0);
+  const start = new Date(end.getTime() - 29 * 24 * 60 * 60 * 1000);
+  start.setHours(0, 0, 0, 0);
+  const pad = (n) => String(n).padStart(2, '0');
+  const fmt = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  return {
+    inboundStatusList: ['0'], // 未入库
+    createTime: [fmt(start), fmt(end)] // 最近一个月
+  };
+}
 
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
@@ -179,7 +238,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    PrintSettings
   },
   data () {
     return {
@@ -197,6 +257,10 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      // tab：homePage=全部订单（订单维度），allSpareParts=全部备件（明细维度）
+      activeName: 'homePage',
+      // 打印设置弹窗
+      printSettingsVisible: false,
       optionObj: {
         id: 'inboundOrderTable',
         dataList: [],
@@ -310,6 +374,93 @@ export default {
           }
         ],
         total: 0
+      },
+      // 「全部备件」tab 表格配置（明细维度，一行=一条备件明细 + 所属入库单信息）
+      optionObjAll: {
+        id: 'inboundOrderTableAll',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
+          {
+            props: 'code',
+            label: '入库单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/inbound/inboundOrder/edit',
+                  query: {
+                    id: row.inboundOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'businessOrderCode',
+            label: '业务单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                let myPath = '';
+                if (row.inboundType === '0') {
+                  myPath = '/sparepart/purchase/purchaseOrder/edit';
+                }
+                if (row.inboundType === '1') {
+                  myPath = '/sparepart/transfer/transferInbound/edit';
+                }
+                if (row.inboundType === '5') {
+                  myPath = '/sparepart/transfer/sharedTransferInbound/edit';
+                }
+                this.$router.push({
+                  path: myPath,
+                  query: {
+                    id: row.businessOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
+          { props: 'inboundTypeLabel', label: '入库类型', visible: true, width: 120 },
+          { props: 'inboundStatusLabel', label: '入库状态', visible: true, width: 120 },
+          { props: 'orderRemark', label: '订单备注', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180 },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'inboundQty', label: '入库数量', visible: true, align: 'right', width: 120 },
+          { props: 'price', label: '采购价格', visible: true, align: 'right', width: 120 },
+          { props: 'amount', label: '采购金额', visible: true, align: 'right', width: 120 },
+          { props: 'cashUnitPrice', label: '现金单价', visible: true, align: 'right', width: 120 },
+          { props: 'cashAmount', label: '现金金额', visible: true, align: 'right', width: 120 },
+          { props: 'rebateUnitPrice', label: '返利单价', visible: true, align: 'right', width: 120 },
+          { props: 'rebateAmount', label: '返利金额', visible: true, align: 'right', width: 120 },
+          { props: 'detailRemark', label: '明细备注', visible: true, width: 200 }
+        ],
+        total: 0
       }
     };
   },
@@ -332,8 +483,28 @@ export default {
         path: '/sparepart/inbound/inboundOrder/edit'
       });
     },
+    // tab 切换：重置搜索条件（全部备件 tab 会自动带上默认值），并重新拉数
+    handleClick (item) {
+      this.activeName = item.name;
+      this.show = false;
+      this.onReset();
+    },
+    // 按 tab 取当前生效的表格配置对象
+    getActiveOption () {
+      return this.activeName === 'allSpareParts' ? this.optionObjAll : this.optionObj;
+    },
+    // 打印设置弹窗开关
+    handlePrintSetting () {
+      this.printSettingsVisible = true;
+    },
+    handlePrintSettingClose () {
+      this.printSettingsVisible = false;
+    },
+    handlePrintSettingSuccess () {
+      this.printSettingsVisible = false;
+    },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      this.getActiveOption().form.page = 1;
       this.getData();
     },
     async getDealerList (query) {
@@ -354,28 +525,38 @@ export default {
       }
     },
     onReset () {
-      this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      // 全部备件 tab 重置后带上默认值（入库状态默认未入库、创建时间默认最近一个月）
+      if (this.activeName === 'allSpareParts') {
+        this.form = { ...defaultForm, ...buildAllSparePartsDefaultForm() };
+      } else {
+        this.form = { ...defaultForm };
+      }
+      const option = this.getActiveOption();
+      option.form.page = 1;
+      option.form.size = pageSize;
       this.getData();
     },
     exportExcel () {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
-      if (this.selectionList.length > 0) {
+      const isAllSpareParts = this.activeName === 'allSpareParts';
+      if (!isAllSpareParts && this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
+      const tableRefName = isAllSpareParts ? 'tableRefAll' : 'tableRef';
       exportTable({
-        businessType: '备件入库单',
-        dataFetchPath: 'sp/web/purchase/inboundOrder/page',
+        businessType: isAllSpareParts ? '备件入库单-全部备件' : '备件入库单',
+        dataFetchPath: isAllSpareParts
+          ? 'sp/web/purchase/inboundOrderDetail/pageAll'
+          : 'sp/web/purchase/inboundOrder/page',
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: Object.fromEntries(this.$refs[tableRefName].getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '备件入库单.xlsx');
+            await downloadExcel(res.excelUrl, isAllSpareParts ? '备件入库单-全部备件.xlsx' : '备件入库单.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
@@ -393,19 +574,34 @@ export default {
       });
     },
     getData () {
+      // 全部备件 tab 必填校验：入库单号、订单创建时间、业务单号不能同时为空
+      if (this.activeName === 'allSpareParts') {
+        const formData = this.getFormData();
+        const codeEmpty = !formData.codeList || formData.codeList.length === 0;
+        const timeEmpty = !formData.createTimeStart && !formData.createTimeEnd;
+        const bizEmpty = !formData.businessOrderCodeList || formData.businessOrderCodeList.length === 0;
+        if (codeEmpty && timeEmpty && bizEmpty) {
+          this.$message.warning('入库单号、订单创建时间、业务单号不能同时为空');
+          return;
+        }
+      }
+
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      const isAllSpareParts = this.activeName === 'allSpareParts';
+      const fetchApi = isAllSpareParts ? pageAll : getList;
+      const option = this.getActiveOption();
+
+      fetchApi({ ...this.getFormData(), pageNum: option.form.page, pageSize: option.form.size })
         .then(res => {
-          console.log(res);
-          this.optionObj.dataList = (res.records || []).map(item => {
+          option.dataList = (res.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          option.total = res.total;
         }).catch(err => {
           console.error('入库单列表加载失败:', err);
         }).finally(() => {
@@ -418,7 +614,7 @@ export default {
     }, 300),
     getConfig () {
       return new Promise((resolve, reject) => {
-        getTableConfig(this.optionObj.id).then(data => {
+        getTableConfig(this.getActiveOption().id).then(data => {
           resolve({ data });
         }).catch(err => {
           // 容错：此处如果接口挂了，也不应该影响正常使用
@@ -431,10 +627,11 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
+      const option = this.getActiveOption();
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        option.form.page = num;
       } else {
-        this.optionObj.form.size = num;
+        option.form.size = num;
       }
       this.debouncedGetData();
     },
@@ -541,5 +738,8 @@ export default {
 
 <style lang="scss" scoped>
 .m-inbound-order-list {
+    ::v-deep .m-vxe-table .m-vxe-table-options {
+      top: -96px;
+    }
 }
 </style>
