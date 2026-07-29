@@ -58,11 +58,17 @@
 
     <div class="tab-pane">
       <div v-show="activeTab === 'report'" class="ais-table-c report-pane">
+        <div class="ais-actions">
+          <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">
+            <i class="iconfont icon-lxppc-export"></i>导出
+          </el-button>
+        </div>
         <LPVxeTable
           ref="tableRef"
           v-loading="loading"
           is-page
           :option-obj="optionObj"
+          :show-table-setting="true"
           :get-config="getConfig"
           :save-or-update="saveOrUpdate"
           @paginationChange="paginationChange"
@@ -100,7 +106,8 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import { pageStoreOutputValue } from '@/api/datareport/storeOutputValue';
-import { listOrgStoreInfoByParam, getTableConfig, tableAddOrUpdate } from '@/api/common';
+import { listOrgStoreInfoByParam, exportTable, getTableConfig, tableAddOrUpdate } from '@/api/common';
+import { downloadExcel } from '@/libs/utils';
 import { INDICATOR_DEFINITIONS } from './constants';
 
 const pageSize = 100;
@@ -180,6 +187,7 @@ export default {
       indicatorTableData: INDICATOR_DEFINITIONS,
       form: { ...defaultForm },
       loading: false,
+      exportLoading: false,
       pickerOptions: {
         shortcuts: [{
           text: '最近一周',
@@ -321,7 +329,44 @@ export default {
     },
     debouncedGetData: debounce(function () {
       this.getData();
-    }, 300)
+    }, 300),
+    exportExcel () {
+      // 仅校验时间已选；31 天校验交给 onSubmit 触发,导出放宽(参考利润明细)
+      if (!this.form.dealerCodes || this.form.dealerCodes.length === 0) {
+        return this.$message({ type: 'warning', message: '请选择门店(必填)' });
+      }
+      if (!this.form.receiveTime || this.form.receiveTime.length < 2) {
+        return this.$message({ type: 'warning', message: '请选择收款/审批时间范围(必填)' });
+      }
+      const [startStr, endStr] = this.form.receiveTime;
+      const diffDays = Math.ceil((new Date(endStr).getTime() - new Date(startStr).getTime()) / (3600 * 1000 * 24));
+      if (diffDays > 31) {
+        return this.$message({ type: 'warning', message: '时间范围不能超过 31 天,请重新选择' });
+      }
+      this.exportLoading = true;
+      exportTable({
+        businessType: '门店产值报表',
+        dataFetchPath: 'datareport/web/revenue/storeOutputValue/page',
+        reqParams: this.getFormData(),
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '门店产值报表.xlsx');
+          } catch (error) {
+            this.$message({ type: 'error', message: '文件导出失败' });
+          }
+        } else {
+          this.$confirmExport(
+            () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+          );
+        }
+      }).finally(() => {
+        this.exportLoading = false;
+      });
+    }
   }
 };
 </script>
@@ -361,5 +406,9 @@ export default {
 .m-store-output-value .ais-table-c {
   flex: 1 1 auto;
   min-height: 0;
+}
+.report-pane > .ais-actions {
+  flex: 0 0 auto;
+  margin: 10px 0;
 }
 </style>

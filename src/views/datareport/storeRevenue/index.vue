@@ -136,6 +136,7 @@ export default {
           { props: 'vin', label: 'VIN', visible: true, width: 180 },
           { props: 'carPlate', label: '车牌号', visible: true, width: 130 },
           { props: 'creatorName', label: '开单人', visible: true, width: 110 },
+          { props: 'repairTechnicians', label: '维修技师', visible: true, width: 160 },
           { props: 'serviceProxyCode', label: '工单号', visible: true, width: 200 },
           { props: 'repairType', label: '维修类型', visible: true, width: 150 },
           { props: 'statementCode', label: '结算单号', visible: true, width: 200 },
