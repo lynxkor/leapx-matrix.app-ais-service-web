@@ -143,7 +143,7 @@ export const INDICATOR_DEFINITIONS = [
     internalSettlement: '内部结算产值/总产值',
     contract: '合同产值/总产值',
     warranty: '保修产值/总产值',
-    total: '1'
+    total: '100%'
   }
 ];
 
