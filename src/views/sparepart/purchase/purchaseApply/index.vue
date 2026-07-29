@@ -187,8 +187,13 @@
       <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseApply-batchReject'">批量驳回</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport" v-permission="'AISPART-purchaseApply-importDistribution'">铺货导入</el-button>
     </div>
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="订单列表" name="homePage"></el-tab-pane>
+      <el-tab-pane label="备件列表" name="allSpareParts"></el-tab-pane>
+    </el-tabs>
     <div
       class="ais-table-c"
+         v-if="activeName === 'homePage'"
     >
       <LPVxeTable
         ref="tableRef"
@@ -198,6 +203,27 @@
         checkboxFixed
         centralized
         :option-obj="optionObj"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
+    </div>
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'allSpareParts'"
+    >
+      <LPVxeTable
+        :key="2"
+        ref="tableRefAll"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        :option-obj="optionObjAll"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
@@ -315,6 +341,7 @@ export default {
       form: {
         ...defaultForm
       },
+      activeName: 'homePage',
       isPartOrder: null, // 是否有备附件订购能力
       accountFlag: null, // 是否门店
       currentDealerCode: null, // 当前门店code
@@ -335,6 +362,187 @@ export default {
       clickItemId: '',
       optionObj: {
         id: 'purchaseApplyTable',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
+          {
+            props: 'code',
+            label: '采购申请单',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseApply/edit',
+                  query: {
+                    id: row.id
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          {
+            props: 'dealerCode',
+            label: '门店编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'companyCode', label: '公司编码', visible: true, width: 180 },
+          { props: 'companyName', label: '公司名称', visible: true, width: 200 },
+          { props: 'warehouseName', label: '仓库名称', visible: true, width: 200 },
+          { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
+          { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
+          { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
+          {
+            props: 'backOrderCode',
+            label: '缺货单号',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/backOrder/edit',
+                  query: {
+                    id: row.backOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'submitterName', label: '提交人', visible: true, width: 100 },
+          { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
+          { props: 'approverName', label: '审批人', visible: true, width: 100 },
+          { props: 'approvalTime', label: '审批时间', visible: true, width: 200 },
+          { props: 'remark', label: '备注', visible: true, width: 200 },
+          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            buttons: [{
+              name: '编辑',
+              show: (row) => {
+                return row.orderStatus === '0' || row.orderStatus === '3';
+              },
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/purchase/purchaseApply/edit',
+                  query: {
+                    id: row.id,
+                    isEditing: true
+                  }
+                });
+              },
+              type: 'info'
+            }, {
+              name: '删除',
+              show: (row) => {
+                return (row.orderStatus === '0' || row.orderStatus === '3') && this.permissions.has('AISPART-purchaseApply-delete');
+              },
+              popconfirmTitle: '此操作将删除此申请单, 是否继续?',
+              popconfirmConfirmButtonType: 'danger',
+              popconfirmConfirmButtonText: '删除',
+              click: (rowIndex, row) => {
+                deleteItem([row.id]).then(() => {
+                  this.$message({
+                    message: '删除成功',
+                    type: 'success'
+                  });
+                  this.getData();
+                });
+              },
+              type: 'danger'
+            }, {
+              name: '提交',
+              show: (row) => {
+                // 必须满足订单状态条件
+                if (row.orderStatus !== '0' && row.orderStatus !== '3') {
+                  return false;
+                }
+                // 门店账号需要额外检查订单类型
+                if (this.accountFlag) {
+                  return ((row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId) && this.permissions.has('AISPART-purchaseApply-submit');
+                }
+                // 主机厂账号直接显示
+                return true;
+              },
+              click: (rowIndex, row) => {
+                this.handleSubmit(row);
+              },
+              type: 'info'
+            }, {
+              name: '同意',
+              show: (row) => {
+                // 必须满足订单状态条件
+                if (row.orderStatus !== '1') {
+                  return false;
+                }
+                // 门店账号需要额外检查订单类型
+                if (this.accountFlag) {
+                  return ((row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId) && this.permissions.has('AISPART-purchaseApply-agree');
+                }
+                // 主机厂账号直接显示
+                return true;
+              },
+              click: (rowIndex, row) => {
+                this.handleAgree(row);
+              },
+              type: 'info'
+            }, {
+              name: '驳回',
+              show: (row) => {
+                // 必须满足订单状态条件
+                if (row.orderStatus !== '1') {
+                  return false;
+                }
+                // 门店账号需要额外检查订单类型
+                if (this.accountFlag) {
+                  return ((row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && !row.backOrderId) && this.permissions.has('AISPART-purchaseApply-reject');
+                }
+                // 主机厂账号直接显示
+                return true;
+              },
+              click: (rowIndex, row) => {
+                this.handleReject(row);
+              },
+              type: 'info'
+            }, {
+              name: '复制',
+              show: (row) => {
+                // 门店账号需要额外检查订单类型
+                if (this.accountFlag) {
+                  return (row.purchaseOrderType === '0' || row.purchaseOrderType === '1') && this.permissions.has('AISPART-purchaseApply-copy');
+                }
+                // 主机厂账号直接显示
+                return true;
+              },
+              click: (rowIndex, row) => {
+                this.handleCopy(row);
+              },
+              type: 'info'
+            }]
+          }
+        ],
+        total: 0
+      },
+      optionObjAll: {
+        id: 'purchaseApplyTableAll',
         dataList: [],
         form: {
           page: 1,
@@ -640,20 +848,35 @@ export default {
         this.exportLoading = false;
       });
     },
+
+    getOptionObj () {
+      if (this.activeName === 'homePage') {
+        return this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        return this.optionObjAll;
+      }
+      return this.optionObj;
+    },
     getData () {
       this.loading = true;
       this.selectionList = [];
-
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      let fetchApi = getList;
+      if (this.activeName === 'homePage') {
+        fetchApi = getList;
+      } else if (this.activeName === 'allSpareParts') {
+        fetchApi = getList;
+      }
+      let optionObj = this.getOptionObj();
+      fetchApi({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
-          console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          optionObj.total = res?.total || 0;
+          console.log('optionObj', optionObj.total);
         }).finally(() => {
           this.loading = false;
         });
@@ -663,8 +886,9 @@ export default {
       this.getData();
     }, 300),
     getConfig () {
+      let optionObj = this.getOptionObj();
       return new Promise((resolve, reject) => {
-        getTableConfig(this.optionObj.id).then(data => {
+        getTableConfig(optionObj.id).then(data => {
           resolve({ data });
         }).catch(err => {
           // 容错：此处如果接口挂了，也不应该影响正常使用
@@ -677,12 +901,19 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
+      let optionObj = this.getOptionObj();
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        optionObj.form.page = num;
       } else {
-        this.optionObj.form.size = num;
+        optionObj.form.size = num;
       }
       this.debouncedGetData();
+    },
+    // 点击tabs栏切换
+    handleClick (item) {
+      this.activeName = item.name;
+      this.show = false;
+      this.onReset();
     },
     // 多选框选中数据
     handleSelectionChange (selection) {
@@ -944,5 +1175,8 @@ export default {
 
 <style lang="scss" scoped>
 .m-purchase-apply-list {
+  .ais-table-c {
+    height: calc(100% - 168px);
+  }
 }
 </style>
