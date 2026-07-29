@@ -170,6 +170,8 @@
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="permissions.has(`${moduleKey}-submitForAudit`)" size="small" @click="handleBatchSubmitForAudit">批量审核下发</el-button>
+      <el-button v-if="permissions.has(`${moduleKey}-cancel`)" size="small" @click="handleBatchCancel">批量作废</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
     </div>
@@ -197,7 +199,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="'1'"
+      id="claimTraceOrderImportTemplate"
       @close="handleUploadDialogClose"
       @getData="getData"
     />
@@ -205,19 +207,26 @@
     <SubmitAuditDialog
       :visible.sync="submitAuditDialogVisible"
       :traceOrderId="currentRow.id"
+      :traceOrderIds="batchSubmitForAuditIds"
+      :batchMode="batchSubmitForAuditMode"
       :formData="currentRow"
       @success="getData"
     />
     <CancelOrderDialog
       :visible.sync="cancelOrderDialogVisible"
       :traceOrderId="currentRow.id"
+      :traceOrderIds="batchCancelIds"
+      :batchMode="batchCancelMode"
       @success="getData"
     />
+    <!--
+      【已废弃-2026-07-24】rejectForModify 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。
     <RejectModifyDialog
       :visible.sync="rejectModifyDialogVisible"
       :traceOrderId="currentRow.id"
       @success="getData"
     />
+    -->
     <AppealDialog
       :visible.sync="appealDialogVisible"
       :traceOrderId="currentRow.id"
@@ -252,7 +261,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, agreeIssue, agreeTrace, getDetailDecryptField } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
+import { getList, enableItem, agreeTrace, getDetailDecryptField } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -267,7 +276,6 @@ import DealerSelect from '@/components/dealer-select/index.vue';
 import { TRACE_STATUS } from './constant';
 import SubmitAuditDialog from './components/SubmitAuditDialog';
 import CancelOrderDialog from './components/CancelOrderDialog';
-import RejectModifyDialog from './components/RejectModifyDialog';
 import AppealDialog from './components/AppealDialog';
 import AgreeAppealDialog from './components/AgreeAppealDialog';
 import RejectAppealDialog from './components/RejectAppealDialog';
@@ -311,7 +319,6 @@ export default {
     Upload,
     SubmitAuditDialog,
     CancelOrderDialog,
-    RejectModifyDialog,
     AppealDialog,
     AgreeAppealDialog,
     RejectAppealDialog,
@@ -336,7 +343,11 @@ export default {
       clickItemId: '',
       currentRow: {},
       submitAuditDialogVisible: false,
+      batchSubmitForAuditMode: false,
+      batchSubmitForAuditIds: [],
       cancelOrderDialogVisible: false,
+      batchCancelMode: false,
+      batchCancelIds: [],
       rejectModifyDialogVisible: false,
       appealDialogVisible: false,
       agreeAppealDialogVisible: false,
@@ -445,10 +456,12 @@ export default {
                 type: 'info'
               },
               {
-                name: '提交审核',
+                name: '审核下发',
                 show: (row) => this.permissions.has(`${this.moduleKey}-submitForAudit`) && [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(row.traceStatus),
                 click: (rowIndex, row) => {
                   this.currentRow = row;
+                  this.batchSubmitForAuditMode = false;
+                  this.batchSubmitForAuditIds = [];
                   this.submitAuditDialogVisible = true;
                 },
                 type: 'info'
@@ -458,6 +471,8 @@ export default {
                 show: (row) => this.permissions.has(`${this.moduleKey}-cancel`) && [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(row.traceStatus),
                 click: (rowIndex, row) => {
                   this.currentRow = row;
+                  this.batchCancelMode = false;
+                  this.batchCancelIds = [];
                   this.cancelOrderDialogVisible = true;
                 },
                 type: 'info'
@@ -471,23 +486,29 @@ export default {
                 },
                 type: 'info'
               },
-              {
-                name: '同意下发',
-                show: (row) => this.permissions.has(`${this.moduleKey}-agreeIssue`) && row.traceStatus === TRACE_STATUS.AUDITING,
-                click: (rowIndex, row) => {
-                  this.handleAgreeIssue(row);
-                },
-                type: 'info'
-              },
-              {
-                name: '驳回修改',
-                show: (row) => this.permissions.has(`${this.moduleKey}-rejectForModify`) && row.traceStatus === TRACE_STATUS.AUDITING,
-                click: (rowIndex, row) => {
-                  this.currentRow = row;
-                  this.rejectModifyDialogVisible = true;
-                },
-                type: 'info'
-              },
+              /*
+               * 【已废弃-2026-07-24】agreeIssue 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。
+               */
+              // {
+              //   name: '同意下发',
+              //   show: (row) => this.permissions.has(`${this.moduleKey}-agreeIssue`) && row.traceStatus === TRACE_STATUS.AUDITING,
+              //   click: (rowIndex, row) => {
+              //     this.handleAgreeIssue(row);
+              //   },
+              //   type: 'info'
+              // },
+              /*
+               * 【已废弃-2026-07-24】rejectForModify 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。
+               */
+              // {
+              //   name: '驳回修改',
+              //   show: (row) => this.permissions.has(`${this.moduleKey}-rejectForModify`) && row.traceStatus === TRACE_STATUS.AUDITING,
+              //   click: (rowIndex, row) => {
+              //     this.currentRow = row;
+              //     this.rejectModifyDialogVisible = true;
+              //   },
+              //   type: 'info'
+              // },
               {
                 name: '同意追溯',
                 show: (row) => this.permissions.has(`${this.moduleKey}-agreeTrace`) && (row.traceStatus === TRACE_STATUS.PENDING_CONFIRM || row.traceStatus === TRACE_STATUS.APPEAL_REJECTED),
@@ -762,6 +783,8 @@ export default {
         refreshFunc: this.getData
       });
     },
+    /*
+     * 【已废弃-2026-07-24】agreeIssue 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。
     handleAgreeIssue (row) {
       this.$confirm('确定同意下发？', '提示', {
         confirmButtonText: '确定',
@@ -773,6 +796,43 @@ export default {
           this.getData();
         });
       }).catch(() => {});
+    },
+    */
+    handleBatchSubmitForAudit () {
+      if (!this.selectionList.length) {
+        this.$message.warning('请选择需要下发的记录');
+        return;
+      }
+      // 仅允许下发草稿或已驳回状态的追溯单
+      const notAllowed = this.selectionList.filter(
+        item => ![TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(item.traceStatus)
+      );
+      if (notAllowed.length > 0) {
+        this.$message.warning('只允许下发草稿或已驳回状态的追溯单');
+        return;
+      }
+      this.currentRow = {};
+      this.batchSubmitForAuditMode = true;
+      this.batchSubmitForAuditIds = this.selectionList.map(item => item.id);
+      this.submitAuditDialogVisible = true;
+    },
+    handleBatchCancel () {
+      if (!this.selectionList.length) {
+        this.$message.warning('请选择需要作废的记录');
+        return;
+      }
+      // 仅允许作废草稿或已驳回状态的追溯单
+      const notAllowed = this.selectionList.filter(
+        item => ![TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(item.traceStatus)
+      );
+      if (notAllowed.length > 0) {
+        this.$message.warning('只允许作废草稿或驳回状态的追溯单');
+        return;
+      }
+      this.currentRow = {};
+      this.batchCancelMode = true;
+      this.batchCancelIds = this.selectionList.map(item => item.id);
+      this.cancelOrderDialogVisible = true;
     },
     handleAgreeTrace (row) {
       this.$confirm('确定同意追溯？', '提示', {

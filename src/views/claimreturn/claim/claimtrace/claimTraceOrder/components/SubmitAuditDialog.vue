@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="提交审核"
+    title="审核下发"
     width="600px"
     :visible.sync="dialogVisible"
     :close-on-click-modal="false"
@@ -13,11 +13,21 @@
           <el-form-item prop="traceDesc" class="form-item-full" label="追溯说明：">
             <el-input type="textarea" v-model="form.traceDesc" placeholder="请输入" :rows="3" />
           </el-form-item>
-          <el-form-item class="form-item-full" label="追溯凭证：" required>
+          <el-form-item v-if="!batchMode" class="form-item-full" label="追溯凭证：">
             <AisAttachment
               style="padding-top: 5px;"
               ref="attachment"
               :business-id="traceOrderId"
+              attachType="不合格凭证"
+              :uploadConfig="uploadConfig"
+              hint="default"
+              @upload-loading-change="handleUploadLoadingChange"
+            />
+          </el-form-item>
+          <el-form-item v-else class="form-item-full" label="追溯凭证：">
+            <AisAttachment
+              style="padding-top: 5px;"
+              ref="attachment"
               attachType="不合格凭证"
               :uploadConfig="uploadConfig"
               hint="default"
@@ -37,7 +47,7 @@
 </template>
 
 <script>
-import { submitAudit } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
+import { submitAudit, batchSubmitForAudit } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
 import AisAttachment from '@/libs/components/AisAttachment';
 
 export default {
@@ -51,6 +61,14 @@ export default {
     traceOrderId: {
       type: [String, Number],
       default: ''
+    },
+    traceOrderIds: {
+      type: Array,
+      default: () => []
+    },
+    batchMode: {
+      type: Boolean,
+      default: false
     },
     formData: {
       type: Object,
@@ -94,6 +112,7 @@ export default {
     submit () {
       this.$refs.ruleForm.validate((valid) => {
         if (!valid) return;
+        this.submitLoading = true;
         const attachFileList = this.$refs.attachment.getAttachment();
         const fileList = this.$refs.attachment.getFileList() || [];
         const files = fileList.reduce((p, c) => {
@@ -103,13 +122,22 @@ export default {
           return p;
         }, []);
         const allFiles = [...files, ...attachFileList];
-        if (!allFiles || allFiles.length === 0) {
-          this.$message.warning('请上传追溯凭证');
+        if (this.batchMode) {
+          batchSubmitForAudit({
+            ids: this.traceOrderIds,
+            traceDesc: this.form.traceDesc,
+            attachFileList: allFiles
+          }).then(() => {
+            this.$message.success('批量审核下发成功');
+            this.close();
+            this.$emit('success');
+          }).finally(() => {
+            this.submitLoading = false;
+          });
           return;
         }
-        this.submitLoading = true;
         submitAudit({ ...this.form, attachFileList: allFiles }).then(() => {
-          this.$message.success('提交审核成功');
+          this.$message.success('审核下发成功');
           this.close();
           this.$emit('success');
         }).finally(() => {

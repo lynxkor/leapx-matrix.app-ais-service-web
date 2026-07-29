@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { cancelOrder } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
+import { cancelOrder, batchCancel } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
 
 export default {
   name: 'CancelOrderDialog',
@@ -37,6 +37,14 @@ export default {
     traceOrderId: {
       type: [String, Number],
       default: ''
+    },
+    traceOrderIds: {
+      type: Array,
+      default: () => []
+    },
+    batchMode: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -69,6 +77,19 @@ export default {
       this.$refs.ruleForm.validate((valid) => {
         if (!valid) return;
         this.submitLoading = true;
+        if (this.batchMode) {
+          batchCancel({
+            ids: this.traceOrderIds,
+            cancelDesc: this.form.cancelDesc
+          }).then(() => {
+            this.$message.success('批量作废成功');
+            this.close();
+            this.$emit('success');
+          }).finally(() => {
+            this.submitLoading = false;
+          });
+          return;
+        }
         cancelOrder(this.form).then(() => {
           this.$message.success('作废成功');
           this.close();

@@ -12,7 +12,12 @@
       min-height="0"
       max-height="400px"
     >
-      <vxe-column field="activityCode" title="活动编码"></vxe-column>
+      <vxe-column field="activityCode" title="活动编码">
+        <template #default="{ row }">
+          <el-link v-if="row.activityId" type="primary" @click="openActivityDetail(row)">{{ row.activityCode }}</el-link>
+          <span v-else>{{ row.activityCode }}</span>
+        </template>
+      </vxe-column>
       <vxe-column field="activityName" title="活动名称"></vxe-column>
       <vxe-column field="startTime" title="活动开始时间"></vxe-column>
       <vxe-column field="endTime" title="活动结束时间"></vxe-column>
@@ -39,6 +44,7 @@
 
 <script>
 import { getList } from '@/api/claimreturn/claim/basic/serviceActivityVehicle';
+import { getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity';
 
 export default {
   props: {
@@ -76,6 +82,35 @@ export default {
   },
   beforeDestroy () {},
   methods: {
+    async openActivityDetail (row) {
+      const activityId = row?.activityId;
+      if (!activityId) {
+        this.$message.warning('该活动未关联活动详情');
+        return;
+      }
+      try {
+        const activity = await getServiceActivityDetail(activityId);
+        if (!activity) {
+          this.$message.error('活动不存在或已被删除');
+          return;
+        }
+        const activityType = String(activity.activityType || '').trim();
+        if (!activityType) {
+          this.$message.error('活动类型信息缺失，暂无法打开详情');
+          return;
+        }
+        const path = activityType === '4'
+          ? '/claimreturn/claim/basic/serviceCareActivity/edit'
+          : '/claimreturn/claim/basic/techServiceActivity/edit';
+        this.$router.push({
+          path,
+          query: { id: String(activityId) }
+        });
+      } catch (error) {
+        console.error('获取活动详情失败:', error);
+        this.$message.error('活动详情查询失败，请稍后重试');
+      }
+    },
     // 表格数据
     getDetailPageApi () {
       getList({
