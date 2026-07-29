@@ -11,6 +11,30 @@ export function getList (data) {
 };
 
 /**
+ * 通知书明细页签 - 分页查询（JOIN ws+wscd+wa）
+ * @param {Object} data
+ */
+export function getDetailList (data) {
+  return api.jsonPost(prefix + 'detailPage', data);
+};
+
+/**
+ * 追溯明细页签 - 分页查询（JOIN ws+ctd+wa）
+ * @param {Object} data
+ */
+export function getTraceList (data) {
+  return api.jsonPost(prefix + 'tracePage', data);
+};
+
+/**
+ * 开票明细页签 - 分页查询（JOIN ws+wsir）
+ * @param {Object} data
+ */
+export function getInvoiceList (data) {
+  return api.jsonPost(prefix + 'invoicePage', data);
+};
+
+/**
  * 获取详情
  * @param {String} id
  */

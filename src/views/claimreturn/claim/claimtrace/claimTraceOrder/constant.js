@@ -22,9 +22,9 @@ export const TRACE_STATUS = {
 export function getListVisibleButtons (traceStatus) {
   const S = TRACE_STATUS;
   const map = {
-    [S.DRAFT]: ['编辑', '提交审核', '作废'],
+    [S.DRAFT]: ['编辑', '审核下发', '作废'],
     [S.AUDITING]: ['同意下发', '驳回修改'],
-    [S.REJECTED]: ['编辑', '提交审核', '作废'],
+    [S.REJECTED]: ['编辑', '审核下发', '作废'],
     [S.PENDING_CONFIRM]: ['同意追溯', '申诉'],
     [S.APPEALING]: ['同意申诉', '驳回申诉', '拒绝申诉'],
   };
@@ -35,9 +35,9 @@ export function getListVisibleButtons (traceStatus) {
 export function getDetailVisibleButtons (traceStatus) {
   const S = TRACE_STATUS;
   const map = {
-    [S.DRAFT]: ['编辑', '提交审核', '作废', '调整追溯金额'],
+    [S.DRAFT]: ['编辑', '审核下发', '作废', '调整追溯金额'],
     [S.AUDITING]: ['同意下发', '驳回修改'],
-    [S.REJECTED]: ['编辑', '提交审核', '作废', '调整追溯金额'],
+    [S.REJECTED]: ['编辑', '审核下发', '作废', '调整追溯金额'],
     [S.PENDING_CONFIRM]: ['同意追溯', '申诉'],
     [S.APPEALING]: ['同意申诉', '驳回申诉', '拒绝申诉', '调整追溯金额'],
   };
