@@ -21,7 +21,7 @@
           v-model="form.createTime"
           type="daterange"
           unlink-panels
-          :picker-options="pickerOptions"
+          :picker-options="createTimePickerOptions"
           range-separator="至"
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
@@ -177,6 +177,7 @@
 </template>
 
 <script>
+import moment from 'moment';
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
@@ -218,15 +219,14 @@ const mockConfig = {
  * 注意：仅全部备件 tab 带默认值；全部订单 tab 保持无默认值。
  */
 function buildAllSparePartsDefaultForm () {
-  const end = new Date();
-  end.setHours(23, 59, 59, 0);
-  const start = new Date(end.getTime() - 29 * 24 * 60 * 60 * 1000);
-  start.setHours(0, 0, 0, 0);
-  const pad = (n) => String(n).padStart(2, '0');
-  const fmt = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const end = moment().endOf('day');
+  const start = moment().subtract(29, 'days').startOf('day');
   return {
     inboundStatusList: ['0'], // 未入库
-    createTime: [fmt(start), fmt(end)] // 最近一个月
+    createTime: [
+      start.format('YYYY-MM-DD HH:mm:ss'),
+      end.format('YYYY-MM-DD HH:mm:ss')
+    ] // 最近一个月
   };
 }
 
@@ -261,6 +261,8 @@ export default {
       activeName: 'homePage',
       // 打印设置弹窗
       printSettingsVisible: false,
+      // 「全部备件」tab 创建时间选择的起始时间（用于限制跨度不超过半年）
+      createTimeMinDate: null,
       optionObj: {
         id: 'inboundOrderTable',
         dataList: [],
@@ -467,6 +469,38 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+  },
+  computed: {
+    // 「全部备件」tab：创建时间最大只能查看半年（约 183 天）的数据
+    createTimePickerOptions () {
+      if (this.activeName !== 'allSpareParts') {
+        return this.pickerOptions;
+      }
+      // 半年按 183 天计算，避免按月加减在月末被规整导致的边界错乱
+      const HALF_YEAR_DAYS = 183;
+      return {
+        ...this.pickerOptions,
+        onPick: ({ minDate, maxDate }) => {
+          // 选中起始日期后，锁定可选区间；选中结束日期后，解除锁定以便下次重新选择
+          this.createTimeMinDate = maxDate ? null : minDate;
+        },
+        disabledDate: (time) => {
+          const dayStart = moment(time).startOf('day');
+          // 不可选择未来日期
+          if (dayStart.isAfter(moment().endOf('day'))) {
+            return true;
+          }
+          // 已选起始日期后，可选区间为 [起始-半年, 起始+半年]，且不超过今天
+          if (this.createTimeMinDate) {
+            const min = moment(this.createTimeMinDate).startOf('day');
+            const lower = min.clone().subtract(HALF_YEAR_DAYS, 'days');
+            const upper = moment.min(min.clone().add(HALF_YEAR_DAYS, 'days'), moment().endOf('day'));
+            return dayStart.isBefore(lower) || dayStart.isAfter(upper);
+          }
+          return false;
+        }
+      };
+    }
   },
   methods: {
     handleListSelect (row) {
