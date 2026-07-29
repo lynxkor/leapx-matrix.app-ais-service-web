@@ -298,17 +298,6 @@
       </template>
       <!-- 其他清单专属搜索字段 -->
       <template v-if="show && activeTab === 'other'">
-        <el-form-item label="门店名称：">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="dealer_name"
-            v-model="form.dealerNameList"
-            placeholder="请选择门店名称"
-            clearable
-            multiple
-            filterable
-          />
-        </el-form-item>
         <el-form-item label="其他代码：">
           <tag-input v-model="form.otherCodeList" placeholder="请输入其他代码" />
         </el-form-item>
@@ -2033,8 +2022,8 @@ export default {
       if (this.activeTab === 'parts') {
         [...workhourAndOtherOnlyKeys, ...otherOnlyKeys, ...approvalOnlyKeys].forEach(key => delete data[key]);
       } else if (this.activeTab === 'workhours') {
-        // 工时清单：保留 repairItemCodeList / repairItemNameLike，其余专属字段全部清理
-        [...partsOnlyKeys, ...otherOnlyKeys, ...approvalOnlyKeys, 'isMainItemList']
+        // 工时清单：保留 repairItemCodeList / repairItemNameLike / isMainItemList，其余专属字段全部清理
+        [...partsOnlyKeys, ...otherOnlyKeys, ...approvalOnlyKeys]
           .forEach(key => delete data[key]);
       } else if (this.activeTab === 'other') {
         // 其他清单：保留 otherCodeList / otherNameLike，其余专属字段全部清理
