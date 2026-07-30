@@ -27,10 +27,7 @@
           <vxe-column field="repairFinishTime" title="维修完工时间" width="160"/>
           <vxe-column field="vehProfileVin" title="VIN码" min-width="200">
             <template #default="{ row }">
-              <LPEncrypted
-                :value.sync="row.vehProfileVin"
-                :decryptMethod="() => getDecryptField(row.id, 'vehProfileVin')"
-              />
+              <LPCopy :value="row.vehProfileVin" />
             </template>
           </vxe-column>
           <vxe-column field="carPlate" title="车牌号" width="120">
@@ -64,6 +61,7 @@
 </template>
 <script>
 import LPEncrypted from '@/libs/components/LPEncrypted';
+import LPCopy from '@/libs/components/LPCopy';
 import { getDecrypt } from '@/api/datacenter/vehicle/serviceProxyHis/index';
 
 export default {
@@ -78,7 +76,8 @@ export default {
     }
   },
   components: {
-    LPEncrypted
+    LPEncrypted,
+    LPCopy
   },
   watch: {
     formData: {

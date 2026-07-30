@@ -348,7 +348,7 @@
           </el-main>
           <el-footer height="60px" v-if="!_id">
             <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="submitForm('ruleForm')" :loading="submitLoading">保存</el-button>
-            <el-button size="small" type="primary" @click="submitForm('ruleForm', true)">保存并下一个</el-button>
+            <el-button size="small" type="primary" @click="submitForm('ruleForm', true)" :loading="submitLoading">保存并下一个</el-button>
             <!-- <el-button size="small" @click="resetForm('ruleForm')">重置</el-button>
             <el-button size="small" @click="handleJumpAuditLog">审核日志</el-button> -->
           </el-footer>
@@ -473,7 +473,7 @@ export default {
         { field: 'businessNo', title: '业务单号', width: 200 },
         { field: 'taxInvoiceNo', title: '税务发票号', width: 200 },
         { field: 'invoiceDate', title: '开票日期', width: 150 },
-        { field: 'postingTime', title: '入账时间', width: 180 }
+        { field: 'createTime', title: '入账时间', width: 180 }
       ],
       columnConfigsDj: [
         { field: 'businessTypeLabel', title: '业务类型', width: '11%' },
@@ -490,8 +490,6 @@ export default {
   },
   mounted () {
     this.getDetailData();
-    this.getAccountFlow();
-    this.getFrozenPage();
   },
   methods: {
     // 打开侧边栏
@@ -519,6 +517,8 @@ export default {
           Object.assign(this.form, res);
           Object.assign(this.originalForm, res);
         });
+        this.getAccountFlow();
+        this.getFrozenPage();
       }
     },
     // 账户流水
@@ -526,22 +526,22 @@ export default {
       const params = {
         pageNum: this.pagination.current,
         pageSize: this.pagination.pageSize,
-        accountId: this.$route.query.id
+        accountId: this._id
       };
       const res = await accountFlowPage(params);
-      this.tableData = res.records || [];
-      this.pagination.total = res.total;
+      this.tableData = res?.records || [];
+      this.pagination.total = res?.total || 0;
     },
     // 冻结账户流水
     async getFrozenPage () {
       const params = {
         pageNum: this.djPagination.current,
         pageSize: this.djPagination.pageSize,
-        accountId: this.$route.query.id
+        accountId: this._id
       };
       const res = await frozenPage(params);
-      this.djTableData = res.records || [];
-      this.djPagination.total = res.total;
+      this.djTableData = res?.records || [];
+      this.djPagination.total = res?.total || 0;
     },
     pageSizeChange (pageSize) {
       this.pagination.pageSize = pageSize;

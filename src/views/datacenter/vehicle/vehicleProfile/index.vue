@@ -493,21 +493,22 @@ export default {
             props: 'vin',
             label: 'VIN',
             visible: true,
-            mask: true,
-            getValue: (row) => getDetailDecryptField(row.id, 'vin'),
-            width: 200,
+            width: 220,
             fixed: 'left',
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/datacenter/vehicle/vehicleProfile/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'primary'
-            }]
+            copy: true,
+            buttons: [
+              {
+                click: (rowIndex, row) => {
+                  this.$router.push({
+                    path: '/datacenter/vehicle/vehicleProfile/edit',
+                    query: {
+                      id: row.id
+                    }
+                  });
+                },
+                type: 'primary'
+              }
+            ]
           },
           {
             props: 'vehiclePlateNo',
@@ -523,53 +524,53 @@ export default {
             label: '整车订单',
             visible: true,
             width: 180,
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.navigateToRoute({
-                  path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
-                  query: {
-                    id: row.vehicleOrderId
-                  }
-                });
-              },
-              type: 'primary'
-            }]
+            // buttons: [{
+            //   click: (rowIndex, row) => {
+            //     this.navigateToRoute({
+            //       path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
+            //       query: {
+            //         id: row.vehicleOrderId
+            //       }
+            //     });
+            //   },
+            //   type: 'primary'
+            // }]
           },
           {
             props: 'shopcode',
             label: '商城订单',
             visible: true,
             width: 180,
-            buttons: [{
-              click: (rowIndex, row) => {
-                if (row.shopcode) {
-                  this.navigateToRoute({
-                    path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
-                    query: {
-                      id: row.vehicleOrderId
-                    }
-                  });
-                }
-              },
-              type: 'primary'
-            }]
+            // buttons: [{
+            //   click: (rowIndex, row) => {
+            //     if (row.shopcode) {
+            //       this.navigateToRoute({
+            //         path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
+            //         query: {
+            //           id: row.vehicleOrderId
+            //         }
+            //       });
+            //     }
+            //   },
+            //   type: 'primary'
+            // }]
           },
           {
             props: 'vehicleEnterpriseOrder',
             label: '企业整车订单',
             visible: true,
             width: 180,
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.navigateToRoute({
-                  path: '/sales/vehwholesale/entorder/entVehicleOrder/edit',
-                  query: {
-                    id: row.vehicleEnterpriseOrderId
-                  }
-                });
-              },
-              type: 'primary'
-            }]
+            // buttons: [{
+            //   click: (rowIndex, row) => {
+            //     this.navigateToRoute({
+            //       path: '/sales/vehwholesale/entorder/entVehicleOrder/edit',
+            //       query: {
+            //         id: row.vehicleEnterpriseOrderId
+            //       }
+            //     });
+            //   },
+            //   type: 'primary'
+            // }]
           },
           { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 160 },
           {
@@ -794,6 +795,9 @@ export default {
       });
     },
     onSubmit () {
+      if (this.form.vinList) {
+        this.form.vinList = this.form.vinList.map(vin => vin.trim()).filter(vin => vin);
+      }
       if (this.form.vinList && this.form.vinList.some(vin => vin.length < 6)) {
         this.$message.error('VIN码输入不能少于6位');
         return;
@@ -847,6 +851,7 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
+          if (!res || !res.records) return;
           this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,
@@ -854,6 +859,8 @@ export default {
             };
           });
           this.optionObj.total = res.total;
+        }).catch(err => {
+          console.error('获取列表数据失败:', err);
         }).finally(() => {
           this.loading = false;
         });

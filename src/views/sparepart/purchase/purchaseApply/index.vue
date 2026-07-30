@@ -647,13 +647,15 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          this.optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
+        }).catch(err => {
+          console.error('列表数据加载失败:', err);
         }).finally(() => {
           this.loading = false;
         });
@@ -771,7 +773,7 @@ export default {
     // 提交
     async handleSubmit (val) {
       const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
-      if (res.records.length > 0) {
+      if ((res?.records || []).length > 0) {
         this.purchaseId = val.id;
         this.purchaseList = res.records || [];
         this.submitDialogVisible = true;
@@ -797,7 +799,7 @@ export default {
         return;
       }
       const res = await purchaseApplyListUnPurchaseDetail({ id: val.id });
-      if (res.records.length > 0) {
+      if ((res?.records || []).length > 0) {
         // 确保只设置有效的id值
         if (val.id) {
           this.purchaseId = val.id;
@@ -806,7 +808,7 @@ export default {
         } else {
           this.$message.warning('操作失败：缺少采购单ID');
         }
-      } else if (res.records.length === 0) {
+      } else if ((res?.records || []).length === 0) {
         const res = await purchaseApplyGetCoupon({ id: val.id });
         // 确保只设置有效的id值
         if (val.id) {

@@ -2664,7 +2664,8 @@ const routes = [
 
       meta: {
         name: '新页面',
-        keepAlive: true
+        keepAlive: true,
+        notRefresh: true,
       }
     }, {
       path: '/claimreturn/claim/warrantyApply/edit',
@@ -2941,6 +2942,36 @@ const routes = [
       meta: {
         name: '脱敏设置-编辑',
         noResourceUrl: 'true'
+      }
+    }, {
+      // 数据上报 - 门店利润明细
+      path: '/datareport/profitDetail',
+      name: 'profitDetail',
+      component: () => import('@/views/datareport/profitDetail/index.vue'),
+
+      meta: {
+        name: '门店利润明细',
+        keepAlive: true
+      }
+    }, {
+      // 数据上报 - 门店营收报表
+      path: '/datareport/storeRevenue',
+      name: 'storeRevenue',
+      component: () => import('@/views/datareport/storeRevenue/index.vue'),
+
+      meta: {
+        name: '门店营收报表',
+        keepAlive: true
+      }
+    }, {
+      // 数据上报 - 门店产值报表
+      path: '/datareport/storeOutputValue',
+      name: 'storeOutputValue',
+      component: () => import('@/views/datareport/storeOutputValue/index.vue'),
+
+      meta: {
+        name: '门店产值报表',
+        keepAlive: true
       }
     }]
   }

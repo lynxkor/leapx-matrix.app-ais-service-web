@@ -134,8 +134,11 @@
         </el-form-item>
         <el-form-item label="审批通过时间">
           <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
             v-model="warrantyApproveTimeRange"
-            type="datetimerange"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
             value-format="yyyy-MM-dd HH:mm:ss"
             range-separator="至"
             start-placeholder="开始日期"
@@ -182,8 +185,11 @@
         </el-form-item>
         <el-form-item label="维修开始时间">
           <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
             v-model="repairStartTimeRange"
-            type="datetimerange"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
             value-format="yyyy-MM-dd HH:mm:ss"
             range-separator="至"
             start-placeholder="开始日期"
@@ -527,6 +533,7 @@ export default {
             }]
           },
           { props: 'partName', label: '换上零件名称', visible: true, width: 200 },
+          { props: 'oldPartQuantity', label: '数量', visible: true, width: 100 },
           { props: 'vehicleModelName', label: '车型', visible: true, width: 200 },
           { props: 'mileage', label: '进店里程KM', visible: true, width: 140 },
           { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 200 },
@@ -733,13 +740,13 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          this.optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });
@@ -815,11 +822,21 @@ export default {
     async modelSearch (query) {
       return listVehicleModel({ modelNameLike: query });
     },
+    // 保修类型下拉：与【保修申请单】保持一致（维修类别=20，结算类型仅保修/合同）
     repairItemTypeRemote (query) {
-      return repairGetList({
-        nameLike: query,
-        pageSize: 20,
-        pageNum: 1,
+      return new Promise((resolve) => {
+        repairGetList({
+          nameLike: query,
+          pageSize: 20,
+          pageNum: 1,
+          categorys: ['20'],
+        }).then(res => {
+          const data = res.records?.filter(item => ['保修', '合同'].includes(item.checkoutTypeName));
+          resolve(data);
+        }).catch(err => {
+          console.error(err);
+          resolve([]);
+        });
       });
     },
     async mainPartSupplierRemote (query) {

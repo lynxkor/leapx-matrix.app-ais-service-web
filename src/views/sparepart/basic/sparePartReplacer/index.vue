@@ -154,6 +154,7 @@ const defaultForm = {
   beforePartCodeLike: '',
   beforePartNameLike: '',
   replacementTypeIncludeList: [],
+  statusIncludeList: ['1'],
   afterPartCodeLike: '',
   afterPartNameLike: '',
   remarkLike: '',

@@ -141,9 +141,15 @@
                     <span class="label">工时数：</span>
                     <span class="value">{{ curItemList?.quantity }}</span>
                   </div>
-                   <div class="info-item">
-                    <span class="label">索赔价：</span>
-                    <span class="value">{{ curItemList?.claimPrice }}</span>
+                  <div class="info-item">
+                    <span class="label">工时单价：</span>
+                    <span class="value">{{ curItemList?.unitPrice }}</span>
+                  </div>
+                </div>
+                <div class="info-row">
+                  <div class="info-item">
+                    <span class="label">优惠金额：</span>
+                    <span class="value">{{ curItemList?.discountAmount }}</span>
                   </div>
                 </div>
                 <div class="section-title">维修零件</div>
@@ -472,7 +478,7 @@ export default {
         .filter(item => item.checked)
         .map(item => item.id);
 
-      const partsList = this.response?.partResponseList
+      const partsList = (this.response?.partResponseList || [])
         .filter(item => checkedItemIds.includes(item.serviceActivityItemId) && this.checkItemCanAdd(item))
         .map(part => {
           const repairItem = itemMap[part.serviceActivityItemId] || {};
@@ -505,6 +511,12 @@ export default {
             packageName: activityRes.activityName,
           };
         });
+
+      // 如果未勾选项目和配件，提示不允许保存
+      if (itemList.length === 0 && partsList.length === 0) {
+        this.$message.warning('请选择项目和零件');
+        return false;
+      }
       try {
         const params = {
           packageId: this.selectedPackage.id,

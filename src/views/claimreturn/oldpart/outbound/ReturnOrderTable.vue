@@ -340,13 +340,16 @@ export default {
       this.uploadDialogVisible = false;
     },
     scanAdd (e) {
+      const code = this.oldPartUniqueCode;
+      if (!code) return;
+      this.oldPartUniqueCode = '';
       scanCodeAddDetail({
         id: this._id,
-        oldPartUniqueCode: this.oldPartUniqueCode,
+        oldPartUniqueCode: code,
       }).then(res => {
         this.$message.success('添加成功');
         this.getTableData();
-      });
+      }).catch(() => {});
     }
   },
 };

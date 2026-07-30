@@ -790,7 +790,7 @@ export default {
       );
 
       if (!isExist && record) {
-        updateSpFaultAlertRecord({ serviceProxyId: this.vehicleInfo.id, ...record }).then(res => {
+        updateSpFaultAlertRecord({ serviceProxyId: this.vehicleInfo.id, ...record, cccId: record.id }).then(res => {
           this.$message({ message: '保存成功', type: 'success' });
           this.initData();
           if (res) {

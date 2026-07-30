@@ -101,9 +101,6 @@ export default {
     id: {
       type: String,
       default: ''
-    },
-    data: {
-      type: String,
     }
   },
   data () {
@@ -124,11 +121,11 @@ export default {
   },
   methods: {
     init () {
-      getDetail(this.data).then((res) => {
+      getDetail(this.id).then((res) => {
         this.form = res;
       });
       getPrintDetail({
-        returnOrderId: this.data,
+        returnOrderId: this.id,
         pageNum: 1,
         pageSize: 5000
       }).then((res) => {

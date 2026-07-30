@@ -27,17 +27,17 @@
         </template>
         <template #extraButtons>
           <template v-if="form.returnStatus==='10'">
-            <el-button v-if="canDelete && !isDealer" @click="onRemove" size="small">删除</el-button>
-            <el-button v-if="!isDealer" @click="onNext" type="primary" plain size="small">下发</el-button>
+            <el-button v-if="canDelete && !isDealer" @click="onRemove" size="small" :loading="deleteLoading">删除</el-button>
+            <el-button v-if="!isDealer" @click="onNext" type="primary" plain size="small" :loading="publishLoading">下发</el-button>
           </template>
           <template v-if="form.returnStatus==='20'">
-            <el-button v-if="isDealer" @click="onOutbound" size="small">回运出库</el-button>
+            <el-button v-if="isDealer" @click="onOutbound" size="small" :loading="outboundLoading">回运出库</el-button>
           </template>
           <template v-if="form.returnStatus==='30'">
-            <el-button v-if="!isDealer" @click="onSign" size="small">签收</el-button>
+            <el-button v-if="!isDealer" @click="onSign" size="small" :loading="signLoading">签收</el-button>
           </template>
           <template v-if="form.returnStatus==='40' && form.isChecked !== '1'">
-            <el-button v-if="!isDealer" @click="onCompleteAcceptance" size="small">验收完成</el-button>
+            <el-button v-if="!isDealer" @click="onCompleteAcceptance" size="small" :loading="acceptanceLoading">验收完成</el-button>
             <el-button v-if="!isDealer" @click="onSingleAcceptance" size="small">单件验收</el-button>
           </template>
           <el-button @click="onPrintReturnOrder" size="small">打印回运单</el-button>
@@ -371,6 +371,11 @@ export default {
       moduleKey,
       loading: false,
       submitLoading: false,
+      deleteLoading: false,
+      publishLoading: false,
+      outboundLoading: false,
+      signLoading: false,
+      acceptanceLoading: false,
       yes_no_enum: YES_NO_ENUM,
       form: { ...form },
       originalForm: { ...form },
@@ -540,6 +545,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.deleteLoading = true;
         deleteItem([this._id]).then(() => {
           this.$message({
             type: 'success',
@@ -551,6 +557,8 @@ export default {
             type: 'error',
             message: '删除失败!'
           });
+        }).finally(() => {
+          this.deleteLoading = false;
         });
       }).catch(() => {});
     },
@@ -565,6 +573,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.publishLoading = true;
         publish(this._id).then(() => {
           this.$message({
             type: 'success',
@@ -573,16 +582,17 @@ export default {
           this.$refs.containerRef.loadDetail();
         }).catch(() => {
 
+        }).finally(() => {
+          this.publishLoading = false;
         });
       }).catch(() => {});
     },
     onPrintReturnOrder () {
       this.$print.show({
-        id: new Date().getTime() + '',
+        id: this._id,
         template: 'ReturnOrder',
         title: '打印回运单',
-        width: 1122,
-        data: this._id,
+        width: 1122
       });
     },
     onPrintMark () {
@@ -623,6 +633,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.outboundLoading = true;
         dealerOutbound(this._id).then(() => {
           this.$message({
             type: 'success',
@@ -632,6 +643,8 @@ export default {
           this.refreshTable();
         }).catch(() => {
 
+        }).finally(() => {
+          this.outboundLoading = false;
         });
       });
     },
@@ -642,6 +655,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.signLoading = true;
         signByIds([this._id]).then(() => {
           this.$message({
             type: 'success',
@@ -650,6 +664,8 @@ export default {
           this.$refs.containerRef.loadDetail();
         }).catch(() => {
 
+        }).finally(() => {
+          this.signLoading = false;
         });
       });
     },
@@ -660,6 +676,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.acceptanceLoading = true;
         checkFinished(this._id).then(() => {
           this.$message({
             type: 'success',
@@ -668,6 +685,8 @@ export default {
           this.$refs.containerRef.loadDetail();
         }).catch(() => {
 
+        }).finally(() => {
+          this.acceptanceLoading = false;
         });
       });
     },

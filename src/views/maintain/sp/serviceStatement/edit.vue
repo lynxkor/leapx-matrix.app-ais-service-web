@@ -9,10 +9,10 @@
           <el-button size="small" @click="rightsList" v-if="buttonPermissions.rights">权益核销</el-button>
           <el-button size="small" @click="handleResendSignSms" v-if="buttonPermissions.canResendSignSms">补推结算单短信签字</el-button>
           <el-button size="small" @click="submitAndSing" v-if="buttonPermissions.sign">提交结算并签字</el-button>
-          <el-button size="small" @click="reject" v-if="buttonPermissions.reject">驳回</el-button>
+          <el-button size="small" @click="reject" v-if="buttonPermissions.reject" :loading="rejectLoading">驳回</el-button>
           <el-button size="small" @click="addInvoiceRecord" v-if="buttonPermissions.addRecord">添加收款记录</el-button>
-          <el-button size="small" @click="paySuccess" v-if="buttonPermissions.success">完成收款</el-button>
-          <el-button size="small" @click="createRefund" v-if="buttonPermissions.reCreate || buttonPermissions.reCreate1" :style="{'opacity': isStoreOrder && isOverSettlement30Days ? '0.5': 1}">创建反结算单</el-button>
+          <el-button size="small" @click="paySuccess" v-if="buttonPermissions.success" :loading="payLoading">完成收款</el-button>
+          <el-button size="small" @click="createRefund" v-if="buttonPermissions.reCreate || buttonPermissions.reCreate1" :style="{'opacity': isStoreOrder && isOverSettlement30Days ? '0.5': 1}" :loading="refundLoading">创建反结算单</el-button>
           <el-button size="small" @click="createWarrantyApply"
             v-if="canCreateWarrantyApply">创建保修申请单</el-button>
           <el-button size="small" @click="handlePrint" v-if="buttonPermissions.canPrint">打印结算单</el-button>
@@ -58,10 +58,7 @@
                   <el-input placeholder="请输入" v-model="form.dealerName" disabled clearable />
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
-                  <LPEncrypted
-                    :value.sync="form.vehProfileVin"
-                    :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
-                  />
+                  <LPCopy :value="form.vehProfileVin" />
                 </el-form-item>
                 <el-form-item label="数据来源：" prop="dataSource">
                   <el-input placeholder="请输入" v-model="form.dataSource" disabled clearable />
@@ -189,13 +186,10 @@
                   <el-link type="success" @click.prevent="goToDealer(form.dealerId)">{{ form.dealerName }}</el-link>
                 </el-form-item>
                 <el-form-item label="VIN码：" prop="vehProfileVin">
-                  <LPEncrypted
-                    :value.sync="form.vehProfileVin"
-                    :decryptMethod="() => getDecryptField(form.id, 'vehProfileVin')"
-                  >
+                  <LPCopy :value="form.vehProfileVin">
                     <el-link type="success" @click.prevent="goToVehicleProfile(form.vehProfileId)">{{
                       form.vehProfileVin }}</el-link>
-                  </LPEncrypted>
+                  </LPCopy>
                 </el-form-item>
                 <el-form-item label="数据来源：" prop="dataSourceLabel">
                   {{ form.dataSourceLabel }}
@@ -320,11 +314,11 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, reject, receiptCompletion, createCounterSettlement, resendSignSms, getDecrypt } from '@/api/maintain/sp/serviceStatement/index';
+import { getDetail, addOrUpdate, reject, receiptCompletion, createCounterSettlement, resendSignSms } from '@/api/maintain/sp/serviceStatement/index';
 // import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import LPEncrypted from '@/libs/components/LPEncrypted';
+import LPCopy from '@/libs/components/LPCopy';
 import { getEnum } from '@/api/common';
 import { StatementCheckoutTypeEnum, PackageTypeEnum } from '@/views/maintain/sp/serviceProxy/constant';
 import CreateWarrantyApplyDialog from './components/CreateWarrantyApplyDialog';
@@ -423,7 +417,7 @@ export default {
 
     EditPageLayout,
     EditBaseContainer,
-    LPEncrypted,
+    LPCopy,
     // EditTable,
     // FetchSelect,
     RepaireRecord,
@@ -522,6 +516,8 @@ export default {
       submitSettlemenDialogVisible: false,
       addPayrecordDialogVisible: false,
       refundLoading: false,
+      rejectLoading: false,
+      payLoading: false,
       tableData: [],
       form: { ...form },
       originalForm: { ...form },
@@ -616,7 +612,9 @@ export default {
     },
     // 处理驳回逻辑
     async handleReject () {
+      if (this.rejectLoading) return;
       try {
+        this.rejectLoading = true;
         // 假设驳回接口为 rejectStatement
         await reject(this._id); // 需要引入相应的驳回API
         this.$message.success('驳回成功');
@@ -625,6 +623,8 @@ export default {
       } catch (error) {
         console.error('驳回失败:', error);
         this.$message.error('驳回失败');
+      } finally {
+        this.rejectLoading = false;
       }
     },
     addInvoiceRecord () {
@@ -662,7 +662,9 @@ export default {
     },
     // 处理收款完成逻辑
     async handlePaySuccess () {
+      if (this.payLoading) return;
       try {
+        this.payLoading = true;
         // 调用收款完成API
         await receiptCompletion(this._id);
 
@@ -673,6 +675,8 @@ export default {
       } catch (error) {
         console.error('收款完成失败:', error);
         this.$message.error('收款失败');
+      } finally {
+        this.payLoading = false;
       }
     },
 
@@ -682,6 +686,7 @@ export default {
         return;
       }
       const result = await this.showMsg('确定要创建反结算申请？<br><strong style="color: var(--leap-color-danger);">该施工单对应的结算单均需反结算,才可回退施工单进行修改</strong>');
+      if (this.refundLoading) return;
       if (result) {
         try {
           this.refundLoading = true;
@@ -809,9 +814,6 @@ export default {
         return getEnum(code);
       }
       return [];
-    },
-    getDecryptField (id, field) {
-      return getDecrypt(id, field);
     },
     handleResendSignSms () {
       const message = '此操作将再次推送短信给用户进行结算单签字，是否继续？';

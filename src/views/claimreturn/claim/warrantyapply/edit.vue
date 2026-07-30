@@ -16,7 +16,7 @@
       <el-button size="small" @click="handleViewRights">查看权益</el-button>
       <el-button v-if="canApplyReject && (isPendingCurrentUserReview || form.applyStatus === APPLY_STATUS.APPROVED)" size="small" @click="handleReject(true)">申请驳回</el-button>
       <el-button v-if="canWithdraw && WITHDRAWABLE_STATUSES.includes(form.applyStatus)" size="small" @click="handleWithdraw">撤回</el-button>
-      <el-button v-if="canDeny && isPendingCurrentUserReview" plain size="small" @click="handleDeny">拒赔</el-button>
+      <el-button v-if="canDeny && (isPendingCurrentUserReview || form.applyStatus === APPLY_STATUS.APPROVED)" plain size="small" @click="handleDeny">拒赔</el-button>
       <el-button v-if="canReject && isPendingCurrentUserReview" size="small" @click="handleReject(false)">驳回</el-button>
       <el-button v-if="canCancel && (EDITABLE_STATUSES.includes(form.applyStatus))" plain size="small" @click="handleCancel">作废</el-button>
       <el-button v-if="canApprove && isPendingCurrentUserReview" type="primary" size="small" @click="handleApprove">同意</el-button>
@@ -185,7 +185,8 @@
               {{ form.approvalRemark }}
             </el-form-item>
             <el-form-item label="活动编码：" prop="serviceActivityCode">
-              {{ form.serviceActivityCode }}
+              <el-link v-if="form.serviceActivityId" type="primary" @click="openActivityDetail">{{ form.serviceActivityCode }}</el-link>
+              <span v-else>{{ form.serviceActivityCode }}</span>
             </el-form-item>
             <el-form-item label="维修结束时间：" prop="repairEndTime">
               {{ form.repairEndTime }}
@@ -209,21 +210,10 @@
         <div class="common-section-body">
           <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm2" label-width="150px" class="form-edit" v-show="isFormEditing">
             <el-form-item label="VIN：" prop="vin">
-              <LPEncrypted
-                :value.sync="form.vin"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
-                >
-                <el-input placeholder="" v-model="form.vin" clearable disabled />
-              </LPEncrypted>
+              <el-input placeholder="" v-model="form.vin" clearable disabled />
             </el-form-item>
             <el-form-item label="车牌号：" prop="vehiclePlateNo">
-              <LPEncrypted
-                :value.sync="form.vehiclePlateNo"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
-                >
-                <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled />
-              </LPEncrypted>
-              <!-- <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled /> -->
+              <el-input placeholder="" v-model="form.vehiclePlateNo" clearable disabled />
             </el-form-item>
             <el-form-item label="生产日期：" prop="produceDate">
               <el-date-picker
@@ -240,6 +230,12 @@
             </el-form-item>
             <el-form-item label="车型：" prop="vehicleModelName">
               <el-input placeholder="" v-model="form.vehicleModelName" clearable disabled />
+            </el-form-item>
+            <el-form-item label="车系：" prop="vehicleSeriesName">
+              <el-input placeholder="" v-model="form.vehicleSeriesName" clearable disabled />
+            </el-form-item>
+            <el-form-item label="年款：" prop="vehicleYearName">
+              <el-input placeholder="" v-model="form.vehicleYearName" clearable disabled />
             </el-form-item>
             <el-form-item label="保修开始日期：" prop="warrantyStartdate">
               <el-date-picker
@@ -297,19 +293,10 @@
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!isFormEditing">
             <el-form-item label="VIN：" prop="vin">
-              <LPEncrypted
-                :value.sync="form.vin"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'vin')"
-              >
-                <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfileId}`" target="_blank">{{ form.vin }}</el-link>
-              </LPEncrypted>
+              <el-link type="success" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfileId}`" target="_blank">{{ form.vin }}</el-link>
             </el-form-item>
             <el-form-item label="车牌号：" prop="vehiclePlateNo">
-              <LPEncrypted
-                :value.sync="form.vehiclePlateNo"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'vehiclePlateNo')"
-                >
-              </LPEncrypted>
+              {{ form.vehiclePlateNo }}
             </el-form-item>
             <el-form-item label="生产日期：" prop="produceDate">
               {{ form.produceDate }}
@@ -319,6 +306,12 @@
             </el-form-item>
             <el-form-item label="车型：" prop="vehicleModelName">
               {{ form.vehicleModelName }}
+            </el-form-item>
+            <el-form-item label="车系：" prop="vehicleSeriesName">
+              {{ form.vehicleSeriesName }}
+            </el-form-item>
+            <el-form-item label="年款：" prop="vehicleYearName">
+              {{ form.vehicleYearName }}
             </el-form-item>
             <el-form-item label="保修开始日期：" prop="warrantyStartdate">
               {{ form.warrantyStartdate }}
@@ -330,32 +323,16 @@
               {{ form.mileage }}
             </el-form-item>
             <el-form-item label="车主姓名：" prop="ownerName">
-              <LPEncrypted
-                :value.sync="form.ownerName"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'ownerName')"
-                >
-              </LPEncrypted>
+              {{ form.ownerName }}
             </el-form-item>
             <el-form-item label="车主电话：" prop="ownerPhone">
-              <LPEncrypted
-                :value.sync="form.ownerPhone"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'ownerPhone')"
-                >
-              </LPEncrypted>
+              {{ form.ownerPhone }}
             </el-form-item>
             <el-form-item label="送修人姓名：" prop="shuttleName">
-              <LPEncrypted
-                :value.sync="form.shuttleName"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'shuttleName')"
-                >
-              </LPEncrypted>
+              {{ form.shuttleName }}
             </el-form-item>
             <el-form-item label="送修人电话：" prop="shuttlePhone">
-              <LPEncrypted
-                :value.sync="form.shuttlePhone"
-                :decryptMethod="() => getDetailDecryptField(form.id, 'shuttlePhone')"
-                >
-              </LPEncrypted>
+              {{ form.shuttlePhone }}
             </el-form-item>
             <el-form-item label="是否终身免保：" prop="isLifetimeWarrantyLabel">
               {{ form.isLifetimeWarrantyLabel }}
@@ -410,10 +387,10 @@
                 :value="form.cccName"
               />
             </el-form-item>
-            <el-form-item class="form-item-full" label="故障信息描述：" prop="faultPhenomenon">
+            <el-form-item class="form-item-full" label="故障现象描述：" prop="faultPhenomenon">
               <base-input type="textarea" v-model="form.faultPhenomenon" clearable maxlength="5000" />
             </el-form-item>
-            <el-form-item class="form-item-full" label="故障排除流程：" prop="troubleshootingFlow">
+            <el-form-item class="form-item-full" label="故障排查流程：" prop="troubleshootingFlow">
               <base-input type="textarea" v-model="form.troubleshootingFlow" clearable maxlength="5000" />
             </el-form-item>
           </el-form>
@@ -430,10 +407,10 @@
             <el-form-item label="CCC：" prop="cccName">
               {{ form.cccName }}
             </el-form-item>
-            <el-form-item class="form-item-full" label="故障信息描述：" prop="faultPhenomenon">
+            <el-form-item class="form-item-full" label="故障现象描述：" prop="faultPhenomenon">
              {{ form.faultPhenomenon }}
             </el-form-item>
-            <el-form-item class="form-item-full" label="故障排除流程：" prop="troubleshootingFlow">
+            <el-form-item class="form-item-full" label="故障排查流程：" prop="troubleshootingFlow">
               {{ form.troubleshootingFlow }}
             </el-form-item>
           </el-form>
@@ -513,6 +490,7 @@
             :id="_id"
             :canAddOrUpdate="canEdit"
             @update="handleTableUpdate"
+            @loading-change="handleTableLoadingChange"
           />
         </div>
       </section>
@@ -574,6 +552,7 @@
             :id="_id"
             :canAddOrUpdate="canEdit"
             @update="handleTableUpdate"
+            @loading-change="handleTableLoadingChange"
           />
         </div>
       </section>
@@ -657,7 +636,6 @@
 import {
   getDetail,
   addOrUpdate,
-  getDetailDecryptField,
   submit,
   withdraw,
   approve,
@@ -673,7 +651,7 @@ import {
 } from './constants';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum, getLoginUser } from '@/api/common';
+import { getEnum } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -681,7 +659,6 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import CccSearch from '@/components/CccSearch/index.vue';
 import { getRelatedReports } from '@/api/maintain/sp/qualityOrderReport/index';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
-import LPEncrypted from '@/libs/components/LPEncrypted/index.vue';
 import WorkHourTable from './WorkHourTable.vue';
 import OtherTable from './OtherTable.vue';
 import ActivityTable from './ActivityTable.vue';
@@ -697,6 +674,7 @@ import WithdrawDialog from './WithdrawDialog/index.vue';
 // 旧件供应商
 import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
 import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
+import { getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity';
 
 const SEARCH_PARAMS_KEY = 'WARRANTY_APPLY_SEARCH_PARAMS';
 const NO_OLD_PART = '10'; // 无旧件
@@ -761,6 +739,10 @@ const defaultForm = {
   vehicleProperty: '',
   vehicleModelId: '',
   vehicleModelName: '',
+  vehicleSeriesId: '',
+  vehicleSeriesName: '',
+  vehicleYearId: '',
+  vehicleYearName: '',
   warrantyStartdate: '',
   serviceMonth: '',
   alarmLevel: '',
@@ -855,7 +837,6 @@ export default {
     ApprovalRecordTable,
     PartTable,
     WarrantyApplyFile,
-    LPEncrypted,
     RejectDialog,
     DenyDialog,
     RightsDialog,
@@ -871,13 +852,10 @@ export default {
       return '保修申请单号：' + (this.form.applyNo);
     },
     canEdit () {
-      return EDITABLE_STATUSES.includes(this.form.applyStatus) && this.canAddOrUpdate && !this.isFactoryAccount;
-    },
-    isFactoryAccount () {
-      return this.accountFlag === false; // 是否为主机厂还是门店账号 false为主机厂  true为门店
+      return EDITABLE_STATUSES.includes(this.form.applyStatus) && this.canAddOrUpdate;
     },
     isFormEditing () {
-      return !this.isFactoryAccount && (this.isEditing || !this._id);
+      return this.isEditing || !this._id;
     },
     isPendingCurrentUserReview () {
       if (!this.form.isInApproval) return false;
@@ -955,8 +933,7 @@ export default {
       cancelIds: [],
       withdrawDialogVisible: false,
       withdrawIds: [],
-      rightsDialogVisible: false,
-      accountFlag: null,
+      rightsDialogVisible: false
     };
   },
   created () {
@@ -967,19 +944,55 @@ export default {
     this.canWithdraw = this.permissions.has(`${this.moduleKey}-withdraw`);
     this.canDeny = this.permissions.has(`${this.moduleKey}-deny`);
     this.canCancel = this.permissions.has(`${this.moduleKey}-cancel`);
-    getLoginUser().then(res => {
-      this.accountFlag = res.accountFlag;
-    });
   },
   mounted () {
     console.log('[DEBUG] warrantyAuditList mounted', this.permissions);
   },
   methods: {
-    getDetailDecryptField (id, field) {
-      return getDetailDecryptField(id, field);
+    // 参考 techServiceActivity/index.vue 的 getPath 实现
+    getActivityPath (activityType) {
+      return activityType === '4'
+        ? '/claimreturn/claim/basic/serviceCareActivity/edit'
+        : '/claimreturn/claim/basic/techServiceActivity/edit';
+    },
+    async openActivityDetail () {
+      const activityId = this.form?.serviceActivityId;
+      if (!activityId) {
+        this.$message.warning('该保修申请单未关联活动');
+        return;
+      }
+      try {
+        const activity = await getServiceActivityDetail(activityId);
+        if (!activity) {
+          this.$message.error('活动不存在或已被删除');
+          return;
+        }
+        const activityType = String(activity.activityType || '').trim();
+        if (!activityType) {
+          this.$message.error('活动类型信息缺失，暂无法打开详情');
+          return;
+        }
+        // 保修申请页面仅查看活动，isEditing=false 进入查看模式
+        this.$router.push({
+          path: this.getActivityPath(activityType),
+          query: {
+            id: String(activityId),
+            isEditing: false,
+          }
+        });
+      } catch (error) {
+        console.error('获取活动详情失败:', error);
+        this.$message.error('活动详情查询失败，请稍后重试');
+      }
     },
     handleTableUpdate () {
       this.refreshAll();
+    },
+    // 子表格行保存时切换整页 loading（借用容器的整页遮罩）
+    handleTableLoadingChange (val) {
+      if (this.$refs.containerRef) {
+        this.$refs.containerRef.detailLoading = val;
+      }
     },
     // 取详情并补齐 partAndSupplierId（不含弹窗副作用）
     fetchDetail () {
@@ -1089,18 +1102,19 @@ export default {
     },
     // 搜索主因零件
     partRemote (query) {
+      const search = (query || '').trim();
       return new Promise((resolve, reject) => {
         getLists({
           pageNum: 1,
           pageSize: 20,
           oemPart: 1,
-          partCodeOrNameLike: query,
+          partCodeOrNameLike: search,
           status: 1,
         }).then(res => {
           if (!res?.length) {
             resolve([
               {
-                placeholder: `备件编码：${query}不存在备件供应商关系信息`,
+                placeholder: `备件编码：${search}不存在备件供应商关系信息`,
                 disabled: true,
               }
             ]);
@@ -1241,6 +1255,8 @@ export default {
     // 同意成功后跳转下一条
     handleApproveSuccess () {
       const searchParams = JSON.parse(sessionStorage.getItem(SEARCH_PARAMS_KEY) || '{}');
+      // 增加预防，无id不跳
+      if (!this._id) return;
       getNextId({
         ...searchParams,
         maxId: this._id

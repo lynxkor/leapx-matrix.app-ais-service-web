@@ -20,7 +20,7 @@
           <el-button v-if="_id && permissions.has(`${moduleKey}-pass`) && form.warrantyAuditDetail.auditStatus === '30'" size="small" type="primary" @click="handleAuditPass">审计通过</el-button>
           <el-button v-if="_id && permissions.has(`${moduleKey}-reject`) && form.warrantyAuditDetail.auditStatus === '30'" size="small" type="primary" @click="handleAuditReject">审计驳回</el-button>
           <el-button v-if="_id && permissions.has(`${moduleKey}-appeal`) && form.warrantyAuditDetail.auditStatus === '50'" size="small" type="primary" @click="handleAppeal">申诉</el-button>
-          <el-button v-if="_id && permissions.has(`${moduleKey}-agree`) && form.warrantyAuditDetail.auditStatus === '50'" size="small" type="primary" @click="handleAgree">同意</el-button>
+          <el-button v-if="_id && permissions.has(`${moduleKey}-agree`) && form.warrantyAuditDetail.auditStatus === '50'" size="small" type="primary" :loading="agreeLoading" @click="handleAgree">同意</el-button>
           <el-button v-if="_id && permissions.has(`${moduleKey}-agreeAppeal`) && form.warrantyAuditDetail.auditStatus === '60'" size="small" type="primary" @click="handleAgreeAppeal">同意申诉</el-button>
           <el-button v-if="_id && permissions.has(`${moduleKey}-rejectAppeal`) && form.warrantyAuditDetail.auditStatus === '60'" size="small" type="primary" @click="handleRejectAppeal">拒绝申诉</el-button>
         </template>
@@ -101,12 +101,7 @@
             <div class="common-section-body">
               <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="vin：">
-                  <LPEncrypted
-                    :value.sync="form.vehicleProfile.vin"
-                    :decryptMethod="() => getDetailDecryptField()"
-                  >
-                    <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfile?.vin}`" target="_blank">{{ form.vehicleProfile?.vin }}</el-link>
-                  </LPEncrypted>
+                  <el-link type="primary" :href="`/service/datacenter/vehicle/vehicleProfile/edit?id=${form.vehicleProfile?.vin}`" target="_blank">{{ form.vehicleProfile?.vin }}</el-link>
                 </el-form-item>
                 <el-form-item label="车牌号：">
                   {{ form.vehicleProfile?.vehiclePlateNo }}
@@ -116,6 +111,12 @@
                 </el-form-item>
                 <el-form-item label="服务月份：">
                   {{ form.warrantyApply?.serviceMonth }}
+                </el-form-item>
+                <el-form-item label="车系：">
+                  {{ form.warrantyApply?.vehicleSeriesName }}
+                </el-form-item>
+                <el-form-item label="年款：">
+                  {{ form.warrantyApply?.vehicleYearName }}
                 </el-form-item>
                 <el-form-item label="保修开始日期：">
                   {{ form.vehicleProfile?.warrantyStartdate }}
@@ -528,9 +529,7 @@ import {
   getDetailWithRelated,
   addOrUpdate,
   agree,
-  getDecryptField,
 } from '@/api/claimreturn/claim/warrantyaudit/warrantyAuditDetail/index';
-import LPEncrypted from '@/libs/components/LPEncrypted';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -577,8 +576,7 @@ export default {
     RejectAppealDialog,
     AisAttachment,
     SupplyMaterialDialog,
-    AppealDialog,
-    LPEncrypted
+    AppealDialog
   },
   computed: {
     _id () {
@@ -645,6 +643,7 @@ export default {
       moduleKey: 'AISCR-warrantyAuditDetail',
       loading: false,
       submitLoading: false,
+      agreeLoading: false,
       form: { ...form },
       originalForm: { ...form },
       // 弹窗控制
@@ -660,9 +659,6 @@ export default {
   mounted () {
   },
   methods: {
-    getDetailDecryptField () {
-      return getDecryptField(this._id, 'vin');
-    },
     async detailRequest () {
       const id = this._id;
       if (id) {
@@ -737,11 +733,14 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.agreeLoading = true;
         agree({ detailId: this._id }).then(() => {
           this.$message.success('操作成功');
           this.loadDetail();
         }).catch(() => {
           this.$message.error('操作失败');
+        }).finally(() => {
+          this.agreeLoading = false;
         });
       }).catch(() => {});
     },

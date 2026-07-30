@@ -18,8 +18,8 @@
           <span class="status primary">{{ form.orderStatusLabel }}</span>
         </template>
         <template #extraButtons>
-          <el-button plain size="small" v-if="form.orderStatus === '2'" @click="handleSign(false)">签收</el-button>
-          <el-button plain size="small" v-if="form.orderStatus === '2'" @click="handleSign(true)">签收并入库</el-button>
+          <el-button plain size="small" v-if="form.orderStatus === '2' && permissions.has('AISPART-purchaseOrder-sign')" @click="handleSign(false)">签收</el-button>
+          <el-button plain size="small" v-if="form.orderStatus === '2' && permissions.has('AISPART-purchaseOrder-signIn')" @click="handleSign(true)">签收并入库</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -279,6 +279,9 @@
                 </el-form-item>
                 <el-form-item label="发货仓库：" prop="deliveryWarehouse">
                   {{ form.deliveryWarehouseName }}
+                </el-form-item>
+                <el-form-item label="发货时间：" prop="shippingTime">
+                  {{ form.shippingTime }}
                 </el-form-item>
                 <el-form-item label="收货人姓名：" prop="recipientName">
                   {{ form.recipientName }}

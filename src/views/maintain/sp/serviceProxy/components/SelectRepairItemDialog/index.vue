@@ -114,7 +114,7 @@
                 <i class="iconfont icon-lxppc-search"></i>
               </template>
               <template #default="{item}">
-                <div v-if="item.value === 'empty'" style="pointer-events: none; white-space: nowrap;">未搜索到配件</div>
+                <div v-if="item.value === 'empty'" style="pointer-events: none; white-space: nowrap;">您当前搜索的维修配件，不适用{{vehicleInfo.vehModelName}}车型，请联系服务工程</div>
                 <div v-else style="white-space: nowrap;">
                   {{ item.value }}
                 </div>
@@ -162,6 +162,7 @@
                   <el-input
                     v-else
                     v-model="row.repairItemName"
+                    maxlength="100"
                     size="small"
                   />
                 </template>
@@ -235,7 +236,7 @@
                     v-else
                     v-model="row.workHour"
                     size="small"
-                    :precision="2"
+                    :precision="4"
                     :min="0"
                     controls-position="right"
                     @change="handleWorkHourChange(row)"
@@ -246,7 +247,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE || row.packageType == PackageTypeEnum.TECH_ACTIVITY || row.packageType == PackageTypeEnum.CARE_ACTIVITY">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -392,7 +393,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE || row.packageType == PackageTypeEnum.TECH_ACTIVITY || row.packageType == PackageTypeEnum.CARE_ACTIVITY">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -981,7 +982,7 @@ export default {
     getRepairItemInfo () {
       return getRepairItemInfo(this.vehicleInfo.id).then(res => {
         this.info = res || {};
-        this.itemData = (res.repairItemRespList || []).map(item => ({
+        this.itemData = (res?.repairItemRespList || []).map(item => ({
           ...item,
           _originalWorkHour: item.workHour
         }));
@@ -1277,8 +1278,13 @@ export default {
     handleWorkHourChange (row) {
       const workHour = Number(row.workHour) || 0;
       const originalAmount = workHour * row.price;
-      row.discountAmount = originalAmount * row.discountRate;
       row.repairAmount = originalAmount - row.discountAmount;
+      // 商城订单和服务活动，优惠金额不能变
+      if (String(row.packageType) !== PackageTypeEnum.STORE && String(row.packageType) !== PackageTypeEnum.TECH_ACTIVITY && String(row.packageType) !== PackageTypeEnum.CARE_ACTIVITY) {
+        row.discountAmount = originalAmount * row.discountRate;
+      } else {
+        row.discountRate = (row.discountAmount / (originalAmount || 1)).toFixed(8);
+      }
       this.updateTotals();
     },
     // 优惠金额变化
@@ -1508,7 +1514,7 @@ export default {
     },
     // ----------替换件逻辑-----------------
     handlePartReplaceChange (current, row) {
-      const discountAmount = Number(current.price || 0) * (Number(this.selectedDiscount?.discountPartRate || 0) || 0);
+      const discountAmount = current.discountAmount || 0;
       const old = JSON.parse(JSON.stringify(row));
       Object.assign(row, {
         partsId: current.partsId,
@@ -1523,7 +1529,8 @@ export default {
         isOemPart: parseInt(current.isOemPart) || 0,
         quantity: current?.quantity || row?.quantity || 1,
         price: current.price || 0,
-        discountRate: this.selectedDiscount?.discountPartRate || 0,
+        claimPrice: current.claimPrice,
+        discountRate: this.selectedDiscount?.discountRate || 0,
         discountAmount: discountAmount,
         partsAmount: current.price - discountAmount,
         repairItemName: current.repairItemName,

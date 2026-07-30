@@ -33,10 +33,10 @@ export default {
         { label: '车辆信息', required: false, configCode: 'mcs_preauth', attachType: '车辆信息' },
         { label: '行驶证', required: false, configCode: 'mcs_preauth', attachType: '行驶证' },
         { label: '故障信息', required: false, configCode: 'mcs_preauth', attachType: '故障信息' },
-        { label: '终身权益', required: false, configCode: 'mcs_preauth', attachType: '终身权益' },
-        { label: '首保凭证', required: false, configCode: 'mcs_preauth', attachType: '首保凭证' },
+        // { label: '终身权益', required: false, configCode: 'mcs_preauth', attachType: '终身权益' },
+        // { label: '首保凭证', required: false, configCode: 'mcs_preauth', attachType: '首保凭证' },
         { label: '保养质检', required: false, configCode: 'mcs_preauth', attachType: '保养质检' },
-        { label: '施工旧件', required: false, configCode: 'mcs_preauth', attachType: '施工旧件' },
+        // { label: '施工旧件', required: false, configCode: 'mcs_preauth', attachType: '施工旧件' },
         { label: '旧件信息', required: false, configCode: 'mcs_preauth', attachType: '旧件信息' },
         { label: '其他', required: false, configCode: 'mcs_preauth', attachType: '其他' }
       ]
