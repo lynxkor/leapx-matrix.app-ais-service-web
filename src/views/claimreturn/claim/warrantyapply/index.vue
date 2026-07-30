@@ -2103,11 +2103,17 @@ export default {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
       if (this.selectionList.length > 0) {
-        // 审批记录页签：勾选的 row 是「申请单 × 审批日志」的 JOIN 行，row.id 是申请单主键；
-        // 若按 id 过滤会导致 JOIN 后膨胀成多行。此处改按 approvalId（审批日志主键）过滤，
-        // 与后端 ApplyWithApproval_Where 中 `waa.id IN (...)` 配套。
-        // 其他页签仍按申请单 id 过滤（业务确认暂不动其他三个 WITH 页签的明细膨胀问题）。
-        const idField = this.activeTab === 'approval' ? 'approvalId' : 'id';
+        // 各页签 row 是「申请单 × 明细」的 JOIN 行，row.id 是申请单主键；
+        // 按 id 过滤会导致 JOIN 后膨胀成多行。这里按各页签对应明细主键过滤，
+        // 与后端 mapper 中 `wap.id / waw.id / wao.id / waa.id IN (...)` 配套。
+        // all / manager / gm 走原 /page 接口，本身不是 JOIN 视图，按 id 过滤。
+        const detailIdFieldMap = {
+          approval: 'approvalId',
+          parts: 'partDetailId',
+          workhours: 'workhourDetailId',
+          other: 'otherDetailId'
+        };
+        const idField = detailIdFieldMap[this.activeTab] || 'id';
         const ids = this.selectionList.map(item => item[idField]) || [];
         reqParams.ids = ids;
       }
