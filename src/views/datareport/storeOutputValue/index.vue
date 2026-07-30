@@ -114,7 +114,7 @@ const pageSize = 100;
 
 /**
  * 14 个指标列配置(产值报表)
- * percent: true 表示后端返回 0~1 小数,前端 ×100 显示百分比
+ * percent: true 表示后端已直接返回百分数(如 12.34 表示 12.34%),前端只负责格式化显示
  */
 const METRIC_COLS = [
   { props: 'factoryCount', label: '出厂台次' },
@@ -140,8 +140,8 @@ function fmtNumber (v) {
 
 function fmtPercent (v) {
   if (v === null) return '-';
-  const pct = Number(v) * 100;
-  return pct.toFixed(2).replace(/\.?0+$/, '') + '%';
+  /* 后端已直接返回百分数(如 12.34 表示 12.34%),前端只管显示 */
+  return Number(v).toFixed(2).replace(/\.?0+$/, '') + '%';
 }
 
 const defaultForm = {
@@ -287,7 +287,12 @@ export default {
       const out = { ...item };
       METRIC_COLS.forEach(m => {
         const raw = item[m.props];
-        out[m.props] = m.percent ? fmtPercent(raw) : fmtNumber(raw);
+        /* 后端已直接返回 "12.34%" 格式字符串,前端只对 null 显示 "-",其他透传 */
+        if (m.percent) {
+          out[m.props] = raw === null ? '-' : raw;
+        } else {
+          out[m.props] = fmtNumber(raw);
+        }
         out[`_${m.props}Raw`] = raw;
       });
       return out;
