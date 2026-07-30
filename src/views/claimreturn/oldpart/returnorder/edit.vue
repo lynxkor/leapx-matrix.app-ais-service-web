@@ -589,11 +589,10 @@ export default {
     },
     onPrintReturnOrder () {
       this.$print.show({
-        id: new Date().getTime() + '',
+        id: this._id,
         template: 'ReturnOrder',
         title: '打印回运单',
-        width: 1122,
-        data: this._id,
+        width: 1122
       });
     },
     onPrintMark () {
