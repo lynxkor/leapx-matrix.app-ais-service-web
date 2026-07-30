@@ -2100,7 +2100,12 @@ export default {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
       if (this.selectionList.length > 0) {
-        const ids = this.selectionList.map(item => item.id) || [];
+        // 审批记录页签：勾选的 row 是「申请单 × 审批日志」的 JOIN 行，row.id 是申请单主键；
+        // 若按 id 过滤会导致 JOIN 后膨胀成多行。此处改按 approvalId（审批日志主键）过滤，
+        // 与后端 ApplyWithApproval_Where 中 `waa.id IN (...)` 配套。
+        // 其他页签仍按申请单 id 过滤（业务确认暂不动其他三个 WITH 页签的明细膨胀问题）。
+        const idField = this.activeTab === 'approval' ? 'approvalId' : 'id';
+        const ids = this.selectionList.map(item => item[idField]) || [];
         reqParams.ids = ids;
       }
       // 通用导出微服务回调后端分页接口时不会自动补 pageNum/pageSize；
