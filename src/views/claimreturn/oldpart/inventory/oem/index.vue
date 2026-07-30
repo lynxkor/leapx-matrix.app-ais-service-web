@@ -533,6 +533,7 @@ export default {
             }]
           },
           { props: 'partName', label: '换上零件名称', visible: true, width: 200 },
+          { props: 'oldPartQuantity', label: '数量', visible: true, width: 100 },
           { props: 'vehicleModelName', label: '车型', visible: true, width: 200 },
           { props: 'mileage', label: '进店里程KM', visible: true, width: 140 },
           { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 200 },
@@ -821,11 +822,21 @@ export default {
     async modelSearch (query) {
       return listVehicleModel({ modelNameLike: query });
     },
+    // 保修类型下拉：与【保修申请单】保持一致（维修类别=20，结算类型仅保修/合同）
     repairItemTypeRemote (query) {
-      return repairGetList({
-        nameLike: query,
-        pageSize: 20,
-        pageNum: 1,
+      return new Promise((resolve) => {
+        repairGetList({
+          nameLike: query,
+          pageSize: 20,
+          pageNum: 1,
+          categorys: ['20'],
+        }).then(res => {
+          const data = res.records?.filter(item => ['保修', '合同'].includes(item.checkoutTypeName));
+          resolve(data);
+        }).catch(err => {
+          console.error(err);
+          resolve([]);
+        });
       });
     },
     async mainPartSupplierRemote (query) {

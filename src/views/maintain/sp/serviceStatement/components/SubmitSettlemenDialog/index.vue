@@ -525,7 +525,7 @@ export default {
       const quantity = +row.quantity || 0;
       const discountAmount = +row.discountAmount || 0;
       const totalAmount = price * quantity;
-      row.partsAmount = Math.max(0, totalAmount - discountAmount);
+      row.partsAmount = Math.max(0, totalAmount - discountAmount).toFixed(2);
       row.discountRate = parseFloat(
         (discountAmount / totalAmount).toFixed(8)
       );
