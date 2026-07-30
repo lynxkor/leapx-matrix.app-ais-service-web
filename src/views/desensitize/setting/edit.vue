@@ -672,16 +672,16 @@ export default {
               positionList: (res.positionList || []).map(p => ({
                 ...p,
                 positionId: String(p.positionId || p.id || ''),
-                listDesensitize: p.listDesensitize == null ? 1 : p.listDesensitize,
-                detailDesensitize: p.detailDesensitize == null ? 1 : p.detailDesensitize,
-                exportDesensitize: p.exportDesensitize == null ? 1 : p.exportDesensitize
+                listDesensitize: p.listDesensitize ?? 1,
+                detailDesensitize: p.detailDesensitize ?? 1,
+                exportDesensitize: p.exportDesensitize ?? 1
               })),
               userList: (res.userList || []).map(u => ({
                 ...u,
                 userId: String(u.userId || u.id || ''),
-                listDesensitize: u.listDesensitize == null ? 1 : u.listDesensitize,
-                detailDesensitize: u.detailDesensitize == null ? 1 : u.detailDesensitize,
-                exportDesensitize: u.exportDesensitize == null ? 1 : u.exportDesensitize
+                listDesensitize: u.listDesensitize ?? 1,
+                detailDesensitize: u.detailDesensitize ?? 1,
+                exportDesensitize: u.exportDesensitize ?? 1
               }))
             };
           }
@@ -700,16 +700,16 @@ export default {
         positionList: (this.form.positionList || []).map(p => ({
           positionId: String(p.positionId || ''),
           positionName: p.positionName || '',
-          listDesensitize: p.listDesensitize == null ? 1 : p.listDesensitize,
-          detailDesensitize: p.detailDesensitize == null ? 1 : p.detailDesensitize,
-          exportDesensitize: p.exportDesensitize == null ? 1 : p.exportDesensitize
+          listDesensitize: p.listDesensitize ?? 1,
+          detailDesensitize: p.detailDesensitize ?? 1,
+          exportDesensitize: p.exportDesensitize ?? 1
         })),
         userList: (this.form.userList || []).map(u => ({
           userId: String(u.userId || ''),
           userName: u.userName || '',
-          listDesensitize: u.listDesensitize == null ? 1 : u.listDesensitize,
-          detailDesensitize: u.detailDesensitize == null ? 1 : u.detailDesensitize,
-          exportDesensitize: u.exportDesensitize == null ? 1 : u.exportDesensitize
+          listDesensitize: u.listDesensitize ?? 1,
+          detailDesensitize: u.detailDesensitize ?? 1,
+          exportDesensitize: u.exportDesensitize ?? 1
         }))
       };
       // 删除 form 上的冗余字段（DTO 不需要 creatorName 等展示字段，但保留对后端无副作用）
