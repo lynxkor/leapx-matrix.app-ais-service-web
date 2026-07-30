@@ -42,6 +42,9 @@
                 <el-form-item label="换上零件名称：" prop="partName">
                   <el-input placeholder="请输入" v-model="form.partName" disabled />
                 </el-form-item>
+                <el-form-item label="数量：" prop="oldPartQuantity">
+                  <el-input placeholder="请输入" v-model="form.oldPartQuantity" disabled />
+                </el-form-item>
                 <el-form-item label="主机厂库存状态：" prop="oemStatusLabel">
                   <el-input placeholder="请输入" v-model="form.oemStatusLabel" disabled />
                 </el-form-item>
@@ -110,6 +113,9 @@
                 </el-form-item>
                 <el-form-item label="换上零件名称：" prop="partName">
                   {{form.partName}}
+                </el-form-item>
+                <el-form-item label="数量：" prop="oldPartQuantity">
+                  {{form.oldPartQuantity}}
                 </el-form-item>
                 <el-form-item label="主机厂库存状态：" prop="oemStatusLabel">
                   {{form.oemStatusLabel}}
@@ -380,6 +386,7 @@ const defaultForm = {
   oldPartName: '',
   partCode: '',
   partName: '',
+  oldPartQuantity: '',
   oemStatus: '',
   dealerInTime: '',
   dealerOutTime: '',
