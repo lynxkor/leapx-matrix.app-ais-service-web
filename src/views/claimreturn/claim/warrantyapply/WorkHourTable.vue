@@ -203,6 +203,7 @@ export default {
     },
     // 行保存
     saveRowEdit (row) {
+      this.$emit('loading-change', true);
       warrantyApplyWorkhourUpdate({
         id: row.id,
         applyId: this._id,
@@ -213,6 +214,8 @@ export default {
         this.getDetailPageApi();
         this.editRowIndex = -1;
       }).catch(e => {
+      }).finally(() => {
+        this.$emit('loading-change', false);
       });
     },
     pageSizeChange (pageSize) {
