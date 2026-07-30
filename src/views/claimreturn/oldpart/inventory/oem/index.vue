@@ -533,6 +533,7 @@ export default {
             }]
           },
           { props: 'partName', label: '换上零件名称', visible: true, width: 200 },
+          { props: 'oldPartQuantity', label: '数量', visible: true, width: 100 },
           { props: 'vehicleModelName', label: '车型', visible: true, width: 200 },
           { props: 'mileage', label: '进店里程KM', visible: true, width: 140 },
           { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 200 },
