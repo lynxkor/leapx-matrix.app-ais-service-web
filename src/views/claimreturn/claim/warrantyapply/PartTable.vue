@@ -251,6 +251,7 @@ export default {
     },
     // 行保存
     saveRowEdit (row) {
+      this.$emit('loading-change', true);
       warrantyApplyPartUpdate({
         id: row.id,
         applyId: this._id,
@@ -264,7 +265,9 @@ export default {
         this.getDetailPageApi();
         this.editRowIndex = -1;
         this.$emit('update');
-      }).catch(e => {});
+      }).catch(e => {}).finally(() => {
+        this.$emit('loading-change', false);
+      });
     },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;
