@@ -69,6 +69,8 @@
       <el-button v-if="permissions.has('AISMC-maintenancePartData-parts-importExcel')" size="small" @click="handleImport('PartData-parts-importExcel')">零件导入</el-button>
       <el-button v-if="permissions.has('AISMC-maintenancePartData-vehicleMode-vehicleModeImportExcel')" size="small" @click="handleImport('PartData-vehicleMode-importExcel')">车型导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="permissions.has('AISMC-maintenancePartData-pageParts-export')" :loading="exportPartsLoading" size="small" @click="exportPartsExcel">零件导出</el-button>
+      <el-button v-if="permissions.has('AISMC-maintenancePartData-pageModels-export')" :loading="exportModelLoading" size="small" @click="exportModelExcel">车型导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
@@ -154,6 +156,8 @@ export default {
       show: false,
       loading: false,
       exportLoading: false,
+      exportPartsLoading: false,
+      exportModelLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
       optionObj: {
@@ -290,6 +294,81 @@ export default {
         }
       }).finally(() => {
         this.exportLoading = false;
+      });
+    },
+    // 零件导出（保养零件提醒--零件清单）
+    exportPartsExcel () {
+      this.handleExport({
+        businessType: '保养零件-零件清单',
+        dataFetchPath: 'maintain/web/basic/maintenancePartData/pageParts',
+        titleMap: {
+          code: '保养零件代码',
+          name: '保养零件名称',
+          mileageTypeLabel: '里程类型',
+          statusLabel: '状态',
+          firstServiceMileage: '首次保养里程(KM)',
+          firstServiceMonth: '首次保养时间(月)',
+          mileageInterval: '定期保养里程间隔(KM)',
+          monthInterval: '定期保养时间间隔(月)',
+          createTime: '创建时间',
+          partsCode: '零件代码',
+          partsName: '零件名称',
+          partsCreateTime: '零件创建时间',
+        },
+        fileName: '保养零件-零件清单.xlsx',
+        loadingKey: 'exportPartsLoading'
+      });
+    },
+    // 车型导出（保养零件提醒--适配车型）
+    exportModelExcel () {
+      this.handleExport({
+        businessType: '保养零件-适配车型',
+        dataFetchPath: 'maintain/web/basic/maintenancePartData/pageModels',
+        titleMap: {
+          code: '保养零件代码',
+          name: '保养零件名称',
+          mileageTypeLabel: '里程类型',
+          statusLabel: '状态',
+          firstServiceMileage: '首次保养里程(KM)',
+          firstServiceMonth: '首次保养时间(月)',
+          mileageInterval: '定期保养里程间隔(KM)',
+          monthInterval: '定期保养时间间隔(月)',
+          createTime: '创建时间',
+          vehModelName: '车型',
+          vehYearTypeName: '年款',
+          modelCreateTime: '车型创建时间'
+        },
+        fileName: '保养零件-适配车型.xlsx',
+        loadingKey: 'exportModelLoading'
+      });
+    },
+    // 通用导出
+    handleExport ({ businessType, dataFetchPath, titleMap, fileName, loadingKey }) {
+      this[loadingKey] = true;
+      exportTable({
+        businessType,
+        dataFetchPath,
+        reqParams: this.getFormData(),
+        titleMap,
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, fileName);
+          } catch (error) {
+            this.$message({
+              type: 'error',
+              message: '文件导出失败'
+            });
+          }
+        } else {
+          this.$confirmExport(
+            () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+          );
+        }
+      }).finally(() => {
+        this[loadingKey] = false;
       });
     },
     getData () {
