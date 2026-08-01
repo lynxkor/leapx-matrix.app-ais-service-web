@@ -337,7 +337,7 @@ export default {
         .then(res => {
           const records = (res && res.records) || [];
           this.optionObj.dataList = records.map(item => this.formatRow(item));
-          this.optionObj.total = res.total || 0;
+          this.optionObj.total = Number(res?.totals ?? 0);
         }).finally(() => {
           this.loading = false;
         });
