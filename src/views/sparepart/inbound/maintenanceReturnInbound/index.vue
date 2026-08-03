@@ -96,6 +96,81 @@
               end-placeholder="结束日期"
             />
           </el-form-item>
+          <!-- ===== 全部备件 tab 专用查询 ===== -->
+          <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+            <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
+          </el-form-item>
+          <el-form-item label="备件名称" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+            <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
+          </el-form-item>
+          <el-form-item label="库位" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+            <el-input placeholder="请输入" v-model="form.locationName" clearable />
+          </el-form-item>
+          <el-form-item label="退料申请时间" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+            <el-date-picker
+              :default-time="['00:00:00', '23:59:59']"
+              v-model="form.returnApplicationTime"
+              type="daterange"
+              unlink-panels
+              :picker-options="pickerOptions"
+              range-separator="至"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </el-form-item>
+          <el-form-item label="是否已入库" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+            <fetch-select
+              :request="fetchOptions"
+              enumCode="YesNotStringEnum"
+              v-model="form.inboundIsList"
+              placeholder="请选择"
+              clearable
+              multiple
+              filterable
+            />
+          </el-form-item>
+          <el-form-item label="退料入库时间" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+            <el-date-picker
+              :default-time="['00:00:00', '23:59:59']"
+              v-model="form.returnWarehousingTime"
+              type="daterange"
+              unlink-panels
+              :picker-options="pickerOptions"
+              range-separator="至"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </el-form-item>
+          <el-form-item label="退料申请人" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+            <fetch-select
+              :remote-method="getUser"
+              remote
+              v-model="form.returnApplicantList"
+              placeholder="请输入名称"
+              labelKey="username"
+              valueKey="userId"
+              clearable
+              collapseTags
+              multiple
+              filterable
+            />
+          </el-form-item>
+          <el-form-item label="退料入库人" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+            <fetch-select
+              :remote-method="getUser"
+              remote
+              v-model="form.returnWarehousingOperatorList"
+              placeholder="请输入名称"
+              labelKey="username"
+              valueKey="userId"
+              clearable
+              collapseTags
+              multiple
+              filterable
+            />
+          </el-form-item>
         </template>
         <page-search-action
           v-if="canList"
@@ -179,8 +254,8 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/inbound/maintenanceReturnInbound/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse, getDesensitize } from '@/api/common';
+import { getList, detailPage, deleteItem, enableItem } from '@/api/sparepart/inbound/maintenanceReturnInbound/index';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse, getDesensitize, getUserByNameOrNo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -198,12 +273,25 @@ const defaultForm = {
   dealerCodeList: [],
   dealerName: '',
   warehouseId: '',
+  warehouseIdList: null,
   serviceProxyIdList: [],
+  serviceProxyCodeList: null,
   vehProfileVin: '',
+  vehProfileVinLike: '',
   carPlate: '',
+  carPlateLike: '',
   returnMaterialStatusList: [],
   createTime: '',
   updateTime: '',
+  // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
+  sparePartCodeList: null,
+  sparePartName: '',
+  locationNameList: null,
+  returnApplicationTime: null,
+  inboundIsList: null,
+  returnWarehousingTime: null,
+  returnApplicantList: null,
+  returnWarehousingOperatorList: null,
 };
 
 const pageSize = 20;
@@ -347,6 +435,7 @@ export default {
           size: pageSize
         },
         dataProp: [
+          /* ========== 订单维度 ========== */
           {
             props: 'code',
             label: '出库单号',
@@ -357,9 +446,7 @@ export default {
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/inbound/maintenanceReturnInbound/edit',
-                  query: {
-                    id: row.id
-                  }
+                  query: { id: row.maintenanceOutboundOrderId || row.id }
                 });
               },
               type: 'primary'
@@ -388,9 +475,7 @@ export default {
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/maintain/sp/serviceProxy/edit',
-                  query: {
-                    id: row.serviceProxyId
-                  }
+                  query: { id: row.serviceProxyId }
                 });
               },
               type: 'primary'
@@ -398,11 +483,11 @@ export default {
           },
           {
             props: 'vehProfileVin',
-            label: 'vin',
+            label: 'VIN',
             visible: true,
             width: 200,
             mask: true,
-            getValue: (row) => getDesensitize(row.id, 'maintenanceOutboundOrder', 'vehProfileVin')
+            getValue: (row) => getDesensitize(row.maintenanceOutboundOrderId, 'maintenanceOutboundOrder', 'vehProfileVin')
           },
           {
             props: 'carPlate',
@@ -410,29 +495,39 @@ export default {
             visible: true,
             width: 140,
             mask: true,
-            getValue: (row) => getDesensitize(row.id, 'maintenanceOutboundOrder', 'carPlate')
+            getValue: (row) => getDesensitize(row.maintenanceOutboundOrderId, 'maintenanceOutboundOrder', 'carPlate')
           },
           { props: 'returnMaterialStatusLabel', label: '入库状态', visible: true, width: 120 },
-          { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'remark', label: '订单备注', visible: true, width: 200 },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+
+          /* ========== 退料明细维度 ========== */
           {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
+            props: 'sparePartCode',
+            label: '备件编码',
             visible: true,
-            fixed: 'right',
+            width: 180,
             buttons: [{
-              name: '入库',
-              show: (row) => {
-                return row.returnMaterialStatus !== '1' && this.permissions.has('AISPART-maintenanceReturnInbound-inbound');
-              },
               click: (rowIndex, row) => {
-                this.repairPopup(row);
+                this.$router.push({
+                  path: '/sparepart/basic/sparePart/detail',
+                  query: { id: row.sparePartId }
+                });
               },
-              type: 'info'
+              type: 'primary'
             }]
-          }
+          },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'locationName', label: '库位', visible: true, width: 120 },
+          { props: 'returnApplicationQty', label: '退料申请数量', visible: true, align: 'right', width: 140 },
+          { props: 'returnApplicationReason', label: '退料申请原因', visible: true, width: 200 },
+          { props: 'returnApplicantName', label: '退料申请人', visible: true, width: 120 },
+          { props: 'returnApplicationTime', label: '退料申请时间', visible: true, width: 200 },
+          { props: 'inboundIsLabel', label: '是否已入库', visible: true, width: 120 },
+          { props: 'returnWarehousingOperatorName', label: '退料入库人', visible: true, width: 120 },
+          { props: 'returnWarehousingTime', label: '退料入库时间', visible: true, width: 200 },
+          { props: 'detailRemark', label: '明细备注', visible: true, width: 200 }
         ],
         total: 0
       }
@@ -457,6 +552,12 @@ export default {
     handleClick (item) {
       this.activeName = item.name;
       this.show = false;
+      // 跨 tab 切换时，把所有 tab 的分页状态都重置为 page 1 + 默认 size，
+      // 避免「在 tab2 翻到 page 3 → 切 tab1 → 切回 tab2 还是 page 3」的脏状态
+      this.optionObj.form.page = 1;
+      this.optionObj.form.size = pageSize;
+      this.optionObjAll.form.page = 1;
+      this.optionObjAll.form.size = pageSize;
       this.onReset();
     },
     handleImport () {
@@ -476,24 +577,53 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      // 全部备件 tab：默认创建时间 = 最近一个月
+      const extraDefaults = this.activeName === 'allSpareParts'
+        ? { createTime: this.getLastMonthRange() }
+        : {};
+      this.form = { ...defaultForm, ...extraDefaults };
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
-      optionObj.form.pageSize = pageSize;
+      optionObj.form.size = pageSize;
       this.getData();
+    },
+    // 全部备件 tab：默认「最近一个月」的时间区间
+    getLastMonthRange () {
+      const end = new Date();
+      const start = new Date();
+      start.setMonth(start.getMonth() - 1);
+      const fmt = (d) => {
+        const pad = (n) => (n < 10 ? `0${n}` : n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} 00:00:00`;
+      };
+      return [fmt(start), fmt(end)];
     },
     exportExcel () {
       this.exportLoading = true;
-      const reqParams = this.getFormData() || {};
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.exportLoading = false;
+        return;
+      }
+      const reqParams = formData || {};
+      let fetchPath = 'sp/web/maintenance/maintenanceReturnInbound/page';
+      let tableRef = this.$refs.tableRef;
+      if (this.activeName === 'homePage') {
+        tableRef = this.$refs.tableRef;
+        fetchPath = 'sp/web/maintenance/maintenanceReturnInbound/page';
+      } else {
+        tableRef = this.$refs.tableRefAll;
+        fetchPath = 'sp/web/maintenance/maintenanceOutboundReturnDetail/detailPage';
+      }
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
       exportTable({
         businessType: '维修退料入库',
-        dataFetchPath: 'sp/web/maintenance/maintenanceReturnInbound/page',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: tableRef && tableRef.getVisibleCols ? Object.fromEntries(tableRef.getVisibleCols()) : {},
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -519,8 +649,15 @@ export default {
       this.loading = true;
       this.selectionList = [];
       const optionObj = this.getOptionObj();
+      const fetchApi = this.activeName === 'allSpareParts' ? detailPage : getList;
 
-      getList({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.loading = false;
+        return;
+      }
+
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
           const records = res?.records || [];
@@ -594,6 +731,20 @@ export default {
           data.updateTimeEnd = this.form.updateTime[1];
         }
       }
+      if (this.form.returnApplicationTime) {
+        delete data.returnApplicationTime;
+        if (this.form.returnApplicationTime.length > 1) {
+          data.returnApplicationTimeStart = this.form.returnApplicationTime[0];
+          data.returnApplicationTimeEnd = this.form.returnApplicationTime[1];
+        }
+      }
+      if (this.form.returnWarehousingTime) {
+        delete data.returnWarehousingTime;
+        if (this.form.returnWarehousingTime.length > 1) {
+          data.returnWarehousingTimeStart = this.form.returnWarehousingTime[0];
+          data.returnWarehousingTimeEnd = this.form.returnWarehousingTime[1];
+        }
+      }
 
       if (Array.isArray(this.form.codeList) && this.form.codeList.length <= 1) {
         delete data.codeList;
@@ -603,6 +754,21 @@ export default {
         delete data.serviceProxyIdList;
         data.serviceProxyId = this.form.serviceProxyIdList[0] || '';
       }
+
+      // ===== 全部备件 tab 默认条件校验 =====
+      // 出库单号（codeList）+ 接车施工单（serviceProxyCodeList）+ 订单创建时间 + VIN + 车牌号 不允许同时为空
+      if (this.activeName === 'allSpareParts') {
+        const hasCode = !!(data.codeList && data.codeList.length);
+        const hasProxy = !!(data.serviceProxyCodeList && data.serviceProxyCodeList.length);
+        const hasCreateTime = !!(data.createTimeStart && data.createTimeEnd);
+        const hasVin = !!data.vehProfileVinLike;
+        const hasPlate = !!data.carPlateLike;
+        if (!hasCode && !hasProxy && !hasCreateTime && !hasVin && !hasPlate) {
+          this.$message.warning('请至少填写【出库单号】【接车施工单】【订单创建时间】【VIN】【车牌号】中的任意一个');
+          return null;
+        }
+      }
+
       return data;
     },
     async fetchOptions (code) {
@@ -669,6 +835,14 @@ export default {
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
+      }
+    },
+    async getUser (query) {
+      try {
+        const res = await getUserByNameOrNo({ name: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching user list:', error);
       }
     },
   }
