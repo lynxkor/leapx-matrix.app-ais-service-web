@@ -1,0 +1,378 @@
+<template>
+  <div class="m-custom-view">
+    <el-dropdown
+      trigger="click"
+      placement="bottom-end"
+      class="m-custom-view__dropdown"
+      @command="onDropdownCommand"
+      @visible-change="onDropdownVisibleChange"
+    >
+      <template v-if="$scopedSlots.trigger">
+        <div @click.stop>
+          <slot
+            name="trigger"
+            :label="activePresetName || triggerText"
+            :clearable="!!activePresetId"
+            :onClear="handleClearPreset"
+          />
+        </div>
+      </template>
+      <template v-else>
+        <el-button size="small" class="m-custom-view__trigger">
+          {{ activePresetName || triggerText }}
+          <i class="el-icon-arrow-down el-icon--right" />
+          <i
+            v-if="activePresetId"
+            class="el-icon-close m-custom-view__clear"
+            @click.stop="handleClearPreset"
+          />
+        </el-button>
+      </template>
+
+      <el-dropdown-menu slot="dropdown">
+        <div class="m-custom-view__search" @click.stop>
+          <el-input
+            v-model="presetFilterKeyword"
+            size="mini"
+            placeholder="搜索视图名称"
+            clearable
+            prefix-icon="el-icon-search"
+          />
+        </div>
+        <el-dropdown-item
+          v-if="defaultViewVisible"
+          command="__default__"
+          :class="['m-custom-view__item', { 'is-active': !activePresetId }]"
+        >
+          <span class="m-custom-view__label">默认视图</span>
+        </el-dropdown-item>
+        <el-dropdown-item
+          v-for="p in filteredPresets"
+          :key="p.id"
+          :command="p.id"
+          :class="['m-custom-view__item', { 'is-active': activePresetId === p.id }]"
+        >
+          <span class="m-custom-view__label">{{ p.name }}</span>
+          <el-tag :type="perfStatusTagType(p)" size="mini" class="m-custom-view__perf">
+            {{ perfStatusLabel(p) }}
+          </el-tag>
+          <span class="m-custom-view__actions" @click.stop>
+            <i class="el-icon-top m-custom-view__action" title="置顶" @click.stop="onMoveToTop(p)" />
+            <i class="el-icon-edit m-custom-view__action" title="编辑" @click.stop="onEditView(p)" />
+            <i class="el-icon-delete m-custom-view__action m-custom-view__action--danger" title="删除" @click.stop="onDeleteView(p)" />
+          </span>
+        </el-dropdown-item>
+        <el-dropdown-item divided command="__new__">
+          <i class="el-icon-plus" />
+          <span class="m-custom-view__label">新增视图</span>
+        </el-dropdown-item>
+        <div
+          v-if="presetFilterKeyword && !defaultViewVisible && filteredPresets.length === 0"
+          class="m-custom-view__empty"
+        >未找到匹配的视图</div>
+      </el-dropdown-menu>
+    </el-dropdown>
+
+    <CustomQueryDialog
+      :visible.sync="dialogVisible"
+      :value="internalConditions"
+      :sort="internalSort"
+      :active-preset-id="editingPresetId"
+      :biz-key="bizKey"
+      @update:value="onDialogUpdateConditions"
+      @update:sort="onDialogUpdateSort"
+      @update:active-preset-id="onDialogUpdatePresetId"
+    />
+  </div>
+</template>
+
+<script>
+import CustomQueryDialog from '../CustomQueryDialog/index.vue';
+import { cloneTree } from '../CustomQueryDialog/fieldMeta';
+import { PERF_STATUS } from '../CustomQueryDialog/perfStatus';
+import * as customQueryViewApi from '@/api/claimreturn/claim/warrantyapply/customQueryView';
+
+const DEFAULT_BIZ_KEY = 'warrantyapply';
+
+export default {
+  name: 'CustomView',
+  components: { CustomQueryDialog },
+  props: {
+    fields: { type: Array, required: true },
+    value: { type: [Object, null], default: null },
+    sortColumns: { type: Array, default: () => [] },
+    activePresetId: { type: [String, null], default: null },
+    storageKey: { type: String, default: '' },
+    triggerText: { type: String, default: '默认视图' },
+    bizKey: { type: String, default: DEFAULT_BIZ_KEY }
+  },
+  data () {
+    return {
+      presets: [],
+      presetFilterKeyword: '',
+      editingPresetId: null,
+      dialogVisible: false,
+      loading: false
+    };
+  },
+  computed: {
+    activePresetName () {
+      if (!this.activePresetId) return '';
+      const preset = this.presets.find(p => p.id === this.activePresetId);
+      return preset ? preset.name : '';
+    },
+    filteredPresets () {
+      const kw = (this.presetFilterKeyword || '').trim().toLowerCase();
+      if (!kw) return this.presets;
+      return this.presets.filter(p => (p.name || '').toLowerCase().includes(kw));
+    },
+    defaultViewVisible () {
+      const kw = (this.presetFilterKeyword || '').trim().toLowerCase();
+      return !kw || '默认视图'.toLowerCase().includes(kw);
+    },
+    internalSort () {
+      const first = (this.sortColumns || [])[0];
+      if (!first) return { field: null, order: null };
+      return {
+        field: first.column,
+        order: (first.sort || '').toLowerCase()
+      };
+    },
+    internalConditions () {
+      return this.value;
+    }
+  },
+  watch: {
+    dialogVisible (val) {
+      if (!val) this.editingPresetId = null;
+    }
+  },
+  mounted () {
+    this.loadPresets();
+  },
+  methods: {
+    perfStatusLabel (preset) {
+      const s = preset.perfStatus || PERF_STATUS.PENDING;
+      if (s === PERF_STATUS.PASSED) return '已通过';
+      if (s === PERF_STATUS.FAILED) return '未通过';
+      return '待测试';
+    },
+    perfStatusTagType (preset) {
+      const s = preset.perfStatus || PERF_STATUS.PENDING;
+      if (s === PERF_STATUS.PASSED) return 'success';
+      if (s === PERF_STATUS.FAILED) return 'danger';
+      return 'warning';
+    },
+    async loadPresets () {
+      if (this.loading) return;
+      this.loading = true;
+      try {
+        const res = await customQueryViewApi.page({
+          bizKey: this.bizKey,
+          pageNum: 1,
+          pageSize: 50
+        });
+        const records = (res && res.records) || [];
+        this.presets = records.map(p => ({
+          id: p.id,
+          name: p.viewName,
+          perfStatus: p.perfStatus || PERF_STATUS.PENDING,
+          perfDurationMs: p.perfDurationMs,
+          perfTestedAt: p.perfTestedTime,
+          isTop: p.isTop
+        }));
+        if (this.activePresetId && !this.presets.some(p => p.id === this.activePresetId)) {
+          this.handleClearPreset();
+        }
+      } catch (e) {
+        this.presets = [];
+        this.$message.error('加载视图列表失败');
+      } finally {
+        this.loading = false;
+      }
+    },
+    onDropdownVisibleChange (visible) {
+      if (visible) {
+        this.loadPresets();
+      } else {
+        this.presetFilterKeyword = '';
+      }
+    },
+    handleClearPreset () {
+      this.$emit('update:activePresetId', null);
+      this.$emit('input', null);
+      this.$emit('update:sortColumns', []);
+      this.$emit('change', { conditions: null, sortColumns: [], activePresetId: null });
+    },
+    async onMoveToTop (preset) {
+      try {
+        await customQueryViewApi.pin(preset.id);
+        await this.loadPresets();
+        this.$message.success(`已将视图「${preset.name}」置顶`);
+      } catch (e) {
+        this.loadPresets();
+      }
+    },
+    onEditView (preset) {
+      this.editingPresetId = preset.id;
+      this.dialogVisible = true;
+    },
+    onDeleteView (preset) {
+      this.$confirm(`确认删除视图「${preset.name}」?删除后不可恢复。`, '提示', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        try {
+          await customQueryViewApi.deleteItems([preset.id]);
+          await this.loadPresets();
+          if (this.activePresetId === preset.id) {
+            this.handleClearPreset();
+          }
+          this.$message.success('已删除视图');
+        } catch (e) {
+          this.loadPresets();
+        }
+      }).catch(() => {});
+    },
+    async onDropdownCommand (cmd) {
+      if (cmd === '__default__') {
+        this.handleClearPreset();
+        return;
+      }
+      if (cmd === '__new__') {
+        this.$emit('update:activePresetId', null);
+        this.$emit('input', null);
+        this.editingPresetId = null;
+        this.dialogVisible = true;
+        return;
+      }
+      const preset = this.presets.find(p => p.id === cmd);
+      if (!preset) return;
+      if (preset.perfStatus !== PERF_STATUS.PASSED) {
+        this.$message.warning(`视图「${preset.name}」未通过性能测试,不能用于查询,请先在管理视图中完成测试`);
+        return;
+      }
+      try {
+        const data = await customQueryViewApi.getDetail(preset.id);
+        if (!data) return;
+        const tree = data.conditionTree ? JSON.parse(data.conditionTree) : null;
+        const sortColumns = data.sortField
+          ? [{ column: data.sortField, sort: data.sortOrder.toUpperCase() }]
+          : [];
+        this.$emit('update:activePresetId', preset.id);
+        this.$emit('input', tree);
+        this.$emit('update:sortColumns', sortColumns);
+        this.$emit('change', {
+          conditions: tree,
+          sortColumns,
+          activePresetId: preset.id
+        });
+        this.$message.success(`已使用视图「${preset.name}」,表单已锁定`);
+      } catch (e) {
+        this.$message.error('加载视图详情失败');
+      }
+    },
+    onDialogUpdateConditions (val) {
+      const conditions = val ? cloneTree(val) : null;
+      this.$emit('input', conditions);
+      this.$emit('change', {
+        conditions,
+        sortColumns: this.sortColumns,
+        activePresetId: this.activePresetId
+      });
+    },
+    onDialogUpdateSort (sort) {
+      const sortColumns = sort
+        ? [{ column: sort.field, sort: sort.order.toUpperCase() }]
+        : [];
+      this.$emit('update:sortColumns', sortColumns);
+      this.$emit('change', {
+        conditions: this.value,
+        sortColumns,
+        activePresetId: this.activePresetId
+      });
+      this.loadPresets();
+    },
+    onDialogUpdatePresetId (id) {
+      if (id !== this.editingPresetId) {
+        this.editingPresetId = id;
+        this.loadPresets();
+      }
+    }
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.m-custom-view {
+  display: inline-block;
+  &__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  &__clear {
+    margin-left: 6px;
+    padding: 0 4px;
+    font-size: 14px;
+    border-radius: 50%;
+    &:hover {
+      background: rgba(0, 0, 0, 0.1);
+      color: var(--leap-color-primary);
+    }
+  }
+  &__search {
+    padding: 6px 10px;
+    border-bottom: 1px solid #ebeef5;
+  }
+  &__empty {
+    padding: 12px;
+    text-align: center;
+    color: #909399;
+    font-size: 12px;
+  }
+  &__label {
+    flex: 1;
+  }
+  &__perf {
+    margin-left: 8px;
+    height: 18px;
+    line-height: 18px;
+    padding: 0 6px;
+  }
+  &__actions {
+    display: inline-flex;
+    gap: 4px;
+    margin-left: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  &__action {
+    padding: 4px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+    cursor: pointer;
+    &:hover {
+      background: rgba(0, 0, 0, 0.08);
+      color: var(--leap-color-primary);
+    }
+    &--danger:hover {
+      color: #f56c6c;
+    }
+  }
+  ::v-deep .el-dropdown-menu__item &__perf.el-tag {
+    margin-left: 8px;
+    height: 18px;
+    line-height: 18px;
+    padding: 0 6px;
+  }
+  ::v-deep .el-dropdown-menu__item:hover &__actions {
+    opacity: 1;
+  }
+  ::v-deep .el-dropdown-menu__item.is-active {
+    color: var(--leap-color-primary);
+    background: #ecf5ff;
+  }
+}
+</style>
