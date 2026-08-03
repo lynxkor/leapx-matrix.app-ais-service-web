@@ -171,11 +171,11 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { page, enable } from '@/api/desensitize/rule';
-import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, getEnum, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange } from '@/libs/utils';
+import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 
@@ -301,12 +301,30 @@ export default {
       });
     },
     handleExport () {
-      // TODO: 接入导出接口后实现具体逻辑
       this.exportLoading = true;
-      setTimeout(() => {
+      const reqParams = this.getFormData() || {};
+      exportTable({
+        businessType: '脱敏规则',
+        dataFetchPath: 'desensitize/rule/page',
+        reqParams,
+        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        httpMethod: 'POST'
+      }).then(async res => {
+        if (res && res.excelUrl) {
+          try {
+            await downloadExcel(res.excelUrl, '脱敏规则.xlsx');
+          } catch (error) {
+            this.$message({ type: 'error', message: '文件导出失败' });
+          }
+        } else {
+          this.$confirmExport(
+            () => window.open('/service/excelManagement/commonDataProcessExcelTask', '_blank'),
+            { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
+          );
+        }
+      }).finally(() => {
         this.exportLoading = false;
-        this.$message.success('导出任务已提交');
-      }, 500);
+      });
     },
     handleSelectionChange (selection) {
       this.selectionList = selection;
