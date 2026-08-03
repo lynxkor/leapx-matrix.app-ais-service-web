@@ -652,6 +652,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/datareport/customView',
+      name: 'customView',
+      component: () => import('@/views/datareport/customView/index.vue'),
+
+      meta: {
+        name: '自定义视图元数据主表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/datareport/customView/edit',
+      name: 'customView',
+      component: () => import('@/views/datareport/customView/edit.vue'),
+
+      meta: {
+        name: '自定义视图元数据主表详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/claimreturn/claim/basic/partWarrantyPolicy',
       name: 'partWarrantyPolicy',
       component: () => import('@/views/claimreturn/claim/basic/partWarrantyPolicy/index.vue'),
@@ -2668,6 +2686,15 @@ const routes = [
         notRefresh: true,
       }
     }, {
+      path: '/claimreturn/claim/warrantyApplyCustom',
+      name: 'warrantyApply',
+      component: () => import('@/views/claimreturn/claim/warrantyapply/index_custom_query.vue'),
+      meta: {
+        name: '自定义查询',
+        keepAlive: true,
+        notRefresh: true,
+      }
+    }, {
       path: '/claimreturn/claim/warrantyApply/edit',
       name: 'warrantyApplyEdit',
       component: () => import('@/views/claimreturn/claim/warrantyapply/edit.vue'),
@@ -2908,36 +2935,6 @@ const routes = [
       meta: {
         name: '门店备件库存流水详情',
         noResourceUrl: 'true'
-      }
-    }, {
-      // 数据上报 - 门店利润明细
-      path: '/datareport/profitDetail',
-      name: 'profitDetail',
-      component: () => import('@/views/datareport/profitDetail/index.vue'),
-
-      meta: {
-        name: '门店利润明细',
-        keepAlive: true
-      }
-    }, {
-      // 数据上报 - 门店营收报表
-      path: '/datareport/storeRevenue',
-      name: 'storeRevenue',
-      component: () => import('@/views/datareport/storeRevenue/index.vue'),
-
-      meta: {
-        name: '门店营收报表',
-        keepAlive: true
-      }
-    }, {
-      // 数据上报 - 门店产值报表
-      path: '/datareport/storeOutputValue',
-      name: 'storeOutputValue',
-      component: () => import('@/views/datareport/storeOutputValue/index.vue'),
-
-      meta: {
-        name: '门店产值报表',
-        keepAlive: true
       }
     }]
   }
