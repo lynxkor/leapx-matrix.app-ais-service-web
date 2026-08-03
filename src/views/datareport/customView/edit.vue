@@ -90,38 +90,38 @@
                   style="width: 100%"
                   :empty-text="editable ? '点击新增字段添加行' : '暂无字段'"
                 >
-                  <el-table-column prop="filedName" label="字段名" min-width="160">
+                  <el-table-column prop="fieldName" label="字段名" min-width="160">
                     <template #default="{ row }">
                       <el-input
                         v-if="row._editing"
-                        v-model="row.filedName"
+                        v-model="row.fieldName"
                         size="small"
                         maxlength="100"
                         placeholder="请输入字段名"
                       />
-                      <span v-else>{{ row.filedName }}</span>
+                      <span v-else>{{ row.fieldName }}</span>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="filedLabel" label="字段标签" min-width="160">
+                  <el-table-column prop="fieldLabel" label="字段标签" min-width="160">
                     <template #default="{ row }">
                       <el-input
                         v-if="row._editing"
-                        v-model="row.filedLabel"
+                        v-model="row.fieldLabel"
                         size="small"
                         maxlength="100"
                         placeholder="请输入字段标签"
                       />
-                      <span v-else>{{ row.filedLabel }}</span>
+                      <span v-else>{{ row.fieldLabel }}</span>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="filedType" label="字段类型" min-width="120">
+                  <el-table-column prop="fieldType" label="字段类型" min-width="120">
                     <template #default="{ row }">
                       <el-select
                         v-if="row._editing"
-                        v-model="row.filedType"
+                        v-model="row.fieldType"
                         size="small"
                         placeholder="请选择"
-                        @change="(val) => handleFiledTypeChange(row, val)"
+                        @change="(val) => handleFieldTypeChange(row, val)"
                       >
                         <el-option
                           v-for="opt in fieldTypeOptions"
@@ -130,19 +130,19 @@
                           :label="opt.label"
                         />
                       </el-select>
-                      <span v-else>{{ getFiledTypeLabel(row.filedType) }}</span>
+                      <span v-else>{{ getFieldTypeLabel(row.fieldType) }}</span>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="filedEnum" label="字典枚举" min-width="160">
+                  <el-table-column prop="fieldEnum" label="字典枚举" min-width="160">
                     <template #default="{ row }">
                       <el-input
-                        v-if="row._editing && row.filedType === 'enum'"
-                        v-model="row.filedEnum"
+                        v-if="row._editing && row.fieldType === 'enum'"
+                        v-model="row.fieldEnum"
                         size="small"
                         maxlength="500"
                         placeholder="请输入字典枚举"
                       />
-                      <span v-else>{{ row.filedEnum }}</span>
+                      <span v-else>{{ row.fieldEnum }}</span>
                     </template>
                   </el-table-column>
                   <el-table-column v-if="editable" label="操作" width="160" align="center" fixed="right">
@@ -225,7 +225,7 @@ import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 
-const FILED_TYPE_OPTIONS = [
+const FIELD_TYPE_OPTIONS = [
   { value: 'text', label: '文本' },
   { value: 'date', label: '日期' },
   { value: 'number', label: '数字' },
@@ -315,7 +315,7 @@ export default {
         ]
       },
       fieldTableData: [],
-      fieldTypeOptions: FILED_TYPE_OPTIONS,
+      fieldTypeOptions: FIELD_TYPE_OPTIONS,
       form: { ...form },
       originalForm: { ...form },
       rules: {
@@ -365,8 +365,8 @@ export default {
           this.fieldLoading = false;
         });
     },
-    getFiledTypeLabel (value) {
-      const item = FILED_TYPE_OPTIONS.find(opt => opt.value === value);
+    getFieldTypeLabel (value) {
+      const item = FIELD_TYPE_OPTIONS.find(opt => opt.value === value);
       return item ? item.label : value || '';
     },
     handleAddFieldRow () {
@@ -375,10 +375,10 @@ export default {
         _isNew: true,
         _editing: true,
         _snapshot: null,
-        filedName: '',
-        filedLabel: '',
-        filedType: 'text',
-        filedEnum: ''
+        fieldName: '',
+        fieldLabel: '',
+        fieldType: 'text',
+        fieldEnum: ''
       };
       this.fieldTableData.unshift(newRow);
     },
@@ -398,21 +398,21 @@ export default {
       }
       this.$set(row, '_editing', false);
     },
-    handleFiledTypeChange (row, value) {
-      if (value !== 'enum' && row.filedEnum) {
-        row.filedEnum = '';
+    handleFieldTypeChange (row, value) {
+      if (value !== 'enum' && row.fieldEnum) {
+        row.fieldEnum = '';
       }
     },
     validateField (row) {
-      if (!row.filedName) {
+      if (!row.fieldName) {
         this.$message.warning('请输入字段名');
         return false;
       }
-      if (!row.filedLabel) {
+      if (!row.fieldLabel) {
         this.$message.warning('请输入字段标签');
         return false;
       }
-      if (!row.filedType) {
+      if (!row.fieldType) {
         this.$message.warning('请选择字段类型');
         return false;
       }
@@ -423,10 +423,10 @@ export default {
       const payload = {
         id: row.id,
         bizKey: this.form.bizKey,
-        filedName: row.filedName,
-        filedLabel: row.filedLabel,
-        filedType: row.filedType,
-        filedEnum: row.filedType === 'enum' ? (row.filedEnum || '') : ''
+        fieldName: row.fieldName,
+        fieldLabel: row.fieldLabel,
+        fieldType: row.fieldType,
+        fieldEnum: row.fieldType === 'enum' ? (row.fieldEnum || '') : ''
       };
       addOrUpdateField(payload).then(() => {
         this.$message.success(row.id ? '更新成功' : '新增成功');

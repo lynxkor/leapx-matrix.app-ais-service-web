@@ -14,7 +14,7 @@ export function list (bizKey) {
 
 /**
  * 分页查询字段
- * @param {Object} data { bizKey, filedName, filedLabel, filedType, filedEnum, pageNum, pageSize, ... }
+ * @param {Object} data { bizKey, fieldName, fieldLabel, fieldType, fieldEnum, pageNum, pageSize, ... }
  */
 export function page (data) {
   return api.jsonPost(prefix + 'page', data);
@@ -30,7 +30,7 @@ export function getDetail (id) {
 
 /**
  * 新增或更新字段(传 id 为更新,否则为新增)
- * @param {Object} data { id?, bizKey, filedName, filedLabel, filedType, filedEnum, status? }
+ * @param {Object} data { id?, bizKey, fieldName, fieldLabel, fieldType, fieldEnum, status? }
  */
 export function addOrUpdateField (data) {
   return api.jsonPost(prefix + 'addOrUpdate', data);

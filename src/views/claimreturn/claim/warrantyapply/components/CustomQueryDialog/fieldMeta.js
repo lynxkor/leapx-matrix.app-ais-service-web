@@ -16,17 +16,17 @@ let fields = [];
 
 /**
  * 把后端返回的 CustomViewFieldResp 列表转成控件消费结构,并设为当前生效字段。
- * 后端字段:filedName / filedLabel / filedType / filedEnum / status。
+ * 后端字段:fieldName / fieldLabel / fieldType / fieldEnum / status。
  *
  * @param {Array<Object>} list 后端 list 接口返回数组
  * @returns {Array<Object>} 注入后的字段数组(供外部直接渲染使用)
  */
 export function setFields (list) {
   fields = (Array.isArray(list) ? list : []).map(item => ({
-    key: item.filedName,
-    label: item.filedLabel,
-    type: item.filedType,
-    enumCode: item.filedEnum || null
+    key: item.fieldName,
+    label: item.fieldLabel,
+    type: item.fieldType,
+    enumCode: item.fieldEnum || null
   }));
   return fields;
 }
