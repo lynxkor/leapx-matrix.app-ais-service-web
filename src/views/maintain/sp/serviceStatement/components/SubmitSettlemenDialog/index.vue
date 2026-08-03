@@ -558,9 +558,9 @@ export default {
         // 备件折扣率
         const partRate = discountPartRate !== undefined ? +discountPartRate : 1;
 
-        // 应用维修项目折扣（只影响非保修、非合同的行）
+        // 应用维修项目折扣（只影响非保修、非合同的行），或者指定套餐
         this.projectData.forEach((row) => {
-          if (!this.checkoutTypeIncluded(row.checkoutTypeId)) {
+          if (!this.checkoutTypeIncluded(row.checkoutTypeId) && !this.packageTypeIncluded(row.packageType)) {
             const price = +row.price || 0;
             const workHour = +row.workHour || 0;
             const totalAmount = price * workHour;
@@ -575,9 +575,9 @@ export default {
           }
         });
 
-        // 应用维修备件折扣（只影响非保修、非合同的行）
+        // 应用维修备件折扣（只影响非保修、非合同的行），或者指定套餐
         this.partsData.forEach((row) => {
-          if (!this.checkoutTypeIncluded(row.checkoutTypeId)) {
+          if (!this.checkoutTypeIncluded(row.checkoutTypeId) && !this.packageTypeIncluded(row.packageType)) {
             const price = +row.price || 0;
             const quantity = +row.quantity || 0;
             const totalAmount = price * quantity;
@@ -665,6 +665,11 @@ export default {
     handleRefresh () {
       this.$emit('refresh');
       this.close();
+    },
+    // 套餐类型是否为商城订单、技术和关爱服务活动、免保、权益套餐
+    packageTypeIncluded (type) {
+      const includesTypes = [PackageTypeEnum.STORE, PackageTypeEnum.TECH_ACTIVITY, PackageTypeEnum.CARE_ACTIVITY, PackageTypeEnum.FREE, PackageTypeEnum.EQUITY];
+      return includesTypes.includes((type || '').toString());
     },
   },
 };
