@@ -95,6 +95,35 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <!-- ===== 全部备件 tab 专用查询 ===== -->
+        <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.partCodeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="备件名称" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input
+            placeholder="请输入"
+            v-model="form.partName"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="处理状态" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BackOrderStatusEnum"
+            v-model="form.detailBackStatusList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="明细备注" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input
+            placeholder="请输入"
+            v-model="form.detailRemark"
+            clearable
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -255,7 +284,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, reportPage } from '@/api/sparepart/purchase/backOrder/index';
+import { getList, detailPage, deleteItem, enableItem, reportPage } from '@/api/sparepart/purchase/backOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
 import { getSparePart } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -272,12 +301,23 @@ import LackEditPage from './outOfStock/edit.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
+  codeList: null,
   purchaseApplyCode: '',
+  purchaseApplyCodeList: null,
   dealerCode: '',
+  dealerCodeList: null,
   purchaseOrderTypeList: [],
-  backStatusList: '',
+  backStatusList: null,
+  remark: '',
   createTime: '',
   updateTime: '',
+  // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
+  partCodeList: null,
+  partName: '',
+  detailBackStatusList: null,
+  detailRemark: '',
+  sparePartIdList: null,
+  marketingTypeList: null,
 };
 
 const pageSize = 20;
@@ -503,8 +543,9 @@ export default {
           size: 20
         },
         dataProp: [
+          /* ========== 缺货单维度 ========== */
           {
-            props: 'code',
+            props: 'backOrderCode',
             label: '缺货单号',
             visible: true,
             width: 200,
@@ -513,9 +554,7 @@ export default {
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/purchase/backOrder/edit',
-                  query: {
-                    id: row.id
-                  }
+                  query: { id: row.backOrderId || row.id }
                 });
               },
               type: 'primary'
@@ -531,9 +570,7 @@ export default {
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/purchase/purchaseApply/edit',
-                  query: {
-                    id: row.purchaseApplyId
-                  }
+                  query: { id: row.purchaseApplyId }
                 });
               },
               type: 'primary'
@@ -556,9 +593,41 @@ export default {
           { props: 'pendingVarietyCount', label: '待处理品种数', visible: true, align: 'right', width: 140 },
           { props: 'processedVarietyCount', label: '已处理品种数', visible: true, align: 'right', width: 140 },
           { props: 'backStatusLabel', label: '缺货单状态', visible: true, width: 120 },
-          { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'remark', label: '订单备注', visible: true, width: 200 },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+
+          /* ========== 缺货明细维度 ========== */
+          {
+            props: 'sparePartCode',
+            label: '备件编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/basic/sparePart/detail',
+                  query: { id: row.sparePartId }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'detailBackStatusLabel', label: '处理状态', visible: true, width: 120 },
+          { props: 'pendingPartQty', label: '待处理备件数', visible: true, align: 'right', width: 140 },
+          { props: 'resolvedPartQty', label: '已解欠备件数', visible: true, align: 'right', width: 140 },
+          { props: 'cancelledPartQty', label: '已取消备件数', visible: true, align: 'right', width: 140 },
+          { props: 'cancelOperator', label: '取消人', visible: true, width: 120 },
+          { props: 'cancelTime', label: '取消时间', visible: true, width: 200 },
+          { props: 'cancelDescription', label: '取消说明', visible: true, width: 200 },
+          { props: 'purchasePrice', label: '采购价', visible: true, align: 'right', width: 120 },
+          { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
+          { props: 'cashUnitPrice', label: '现金单价', visible: true, align: 'right', width: 120 },
+          { props: 'cashAmount', label: '现金金额', visible: true, align: 'right', width: 120 },
+          { props: 'rebateUnitPrice', label: '返利单价', visible: true, align: 'right', width: 120 },
+          { props: 'rebateAmount', label: '返利金额', visible: true, align: 'right', width: 120 },
+          { props: 'detailRemark', label: '明细备注', visible: true, width: 200 }
         ],
         total: 0
       }
@@ -588,34 +657,48 @@ export default {
       });
     },
     onSubmit () {
-      let optionObj = this.optionObj;
-      if (this.activeName === 'homePage') {
-        optionObj = this.optionObj;
-      } else if (this.activeName === 'allSpareParts') {
-        optionObj = this.optionObjAll;
-      } else {
-        optionObj = this.optionObjStock;
-      }
+      const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
-      let optionObj = this.optionObj;
-      if (this.activeName === 'homePage') {
-        optionObj = this.optionObj;
-      } else if (this.activeName === 'allSpareParts') {
-        optionObj = this.optionObjAll;
-      } else {
-        optionObj = this.optionObjStock;
-      }
+      // 全部备件 tab：默认创建时间 = 最近一个月
+      const extraDefaults = this.activeName === 'allSpareParts'
+        ? { createTime: this.getLastMonthRange() }
+        : {};
+      this.form = { ...defaultForm, ...extraDefaults };
+      const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       optionObj.form.size = 20;
       this.getData();
     },
+    getOptionObj () {
+      if (this.activeName === 'homePage') {
+        return this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        return this.optionObjAll;
+      }
+      return this.optionObjStock;
+    },
+    // 全部备件 tab：默认「最近一个月」的时间区间
+    getLastMonthRange () {
+      const end = new Date();
+      const start = new Date();
+      start.setMonth(start.getMonth() - 1);
+      const fmt = (d) => {
+        const pad = (n) => (n < 10 ? `0${n}` : n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} 00:00:00`;
+      };
+      return [fmt(start), fmt(end)];
+    },
     exportExcel () {
       this.exportLoading = true;
-      const reqParams = this.getFormData() || {};
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.exportLoading = false;
+        return;
+      }
+      const reqParams = formData || {};
       let fetchPath = 'sp/web/purchase/backOrder/page';
       let tableRef = this.$refs.tableRef;
       if (this.activeName === 'homePage') {
@@ -623,7 +706,7 @@ export default {
         fetchPath = 'sp/web/purchase/backOrder/page';
       } else if (this.activeName === 'allSpareParts') {
         tableRef = this.$refs.tableRefAll;
-        fetchPath = 'sp/web/purchase/backOrder/page';
+        fetchPath = 'sp/web/purchase/backOrder/detailPage';
       } else {
         tableRef = this.$refs.tableRefStock;
         fetchPath = 'sp/web/purchase/backOrderDetail/reportPage';
@@ -662,27 +745,29 @@ export default {
       this.loading = true;
       this.selectionList = [];
       let fetchApi = getList;
-      let optionObj = this.optionObj;
+      let optionObj = this.getOptionObj();
       if (this.activeName === 'homePage') {
         fetchApi = getList;
-        optionObj = this.optionObj;
       } else if (this.activeName === 'allSpareParts') {
-        fetchApi = getList;
-        optionObj = this.optionObjAll;
+        fetchApi = detailPage;
       } else {
         fetchApi = reportPage;
-        optionObj = this.optionObjStock;
       }
-      fetchApi({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.loading = false;
+        return;
+      }
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
-          optionObj.dataList = res.records.map(item => {
+          optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          optionObj.total = res.total;
+          optionObj.total = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });
@@ -692,14 +777,7 @@ export default {
       this.getData();
     }, 300),
     getConfig () {
-      let optionObj = this.optionObj;
-      if (this.activeName === 'homePage') {
-        optionObj = this.optionObj;
-      } else if (this.activeName === 'allSpareParts') {
-        optionObj = this.optionObjAll;
-      } else {
-        optionObj = this.optionObjStock;
-      }
+      const optionObj = this.getOptionObj();
       return new Promise((resolve, reject) => {
         getTableConfig(optionObj.id).then(data => {
           resolve({ data });
@@ -714,14 +792,7 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
-      let optionObj = this.optionObj;
-      if (this.activeName === 'homePage') {
-        optionObj = this.optionObj;
-      } else if (this.activeName === 'allSpareParts') {
-        optionObj = this.optionObjAll;
-      } else {
-        optionObj = this.optionObjStock;
-      }
+      const optionObj = this.getOptionObj();
       if (type === 'page') {
         optionObj.form.page = num;
       } else {
@@ -754,6 +825,18 @@ export default {
         if (this.form.updateTime.length > 1) {
           data.updateTimeStart = this.form.updateTime[0];
           data.updateTimeEnd = this.form.updateTime[1];
+        }
+      }
+
+      // ===== 全部备件 tab 默认条件校验 =====
+      // 缺货单号（codeList）+ 采购申请单（purchaseApplyCodeList）+ 订单创建时间 不允许同时为空
+      if (this.activeName === 'allSpareParts') {
+        const hasCode = !!(data.codeList && data.codeList.length);
+        const hasApplyCode = !!(data.purchaseApplyCodeList && data.purchaseApplyCodeList.length);
+        const hasCreateTime = !!(data.createTimeStart && data.createTimeEnd);
+        if (!hasCode && !hasApplyCode && !hasCreateTime) {
+          this.$message.warning('请至少填写【缺货单号】【采购申请单】【订单创建时间】中的任意一个');
+          return null;
         }
       }
 
@@ -821,7 +904,15 @@ export default {
     handleClick (item) {
       this.activeName = item.name;
       this.show = false;
-      this.getData();
+      // 跨 tab 切换时，把所有 tab 的分页状态都重置为 page 1 + 默认 size，
+      // 避免「在 tab2 翻到 page 3 → 切 tab1 → 切回 tab2 还是 page 3」的脏状态
+      this.optionObj.form.page = 1;
+      this.optionObj.form.size = 20;
+      this.optionObjAll.form.page = 1;
+      this.optionObjAll.form.size = 20;
+      this.optionObjStock.form.page = 1;
+      this.optionObjStock.form.size = 20;
+      this.onReset();
     },
     // 跳转详情页
     handleJump (val, ele) {
