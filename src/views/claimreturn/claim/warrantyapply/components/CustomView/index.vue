@@ -90,7 +90,7 @@
 import CustomQueryDialog from '../CustomQueryDialog/index.vue';
 import { cloneTree } from '../CustomQueryDialog/fieldMeta';
 import { PERF_STATUS } from '../CustomQueryDialog/perfStatus';
-import * as customQueryViewApi from '@/api/claimreturn/claim/warrantyapply/customQueryView';
+import * as customQueryViewApi from '@/api/datareport/customQueryView';
 
 const DEFAULT_BIZ_KEY = 'warrantyapply';
 

@@ -70,7 +70,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
-import { getList, deleteItem } from '@/api/customView/customViewMain';
+import { page, deleteItems } from '@/api/datareport/customViewMain';
 import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -163,7 +163,7 @@ export default {
               popconfirmConfirmButtonText: '删除',
               popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
+                deleteItems([row.id]).then(() => {
                   this.$message({
                     type: 'success',
                     message: '删除成功!'
@@ -205,7 +205,7 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      page({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           this.optionObj.dataList = (res?.records || []).map(item => {
             return {
@@ -285,7 +285,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteItem(ids).then(() => {
+        deleteItems(ids).then(() => {
           this.$message({
             type: 'success',
             message: '删除成功!'

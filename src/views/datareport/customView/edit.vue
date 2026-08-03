@@ -217,8 +217,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/customView/customViewMain';
-import { listByBizKey, addOrUpdateField, deleteField, syncDdlFields } from '@/api/customView/customViewField';
+import { getDetail, addOrUpdate } from '@/api/datareport/customViewMain';
+import { list, addOrUpdateField, deleteItems, syncDdlFields } from '@/api/datareport/customViewField';
 import EditBaseContainer from '@/libs/components/EditBaseContainer/index.vue';
 import EditPageLayout from '@/libs/components/EditPageLayout/index.vue';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -353,7 +353,7 @@ export default {
         return;
       }
       this.fieldLoading = true;
-      listByBizKey(bizKey)
+      list(bizKey)
         .then(res => {
           this.fieldTableData = Array.isArray(res) ? res : [];
         })
@@ -441,7 +441,7 @@ export default {
         if (idx > -1) this.fieldTableData.splice(idx, 1);
         return;
       }
-      deleteField([row.id]).then(() => {
+      deleteItems([row.id]).then(() => {
         this.$message.success('删除成功');
         this.loadFields();
       }).catch(() => {

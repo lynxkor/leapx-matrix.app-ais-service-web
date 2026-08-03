@@ -100,7 +100,7 @@ import {
   cloneTree,
   operatorNeedsValue
 } from './fieldMeta';
-import * as customQueryViewApi from '@/api/claimreturn/claim/warrantyapply/customQueryView';
+import * as customQueryViewApi from '@/api/datareport/customQueryView';
 
 const DEFAULT_BIZ_KEY = 'warrantyapply';
 
