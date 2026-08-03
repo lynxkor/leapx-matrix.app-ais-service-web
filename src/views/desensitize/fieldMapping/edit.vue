@@ -26,9 +26,6 @@
                 label-width="130px"
                 class="form-edit"
               >
-                <el-form-item label="数据库类型：" prop="dbType">
-                  <el-input v-model="form.dbType" placeholder="请输入" maxlength="50" show-word-limit clearable />
-                </el-form-item>
                 <el-form-item label="数据库名：" prop="dbName">
                   <el-input v-model="form.dbName" placeholder="请输入" maxlength="100" show-word-limit clearable />
                 </el-form-item>
@@ -46,7 +43,6 @@
                 </el-form-item>
               </el-form>
               <el-form v-else :inline="true" class="form-detail">
-                <el-form-item label="数据库类型：">{{ form.dbType }}</el-form-item>
                 <el-form-item label="数据库名：">{{ form.dbName }}</el-form-item>
                 <el-form-item label="VO类名：">{{ form.voClass }}</el-form-item>
                 <el-form-item label="VO字段：">{{ form.voField }}</el-form-item>
@@ -76,7 +72,6 @@ import { add, update, findById } from '@/api/desensitize/fieldMapping';
 
 const defaultForm = {
   id: null,
-  dbType: '',
   dbName: '',
   voClass: '',
   voField: '',
@@ -107,11 +102,11 @@ export default {
       pageTitle: '字段映射管理',
       pageType: 'edit',
       moduleKey: 'AISSECURITY-desensitizeFieldMapping',
+      noPermissionControl: true,
       form: { ...form },
       originalForm: { ...form },
       loading: false,
       rules: {
-        dbType: [{ required: true, message: '请输入数据库类型', trigger: 'blur' }],
         dbName: [{ required: true, message: '请输入数据库名', trigger: 'blur' }],
         voClass: [{ required: true, message: '请输入VO类名', trigger: 'blur' }],
         voField: [{ required: true, message: '请输入VO字段', trigger: 'blur' }],

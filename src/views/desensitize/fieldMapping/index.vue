@@ -7,19 +7,16 @@
       <el-form-item label="VO字段">
         <el-input v-model="form.voField" placeholder="请输入" clearable />
       </el-form-item>
-      <el-form-item label="数据库类型">
-        <el-input v-model="form.dbType" placeholder="请输入" clearable />
-      </el-form-item>
-      <el-form-item label="数据库名">
+      <el-form-item label="数据库名" v-show="show">
         <el-input v-model="form.dbName" placeholder="请输入" clearable />
       </el-form-item>
-      <el-form-item label="表名" v-show="visibleCount === 4 || show">
+      <el-form-item label="表名" v-show="show">
         <el-input v-model="form.tableName" placeholder="请输入" clearable />
       </el-form-item>
-      <el-form-item label="字段名" v-show="visibleCount === 4 || show">
+      <el-form-item label="字段名" v-show="show">
         <el-input v-model="form.columnName" placeholder="请输入" clearable />
       </el-form-item>
-      <el-form-item label="状态" v-show="visibleCount === 4 || show">
+      <el-form-item label="状态" v-show="show">
         <el-select v-model="form.status" placeholder="请选择" clearable>
           <el-option :value="1" label="启用" />
           <el-option :value="0" label="停用" />
@@ -59,13 +56,13 @@
     </el-form>
 
     <div class="ais-actions">
-      <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd">
+      <el-button size="small" type="primary" @click="handleAdd">
         <i class="iconfont icon-lxppc-plus"></i>新增
       </el-button>
-      <el-button v-if="canEnableOrDisable" size="small" :disabled="selectionList.length === 0" @click="handleBatchStatus(1)">
+      <el-button size="small" :disabled="selectionList.length === 0" @click="handleBatchStatus(1)">
         批量启用
       </el-button>
-      <el-button v-if="canEnableOrDisable" size="small" :disabled="selectionList.length === 0" @click="handleBatchStatus(0)">
+      <el-button size="small" :disabled="selectionList.length === 0" @click="handleBatchStatus(0)">
         批量停用
       </el-button>
     </div>
@@ -102,7 +99,6 @@ const pageSize = 20;
 const defaultForm = {
   voClass: '',
   voField: '',
-  dbType: '',
   dbName: '',
   tableName: '',
   columnName: '',
@@ -117,7 +113,7 @@ export default {
   components: { LPVxeTable, PageSearchAction },
   data () {
     return {
-      pageTitle: '字段映射管理',
+      pageTitle: '脱敏字段映射',
       pageType: 'list',
       moduleKey: 'AISSECURITY-desensitizeFieldMapping',
       form: { ...defaultForm },
@@ -137,14 +133,16 @@ export default {
             width: 280,
             fixed: 'left',
             buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => this.handleEdit(row),
-              type: 'primary',
-              show: () => this.canAddOrUpdate
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/desensitize/fieldMapping/edit',
+                  query: { id: row.id }
+                });
+              },
+              type: 'primary'
             }]
           },
           { props: 'voField', label: 'VO字段', visible: true, width: 180 },
-          { props: 'dbType', label: '数据库类型', visible: true, width: 130 },
           { props: 'dbName', label: '数据库名', visible: true, width: 180 },
           { props: 'tableName', label: '表名', visible: true, width: 180 },
           { props: 'columnName', label: '字段名', visible: true, width: 180 },
@@ -162,8 +160,7 @@ export default {
             buttons: [{
               name: '编辑',
               click: (rowIndex, row) => this.handleEdit(row),
-              type: 'info',
-              show: () => this.canAddOrUpdate
+              type: 'info'
             }]
           }
         ],
@@ -213,7 +210,8 @@ export default {
             ...row,
             statusLabel: row.status === 1 ? '启用' : '停用'
           }));
-          this.optionObj.total = (res && res.total) || 0;
+          // 后端 PaginationModel 总条数字段为 totals
+          this.optionObj.total = Number(res?.totals ?? 0);
         })
         .finally(() => {
           this.loading = false;
