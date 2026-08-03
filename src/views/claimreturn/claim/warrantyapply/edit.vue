@@ -490,6 +490,7 @@
             :id="_id"
             :canAddOrUpdate="canEdit"
             @update="handleTableUpdate"
+            @loading-change="handleTableLoadingChange"
           />
         </div>
       </section>
@@ -551,6 +552,7 @@
             :id="_id"
             :canAddOrUpdate="canEdit"
             @update="handleTableUpdate"
+            @loading-change="handleTableLoadingChange"
           />
         </div>
       </section>
@@ -985,6 +987,12 @@ export default {
     },
     handleTableUpdate () {
       this.refreshAll();
+    },
+    // 子表格行保存时切换整页 loading（借用容器的整页遮罩）
+    handleTableLoadingChange (val) {
+      if (this.$refs.containerRef) {
+        this.$refs.containerRef.detailLoading = val;
+      }
     },
     // 取详情并补齐 partAndSupplierId（不含弹窗副作用）
     fetchDetail () {
