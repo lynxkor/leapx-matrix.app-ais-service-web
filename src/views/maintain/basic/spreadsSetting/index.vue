@@ -82,6 +82,7 @@
     </el-form>
     <div class="ais-actions">
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="permissions.has('AISMC-spreadsSetting-import')" size="small" @click="handleImport('SpreadsSetting-import')">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
@@ -104,6 +105,12 @@
         @handleSelect="handleSelectionChange"
       />
     </div>
+    <Upload
+      :visible="uploadDialogVisible"
+      :id="excelCode"
+      @close="handleUploadDialogClose"
+      @getData="getData"
+    />
   </div>
 </template>
 
@@ -114,6 +121,7 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/maintain/basic/spreadsSetting/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listVehicleModel } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
+import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import { createDebouncedSearch } from '@/utils/index.js';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -150,7 +158,8 @@ export default {
   components: {
     PageSearchAction,
     LPVxeTable,
-    FetchSelect
+    FetchSelect,
+    Upload
   },
   data () {
     return {
@@ -169,6 +178,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      excelCode: 'SpreadsSetting-import',
       optionObj: {
         id: 'spreadsSettingTable',
         dataList: [],
@@ -280,7 +290,8 @@ export default {
     this.getData();
   },
   methods: {
-    handleImport () {
+    handleImport (excelCode) {
+      this.excelCode = excelCode;
       this.uploadDialogVisible = true;
     },
     handleUploadDialogClose () {
