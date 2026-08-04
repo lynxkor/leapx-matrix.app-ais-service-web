@@ -569,9 +569,7 @@ export default {
             row.repairAmount = parseFloat(
               (totalAmount - row.discountAmount).toFixed(2)
             );
-            row.discountRate = parseFloat(
-              (row.discountAmount / totalAmount).toFixed(8)
-            );
+            row.discountRate = workhourRate;
           }
         });
 
@@ -586,9 +584,7 @@ export default {
             row.partsAmount = parseFloat(
               (totalAmount - row.discountAmount).toFixed(2)
             );
-            row.discountRate = parseFloat(
-              (row.discountAmount / totalAmount).toFixed(8)
-            );
+            row.discountRate = partRate;
           }
         });
       }
