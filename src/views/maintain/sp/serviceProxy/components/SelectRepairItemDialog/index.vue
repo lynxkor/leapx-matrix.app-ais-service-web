@@ -895,6 +895,16 @@ export default {
         }
       }
 
+      // 商城订单只能单独开单
+      const preSaleItem3 = this.itemData.filter(item => String(item.packageType) === PackageTypeEnum.STORE) || [];
+      const preSalePart3 = this.partData.filter(item => String(item.packageType) === PackageTypeEnum.STORE) || [];
+      if (preSaleItem3.length > 0 || preSalePart3.length > 0) {
+        if ((preSaleItem3.length !== this.itemData.length) || (preSalePart3.length !== this.partData.length)) {
+          this.$message.warning('商城订单只能单独开单');
+          return;
+        }
+      }
+
       this.submitLoading = true;
 
       const data = {
