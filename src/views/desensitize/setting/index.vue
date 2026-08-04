@@ -8,12 +8,6 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <!-- <el-form-item label="系统">
-        <el-select v-model="form.systemId" placeholder="请选择" clearable>
-          <el-option :value="'leapx'" label="零小跑" />
-          <el-option :value="'ais'" label="销服" />
-        </el-select>
-      </el-form-item> -->
       <el-form-item label="名称">
         <el-input
           placeholder="请输入"
@@ -180,7 +174,6 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 
 const defaultForm = {
-  systemId: 'leapx',
   name: '',
   dbName: '',
   dsName: '',
@@ -303,6 +296,7 @@ export default {
     handleExport () {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
+      reqParams.gatewayType = 'LEAPX';
       exportTable({
         businessType: '脱敏规则',
         dataFetchPath: 'desensitize/rule/page',
