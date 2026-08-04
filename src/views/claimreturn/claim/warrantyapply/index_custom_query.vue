@@ -358,6 +358,7 @@ import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
 import CustomView from './components/CustomView/index.vue';
+import { executeQuery } from '@/api/datareport/customQueryView/index';
 
 // 创建时间默认值：最近 3 个月
 function getDefaultCreateTime () {
@@ -976,8 +977,11 @@ export default {
     onViewChange () {
       // 选中视图时,数据由 CustomView 组件内部调统一 executeQuery 提供,
       // 业务页不再额外调旧查询接口
-      if (this.activePresetId) return;
-      this.getData();
+      if (this.activePresetId) {
+        this.getCustomViewData();
+      } else {
+        this.getData();
+      }
     },
     onViewQueryResult ({ result }) {
       // CustomView 组件选中视图后调统一 executeQuery 拿到的数据
@@ -989,11 +993,8 @@ export default {
       this.tableForm.page = 1;
       this.getData();
     },
-    getData () {
-      this.loading = true;
-      this.selectionList = [];
-
-      getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
+    getCustomViewData () {
+      executeQuery({ viewId: this.activePresetId, pageNum: this.tableForm.page, pageSize: this.tableForm.size })
         .then(res => {
           this.tableDataList = (res?.records || []).map(item => {
             return {
@@ -1001,11 +1002,32 @@ export default {
               deleteLoading: false
             };
           });
-          console.log(this.tableDataList);
           this.tableTotal = res.total;
         }).finally(() => {
           this.loading = false;
         });
+    },
+    getData () {
+      this.loading = true;
+      this.selectionList = [];
+
+      if (this.activePresetId) {
+        this.getCustomViewData();
+      } else {
+        getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
+          .then(res => {
+            this.tableDataList = (res?.records || []).map(item => {
+              return {
+                ...item,
+                deleteLoading: false
+              };
+            });
+            console.log(this.tableDataList);
+            this.tableTotal = res.total;
+          }).finally(() => {
+            this.loading = false;
+          });
+      }
     },
     // 需要防抖场景时使用
     debouncedGetData: debounce(function () {
