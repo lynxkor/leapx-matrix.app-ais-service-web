@@ -292,7 +292,7 @@
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />
-                  <vxe-column title="操作" width="100" v-if="(canDelete && isEditing || !_id) || isOrderType">
+                  <vxe-column title="操作" width="100" v-if="((canDelete && isEditing || !_id) || isOrderType)&&permissions.has('AISPART-dealerOutboundOrder-addOrUpdate')">
                     <template #default="{ rowIndex }">
                       <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
@@ -616,7 +616,7 @@ export default {
       orderDetailDelete([item.id]).then(res => {
         this.$message.success('删除成功');
         // this.tableData.splice(index, 1);
-        this.getData();
+        this.handleRefresh();
       });
     },
     // 查询新增项的列表
