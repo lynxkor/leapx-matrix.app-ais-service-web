@@ -129,7 +129,23 @@ export default {
         pageNum: 1,
         pageSize: 5000
       }).then((res) => {
-        this.tableData = res.records;
+        // 打印明细按旧件名称 A-Z 排序，旧件名称一致时按旧件编码排序
+        this.tableData = this.sortPrintDetail(res.records || []);
+      });
+    },
+    // 打印明细排序：旧件名称 A-Z，旧件名称一致按旧件编码 A-Z
+    sortPrintDetail (list) {
+      return [...list].sort((a, b) => {
+        const nameA = a.oldPartName || '';
+        const nameB = b.oldPartName || '';
+        // 使用本地化比较，确保中文按拼音 A-Z 排序
+        const nameCompare = nameA.localeCompare(nameB, 'zh-Hans-CN', { sensitivity: 'base' });
+        if (nameCompare !== 0) {
+          return nameCompare;
+        }
+        const codeA = a.oldPartCode || '';
+        const codeB = b.oldPartCode || '';
+        return codeA.localeCompare(codeB, 'zh-Hans-CN', { sensitivity: 'base', numeric: true });
       });
     },
     transformDate (time) {
