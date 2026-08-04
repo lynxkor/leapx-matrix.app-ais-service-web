@@ -230,7 +230,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, confirmOrder, cancelOrder, signOrder, cancelSignOrder, settleOrder, cancelSettleOrder, reverseSettleOrder, refundOrder } from '@/api/sparepart/sale/retailOrder/index';
+import { getList, detailPage, deleteItem, enableItem, confirmOrder, cancelOrder, signOrder, cancelSignOrder, settleOrder, cancelSettleOrder, reverseSettleOrder, refundOrder } from '@/api/sparepart/sale/retailOrder/index';
 import {
   getTableConfig, tableAddOrUpdate, exportTable, getEnum,
   getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany,
@@ -266,6 +266,16 @@ const defaultForm = {
   customerContactInfo: '',
   remark: '',
   updateTime: '',
+
+  // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
+  sparePartCodeList: null,
+  sparePartName: '',
+  deliveryNoList: null,
+  saleVoucherList: null,
+  inboundNoList: null,
+  purchaseOrderNoList: null,
+  locationNameList: null,
+  locationCodeList: null,
 };
 
 const pageSize = 20;
@@ -643,316 +653,109 @@ export default {
           size: pageSize
         },
         dataProp: [
+          /* ========== 订单维度 ========== */
           {
             props: 'code',
             label: '备附件销售单号',
             visible: true,
             width: 200,
             fixed: 'left',
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/sale/retailOrder/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'primary'
-            }]
+            buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/retailOrder/edit', query: { id: row.id } }); }, type: 'primary' }]
           },
-          {
-            props: 'dealerCode',
-            label: '门店编码',
-            visible: true,
-            width: 180,
-            buttons: [{
-              click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
-              },
-              type: 'primary'
-            }]
-          },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'cooperationTypeLabel', label: '门店合作类型', visible: true, width: 120 },
           { props: 'warehouseName', label: '仓库名称', visible: true, width: 200 },
           { props: 'customerTypeLabel', label: '客户类型', visible: true, width: 120 },
-          {
-            props: 'vin',
-            label: 'VIN',
-            visible: true,
-            width: 200,
-            mask: true,
-            getValue: (row) => getDesensitize(row.id, 'retailOrder', 'vin')
-          },
+          { props: 'vin', label: 'VIN', visible: true, width: 200 },
           { props: 'customerCode', label: '客户编码', visible: true, width: 180 },
-          {
-            props: 'customerName',
-            label: '客户名称',
-            visible: true,
-            width: 200,
-            mask: true,
-            getValue: (row) => getDesensitize(row.id, 'retailOrder', 'customerName')
-          },
+          { props: 'customerName', label: '客户名称', visible: true, width: 200 },
           {
             props: 'customerContactInfo',
             label: '客户联系方式',
             visible: true,
             width: 160,
             mask: true,
-            getValue: (row) => getDesensitize(row.id, 'retailOrder', 'customerContactInfo')
+            getValue: (row) => getDesensitize(row.retailOrderId, 'retailOrder', 'customerContactInfo')
           },
-          { props: 'remark', label: '备注', visible: true, width: 200 },
+          { props: 'customerRemark', label: '客户备注', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
-          { props: 'totalAmount', label: '订单总金额', visible: true, width: 130, align: 'right' },
-          { props: 'discountTotalAmount', label: '优惠总金额', visible: true, width: 130, align: 'right' },
-          { props: 'payableTotalAmount', label: '应付总金额', visible: true, width: 130, align: 'right' },
-          { props: 'remainingPayableAmount', label: '剩余应付金额', visible: true, width: 130, align: 'right' },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
+            props: 'totalAmount',
+            label: '订单总金额',
             visible: true,
-            fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              show: (row) => {
-                // 定义允许显示的状态码列表
-                const validStatuses = ['20', '30', '40', '50', '10'];
+            width: 140,
+            align: 'right'
+          },
+          {
+            props: 'discountAmount',
+            label: '优惠总金额',
+            visible: true,
+            width: 140,
+            align: 'right'
+          },
+          {
+            props: 'payableAmount',
+            label: '应付总金额',
+            visible: true,
+            width: 140,
+            align: 'right'
+          },
+          {
+            props: 'remainingPayableAmount',
+            label: '剩余应付金额',
+            visible: true,
+            width: 140,
+            align: 'right'
+          },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
 
-                // 安全处理：防止 row.orderStatus 为 null/undefined 导致报错
-                if (!row.orderStatus) return false;
-
-                // 判断 orderStatus 是否包含列表中的任意一个值
-                return validStatuses.some(status => row.orderStatus.includes(status));
-              },
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/sale/retailOrder/edit',
-                  query: {
-                    id: row.id,
-                    isEditing: true
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '确认',
-              popconfirmTitle: '是否确认该订单?',
-              show: (row) => {
-                return row.orderStatus === '10' && this.permissions.has('AISPART-retailOrder-confirm');
-              },
-              click: (rowIndex, row) => {
-                confirmOrder({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '确认成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                });
-              },
-              type: 'info',
-            }, {
-              name: '作废',
-              show: (row) => {
-                return (row.orderStatus === '10' || row.orderStatus === '20') && this.permissions.has('AISPART-retailOrder-cancel');
-              },
-              click: (rowIndex, row) => {
-                this.$prompt('请输入作废备注', '作废', {
-                  confirmButtonText: '确定',
-                  cancelButtonText: '取消',
-                }).then(({ value }) => {
-                  cancelOrder({ id: row.id, description: value }).then(() => {
-                    this.$message({
-                      type: 'success',
-                      message: '作废成功!'
-                    });
-                    this.getData();
-                  });
-                });
-              },
-              type: 'info',
-            }, {
-              name: '出库',
-              show: (row) => {
-                return row.orderStatus === '20' && this.permissions.has('AISPART-retailOrder-ship');
-              },
-              click: (rowIndex, row) => {
-                this.handleOutbound(row, '1');
-              },
-              type: 'info',
-            }, {
-              name: '打印出库单',
-              show: (row) => {
-                // 定义允许显示的状态码列表
-                const validStatuses = ['20', '30', '40', '50', '60', '100'];
-
-                // 安全处理：防止 row.orderStatus 为 null/undefined 导致报错
-                if (!row.orderStatus) return false;
-
-                // 判断 orderStatus 是否包含列表中的任意一个值
-                return validStatuses.some(status => row.orderStatus.includes(status)) && this.permissions.has('AISPART-retailOrder-printOut');
-              },
-              click: (rowIndex, row) => {
-                this.handlePrint(row);
-              },
-              type: 'info',
-            }, {
-              name: '签收',
-              popconfirmTitle: '是否签收该订单?',
-              show: (row) => {
-                return row.orderStatus === '30' && this.permissions.has('AISPART-retailOrder-sign');
-              },
-              click: (rowIndex, row) => {
-                signOrder({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '签收成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                });
-              },
-              type: 'info',
-            }, {
-              name: '取消签收',
-              popconfirmTitle: '是否取消签收该订单?',
-              show: (row) => {
-                return row.orderStatus === '40' && this.permissions.has('AISPART-retailOrder-cancelSign');
-              },
-              click: (rowIndex, row) => {
-                cancelSignOrder({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '取消签收成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                });
-              },
-              type: 'info',
-            }, {
-              name: '退料申请',
-              show: (row) => {
-                return row.orderStatus === '30' && this.permissions.has('AISPART-retailOrder-applyReturnMaterial');
-              },
-              click: (rowIndex, row) => {
-                this.handleReturnMaterial(row);
-              },
-              type: 'info',
-            }, {
-              name: '退料入库',
-              show: (row) => {
-                return (row.orderStatus === '30' && row.applyReturnMaterialIs === '1') && this.permissions.has('AISPART-retailOrder-returnMaterialInbound');
-              },
-              click: (rowIndex, row) => {
-                this.handleOutbound(row, '2');
-              },
-              type: 'info',
-            }, {
-              name: '结算',
-              show: (row) => {
-                return row.orderStatus === '40' && this.permissions.has('AISPART-retailOrder-settle');
-              },
-              click: (rowIndex, row) => {
-                settleOrder({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '结算成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                });
-              },
-              type: 'info',
-            }, {
-              name: '取消结算',
-              show: (row) => {
-                return row.orderStatus === '50' && this.permissions.has('AISPART-retailOrder-cancelSettle');
-              },
-              click: (rowIndex, row) => {
-                cancelSettleOrder({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '取消结算成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                });
-              },
-              type: 'info',
-            }, {
-              name: '收款',
-              show: (row) => {
-                return row.orderStatus === '50' && this.permissions.has('AISPART-retailOrder-collectPayment');
-              },
-              click: (rowIndex, row) => {
-                this.handleHarvest(row);
-              },
-              type: 'info',
-            }, {
-              name: '打印结算单',
-              show: (row) => {
-                return (row.orderStatus === '50' || row.orderStatus === '60') && this.permissions.has('AISPART-retailOrder-printSettle');
-              },
-              click: (rowIndex, row) => {
-                this.handlePrintSettlementStatement(row);
-              },
-              type: 'info',
-            }, {
-              name: '反结算',
-              show: (row) => {
-                return row.orderStatus === '60' && this.permissions.has('AISPART-retailOrder-reverseSettle');
-              },
-              click: (rowIndex, row) => {
-                this.$prompt('请输入备注', '反结算', {
-                  confirmButtonText: '确定',
-                  cancelButtonText: '取消',
-                }).then(({ value }) => {
-                  reverseSettleOrder({ id: row.id, description: value }).then(() => {
-                    this.$message({
-                      type: 'success',
-                      message: '反结算成功!'
-                    });
-                    this.getData();
-                  });
-                });
-              },
-              type: 'info',
-            }, {
-              name: '退订入库',
-              show: (row) => {
-                return row.orderStatus === '100' && this.permissions.has('AISPART-retailOrder-cancelOrderInbound');
-              },
-              click: (rowIndex, row) => {
-                this.handleOutbound(row, '3');
-              },
-              type: 'info',
-            }, {
-              name: '退款',
-              show: (row) => {
-                return row.orderStatus === '70' && this.permissions.has('AISPART-retailOrder-refund');
-              },
-              click: (rowIndex, row) => {
-                this.$prompt('请输入退款备注', '退款', {
-                  confirmButtonText: '确定',
-                  cancelButtonText: '取消',
-                }).then(({ value }) => {
-                  refundOrder({ id: row.id, description: value }).then(() => {
-                    this.$message({
-                      type: 'success',
-                      message: '退款成功!'
-                    });
-                    this.getData();
-                  });
-                });
-              },
-              type: 'info',
-            }]
-          }
+          /* ========== 明细维度 ========== */
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/sparePart/detail', query: { id: row.sparePartId } }); }, type: 'primary' }] },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'locationName', label: '库位', visible: true, width: 120 },
+          {
+            props: 'availableQty',
+            label: '可用库存',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          { props: 'priceTypeLabel', label: '价格类型', visible: true, width: 120 },
+          {
+            props: 'unitPrice',
+            label: '单价',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'discountAmountDetail',
+            label: '优惠金额',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'payableAmountDetail',
+            label: '应付金额',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'qty',
+            label: '数量',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          { props: 'outboundIsLabel', label: '是否出库', visible: true, width: 120 },
+          { props: 'outboundOperatorName', label: '出库操作人', visible: true, width: 120 },
+          { props: 'outboundTime', label: '出库操作时间', visible: true, width: 200 },
+          { props: 'inboundOperatorName', label: '入库操作人', visible: true, width: 120 },
+          { props: 'inboundTime', label: '入库操作时间', visible: true, width: 200 },
         ],
         total: 0
       },
@@ -1046,6 +849,11 @@ export default {
     handleClick (item) {
       this.activeName = item.name;
       this.show = false;
+      // 跨 tab 切换时，把所有 tab 的分页状态都重置为 page 1 + 默认 size
+      this.optionObj.form.page = 1;
+      this.optionObj.form.size = pageSize;
+      this.optionObjAll.form.page = 1;
+      this.optionObjAll.form.size = pageSize;
       this.onReset();
     },
     handleImport () {
@@ -1068,11 +876,25 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      // 全部备件 tab：默认创建时间 = 最近一个月（end 用 23:59:59）
+      const extraDefaults = this.activeName === 'allSpareParts'
+        ? { createTime: this.getLastMonthRange() }
+        : {};
+      this.form = { ...defaultForm, ...extraDefaults };
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
-      optionObj.form.pageSize = pageSize;
+      optionObj.form.size = pageSize;
       this.getData();
+    },
+    getLastMonthRange () {
+      const end = new Date();
+      const start = new Date();
+      start.setMonth(start.getMonth() - 1);
+      const fmt = (d, isEnd) => {
+        const pad = (n) => (n < 10 ? `0${n}` : n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${isEnd ? '23:59:59' : '00:00:00'}`;
+      };
+      return [fmt(start, false), fmt(end, true)];
     },
     exportExcel () {
       this.exportLoading = true;
@@ -1112,7 +934,13 @@ export default {
       this.selectionList = [];
       const optionObj = this.getOptionObj();
 
-      getList({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
+      const fetchApi = this.activeName === 'allSpareParts' ? detailPage : getList;
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.loading = false;
+        return;
+      }
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
           optionObj.dataList = (res?.records || []).map(item => {

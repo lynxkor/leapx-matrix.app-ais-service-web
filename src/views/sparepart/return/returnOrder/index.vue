@@ -104,6 +104,25 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <!-- ===== 全部备件 tab 专用查询 ===== -->
+        <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="备件名称" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
+        </el-form-item>
+        <el-form-item label="交货单号" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.deliveryNoList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="销售凭证" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.saleVoucherList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="入库单号" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.inboundNoList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="采购订单号" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.purchaseOrderNoList" placeholder="请输入" />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -185,7 +204,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderCommit, returnOrderReject } from '@/api/sparepart/return/returnOrder/index';
+import { getList, detailPage, deleteItem, enableItem, returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderCommit, returnOrderReject } from '@/api/sparepart/return/returnOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse, getLoginUser } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -199,16 +218,28 @@ import TagInput from '@/libs/components/TagInput';
 import ShipmentDialog from './ShipmentDialog.vue';
 
 const defaultForm = {
-  // TIPS:多选时字段名称会有变化，自行校对
+  // TIPS:多选时字段名称会有变化,自行校对
   code: '',
+  codeList: null,
   dealerCode: '',
+  dealerCodeList: null,
   warehouseId: '',
+  warehouseIdList: null,
   returnReason: '',
+  returnReasonList: null,
   returnStatus: '',
+  returnStatusList: null,
   deliveryTime: '',
   remark: '',
   createTime: '',
   updateTime: '',
+  // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
+  sparePartCodeList: null,
+  sparePartName: '',
+  deliveryNoList: null,
+  saleVoucherList: null,
+  inboundNoList: null,
+  purchaseOrderNoList: null,
 };
 
 const pageSize = 20;
@@ -464,204 +495,61 @@ export default {
           size: pageSize
         },
         dataProp: [
+          /* ========== 订单维度 ========== */
           {
-            props: 'code',
+            props: 'backOrderCode',
             label: '备件退货单号',
             visible: true,
             width: 200,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/return/returnOrder/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
+                this.$router.push({ path: '/sparepart/return/returnOrder/edit', query: { id: row.backOrderId || row.id } });
               },
               type: 'primary'
             }]
           },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank'); }, type: 'primary' }] },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
+          { props: 'returnReasonLabel', label: '退货原因', visible: true, width: 120 },
+          { props: 'returnStatusLabel', label: '退货状态', visible: true, width: 120 },
+          { props: 'logisticsNo', label: '物流单号', visible: true, width: 200 },
+          { props: 'logisticsProvider', label: '物流商', visible: true, width: 200 },
+          { props: 'deliveryTime', label: '发货时间', visible: true, width: 200 },
+          { props: 'remark', label: '订单备注', visible: true, width: 200 },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+
+          /* ========== 明细维度 ========== */
           {
-            props: 'dealerCode',
-            label: '门店编码',
+            props: 'sparePartCode',
+            label: '备件编码',
             visible: true,
             width: 180,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+                this.$router.push({ path: '/sparepart/basic/sparePart/detail', query: { id: row.sparePartId } });
               },
               type: 'primary'
             }]
           },
-          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
-          { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
-          { props: 'returnReasonLabel', label: '退货原因', visible: true, width: 200 },
-          { props: 'returnStatusLabel', label: '退货状态', visible: true, width: 120 },
-          { props: 'logisticsOrderNo', label: '物流单号', visible: true, width: 200 },
-          { props: 'logisticsProvider', label: '物流商', visible: true, width: 120 },
-          { props: 'deliveryTime', label: '发货时间', visible: true, width: 200 },
-          { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
-            visible: true,
-            fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              show: (row) => {
-                const editableStatus = ['10', '30'];
-                if (this.accountFlag) {
-                  return editableStatus.includes(row.returnStatus);
-                }
-                return ['10', '20', '30', '40'].includes(row.returnStatus);
-              },
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/return/returnOrder/edit',
-                  query: {
-                    id: row.id,
-                    isEditing: true
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '同意',
-              show: (row) => {
-                return row.returnStatus === '20' && this.permissions.has('AISPART-returnOrder-agree');
-              },
-              popconfirmTitle: '是否同意退货申请?',
-              click: (rowIndex, row) => {
-                returnOrderAgree({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '同意成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '同意失败!'
-                  });
-                });
-              },
-              type: 'info'
-            }, {
-              name: '撤回',
-              show: (row) => {
-                return row.returnStatus === '40' && this.permissions.has('AISPART-returnOrder-revoke');
-              },
-              popconfirmTitle: '是否撤回退货申请?',
-              click: (rowIndex, row) => {
-                returnOrderRevoke({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '撤回成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '撤回失败!'
-                  });
-                });
-              },
-              type: 'info'
-            },
-            // {
-            //   name: '删除',
-            //   show: (row) => {
-            //     return row.returnStatus === '90';
-            //   },
-            //   popconfirmTitle: '此操作将永久删除, 是否继续?',
-            //   click: (rowIndex, row) => {
-            //     deleteItem([row.id]).then(() => {
-            //       this.$message({
-            //         type: 'success',
-            //         message: '删除成功!'
-            //       });
-            //       this.getData();
-            //     }).catch(() => {
-            //       this.$message({
-            //         type: 'error',
-            //         message: '删除失败!'
-            //       });
-            //     });
-            //   },
-            //   type: 'danger'
-            // },
-            {
-              name: '打印退货单',
-              show: (row) => {
-                return this.permissions.has('AISPART-returnOrder-printReturn');
-              },
-              click: (rowIndex, row) => {
-                this.handlePrint(row);
-              },
-              type: 'info'
-            }, {
-              name: '打印退货标签',
-              show: (row) => {
-                return this.permissions.has('AISPART-returnOrder-printTag');
-              },
-              click: (rowIndex, row) => {
-                this.handlePrintLabel(row);
-              },
-              type: 'info'
-            }, {
-              name: '提交',
-              show: (row) => {
-                return (row.returnStatus === '10' || row.returnStatus === '30') && this.permissions.has('AISPART-returnOrder-commit');
-              },
-              popconfirmTitle: '是否提交退货申请?',
-              click: (rowIndex, row) => {
-                returnOrderCommit({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '提交成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '提交失败!'
-                  });
-                });
-              },
-              type: 'info'
-            }, {
-              name: '作废',
-              show: (row) => {
-                return (row.returnStatus === '10' || row.returnStatus === '30') && this.permissions.has('AISPART-returnOrder-cancel');
-              },
-              click: (rowIndex, row) => {
-                this.handleVoid(row);
-              },
-              type: 'info'
-            }, {
-              name: '驳回',
-              show: (row) => {
-                return row.returnStatus === '20' && this.permissions.has('AISPART-returnOrder-reject');
-              },
-              click: (rowIndex, row) => {
-                this.handleReject(row);
-              },
-              type: 'info'
-            }, {
-              name: '发运',
-              show: (row) => {
-                return row.returnStatus === '40' && this.permissions.has('AISPART-returnOrder-shipping');
-              },
-              click: (rowIndex, row) => {
-                this.handleShipment(row);
-              },
-              type: 'info'
-            }]
-          }
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'returnQty', label: '退货数量', visible: true, align: 'right', width: 120 },
+          { props: 'qualifiedQty', label: '合格数量', visible: true, align: 'right', width: 120 },
+          { props: 'deliveryNo', label: '交货单号', visible: true, width: 200 },
+          { props: 'saleVoucher', label: '销售凭证', visible: true, width: 200 },
+          { props: 'inboundNo', label: '入库单号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/inbound/dealerInboundOrder/edit', query: { id: row.inboundId } }); }, type: 'primary' }] },
+          { props: 'purchaseOrderNo', label: '采购订单号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/purchase/purchaseOrder/edit', query: { id: row.purchaseOrderId } }); }, type: 'primary' }] },
+          { props: 'purchaseCashUnitPrice', label: '采购现金单价', visible: true, align: 'right', width: 140 },
+          { props: 'purchaseRebateUnitPrice', label: '采购返利单价', visible: true, align: 'right', width: 140 },
+          { props: 'returnCashUnitPrice', label: '退货现金单价', visible: true, align: 'right', width: 140 },
+          { props: 'expectedReturnCashAmount', label: '预计退货现金金额', visible: true, align: 'right', width: 160 },
+          { props: 'actualReturnCashAmount', label: '实际退货现金金额', visible: true, align: 'right', width: 160 },
+          { props: 'returnRebateUnitPrice', label: '退货返利单价', visible: true, align: 'right', width: 140 },
+          { props: 'expectedReturnRebateAmount', label: '预计退货返利金额', visible: true, align: 'right', width: 160 },
+          { props: 'actualReturnRebateAmount', label: '实际退货返利金额', visible: true, align: 'right', width: 160 },
+          { props: 'detailRemark', label: '明细备注', visible: true, width: 200 }
         ],
         total: 0
       }
@@ -709,6 +597,11 @@ export default {
     handleClick (item) {
       this.activeName = item.name;
       this.show = false;
+      // 跨 tab 切换时，把所有 tab 的分页状态都重置为 page 1 + 默认 size
+      this.optionObj.form.page = 1;
+      this.optionObj.form.size = pageSize;
+      this.optionObjAll.form.page = 1;
+      this.optionObjAll.form.size = pageSize;
       this.onReset();
     },
     handleImport () {
@@ -728,25 +621,52 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      // 全部备件 tab：默认创建时间 = 最近一个月
+      const extraDefaults = this.activeName === 'allSpareParts'
+        ? { createTime: this.getLastMonthRange() }
+        : {};
+      this.form = { ...defaultForm, ...extraDefaults };
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
-      optionObj.form.pageSize = pageSize;
+      optionObj.form.size = pageSize;
       this.getData();
+    },
+    getLastMonthRange () {
+      const end = new Date();
+      const start = new Date();
+      start.setMonth(start.getMonth() - 1);
+      const fmt = (d, isEnd) => {
+        const pad = (n) => (n < 10 ? `0${n}` : n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${isEnd ? '23:59:59' : '00:00:00'}`;
+      };
+      return [fmt(start, false), fmt(end, true)];
     },
     exportExcel () {
       this.exportLoading = true;
-      const reqParams = this.getFormData() || {};
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.exportLoading = false;
+        return;
+      }
+      const reqParams = formData || {};
+      let fetchPath = 'sp/web/purchase/returnOrder/page';
+      let tableRef = this.$refs.tableRef;
+      if (this.activeName === 'homePage') {
+        tableRef = this.$refs.tableRef;
+        fetchPath = 'sp/web/purchase/returnOrder/page';
+      } else {
+        tableRef = this.$refs.tableRefAll;
+        fetchPath = 'sp/web/purchase/returnOrder/detailPage';
+      }
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
-      };
-      reqParams.exceptionDetail = true;
+      }
       exportTable({
         businessType: '备件退货单',
-        dataFetchPath: 'sp/web/purchase/returnOrder/page',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: tableRef && tableRef.getVisibleCols ? Object.fromEntries(tableRef.getVisibleCols()) : {},
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -772,17 +692,29 @@ export default {
       this.loading = true;
       this.selectionList = [];
       const optionObj = this.getOptionObj();
+      const fetchApi = this.activeName === 'allSpareParts' ? detailPage : getList;
 
-      getList({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.loading = false;
+        return;
+      }
+
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
-          optionObj.dataList = res.records.map(item => {
+          const records = res?.records || [];
+          optionObj.dataList = records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          optionObj.total = res.total;
+          optionObj.total = res?.total || 0;
+        }).catch(err => {
+          console.error('备件退货单列表加载失败:', err);
+          optionObj.dataList = [];
+          optionObj.total = 0;
         }).finally(() => {
           this.loading = false;
         });
@@ -847,6 +779,21 @@ export default {
         if (this.form.deliveryTime.length > 1) {
           data.deliveryTimeStart = this.form.deliveryTime[0];
           data.deliveryTimeEnd = this.form.deliveryTime[1];
+        }
+      }
+
+      // ===== 全部备件 tab 默认条件校验 =====
+      // 【退货单号】【订单创建时间】【交货单号】【销售凭证】【入库单号】【采购订单号】不允许全部为空
+      if (this.activeName === 'allSpareParts') {
+        const hasCode = !!(data.codeList && data.codeList.length);
+        const hasCreateTime = !!(data.createTimeStart && data.createTimeEnd);
+        const hasDeliveryNo = !!(data.deliveryNoList && data.deliveryNoList.length);
+        const hasSaleVoucher = !!(data.saleVoucherList && data.saleVoucherList.length);
+        const hasInboundNo = !!(data.inboundNoList && data.inboundNoList.length);
+        const hasPurchaseOrderNo = !!(data.purchaseOrderNoList && data.purchaseOrderNoList.length);
+        if (!hasCode && !hasCreateTime && !hasDeliveryNo && !hasSaleVoucher && !hasInboundNo && !hasPurchaseOrderNo) {
+          this.$message.warning('请至少填写【退货单号】【订单创建时间】【交货单号】【销售凭证】【入库单号】【采购订单号】中的任意一个');
+          return null;
         }
       }
 

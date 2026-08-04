@@ -58,6 +58,33 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <el-form-item label="公司编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.companyCode" clearable />
+        </el-form-item>
+        <el-form-item label="账户创建时间" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请选择" v-model="form.createAccountTime" clearable />
+        </el-form-item>
+        <el-form-item label="账户修改时间" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请选择" v-model="form.updateAccountTime" clearable />
+        </el-form-item>
+        <el-form-item label="交易流水号" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.transactionNoList" clearable />
+        </el-form-item>
+        <el-form-item label="交易类型" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请选择" v-model="form.transactionTypeList" clearable />
+        </el-form-item>
+        <el-form-item label="门店编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请选择" v-model="form.dealerCodeList" clearable />
+        </el-form-item>
+        <el-form-item label="门店名称" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请选择" v-model="form.dealerNameList" clearable />
+        </el-form-item>
+        <el-form-item label="业务类型" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请选择" v-model="form.businessTypeList" clearable />
+        </el-form-item>
+        <el-form-item label="业务单号" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.businessNoList" clearable />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -136,8 +163,8 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/sparepart/fund/account/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getSparePartCompany } from '@/api/common';
+import { getList, detailPage, deleteItem, enableItem } from '@/api/sparepart/fund/account/index';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getSparePartCompany, getSparePartOrderIdByCode } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -155,6 +182,18 @@ const defaultForm = {
   companyNameList: '',
   createTime: '',
   updateTime: '',
+
+  // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
+  companyCode: null,
+  createAccountTime: null,
+  updateAccountTime: null,
+  transactionNoList: null,
+  transactionTypeList: null,
+  dealerCodeList: null,
+  dealerNameList: null,
+  businessTypeList: null,
+  businessNoList: null,
+  flowRecordTime: null
 };
 
 const pageSize = 20;
@@ -217,8 +256,8 @@ export default {
           { props: 'companyCode', label: '公司编码', visible: true, width: 180 },
           { props: 'companyName', label: '公司名称', visible: true, width: 200 },
           { props: 'bankName', label: '开户银行', visible: true, width: 200 },
-          { props: 'bankAccountHolder', label: '银行户主', visible: true, width: 200 },
-          { props: 'bankAccount', label: '开户账户', visible: true, width: 200 },
+          { props: 'bankAccountName', label: '银行户主', visible: true, width: 200 },
+          { props: 'bankAccountNo', label: '开户账户', visible: true, width: 200 },
           { props: 'availableAmount', label: '可用资金', visible: true, align: 'right', width: 120 },
           { props: 'frozenAmount', label: '冻结资金', visible: true, align: 'right', width: 120 },
           { props: 'marginAmount', label: '保证资金', visible: true, align: 'right', width: 120 },
@@ -273,73 +312,32 @@ export default {
           size: pageSize
         },
         dataProp: [
-          {
-            props: 'code',
-            label: '账户编号',
-            visible: true,
-            width: 200,
-            fixed: 'left',
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/fund/accountRebate/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'primary'
-            }]
-          },
+          /* ========== 账户维度 ========== */
+          { props: 'accountCode', label: '账户编号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: 'accountRebate/edit', query: { id: row.accountId } }); }, type: 'primary' }] },
           { props: 'companyCode', label: '公司编码', visible: true, width: 180 },
           { props: 'companyName', label: '公司名称', visible: true, width: 200 },
-          { props: 'bankName', label: '开户银行', visible: true, width: 200 },
-          { props: 'bankAccountHolder', label: '银行户主', visible: true, width: 200 },
-          { props: 'bankAccount', label: '开户账户', visible: true, width: 200 },
-          { props: 'availableAmount', label: '可用资金', visible: true, align: 'right', width: 120 },
-          { props: 'frozenAmount', label: '冻结资金', visible: true, align: 'right', width: 120 },
-          { props: 'marginAmount', label: '保证资金', visible: true, align: 'right', width: 120 },
-          { props: 'totalAmount', label: '账户总额', visible: true, align: 'right', width: 120 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          // {
-          //   props: 'operate',
-          //   label: '操作',
-          //   type: 'operate',
-          //   visible: true,
-          //   fixed: 'right',
-          //   buttons: [{
-          //     name: '编辑',
-          //     click: (rowIndex, row) => {
-          //       this.$router.push({
-          //         path: '/sparepart/fund/account/edit',
-          //         query: {
-          //           id: row.id
-          //         }
-          //       });
-          //     },
-          //     type: 'info'
-          //   }, {
-          //     name: '删除',
-          //     popconfirmTitle: '此操作将永久删除, 是否继续?',
-          //     click: (rowIndex, row) => {
-          //       deleteItem([row.id]).then(() => {
-          //         this.$message({
-          //           type: 'success',
-          //           message: '删除成功!'
-          //         });
-          //         this.getData();
-          //       }).catch(() => {
-          //         this.$message({
-          //           type: 'error',
-          //           message: '删除失败!'
-          //         });
-          //       });
-          //     },
-          //     type: 'danger'
-          //   }]
-          // }
+          { props: 'bankName', label: '开会银行', visible: true, width: 200 },
+          { props: 'bankAccountName', label: '银行户主', visible: true, width: 200 },
+          { props: 'bankAccountNo', label: '开户账户', visible: true, width: 200 },
+          { props: 'availableAmount', label: '可用资金', visible: true, width: 140, align: 'right' },
+          { props: 'frozenAmount', label: '冻结资金', visible: true, width: 140, align: 'right' },
+          { props: 'totalAmount', label: '账户总额', visible: true, width: 140, align: 'right' },
+          { props: 'accountCreateTime', label: '账户创建时间', visible: true, width: 200 },
+          { props: 'accountUpdateTime', label: '账户修改时间', visible: true, width: 200 },
+
+          /* ========== 流水维度 ========== */
+          { props: 'code', label: '交易流水号', visible: true, width: 200 },
+          { props: 'transactionAmount', label: '交易金额', visible: true, width: 140, align: 'right' },
+          { props: 'transactionTypeLabel', label: '交易类型', visible: true, width: 120 },
+          { props: 'accountBalance', label: '账户余额', visible: true, width: 140, align: 'right' },
+          { props: 'flowRemark', label: '流水备注', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'bizTypeLabel', label: '业务类型', visible: true, width: 120 },
+          { props: 'bizNo', label: '业务单号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.handleBizNoJump(row); }, type: 'primary' }] },
+          { props: 'postingTime', label: '入账时间', visible: true, width: 200 }
         ],
+
         total: 0
       },
     };
@@ -376,6 +374,11 @@ export default {
     handleClick (item) {
       this.activeName = item.name;
       this.show = false;
+      // 跨 tab 切换时，把所有 tab 的分页状态都重置为 page 1 + 默认 size
+      this.optionObj.form.page = 1;
+      this.optionObj.form.size = pageSize;
+      this.optionObjAll.form.page = 1;
+      this.optionObjAll.form.size = pageSize;
       this.onReset();
     },
     handleImport () {
@@ -395,24 +398,56 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      // 全部备件 tab：默认流水创建时间 = 最近一个月
+      const extraDefaults = this.activeName === 'allSpareParts'
+        ? { createTime: this.getLastMonthRange() }
+        : {};
+      this.form = { ...defaultForm, ...extraDefaults };
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
-      optionObj.form.pageSize = pageSize;
+      optionObj.form.size = pageSize;
       this.getData();
+    },
+    getLastMonthRange () {
+      const end = new Date();
+      const start = new Date();
+      start.setMonth(start.getMonth() - 1);
+      const fmt = (d, isEnd) => {
+        const pad = (n) => (n < 10 ? `0${n}` : n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${isEnd ? '23:59:59' : '00:00:00'}`;
+      };
+      return [fmt(start, false), fmt(end, true)];
     },
     exportExcel () {
       this.exportLoading = true;
-      const reqParams = this.getFormData() || {};
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.exportLoading = false;
+        return;
+      }
+      const reqParams = formData || {};
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+      }
+      let fetchPath = 'sp/web/fund/account/page';
+      let tableRef = this.$refs.tableRef;
+      if (this.activeName === 'homePage') {
+        tableRef = this.$refs.tableRef;
+        fetchPath = 'sp/web/fund/account/page';
+      } else {
+        tableRef = this.$refs.tableRefAll;
+        fetchPath = 'sp/web/fund/account/detailPage';
+      }
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
       exportTable({
         businessType: '备件返利账户',
-        dataFetchPath: 'sp/web/fund/account/page',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: tableRef && tableRef.getVisibleCols ? Object.fromEntries(tableRef.getVisibleCols()) : {},
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -438,8 +473,15 @@ export default {
       this.loading = true;
       this.selectionList = [];
       const optionObj = this.getOptionObj();
+      const fetchApi = this.activeName === 'allSpareParts' ? detailPage : getList;
 
-      getList({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.loading = false;
+        return;
+      }
+
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           if (!res || !res.records) return;
           console.log(res);
@@ -502,8 +544,10 @@ export default {
       if (this.form.createTime) {
         delete data.createTime;
         if (this.form.createTime.length > 1) {
-          data.createTimeStart = this.form.createTime[0];
-          data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
+          const [start, end] = this.form.createTime;
+          // 全部备件 tab 默认查询流水创建时间 (AccountFlow.create_time)，映射为 createTimeStart/End
+          data.createTimeStart = start;
+          data.createTimeEnd = getEndOfDayString(end);
         }
       }
       if (this.form.updateTime) {
@@ -511,6 +555,53 @@ export default {
         if (this.form.updateTime.length > 1) {
           data.updateTimeStart = this.form.updateTime[0];
           data.updateTimeEnd = getEndOfDayString(this.form.updateTime[1]);
+        }
+      }
+
+      // ===== 全部备件 tab：字段映射到 AccountFlowPageParam =====
+      if (this.activeName === 'allSpareParts') {
+        data.accountType = 'REBATE';
+        // accountNo -> accountCode（账户编号精确）
+        if (data.accountNo) {
+          data.accountCode = data.accountNo;
+          delete data.accountNo;
+        }
+        // companyCode 单值 -> companyCodeList 数组
+        if (data.companyCode) {
+          data.companyCodeList = [data.companyCode];
+          delete data.companyCode;
+        }
+        // transactionNoList -> codeList（交易流水号批量）
+        if (data.transactionNoList) {
+          data.codeList = data.transactionNoList;
+          delete data.transactionNoList;
+        }
+        // invoiceNoList -> accountingVoucherList（税务发票号批量）
+        if (data.invoiceNoList) {
+          data.accountingVoucherList = data.invoiceNoList;
+          delete data.invoiceNoList;
+        }
+        // invoiceDate 区间 -> voucherYearStart/End（开票日期区间）
+        if (data.invoiceDate) {
+          delete data.invoiceDate;
+          if (Array.isArray(data.invoiceDate) && data.invoiceDate.length > 1) {
+            data.voucherYearStart = data.invoiceDate[0];
+            data.voucherYearEnd = getEndOfDayString(data.invoiceDate[1]);
+          }
+        }
+      }
+
+      // ===== 全部备件 tab 默认条件校验 =====
+      // 【公司名称】【账户编号】【流水创建时间】【业务单号】不允许全部为空
+      // 全部备件 tab 默认查询 AccountFlow.create_time（getFormData 已映射为 createTimeStart/End）
+      if (this.activeName === 'allSpareParts') {
+        const hasCompany = !!(data.companyNameList && data.companyNameList.length);
+        const hasAccountNo = !!(data.accountNo && data.accountNo.trim());
+        const hasFlowCreateTime = !!(data.createTimeStart && data.createTimeEnd);
+        const hasBusinessNo = !!(data.businessNoList && data.businessNoList.length);
+        if (!hasCompany && !hasAccountNo && !hasFlowCreateTime && !hasBusinessNo) {
+          this.$message.warning('请至少填写【公司名称】【账户编号】【流水创建时间】【业务单号】中的任意一个');
+          return null;
         }
       }
 
@@ -551,6 +642,36 @@ export default {
         targetStatus: status,
         apiFunc: enableItem,
         refreshFunc: this.getData
+      });
+    },
+    // 业务单号跳转
+    async handleBizNoJump (row) {
+      let path = '';
+      let type = '';
+      if (row.bizType === 'SPARE_PART_RETURN') {
+        path = '/sparepart/return/returnOrder/edit';
+        type = 'returnOrder';
+      } else if (row.bizType === 'SPARE_PART_PURCHASE') {
+        path = '/sparepart/warehouse/oemOutboundOrder/edit';
+        type = 'oemOutboundOrder';
+      } else if (row.bizType === 'CUSTOMER_CARE') {
+        path = '/sparepart/fund/accountOperateApply/edit';
+        type = 'accountOperateApply';
+      } else if (row.bizType === 'REBATE_RECHARGE') {
+        path = '/sparepart/fund/accountOperateApply/edit';
+        type = 'accountOperateApply';
+      } else if (row.bizType === 'REBATE_DEDUCTION') {
+        path = '/sparepart/fund/accountOperateDeductionApply/edit';
+        type = 'accountOperateDeductionApply';
+      } else {
+        return;
+      }
+      const res = await getSparePartOrderIdByCode({ code: row.bizNo, type: type });
+      this.$router.push({
+        path: path,
+        query: {
+          id: res
+        }
       });
     },
   }

@@ -87,6 +87,19 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <!-- ===== 全部备件 tab 专用查询 ===== -->
+        <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="备件名称" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
+        </el-form-item>
+        <el-form-item label="库位编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.locationCodeList" clearable />
+        </el-form-item>
+        <el-form-item label="领料申请说明" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.remark" clearable />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -165,7 +178,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, applyRequest, agreeRequest, rejectRequest, outbound, applyReturn, rejectReturn, inbound, agreeReturn } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
+import { getList, detailPage, deleteItem, enableItem, applyRequest, agreeRequest, rejectRequest, outbound, applyReturn, rejectReturn, inbound, agreeReturn } from '@/api/sparepart/outbound/dealerOutboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -188,6 +201,11 @@ const defaultForm = {
   outboundStatusList: [],
   createTime: '',
   updateTime: '',
+  // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
+  sparePartCodeList: null,
+  sparePartName: '',
+  locationCodeList: null,
+  remark: ''
 };
 
 const pageSize = 20;
@@ -507,9 +525,7 @@ export default {
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/outbound/dealerOutboundOrder/edit',
-                  query: {
-                    id: row.id
-                  }
+                  query: { id: row.maintenanceOutboundOrderId || row.id }
                 });
               },
               type: 'primary'
@@ -532,227 +548,33 @@ export default {
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
           { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
           { props: 'inboundStatusLabel', label: '入库状态', visible: true, width: 120 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'remark', label: '领料申请说明', visible: true, width: 200 },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+
+          /* ========== 领料明细维度 ========== */
           {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
+            props: 'sparePartCode',
+            label: '备件编码',
             visible: true,
-            fixed: 'right',
+            width: 180,
             buttons: [{
-              name: '打印出库单',
-              show: (row) => this.permissions.has('AISPART-dealerOutboundOrder-printOutbound'),
-              click: (rowIndex, row) => {
-                this.handlePrint(row);
-              },
-              type: 'info'
-            }, {
-              name: '编辑',
-              show: (row) => {
-                return row.orderStatus === '10' || row.orderStatus === '30';
-              },
               click: (rowIndex, row) => {
                 this.$router.push({
-                  path: '/sparepart/outbound/dealerOutboundOrder/edit',
-                  query: {
-                    id: row.id,
-                    isEditing: true
-                  }
+                  path: '/sparepart/basic/sparePart/detail',
+                  query: { id: row.sparePartId }
                 });
               },
-              type: 'info'
-            }, {
-              name: '删除',
-              popconfirmTitle: '此操作将永久删除, 是否继续?',
-              popconfirmConfirmButtonType: 'danger',
-              popconfirmConfirmButtonText: '删除',
-              show: (row) => {
-                return row.orderStatus === '10' || row.orderStatus === '30';
-              },
-              click: (rowIndex, row) => {
-                deleteItem([row.id]).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '删除失败!'
-                  });
-                });
-              },
-              type: 'danger'
-            }, {
-              name: '申请领料',
-              popconfirmTitle: '是否申请领料?',
-              show: (row) => {
-                return (row.orderStatus === '10' || row.orderStatus === '30') && this.permissions.has('AISPART-dealerOutboundOrder-applyRequest');
-              },
-              click: (rowIndex, row) => {
-                applyRequest({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '申请成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                });
-              },
-              type: 'info'
-            }, {
-              name: '同意领料',
-              popconfirmTitle: '是否同意领料?',
-              show: (row) => {
-                return row.orderStatus === '20' && this.permissions.has('AISPART-dealerOutboundOrder-agreeRequest');
-              },
-              click: (rowIndex, row) => {
-                agreeRequest({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '同意成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                });
-              },
-              type: 'info'
-            }, {
-              name: '驳回领料',
-              show: (row) => {
-                return row.orderStatus === '20' && this.permissions.has('AISPART-dealerOutboundOrder-rejectRequest');
-              },
-              click: (rowIndex, row) => {
-                this.$prompt('请输入驳回原因', '驳回领料', {
-                  confirmButtonText: '确定',
-                  cancelButtonText: '取消',
-                  inputValue: ''
-                }).then(({ value }) => {
-                  rejectRequest({ id: row.id, description: value }).then(() => {
-                    this.$message({
-                      type: 'success',
-                      message: '驳回成功!'
-                    });
-                    this.getData();
-                  }).catch(() => {
-                  });
-                }).catch(() => {
-                  this.$message({
-                    type: 'info',
-                    message: '已取消驳回'
-                  });
-                });
-              },
-              type: 'info'
-            }, {
-              name: '出库',
-              popconfirmTitle: '是否出库?',
-              show: (row) => {
-                return row.orderStatus === '40' && row.outboundStatus === '0' && this.permissions.has('AISPART-dealerOutboundOrder-outbound');
-              },
-              click: (rowIndex, row) => {
-                outbound({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '出库成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                });
-              },
-              type: 'info'
-            }, {
-              name: '申请退料',
-              show: (row) => {
-                return (row.orderStatus === '40' || row.outboundStatus === '60') && row.outboundStatus === '1' && this.permissions.has('AISPART-dealerOutboundOrder-applyReturn');
-              },
-              click: (rowIndex, row) => {
-                this.$prompt('请输入申请退料原因', '申请退料', {
-                  confirmButtonText: '确定',
-                  cancelButtonText: '取消',
-                  inputValue: ''
-                }).then(({ value }) => {
-                  applyReturn({ id: row.id, description: value }).then(() => {
-                    this.$message({
-                      type: 'success',
-                      message: '申请退料成功!'
-                    });
-                    this.getData();
-                  }).catch(() => {
-                  });
-                }).catch(() => {
-                  this.$message({
-                    type: 'info',
-                    message: '已取消申请退料'
-                  });
-                });
-              },
-              type: 'info'
-            }, {
-              name: '同意退料',
-              popconfirmTitle: '是否同意退料?',
-              show: (row) => {
-                return row.orderStatus === '50' && this.permissions.has('AISPART-dealerOutboundOrder-agreeReturn');
-              },
-              click: (rowIndex, row) => {
-                agreeReturn({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '同意退料成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                });
-              },
-              type: 'info'
-            }, {
-              name: '驳回退料',
-              show: (row) => {
-                return row.orderStatus === '50' && this.permissions.has('AISPART-dealerOutboundOrder-rejectReturn');
-              },
-              click: (rowIndex, row) => {
-                this.$prompt('请输入驳回退料原因', '驳回退料', {
-                  confirmButtonText: '确定',
-                  cancelButtonText: '取消',
-                  inputValue: ''
-                }).then(({ value }) => {
-                  rejectReturn({ id: row.id, description: value }).then(() => {
-                    this.$message({
-                      type: 'success',
-                      message: '驳回退料成功!'
-                    });
-                    this.getData();
-                  }).catch(() => {
-                  });
-                }).catch(() => {
-                  this.$message({
-                    type: 'info',
-                    message: '已取消驳回退料'
-                  });
-                });
-              },
-              type: 'info'
-            }, {
-              name: '入库',
-              popconfirmTitle: '是否入库?',
-              show: (row) => {
-                return row.orderStatus === '70' && row.inboundStatus === '0' && this.permissions.has('AISPART-dealerOutboundOrder-inbound');
-              },
-              click: (rowIndex, row) => {
-                inbound({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '入库成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                });
-              },
-              type: 'info'
+              type: 'primary'
             }]
-          }
+          },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'locationCode', label: '库位编码', visible: true, width: 120 },
+          { props: 'availableQty', label: '可用库存', visible: true, align: 'right', width: 120 },
+          { props: 'salePrice', label: '销售单价', visible: true, align: 'right', width: 120 },
+          { props: 'costPrice', label: '成本单价', visible: true, align: 'right', width: 120 },
+          { props: 'qty', label: '数量', visible: true, align: 'right', width: 120 },
+          { props: 'detailRemark', label: '明细备注', visible: true, width: 200 }
         ],
         total: 0
       },
@@ -844,6 +666,11 @@ export default {
     handleClick (item) {
       this.activeName = item.name;
       this.show = false;
+      // 跨 tab 切换时，把所有 tab 的分页状态都重置为 page 1 + 默认 size
+      this.optionObj.form.page = 1;
+      this.optionObj.form.size = pageSize;
+      this.optionObjAll.form.page = 1;
+      this.optionObjAll.form.size = pageSize;
       this.onReset();
     },
     handleImport () {
@@ -863,24 +690,52 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      // 全部备件 tab：默认创建时间 = 最近一个月
+      const extraDefaults = this.activeName === 'allSpareParts'
+        ? { createTime: this.getLastMonthRange() }
+        : {};
+      this.form = { ...defaultForm, ...extraDefaults };
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
-      optionObj.form.pageSize = pageSize;
+      optionObj.form.size = pageSize;
       this.getData();
+    },
+    getLastMonthRange () {
+      const end = new Date();
+      const start = new Date();
+      start.setMonth(start.getMonth() - 1);
+      const fmt = (d, isEnd) => {
+        const pad = (n) => (n < 10 ? `0${n}` : n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${isEnd ? '23:59:59' : '00:00:00'}`;
+      };
+      return [fmt(start, false), fmt(end, true)];
     },
     exportExcel () {
       this.exportLoading = true;
-      const reqParams = this.getFormData() || {};
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.exportLoading = false;
+        return;
+      }
+      const reqParams = formData || {};
+      let fetchPath = 'sp/web/dealer/dealerOutboundOrder/page';
+      let tableRef = this.$refs.tableRef;
+      if (this.activeName === 'homePage') {
+        tableRef = this.$refs.tableRef;
+        fetchPath = 'sp/web/dealer/dealerOutboundOrder/page';
+      } else {
+        tableRef = this.$refs.tableRefAll;
+        fetchPath = 'sp/web/dealer/dealerOutboundOrder/detailPage';
+      }
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
       exportTable({
         businessType: '内部领料申请',
-        dataFetchPath: 'sp/web/dealer/dealerOutboundOrder/page',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: tableRef && tableRef.getVisibleCols ? Object.fromEntries(tableRef.getVisibleCols()) : {},
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -906,8 +761,15 @@ export default {
       this.loading = true;
       this.selectionList = [];
       const optionObj = this.getOptionObj();
+      const fetchApi = this.activeName === 'allSpareParts' ? detailPage : getList;
 
-      getList({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.loading = false;
+        return;
+      }
+
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size, sortColumns: this.sortColumns })
         .then(res => {
           console.log(res);
           optionObj.dataList = (res?.records || []).map(item => {
@@ -917,6 +779,10 @@ export default {
             };
           });
           optionObj.total = res?.total || 0;
+        }).catch(err => {
+          console.error('内部领料申请列表加载失败:', err);
+          optionObj.dataList = [];
+          optionObj.total = 0;
         }).finally(() => {
           this.loading = false;
         });
@@ -979,6 +845,18 @@ export default {
       }
       // 排序字段
       data.sortColumns = this.sortColumns;
+
+      // ===== 全部备件 tab 默认条件校验 =====
+      // 【内部领料单】【订单创建时间】不允许全部为空
+      if (this.activeName === 'allSpareParts') {
+        const hasCode = !!(data.codeList && data.codeList.length);
+        const hasCreateTime = !!(data.createTimeStart && data.createTimeEnd);
+        if (!hasCode && !hasCreateTime) {
+          this.$message.warning('请至少填写【内部领料单】或【订单创建时间】中的任意一个');
+          return null;
+        }
+      }
+
       return data;
     },
     async fetchOptions (code) {

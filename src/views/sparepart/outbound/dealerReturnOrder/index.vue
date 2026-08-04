@@ -170,7 +170,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, dealerReturnOrderAgree, dealerReturnOrderCancel, dealerReturnOrderOutbound } from '@/api/sparepart/outbound/dealerReturnOrder/index';
+import { getList, detailPage, deleteItem, enableItem, dealerReturnOrderAgree, dealerReturnOrderCancel, dealerReturnOrderOutbound } from '@/api/sparepart/outbound/dealerReturnOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSupplierInfo, getLoginUser } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -195,6 +195,16 @@ const defaultForm = {
   createTime: '',
   updateTime: '',
   orderStatusList: [],
+
+  // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
+  sparePartCodeList: null,
+  sparePartName: '',
+  deliveryNoList: null,
+  saleVoucherList: null,
+  inboundNoList: null,
+  purchaseOrderNoList: null,
+  locationNameList: null,
+  locationCodeList: null,
 };
 
 const pageSize = 20;
@@ -388,146 +398,64 @@ export default {
           size: pageSize
         },
         dataProp: [
+          /* ========== 订单维度 ========== */
           {
-            props: 'code',
+            props: 'returnCode',
             label: '外购退货单号',
             visible: true,
             width: 200,
             fixed: 'left',
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/outbound/dealerReturnOrder/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'primary'
-            }]
+            buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/dealerReturnOrder/edit', query: { id: row.returnId } }); }, type: 'primary' }]
           },
-          {
-            props: 'dealerInboundOrderCode',
-            label: '外购入库单号',
-            visible: true,
-            width: 200,
-            fixed: 'left',
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/inbound/dealerInboundOrder/edit',
-                  query: {
-                    id: row.dealerInboundOrderId
-                  }
-                });
-              },
-              type: 'primary'
-            }]
-          },
-          {
-            props: 'dealerCode',
-            label: '门店编码',
-            visible: true,
-            width: 180,
-            buttons: [{
-              click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
-              },
-              type: 'primary'
-            }]
-          },
+          { props: 'inboundCode', label: '外购入库单号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/dealerInboundOrder/edit', query: { id: row.inboundId } }); }, type: 'primary' }] },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
           { props: 'supplierName', label: '供应商名称', visible: true, width: 200 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
           { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
-          { props: 'totalAmount', label: '出库总金额', visible: true, width: 120, align: 'right' },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-
           {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
+            props: 'outboundAmount',
+            label: '出库金额',
             visible: true,
-            fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              show: (row) => {
-                return row.orderStatus === '10';
-              },
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/outbound/dealerReturnOrder/edit',
-                  query: {
-                    id: row.id,
-                    isEditing: true
-                  }
-                });
-              },
-              type: 'info'
-            }, {
-              name: '打印出库单',
-              show: (row) => {
-                return this.permissions.has('AISPART-dealerReturnOrder-outbound');
-              },
-              click: (rowIndex, row) => {
-                this.handlePrint(row);
-              },
-              type: 'info'
-            }, {
-              name: '通过',
-              show: (row) => {
-                return row.orderStatus === '10' && this.permissions.has('AISPART-dealerReturnOrder-agree');
-              },
-              popconfirmTitle: '此操作将通过订单, 是否继续?',
-              click: (rowIndex, row) => {
-                dealerReturnOrderAgree({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '通过成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '通过失败!'
-                  });
-                });
-              },
-              type: 'info'
-            }, {
-              name: '作废',
-              show: (row) => {
-                return row.orderStatus === '10' && this.permissions.has('AISPART-dealerReturnOrder-cancel');
-              },
-              click: (rowIndex, row) => {
-                this.handleVoid(row);
-              },
-              type: 'info'
-            }, {
-              name: '出库',
-              show: (row) => {
-                return row.orderStatus === '20' && row.outboundStatus === '10' && this.permissions.has('AISPART-dealerReturnOrder-outbound');
-              },
-              popconfirmTitle: '此操作将出库订单, 是否继续?',
-              click: (rowIndex, row) => {
-                dealerReturnOrderOutbound({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '出库成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '出库失败!'
-                  });
-                });
-              },
-              type: 'info'
-            }]
-          }
+            width: 140,
+            align: 'right'
+          },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+
+          /* ========== 明细维度 ========== */
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/sparePart/detail', query: { id: row.sparePartId } }); }, type: 'primary' }] },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'locationCode', label: '库位编码', visible: true, width: 120 },
+          {
+            props: 'availableQty',
+            label: '可用库存',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'unitPrice',
+            label: '单价',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'outboundQty',
+            label: '出库数量',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'outboundAmountDetail',
+            label: '出库金额',
+            visible: true,
+            width: 140,
+            align: 'right'
+          },
         ],
         total: 0
       },
@@ -578,6 +506,11 @@ export default {
     handleClick (item) {
       this.activeName = item.name;
       this.show = false;
+      // 跨 tab 切换时，把所有 tab 的分页状态都重置为 page 1 + 默认 size
+      this.optionObj.form.page = 1;
+      this.optionObj.form.size = pageSize;
+      this.optionObjAll.form.page = 1;
+      this.optionObjAll.form.size = pageSize;
       this.onReset();
     },
     handleImport () {
@@ -614,11 +547,25 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      // 全部备件 tab：默认创建时间 = 最近一个月（end 用 23:59:59）
+      const extraDefaults = this.activeName === 'allSpareParts'
+        ? { createTime: this.getLastMonthRange() }
+        : {};
+      this.form = { ...defaultForm, ...extraDefaults };
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
-      optionObj.form.pageSize = pageSize;
+      optionObj.form.size = pageSize;
       this.getData();
+    },
+    getLastMonthRange () {
+      const end = new Date();
+      const start = new Date();
+      start.setMonth(start.getMonth() - 1);
+      const fmt = (d, isEnd) => {
+        const pad = (n) => (n < 10 ? `0${n}` : n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${isEnd ? '23:59:59' : '00:00:00'}`;
+      };
+      return [fmt(start, false), fmt(end, true)];
     },
     exportExcel () {
       this.exportLoading = true;
@@ -658,7 +605,13 @@ export default {
       this.selectionList = [];
       const optionObj = this.getOptionObj();
 
-      getList({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
+      const fetchApi = this.activeName === 'allSpareParts' ? detailPage : getList;
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.loading = false;
+        return;
+      }
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
           if (!res || !res.records) return;

@@ -592,11 +592,11 @@ export default {
       const end = new Date();
       const start = new Date();
       start.setMonth(start.getMonth() - 1);
-      const fmt = (d) => {
+      const fmt = (d, isEnd) => {
         const pad = (n) => (n < 10 ? `0${n}` : n);
-        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} 00:00:00`;
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${isEnd ? '23:59:59' : '00:00:00'}`;
       };
-      return [fmt(start), fmt(end)];
+      return [fmt(start, false), fmt(end, true)];
     },
     exportExcel () {
       this.exportLoading = true;

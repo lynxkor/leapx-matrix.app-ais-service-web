@@ -165,7 +165,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, getSign } from '@/api/sparepart/transfer/transferInbound/index';
+import { getList, detailPage, deleteItem, enableItem, getSign } from '@/api/sparepart/transfer/transferInbound/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -189,6 +189,16 @@ const defaultForm = {
   signStatusList: [],
   createTime: '',
   updateTime: '',
+
+  // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
+  sparePartCodeList: null,
+  sparePartName: '',
+  deliveryNoList: null,
+  saleVoucherList: null,
+  inboundNoList: null,
+  purchaseOrderNoList: null,
+  locationNameList: null,
+  locationCodeList: null,
 };
 
 const pageSize = 20;
@@ -357,102 +367,66 @@ export default {
           size: pageSize
         },
         dataProp: [
+          /* ========== 订单维度 ========== */
           {
             props: 'code',
             label: '调拨入库单号',
             visible: true,
             width: 200,
             fixed: 'left',
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/transfer/transferInbound/edit',
-                  query: {
-                    id: row.id
-                  }
-                });
-              },
-              type: 'primary'
-            }]
+            buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/transferInbound/edit', query: { id: row.id } }); }, type: 'primary' }]
           },
-          {
-            props: 'transferOutboundCode',
-            label: '调拨出库单号',
-            visible: true,
-            width: 200,
-            fixed: 'left',
-            buttons: [{
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/transfer/transferOutbound/edit',
-                  query: {
-                    id: row.transferOutboundId
-                  }
-                });
-              },
-              type: 'primary'
-            }]
-          },
-          { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180 },
-          { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
-          { props: 'inboundWarehouseName', label: '入库仓库', visible: true, width: 200 },
-          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180 },
-          { props: 'outboundDealerName', label: '出库门店名称', visible: true, width: 200 },
+          { props: 'transferOutCode', label: '调拨出库单号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/transferOutbound/edit', query: { id: row.transferOutId } }); }, type: 'primary' }] },
+          { props: 'inDealerCode', label: '入库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank'); }, type: 'primary' }] },
+          { props: 'inDealerName', label: '入库门店名称', visible: true, width: 200 },
+          { props: 'inWarehouseName', label: '入库仓库', visible: true, width: 200 },
+          { props: 'outDealerCode', label: '出库门店编码', visible: true, width: 180 },
+          { props: 'outDealerName', label: '出库门店名称', visible: true, width: 200 },
           { props: 'signStatusLabel', label: '签收状态', visible: true, width: 120 },
-          { props: 'remark', label: '备注', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'remark', label: '订单备注', visible: true, width: 200 },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+
+          /* ========== 明细维度 ========== */
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/sparePart/detail', query: { id: row.sparePartId } }); }, type: 'primary' }] },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'locationName', label: '库位', visible: true, width: 120 },
           {
-            props: 'operate',
-            label: '操作',
-            type: 'operate',
+            props: 'availableQty',
+            label: '可用库存',
             visible: true,
-            fixed: 'right',
-            buttons: [{
-              name: '编辑',
-              click: (rowIndex, row) => {
-                this.$router.push({
-                  path: '/sparepart/transfer/transferInbound/edit',
-                  query: {
-                    id: row.id,
-                    isEditing: true
-                  }
-                });
-              },
-              type: 'info'
-            },
-            {
-              name: '签收',
-              show: (row) => {
-                return row.signStatus === '0' && this.permissions.has('AISPART-transferInbound-sign');
-              },
-              popconfirmTitle: '此操作将签收调拨入库单, 是否继续?',
-              click: (rowIndex, row) => {
-                getSign({ id: row.id }).then(() => {
-                  this.$message({
-                    type: 'success',
-                    message: '签收成功!'
-                  });
-                  this.getData();
-                }).catch(() => {
-                  this.$message({
-                    type: 'error',
-                    message: '签收失败!'
-                  });
-                });
-              },
-              type: 'info'
-            }, {
-              name: '打印',
-              show: (row) => {
-                return this.permissions.has('AISPART-transferInbound-print');
-              },
-              click: (rowIndex, row) => {
-                this.handlePrint(row);
-              },
-              type: 'info'
-            }]
-          }
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'transferPriceInTax',
+            label: '调拨价格(含税)',
+            visible: true,
+            width: 140,
+            align: 'right'
+          },
+          {
+            props: 'transferPriceExTax',
+            label: '调拨价格(不含税)',
+            visible: true,
+            width: 160,
+            align: 'right'
+          },
+          {
+            props: 'amountInTax',
+            label: '金额（含税）',
+            visible: true,
+            width: 140,
+            align: 'right'
+          },
+          {
+            props: 'transferQty',
+            label: '调拨数量',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          { props: 'detailRemark', label: '明细备注', visible: true, width: 200 },
         ],
         total: 0
       },
@@ -544,6 +518,11 @@ export default {
     handleClick (item) {
       this.activeName = item.name;
       this.show = false;
+      // 跨 tab 切换时，把所有 tab 的分页状态都重置为 page 1 + 默认 size
+      this.optionObj.form.page = 1;
+      this.optionObj.form.size = pageSize;
+      this.optionObjAll.form.page = 1;
+      this.optionObjAll.form.size = pageSize;
       this.onReset();
     },
     handleImport () {
@@ -563,11 +542,25 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      // 全部备件 tab：默认创建时间 = 最近一个月（end 用 23:59:59）
+      const extraDefaults = this.activeName === 'allSpareParts'
+        ? { createTime: this.getLastMonthRange() }
+        : {};
+      this.form = { ...defaultForm, ...extraDefaults };
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
-      optionObj.form.pageSize = pageSize;
+      optionObj.form.size = pageSize;
       this.getData();
+    },
+    getLastMonthRange () {
+      const end = new Date();
+      const start = new Date();
+      start.setMonth(start.getMonth() - 1);
+      const fmt = (d, isEnd) => {
+        const pad = (n) => (n < 10 ? `0${n}` : n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${isEnd ? '23:59:59' : '00:00:00'}`;
+      };
+      return [fmt(start, false), fmt(end, true)];
     },
     exportExcel () {
       this.exportLoading = true;
@@ -607,7 +600,13 @@ export default {
       this.selectionList = [];
       const optionObj = this.getOptionObj();
 
-      getList({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
+      const fetchApi = this.activeName === 'allSpareParts' ? detailPage : getList;
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.loading = false;
+        return;
+      }
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
           if (!res || !res.records) return;
