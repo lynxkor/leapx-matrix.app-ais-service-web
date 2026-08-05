@@ -135,10 +135,10 @@
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <!-- TIPS: 以下导入按钮的模板ID为占位符，需替换为 ExcelManage 后台配置的导入模板code -->
-      <el-button v-if="canImport" size="small" @click="handleImport('RepairPackages-import')">套餐导入</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport('RepairPackages-veh-import')">车型导入</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport('RepairPackages-item-import')">项目导入</el-button>
-      <el-button v-if="canImport" size="small" @click="handleImport('RepairPackages-part-import')">配件导入</el-button>
+      <el-button v-if="permissions.has('AISMC-repairPackages-importExcel')" size="small" @click="handleImport('RepairPackages-import')">套餐导入</el-button>
+      <el-button v-if="permissions.has('AISMC-repairPackages-vehicleModel-importExcel')" size="small" @click="handleImport('RepairPackages-veh-import')">车型导入</el-button>
+      <el-button v-if="permissions.has('AISMC-repairPackages-item-importExcel')" size="small" @click="handleImport('RepairPackages-item-import')">项目导入</el-button>
+      <el-button v-if="permissions.has('AISMC-repairPackages-part-importExcel')" size="small" @click="handleImport('RepairPackages-part-import')">配件导入</el-button>
       <el-button v-if="permissions.has('AISMC-repairPackages-batchTypeMaintenance')" size="small" @click="handleBatchMaintenance">套餐类型维护</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
@@ -437,7 +437,7 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
+        businessType: '维修套餐',
         dataFetchPath: 'maintain/web/basic/repairPackages/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
