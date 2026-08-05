@@ -39,7 +39,7 @@
     </el-select>
 
     <!-- 值控件:多值(文本 TagInput) -->
-    <tag-input
+    <value-tag-input
       v-if="valueKind === 'multi' && fieldMeta && fieldMeta.type === 'text' "
       v-model="localRow.value"
       :placeholder="valuePlaceholder"
@@ -49,7 +49,7 @@
     />
 
     <!-- 值控件:多值(数字 TagInput + 校验) -->
-    <tag-input
+    <value-tag-input
       v-if="valueKind === 'multi' && fieldMeta && fieldMeta.type === 'number' "
       v-model="localRow.value"
       :placeholder="valuePlaceholder"
@@ -164,12 +164,12 @@ import {
   getOperatorsForField,
   getOperator
 } from './fieldMeta';
-import TagInput from '@/libs/components/TagInput';
+import ValueTagInput from './ValueTagInput.vue';
 import FetchSelect from '@/libs/components/FetchSelect';
 
 export default {
   name: 'CustomConditionRow',
-  components: { TagInput, FetchSelect },
+  components: { ValueTagInput, FetchSelect },
   props: {
     row: {
       type: Object,
