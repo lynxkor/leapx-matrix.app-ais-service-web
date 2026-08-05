@@ -191,7 +191,7 @@ export default {
   }
   &__remove {
     margin-left: auto;
-    color: #f56c6c;
+    color: var(--leap-color-danger);
     padding: 2px 6px;
   }
   &__item {

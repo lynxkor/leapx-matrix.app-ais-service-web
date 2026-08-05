@@ -4,6 +4,7 @@
       trigger="click"
       placement="bottom-end"
       class="m-custom-view__dropdown"
+      :append-to-body="false"
       @command="onDropdownCommand"
       @visible-change="onDropdownVisibleChange"
     >
@@ -61,8 +62,9 @@
             <i class="el-icon-edit m-custom-view__action" title="编辑" @click.stop="onEditView(p)" />
             <i class="el-icon-delete m-custom-view__action m-custom-view__action--danger" title="删除" @click.stop="onDeleteView(p)" />
           </span>
+          <i v-if="activePresetId === p.id" class="m-custom-view__action el-icon-check"></i>
         </el-dropdown-item>
-        <el-dropdown-item divided command="__new__">
+        <el-dropdown-item divided command="__new__" class="m-custom-view__divided">
           <i class="el-icon-plus" />
           <span class="m-custom-view__label">新增视图</span>
         </el-dropdown-item>
@@ -75,12 +77,8 @@
 
     <CustomQueryDialog
       :visible.sync="dialogVisible"
-      :value="internalConditions"
-      :sort="internalSort"
       :active-preset-id="editingPresetId"
       :biz-key="bizKey"
-      @update:value="onDialogUpdateConditions"
-      @update:sort="onDialogUpdateSort"
       @update:active-preset-id="onDialogUpdatePresetId"
     />
   </div>
@@ -88,7 +86,6 @@
 
 <script>
 import CustomQueryDialog from '../CustomQueryDialog/index.vue';
-import { cloneTree } from '../CustomQueryDialog/fieldMeta';
 import { PERF_STATUS } from '../CustomQueryDialog/perfStatus';
 import * as customQueryViewApi from '@/api/datareport/customQueryView';
 
@@ -98,11 +95,9 @@ export default {
   name: 'CustomView',
   components: { CustomQueryDialog },
   props: {
-    fields: { type: Array, required: true },
     value: { type: [Object, null], default: null },
     sortColumns: { type: Array, default: () => [] },
     activePresetId: { type: [String, null], default: null },
-    storageKey: { type: String, default: '' },
     triggerText: { type: String, default: '默认视图' },
     bizKey: { type: String, default: DEFAULT_BIZ_KEY }
   },
@@ -129,17 +124,6 @@ export default {
     defaultViewVisible () {
       const kw = (this.presetFilterKeyword || '').trim().toLowerCase();
       return !kw || '默认视图'.toLowerCase().includes(kw);
-    },
-    internalSort () {
-      const first = (this.sortColumns || [])[0];
-      if (!first) return { field: null, order: null };
-      return {
-        field: first.column,
-        order: (first.sort || '').toLowerCase()
-      };
-    },
-    internalConditions () {
-      return this.value;
     }
   },
   watch: {
@@ -273,31 +257,18 @@ export default {
         this.$message.error('加载视图详情失败');
       }
     },
-    onDialogUpdateConditions (val) {
-      const conditions = val ? cloneTree(val) : null;
-      this.$emit('input', conditions);
-      this.$emit('change', {
-        conditions,
-        sortColumns: this.sortColumns,
-        activePresetId: this.activePresetId
-      });
-    },
-    onDialogUpdateSort (sort) {
-      const sortColumns = sort
-        ? [{ column: sort.field, sort: sort.order.toUpperCase() }]
-        : [];
-      this.$emit('update:sortColumns', sortColumns);
-      this.$emit('change', {
-        conditions: this.value,
-        sortColumns,
-        activePresetId: this.activePresetId
-      });
-      this.loadPresets();
-    },
     onDialogUpdatePresetId (id) {
       if (id !== this.editingPresetId) {
         this.editingPresetId = id;
         this.loadPresets();
+        // 弹窗保存成功(id 由 null 变为新增/更新后的视图 id),
+        // 触发 change 让父页按新 viewId 重新 executeQuery 取数,
+        // 使 appliedCustomConditions / sortColumns 与新保存树一致。
+        this.$emit('change', {
+          conditions: this.value,
+          sortColumns: this.sortColumns,
+          activePresetId: id
+        });
       }
     }
   }
@@ -323,8 +294,9 @@ export default {
     }
   }
   &__search {
-    padding: 6px 10px;
+    padding: 2px 10px 10px 10px;
     border-bottom: 1px solid #ebeef5;
+    margin-bottom: 6px;
   }
   &__empty {
     padding: 12px;
@@ -333,7 +305,11 @@ export default {
     font-size: 12px;
   }
   &__label {
-    flex: 1;
+    max-width: 155px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
   }
   &__perf {
     margin-left: 8px;
@@ -349,7 +325,7 @@ export default {
     transition: opacity 0.2s;
   }
   &__action {
-    padding: 4px 6px;
+    padding: 4px;
     border-radius: 3px;
     font-size: 13px;
     cursor: pointer;
@@ -358,21 +334,36 @@ export default {
       color: var(--leap-color-primary);
     }
     &--danger:hover {
-      color: #f56c6c;
+      color: var(--leap-color-danger);
+    }
+    &.el-icon-check{
+      position: absolute;
+      right: 0px;
+    }
+  }
+  &__item {
+    padding: 0 24px 0 12px;
+    display: flex;
+    align-items: center;
+    &.is-active {
+      color: var(--leap-color-primary);
+    }
+  }
+  &__divided {
+    display: flex;
+    align-items: center;
+    &::before {
+      margin: 0;
     }
   }
   ::v-deep .el-dropdown-menu__item &__perf.el-tag {
-    margin-left: 8px;
+    margin-left: 4px;
     height: 18px;
     line-height: 18px;
     padding: 0 6px;
   }
   ::v-deep .el-dropdown-menu__item:hover &__actions {
     opacity: 1;
-  }
-  ::v-deep .el-dropdown-menu__item.is-active {
-    color: var(--leap-color-primary);
-    background: #ecf5ff;
   }
 }
 </style>

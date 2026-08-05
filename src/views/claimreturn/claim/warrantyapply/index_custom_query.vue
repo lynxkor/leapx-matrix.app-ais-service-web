@@ -236,11 +236,9 @@
         v-model="appliedCustomConditions"
         :sort-columns.sync="sortColumns"
         :active-preset-id.sync="activePresetId"
-        :fields="customConditionFields"
         :biz-key="'warrantyapply'"
         class="m-view-dropdown m-view-dropdown--right"
         @change="onViewChange"
-        @query-result="onViewQueryResult"
       >
         <template #trigger="{ label, clearable, onClear }">
           <el-button size="small" class="m-view-dropdown__trigger">
@@ -477,7 +475,6 @@ export default {
       rowId: '',
       appliedCustomConditions: null,
       activePresetId: null,
-      customConditionFields: [],
       tableColumns: [
         {
           props: 'alarmLevelLabel',
@@ -978,16 +975,11 @@ export default {
       // 选中视图时,数据由 CustomView 组件内部调统一 executeQuery 提供,
       // 业务页不再额外调旧查询接口
       if (this.activePresetId) {
+        this.loading = true;
         this.getCustomViewData();
       } else {
         this.getData();
       }
-    },
-    onViewQueryResult ({ result }) {
-      // CustomView 组件选中视图后调统一 executeQuery 拿到的数据
-      const records = (result && (result.records || result.data?.records)) || [];
-      this.tableDataList = records.map(item => ({ ...item, deleteLoading: false }));
-      this.tableTotal = result?.total ?? records.length;
     },
     handleTabChange () {
       this.tableForm.page = 1;

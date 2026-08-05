@@ -1,8 +1,9 @@
 <template>
   <el-dialog
-    title="自定义条件查询"
+    :title="title"
     :visible.sync="dialogVisible"
-    width="80%"
+    class="m-custom-query-dialog"
+    width="100%"
     :close-on-click-modal="false"
     @close="onClose"
   >
@@ -16,9 +17,9 @@
         </span>
         <el-input
           v-model="viewName"
-          placeholder="请输入视图名称(必填)"
+          placeholder="请输入"
           size="small"
-          maxlength="50"
+          maxlength="20"
           show-word-limit
           class="c-cqd__presets-input"
         />
@@ -145,6 +146,9 @@ export default {
   computed: {
     fields () {
       return this.fieldsMeta;
+    },
+    title () {
+      return this.activePresetId ? '编辑自定义视图' : '新增自定义视图';
     }
   },
   watch: {
@@ -340,6 +344,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.m-custom-query-dialog {
+  // 维保3.0
+  ::v-deep .el-dialog{
+    height: 100%!important;
+    width: 100%!important;
+    margin: 0!important;
+    border-radius: 0;
+  }
+}
 .c-cqd {
   max-height: 60vh;
   overflow-y: auto;

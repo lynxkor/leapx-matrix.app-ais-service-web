@@ -278,11 +278,11 @@ export default {
   &__op { width: 130px; }
   &__value { flex: 1; min-width: 200px; }
   &__value--number { width: 100%; }
-  &__remove { padding: 4px; color: #f56c6c; }
+  &__remove { padding: 4px; color: var(--leap-color-danger); }
   ::v-deep .is-error .el-input__inner,
   ::v-deep .is-error .el-input__wrapper,
   ::v-deep .is-error .el-select .el-input__inner {
-    border-color: #f56c6c;
+    border-color: var(--leap-color-danger);
   }
 }
 </style>
