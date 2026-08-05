@@ -963,6 +963,15 @@ export default {
     customViewListAdapter (records) {
       return (records || []).map(item => ({ ...item, deleteLoading: false }));
     },
+    /** 分页对象引用(读写同一份,保持单一来源) */
+    _cvPager () {
+      return this.tableForm;
+    },
+    /** 视图取数结果回填表格 */
+    _cvSetResult (records, total) {
+      this.tableDataList = records;
+      this.tableTotal = total;
+    },
     // 需要防抖场景时使用
     debouncedGetData: debounce(function () {
       this.getData();
