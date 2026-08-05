@@ -83,11 +83,11 @@
         </el-form-item>
         <el-form-item label="数据分类">
           <fetch-select
-            :request="fetchOptions"
-            enumCode="desensitize_data_category"
+            :request="fetchCategoryList"
             v-model="form.dataCategory"
             placeholder="请选择"
             clearable
+            multiple
             filterable
           />
         </el-form-item>
@@ -165,7 +165,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { page, enable } from '@/api/desensitize/rule';
-import { getTableConfig, tableAddOrUpdate, getEnum, exportTable } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, getEnum, findByDictType, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
@@ -182,7 +182,7 @@ const defaultForm = {
   columnName: '',
   columnNameZh: '',
   status: '',
-  dataCategory: '',
+  dataCategory: [],
   creatorName: '',
   createTime: '',
   modifierName: '',
@@ -288,6 +288,7 @@ export default {
           sort: (item.order || '').toUpperCase()
         };
       });
+      this.optionObj.form.page = 1;
       this.getData();
     },
     handleListSelect (row) {
@@ -391,7 +392,8 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null) {
+        const val = data[key];
+        if (val === '' || val === null || (Array.isArray(val) && val.length === 0)) {
           delete data[key];
         }
       });
@@ -419,6 +421,22 @@ export default {
         return getEnum(code);
       }
       return Promise.resolve([]);
+    },
+    // 数据分类下拉 - 多选，数据源与编辑页保持一致
+    async fetchCategoryList () {
+      try {
+        const res = await findByDictType({
+          dictType: 'desensitizeCategory',
+          status: 0
+        });
+        return (res || []).map(item => ({
+          code: item.value,
+          message: item.label
+        }));
+      } catch (err) {
+        console.error('获取数据分类失败', err);
+        return [];
+      }
     },
     formatRow (row) {
       return {
