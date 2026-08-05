@@ -29,7 +29,7 @@
               <div class="common-section-sub-header">
                 <h3>归属信息</h3>
                 <el-button v-if="canViewLifetimeBenefits" size="small" @click="onBenefit">查看终身权益</el-button>
-                <el-button v-if="form.warrantyStartdate" size="small" @click="onWarranty">重新预测质保期</el-button>
+                <el-button v-if="canWarrantyForecast && form.warrantyStartdate" size="small" @click="onWarranty">重新预测质保期</el-button>
               </div>
               <!-- <el-form :inline="true" :model="form" label-width="150px" class="form-detail"> -->
               <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm1" class="form-edit" v-show="isEditing || !_id">
@@ -1062,6 +1062,7 @@ export default {
       syncPad: false,
       modifyMaintenanceRecord: false,
       canKeyInfoChangeLog: false,
+      canWarrantyForecast: false,
       serviceProxyHis: false,
       pageNum: 1, // 实名认证记录分页
       pageSize: 10,
@@ -1076,6 +1077,7 @@ export default {
     this.syncPad = this.permissions.has(`${this.moduleKey}-syncPad`);
     this.modifyMaintenanceRecord = this.permissions.has(`${this.moduleKey}-modifyMaintenanceRecord`);
     this.canKeyInfoChangeLog = this.permissions.has(`${this.moduleKey}-keyInfoChangeLog`);
+    this.canWarrantyForecast = this.permissions.has(`${this.moduleKey}-warrantyForecast`);
     this.serviceProxyHis = !!(this.$store.state.pageSource?.aisPageSource || []).find(item => (item === 'AISMC-serviceProxyHis-page'));
   },
   mounted () {
