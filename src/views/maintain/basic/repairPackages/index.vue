@@ -437,7 +437,7 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '新页面',
+        businessType: '维修套餐',
         dataFetchPath: 'maintain/web/basic/repairPackages/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
