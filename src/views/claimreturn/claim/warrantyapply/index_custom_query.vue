@@ -355,8 +355,8 @@ import ApproveDialog from './ApproveDialog/index.vue';
 import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
-import CustomView from './components/CustomView/index.vue';
-import { executeQuery } from '@/api/datareport/customQueryView/index';
+import CustomView from '@/libs/components/CustomView/index.vue';
+import customViewMixin from '@/libs/mixins/customView';
 
 // 创建时间默认值：最近 3 个月
 function getDefaultCreateTime () {
@@ -401,7 +401,7 @@ const mockConfig = {
 };
 
 export default {
-  mixins: [responsiveSearchForm, permissions, commonMixins],
+  mixins: [responsiveSearchForm, permissions, commonMixins, customViewMixin],
   components: {
     PageSearchAction,
     LPVxeTable,
@@ -473,8 +473,6 @@ export default {
       rightsDialogVisible: false,
       vehicleProfileId: '',
       rowId: '',
-      appliedCustomConditions: null,
-      activePresetId: null,
       tableColumns: [
         {
           props: 'alarmLevelLabel',
@@ -750,9 +748,6 @@ export default {
     };
   },
   computed: {
-    formDisabled () {
-      return !!this.activePresetId;
-    },
     optionObj () {
       return {
         id: 'warrantyApplyTable',
@@ -961,65 +956,34 @@ export default {
       this.getData();
     },
     onReset () {
-      this.appliedCustomConditions = null;
-      this.activePresetId = null;
+      this.resetCustomView();
       this.form = { ...defaultForm, createTime: getDefaultCreateTime() };
-      this.sortColumns = [];
       this.tableForm.page = 1;
-      this.tableForm.pageSize = pageSize;
+      this.tableForm.size = pageSize;
       this._scopeTypeOrgCache = null;
       this.regionSelectKey++;
       this.getData();
-    },
-    onViewChange () {
-      // 选中视图时,数据由 CustomView 组件内部调统一 executeQuery 提供,
-      // 业务页不再额外调旧查询接口
-      if (this.activePresetId) {
-        this.loading = true;
-        this.getCustomViewData();
-      } else {
-        this.getData();
-      }
     },
     handleTabChange () {
       this.tableForm.page = 1;
       this.getData();
     },
-    getCustomViewData () {
-      executeQuery({ viewId: this.activePresetId, pageNum: this.tableForm.page, pageSize: this.tableForm.size })
+    getData () {
+      // 视图锁定(有 activePresetId)时交给 mixin 走 executeQuery,否则走业务列表查询
+      if (this.fetchByCustomView()) return;
+      this.loading = true;
+      this.selectionList = [];
+      getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
         .then(res => {
-          this.tableDataList = (res?.records || []).map(item => {
-            return {
-              ...item,
-              deleteLoading: false
-            };
-          });
+          this.tableDataList = (res?.records || []).map(item => ({ ...item, deleteLoading: false }));
           this.tableTotal = res.total;
         }).finally(() => {
           this.loading = false;
         });
     },
-    getData () {
-      this.loading = true;
-      this.selectionList = [];
-
-      if (this.activePresetId) {
-        this.getCustomViewData();
-      } else {
-        getList({ ...this.getFormData(), pageNum: this.tableForm.page, pageSize: this.tableForm.size })
-          .then(res => {
-            this.tableDataList = (res?.records || []).map(item => {
-              return {
-                ...item,
-                deleteLoading: false
-              };
-            });
-            console.log(this.tableDataList);
-            this.tableTotal = res.total;
-          }).finally(() => {
-            this.loading = false;
-          });
-      }
+    // customViewMixin 的 customViewListAdapter 覆盖:视图取数结果 → 表格行
+    customViewListAdapter (records) {
+      return (records || []).map(item => ({ ...item, deleteLoading: false }));
     },
     // 需要防抖场景时使用
     debouncedGetData: debounce(function () {
