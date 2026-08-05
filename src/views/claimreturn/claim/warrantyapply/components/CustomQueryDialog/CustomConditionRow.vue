@@ -62,9 +62,10 @@
     <!-- 值控件:多值(枚举 FetchSelect) -->
     <fetch-select
       v-if="valueKind === 'multi' && fieldMeta && fieldMeta.type === 'enum' "
+      :key="fieldMeta.enumCode"
       v-model="localRow.value"
+      :request="fetchOptions"
       :enum-code="fieldMeta.enumCode"
-      :options="fieldMeta.options"
       :multiple="true"
       :disabled="disabled"
       class="c-cr__value"
@@ -166,6 +167,7 @@ import {
 } from './fieldMeta';
 import ValueTagInput from './ValueTagInput.vue';
 import FetchSelect from '@/libs/components/FetchSelect';
+import { getEnum } from '@/api/common';
 
 export default {
   name: 'CustomConditionRow',
@@ -239,6 +241,12 @@ export default {
     }
   },
   methods: {
+    // 枚举下拉数据源。字段元数据由后端下发,只带 enumCode 不带 options,
+    // 需要显式传 request 给 FetchSelect,否则其 loadOptions 会直接 return 导致下拉空白。
+    async fetchOptions (code) {
+      if (!code) return [];
+      return getEnum(code);
+    },
     onFieldChange () {
       this.localRow.operator = null;
       this.localRow.value = null;
