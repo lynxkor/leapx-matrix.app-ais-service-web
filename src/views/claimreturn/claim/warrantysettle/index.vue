@@ -58,6 +58,17 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="收款方式">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="payment_method"
+            v-model="form.paymentMethodList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
         <el-form-item label="银行户主">
           <el-input
             v-model="form.invoiceAccountNameLike"
@@ -503,6 +514,7 @@ const defaultForm = {
   dealerNameList: [],
   storeStatusList: [],
   settleStatusList: [],
+  paymentMethodList: [],
   invoiceAccountNameLike: '',
   createTime: '',
   updateTime: '',
@@ -635,6 +647,7 @@ export default {
           { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
           { props: 'storeStatusLabel', label: '门店状态', visible: true, width: 120 },
           { props: 'settleStatusLabel', label: '通知书状态', visible: true, width: 120 },
+          { props: 'paymentMethodLabel', label: '收款方式', visible: true, width: 120 },
           { props: 'invoiceAccountName', label: '银行户主', visible: true, width: 150 },
           {
             props: 'workHourTotal',

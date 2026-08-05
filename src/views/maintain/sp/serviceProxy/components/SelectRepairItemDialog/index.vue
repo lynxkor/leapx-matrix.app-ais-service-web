@@ -876,24 +876,19 @@ export default {
       //   this.$message.warning('请至少添加一个维修项目或维修配件');
       //   return;
       // }
-      // 保修类型为售前保修只能单独开单
-      const preSaleItem = this.itemData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.PRE_SALE_WARRANTY) || [];
-      const preSalePart = this.partData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.PRE_SALE_WARRANTY) || [];
-      if (preSaleItem.length > 0 || preSalePart.length > 0) {
-        if ((this.itemData.length && preSaleItem.length < this.itemData.length) || (this.partData.length && preSalePart.length < this.partData.length)) {
-          this.$message.warning('售前保修只能单独开单');
-          return;
+      // "只能单独开单"校验:存在某类型行时,所有维修项目和配件必须都是该类型
+      const allRows = [...this.itemData, ...this.partData];
+      const checkSoloRule = ({ match, message }) => {
+        const matched = allRows.filter(match);
+        if (matched.length > 0 && matched.length !== allRows.length) {
+          this.$message.warning(message);
+          return false;
         }
-      }
-
-      const preSaleItem2 = this.itemData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.GOODWILL_WARRANTY) || [];
-      const preSalePart2 = this.partData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.GOODWILL_WARRANTY) || [];
-      if (preSaleItem2.length > 0 || preSalePart2.length > 0) {
-        if ((this.itemData.length && preSaleItem2.length < this.itemData.length) || (this.partData.length && preSalePart2.length < this.partData.length)) {
-          this.$message.warning('善意保修只能单独开单');
-          return;
-        }
-      }
+        return true;
+      };
+      if (!checkSoloRule({ match: r => r.warrantyTypeId === WarrantyTypeEnum.PRE_SALE_WARRANTY, message: '售前保修只能单独开单' })) return;
+      if (!checkSoloRule({ match: r => r.warrantyTypeId === WarrantyTypeEnum.GOODWILL_WARRANTY, message: '善意保修只能单独开单' })) return;
+      if (!checkSoloRule({ match: r => String(r.packageType) === PackageTypeEnum.STORE, message: '商城订单只能单独开单' })) return;
 
       this.submitLoading = true;
 
