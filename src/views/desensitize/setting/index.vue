@@ -281,6 +281,15 @@ export default {
     this.getData();
   },
   methods: {
+    handleSortChange (value) {
+      this.sortColumns = (value || []).map(item => {
+        return {
+          column: (item.field || '').replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
+          sort: (item.order || '').toUpperCase()
+        };
+      });
+      this.getData();
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
@@ -296,10 +305,10 @@ export default {
     handleExport () {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
-      reqParams.gatewayType = 'LEAPX';
       exportTable({
         businessType: '脱敏规则',
         dataFetchPath: 'desensitize/rule/page',
+        gatewayType: 'LEAPX',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
