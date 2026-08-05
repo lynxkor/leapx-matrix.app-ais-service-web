@@ -2693,6 +2693,7 @@ const routes = [
         name: '自定义查询',
         keepAlive: true,
         notRefresh: true,
+        customViewBizKey: 'warrantyapply'
       }
     }, {
       path: '/claimreturn/claim/warrantyApply/edit',

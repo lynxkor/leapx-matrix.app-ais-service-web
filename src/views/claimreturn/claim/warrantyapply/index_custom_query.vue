@@ -232,26 +232,6 @@
       <el-button v-if="approve"  size="small" @click="handleApprove">批量同意</el-button>
       <el-button v-if="cancel" size="small" @click="handleCancel">批量作废</el-button>
       <el-button size="small" @click="handlePrint">打印标签</el-button>
-      <CustomView
-        v-model="appliedCustomConditions"
-        :sort-columns.sync="sortColumns"
-        :active-preset-id.sync="activePresetId"
-        :biz-key="'warrantyapply'"
-        class="m-view-dropdown m-view-dropdown--right"
-        @change="onViewChange"
-      >
-        <template #trigger="{ label, clearable, onClear }">
-          <el-button size="small" class="m-view-dropdown__trigger">
-            {{ label }}
-            <i class="el-icon-arrow-down el-icon--right" />
-            <i
-              v-if="clearable"
-              class="el-icon-close m-view-dropdown__clear"
-              @click.stop="onClear"
-            />
-          </el-button>
-        </template>
-      </CustomView>
     </div>
     <el-tabs v-model="activeTab" @tab-click="handleTabChange">
       <el-tab-pane label="全部" name="all" />
@@ -355,7 +335,6 @@ import ApproveDialog from './ApproveDialog/index.vue';
 import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
-import CustomView from '@/libs/components/CustomView/index.vue';
 import customViewMixin from '@/libs/mixins/customView';
 
 // 创建时间默认值：最近 3 个月
@@ -415,7 +394,6 @@ export default {
     ApproveDialog,
     CancelDialog,
     WithdrawDialog,
-    CustomView,
   },
   data () {
     return {
@@ -1171,12 +1149,6 @@ export default {
     align-items: center;
     flex-wrap: wrap;
     gap: 8px;
-  }
-  .m-view-dropdown--right {
-    // 让视图下拉按钮右对齐,并留出 140px 右边距
-    // (避免弹出菜单压住表格右侧的操作列图标)
-    margin-left: auto;
-    margin-right: 140px;
   }
   .ais-table-c {
     height: calc(100% - 168px);
