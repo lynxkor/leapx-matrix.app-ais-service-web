@@ -400,7 +400,8 @@ export default {
   },
   computed: {
     _id () {
-      return this.id || this.$route.query.id || this.form.id;
+      const id = this.id || this.$route.query.id || this.form.id;
+      return id != null ? String(id) : '';
     },
     title () {
       return this._id ? '脱敏设置详情' : '脱敏设置';
