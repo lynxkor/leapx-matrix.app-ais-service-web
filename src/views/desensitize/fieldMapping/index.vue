@@ -204,6 +204,9 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
+      // 后端 page 接口实际接收的是 PageRequest（不是 PaginationModel），
+      // 请求体字段为 page/size（不是 page/size，也不是 pageNum/pageSize）。
+      // 响应里读取 totals/records（PaginationModel 的字段）。
       page({ ...this.getFormData(), page: this.optionObj.form.page, size: this.optionObj.form.size })
         .then(res => {
           this.optionObj.dataList = ((res && res.records) || []).map(row => ({

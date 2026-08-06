@@ -267,7 +267,7 @@
                         placeholder="请输入姓名或手机号"
                         class="user-select"
                         style="width: 100%;"
-                        @change="(val) => (row, val)"
+                        @change="(val) => handleUserChange(row, val)"
                       >
                         <el-option
                           v-for="u in userOptions"

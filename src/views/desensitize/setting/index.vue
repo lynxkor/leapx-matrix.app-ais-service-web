@@ -356,7 +356,7 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
-      page({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      page({ ...this.getFormData(), page: this.optionObj.form.page, size: this.optionObj.form.size })
         .then(res => {
           const records = (res && res.records) || [];
           this.optionObj.dataList = records.map(item => this.formatRow(item));
