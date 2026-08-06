@@ -256,7 +256,7 @@
                   min-height="0"
                   max-height="400px"
                 >
-                  <vxe-column title="姓名（手机号）" min-width="18%">
+                  <vxe-column title="姓名" min-width="18%">
                     <template #default="{ row }">
                       <el-select
                         v-if="isEditing || !_id"
@@ -266,6 +266,7 @@
                         :remote-method="searchUserOptions"
                         :loading="userSearchLoading"
                         placeholder="请输入姓名或手机号"
+                        class="user-select"
                         style="width: 100%;"
                         @change="(val) => handleUserChange(row, val)"
                       >
@@ -401,7 +402,7 @@ export default {
   computed: {
     _id () {
       const id = this.id || this.$route.query.id || this.form.id;
-      return id != null ? String(id) : '';
+      return id !== null ? String(id) : '';
     },
     title () {
       return this._id ? '脱敏设置详情' : '脱敏设置';
@@ -437,11 +438,26 @@ export default {
         this.form.columnNameZh = '';
       }
     },
-    // 进入编辑态时预加载岗位选项、预置已选用户选项，保证岗位/用户能回显中文名
+    // 进入编辑态时预置已选岗位/用户选项，保证回显中文名
+    // （岗位列表与用户列表本身在 mounted 里预加载一次，不需重复请求）
     isEditing (val) {
       if (val) {
-        this.fetchPositionOptions();
+        this.seedPositionOptionsFromRows();
         this.seedUserOptionsFromRows();
+      }
+    },
+    // 详情数据加载完成后(form.userList 引用变化)再补一次已选用户选项，
+    // 解决带 isEditing=true 直接进入编辑态时 watch isEditing 先于 detailRequest 完成、
+    // seedUserOptionsFromRows 在空 userList 上执行导致用户下拉显示原始 userId 的问题
+    'form.userList' () {
+      if (this.isEditing) {
+        this.seedUserOptionsFromRows();
+      }
+    },
+    // 同上，岗位列表兜底预加载已选岗位，保证回显
+    'form.positionList' () {
+      if (this.isEditing) {
+        this.seedPositionOptionsFromRows();
       }
     }
   },
@@ -471,6 +487,12 @@ export default {
         exportDesensitize: [{ required: true, message: '请选择', trigger: 'change' }]
       }
     };
+  },
+  mounted () {
+    // 预加载岗位与用户下拉选项，避免新增场景（!_id 且 isEditing=false）下拉空空如也
+    // 编辑场景也会复用这份缓存（fetchPositionOptions 内部有 length>0 短路、searchUserOptions 在 watcher 里也会复用）
+    this.fetchPositionOptions();
+    this.searchUserOptions('');
   },
   methods: {
     // 数据库下拉 - FetchSelect request 方法
@@ -537,6 +559,19 @@ export default {
         console.error('岗位查询失败', err);
         this.positionOptions = [];
       }
+    },
+    // 把已选岗位补进 positionOptions，避免选项列表里无匹配项导致 el-select 直接显示 positionId
+    // 回显中文名来自后端 detail 返回的 positionName，不依赖 fetchPositionOptions 列表匹配
+    seedPositionOptionsFromRows () {
+      const exist = new Set(this.positionOptions.map(p => p.id));
+      (this.form.positionList || []).forEach(p => {
+        if (p.positionId && !exist.has(p.positionId)) {
+          this.positionOptions.push({
+            id: p.positionId,
+            name: p.positionName || ''
+          });
+        }
+      });
     },
     // 把已选用户补进 userOptions，避免选项列表里无匹配项导致 el-select 直接显示 userId
     seedUserOptionsFromRows () {
@@ -713,7 +748,6 @@ export default {
           exportDesensitize: u.exportDesensitize ?? 1
         }))
       };
-      // 删除 form 上的冗余字段（DTO 不需要 creatorName 等展示字段，但保留对后端无副作用）
       const isUpdate = !!payload.id;
       if (isUpdate) {
         return edit(payload);
@@ -746,5 +780,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+// Element UI 的 el-select 在 remote + filterable 模式下，内部 iconClass 返回空字符串
+// （select.vue L198-L200：return this.remote && this.filterable ? '' : ...），
+// 导致 caret 容器 <i class="el-icon-"> 没有任何 iconfont 字符，看不到下拉箭头。
+// 这里手动给 .el-select__caret::before 注入箭头 unicode，让箭头重新可见。
+::v-deep .user-select .el-select__caret {
+  font-family: 'element-icons' !important;
+}
+::v-deep .user-select .el-select__caret::before {
+  content: "\e6e1" !important;  // el-icon-arrow-up 的 unicode
+  display: inline-block !important;
+  font-family: 'element-icons' !important;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: baseline;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 </style>
