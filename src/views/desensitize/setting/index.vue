@@ -22,18 +22,6 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
-        <el-date-picker
-          :default-time="['00:00:00', '23:59:59']"
-          v-model="form.createTime"
-          type="daterange"
-          unlink-panels
-          range-separator="至"
-          value-format="yyyy-MM-dd HH:mm:ss"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        />
-      </el-form-item>
       <template v-if="show">
         <el-form-item label="库名">
           <el-input
@@ -96,6 +84,18 @@
             placeholder="请输入"
             v-model="form.creatorName"
             clearable
+          />
+        </el-form-item>
+        <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            unlink-panels
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
           />
         </el-form-item>
         <el-form-item label="修改人">
@@ -181,7 +181,8 @@ const defaultForm = {
   tableNameZh: '',
   columnName: '',
   columnNameZh: '',
-  status: '',
+  // 默认查询已启用的脱敏规则，清除状态筛选可查询全部
+  status: 1,
   dataCategory: [],
   creatorName: '',
   createTime: '',
@@ -408,8 +409,8 @@ export default {
       if (this.form.updateTime) {
         delete data.updateTime;
         if (this.form.updateTime.length > 1) {
-          data.updateStartTime = this.form.updateTime[0];
-          data.updateEndTime = this.form.updateTime[1];
+          data.updateTimeStart = this.form.updateTime[0];
+          data.updateTimeEnd = this.form.updateTime[1];
         }
       }
 

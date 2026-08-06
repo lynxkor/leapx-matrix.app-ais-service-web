@@ -791,7 +791,6 @@ export default {
   content: "\e6e1" !important;  // el-icon-arrow-up 的 unicode
   display: inline-block !important;
   font-family: 'element-icons' !important;
-  speak: none;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
