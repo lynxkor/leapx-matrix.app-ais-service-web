@@ -39,7 +39,6 @@
         </el-form-item>
       </template>
       <page-search-action
-        v-if="canList"
         v-model="show"
         is-expandable
         :loading="loading"
