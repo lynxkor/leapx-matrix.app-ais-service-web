@@ -22,7 +22,7 @@
         <fetch-select
           :remote-method="getCompany"
           remote
-          v-model="form.companyCodeList"
+          v-model="form.parentOrgCodeList"
           placeholder="请选择"
           labelKey="companyName"
           valueKey="companyCode"
@@ -68,6 +68,7 @@
 
 <script>
 import debounce from 'lodash.debounce';
+import moment from 'moment';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getAcceptedDetailReport } from '@/api/claimreturn/claim/warrantysettle/acceptedDetailReport';
@@ -80,8 +81,8 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
-  month: '',
-  companyCodeList: '',
+  month: moment().subtract(1, 'month').format('YYYYMM'),
+  parentOrgCodeList: '',
   dealerCodeList: [],
 };
 
@@ -237,8 +238,19 @@ export default {
       }
     },
     onSubmit () {
+      if (!this.validateForm()) {
+        return;
+      }
       this.tableForm.page = 1;
       this.getData();
+    },
+    validateForm () {
+      const data = this.getFormData();
+      if (!data.month && !data.parentOrgCodeList && !data.dealerCodeList) {
+        this.$message.error('查询条件不允许全部为空');
+        return false;
+      }
+      return true;
     },
     onReset () {
       this.form = { ...defaultForm };
@@ -301,6 +313,9 @@ export default {
       return data;
     },
     exportExcel () {
+      if (!this.validateForm()) {
+        return;
+      }
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
       if (this.selectionList.length > 0) {
