@@ -15,6 +15,19 @@
       <el-form-item label="采购申请单">
         <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
       </el-form-item>
+        <el-form-item label="订单创建时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
       <el-form-item label="备件编码/名称" v-show="this.visibleCount === 3 || show" v-if="activeName === 'outOfStock'">
           <fetch-select filterable clearable remote reserve-keyword multiple
               v-model="form.sparePartIdList" :remote-method="listSparePart" labelKey="code" valueKey="id"
@@ -69,20 +82,20 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            unlink-panels
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
+        <el-form-item label="提交人" v-if="activeName === 'homePage' || activeName === 'outOfStock' " >
+          <fetch-select
+            :remote-method="getUser"
+            remote
+            v-model="form.submitter"
+            placeholder="请输入名称"
+            labelKey="username"
+            valueKey="userId"
+            clearable
+            collapseTags
+            filterable
+            />
         </el-form-item>
-        <el-form-item label="修改时间">
+        <el-form-item label="订单修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
@@ -96,6 +109,13 @@
           />
         </el-form-item>
         <!-- ===== 全部备件 tab 专用查询 ===== -->
+        <el-form-item label="订单备注">
+          <el-input
+            placeholder="请输入"
+            v-model="form.remark"
+            clearable
+          />
+        </el-form-item>
         <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
           <tag-input v-model="form.partCodeList" placeholder="请输入" />
         </el-form-item>
@@ -117,7 +137,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="明细备注" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+        <el-form-item label="明细备注" v-if="activeName === 'allSpareParts' || activeName === 'outOfStock'" v-show="this.visibleCount === 3 || show">
           <el-input
             placeholder="请输入"
             v-model="form.detailRemark"
@@ -145,8 +165,8 @@
     </div>
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
-      <el-tab-pane label="缺货明细看板" name="outOfStock"></el-tab-pane>
       <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
+      <el-tab-pane label="缺货明细看板" name="outOfStock"></el-tab-pane>
     </el-tabs>
     <div
       class="ais-table-c"
@@ -285,7 +305,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, detailPage, deleteItem, enableItem, reportPage } from '@/api/sparepart/purchase/backOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
+import { getUserByNameOrNo, getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
 import { getSparePart } from '@/api/sparepart/basic/sparePart/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -477,6 +497,7 @@ export default {
           },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
+          { props: 'remark', label: '订单备注', visible: true, width: 200 },
           {
             props: 'sparePartCode',
             label: '备件编码',
@@ -500,13 +521,15 @@ export default {
           { props: 'estimatedArrivalTime', label: '预计到店时间', visible: true, width: 200 },
           { props: 'otherSolution', label: '其他解决方案', visible: true, width: 200 },
           { props: 'factoryBackDescription', label: '厂端缺货说明', visible: true, width: 200 },
+          { props: 'resolvedPartQty', label: '已解欠备件数', visible: true, width: 200 },
           { props: 'pendingPartQty', label: '待处理备件数', visible: true, align: 'right', width: 140 },
           { props: 'purchasePrice', label: '采购价', visible: true, align: 'right', width: 120 },
           { props: 'cashUnitPrice', label: '现金单价', visible: true, align: 'right', width: 120 },
           { props: 'availableQty', label: '当店可用库存', visible: true, align: 'right', width: 140 },
           { props: 'sharedQty', label: '当店共享库存', visible: true, align: 'right', width: 140 },
           { props: 'marketingTypeLabel', label: '营销分类名称', visible: true, width: 140 },
-          { props: 'remark', label: '备注', visible: true, width: 200 },
+          { props: 'submitterName', label: '采购提交人', visible: true, width: 200 },
+          { props: 'detailRemark', label: '明细备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -740,6 +763,14 @@ export default {
       }).finally(() => {
         this.exportLoading = false;
       });
+    },
+    async getUser (query) {
+      try {
+        const res = await getUserByNameOrNo({ name: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
     },
     getData () {
       this.loading = true;

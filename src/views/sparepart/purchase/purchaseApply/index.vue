@@ -12,6 +12,19 @@
       <el-form-item label="采购申请单">
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
+              <el-form-item label="订单创建时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
       <el-form-item label="门店">
         <fetch-select
           :remote-method="getDealerList"
@@ -139,20 +152,7 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            unlink-panels
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="修改时间">
+        <el-form-item label="订单修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
@@ -163,6 +163,13 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="订单备注">
+          <el-input
+            placeholder="请输入"
+            v-model="form.remark"
+            clearable
           />
         </el-form-item>
         <!-- ===== 备件列表 tab 专用查询 ===== -->
