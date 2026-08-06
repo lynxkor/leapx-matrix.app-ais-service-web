@@ -262,13 +262,12 @@
                         v-if="isEditing || !_id"
                         v-model="row.userId"
                         filterable
-                        remote
-                        :remote-method="searchUserOptions"
+                        :filter-method="searchUserOptions"
                         :loading="userSearchLoading"
                         placeholder="请输入姓名或手机号"
                         class="user-select"
                         style="width: 100%;"
-                        @change="(val) => handleUserChange(row, val)"
+                        @change="(val) => (row, val)"
                       >
                         <el-option
                           v-for="u in userOptions"
@@ -780,24 +779,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// Element UI 的 el-select 在 remote + filterable 模式下，内部 iconClass 返回空字符串
-// （select.vue L198-L200：return this.remote && this.filterable ? '' : ...），
-// 导致 caret 容器 <i class="el-icon-"> 没有任何 iconfont 字符，看不到下拉箭头。
-// 这里手动给 .el-select__caret::before 注入箭头 unicode，让箭头重新可见。
-::v-deep .user-select .el-select__caret {
-  font-family: 'element-icons' !important;
-}
-::v-deep .user-select .el-select__caret::before {
-  content: "\e6e1" !important;  // el-icon-arrow-up 的 unicode
-  display: inline-block !important;
-  font-family: 'element-icons' !important;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  vertical-align: baseline;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
 </style>
