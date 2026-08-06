@@ -29,7 +29,7 @@
               <div class="common-section-sub-header">
                 <h3>归属信息</h3>
                 <el-button v-if="canViewLifetimeBenefits" size="small" @click="onBenefit">查看终身权益</el-button>
-                <el-button v-if="form.warrantyStartdate" size="small" @click="onWarranty">重新预测质保期</el-button>
+                <el-button v-if="canWarrantyForecast && form.warrantyStartdate" size="small" @click="onWarranty">重新预测质保期</el-button>
               </div>
               <!-- <el-form :inline="true" :model="form" label-width="150px" class="form-detail"> -->
               <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm1" class="form-edit" v-show="isEditing || !_id">
@@ -120,34 +120,31 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="整车订单：">
-                  <!-- <el-link
+                  <el-link
                     v-if="form.vehicleOrderId"
                     type="primary"
                     :href="`/sales/vehretail/orderManager/retailOrderInfo/edit?id=${form.vehicleOrderId}`"
                     target="_blank"
                   >{{ form.vehicleOrder }}</el-link>
-                  <span v-else>{{ form.vehicleOrder }}</span> -->
-                  <span>{{ form.vehicleOrder }}</span>
+                  <span v-else>{{ form.vehicleOrder }}</span>
                 </el-form-item>
                 <el-form-item label="企业客户整车订单：">
-                  <!-- <el-link
+                  <el-link
                     v-if="form.vehicleEnterpriseOrderId"
                     type="primary"
                     :href="`/sales/vehwholesale/entorder/entVehicleOrder/edit?id=${form.vehicleEnterpriseOrderId}`"
                     target="_blank"
                   >{{ form.vehicleEnterpriseOrder }}</el-link>
-                  <span v-else>{{ form.vehicleEnterpriseOrder }}</span> -->
-                  <span>{{ form.vehicleEnterpriseOrder }}</span>
+                  <span v-else>{{ form.vehicleEnterpriseOrder }}</span>
                 </el-form-item>
                 <el-form-item label="商城订单号：">
-                  <!-- <el-link
+                  <el-link
                     v-if="form.shopcode"
                     type="primary"
                     :href="`/sales/vehretail/orderManager/retailOrderInfo/edit?id=${form.vehicleOrderId}`"
                     target="_blank"
                   >{{ form.shopcode }}</el-link>
-                  <span v-else>{{ form.shopcode }}</span> -->
-                  <span>{{ form.shopcode }}</span>
+                  <span v-else>{{ form.shopcode }}</span>
                 </el-form-item>
                 <el-form-item label="销售门店：">
                   <el-link
@@ -305,7 +302,13 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="整车物料：">
-                  {{ form.vehicleMaterialCode }}
+                  <el-link
+                    v-if="form.vehicleMaterialId"
+                    type="primary"
+                    :href="`/sales/datacenter/materials/vehicleMaterials/edit?id=${form.vehicleMaterialId}`"
+                    target="_blank"
+                  >{{ form.vehicleMaterialCode }}</el-link>
+                  <span v-else>{{ form.vehicleMaterialCode }}</span>
                 </el-form-item>
                 <el-form-item label="物料描述：">
                   {{ form.vehicleMaterialDesc }}
@@ -1059,6 +1062,7 @@ export default {
       syncPad: false,
       modifyMaintenanceRecord: false,
       canKeyInfoChangeLog: false,
+      canWarrantyForecast: false,
       serviceProxyHis: false,
       pageNum: 1, // 实名认证记录分页
       pageSize: 10,
@@ -1073,6 +1077,7 @@ export default {
     this.syncPad = this.permissions.has(`${this.moduleKey}-syncPad`);
     this.modifyMaintenanceRecord = this.permissions.has(`${this.moduleKey}-modifyMaintenanceRecord`);
     this.canKeyInfoChangeLog = this.permissions.has(`${this.moduleKey}-keyInfoChangeLog`);
+    this.canWarrantyForecast = this.permissions.has(`${this.moduleKey}-warrantyForecast`);
     this.serviceProxyHis = !!(this.$store.state.pageSource?.aisPageSource || []).find(item => (item === 'AISMC-serviceProxyHis-page'));
   },
   mounted () {
