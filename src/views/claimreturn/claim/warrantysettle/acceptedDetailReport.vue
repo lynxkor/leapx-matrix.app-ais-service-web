@@ -22,7 +22,7 @@
         <fetch-select
           :remote-method="getCompany"
           remote
-          v-model="form.companyCodeList"
+          v-model="form.parentOrgCodeList"
           placeholder="请选择"
           labelKey="companyName"
           valueKey="companyCode"
@@ -82,7 +82,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   month: moment().subtract(1, 'month').format('YYYYMM'),
-  companyCodeList: '',
+  parentOrgCodeList: '',
   dealerCodeList: [],
 };
 
@@ -246,7 +246,7 @@ export default {
     },
     validateForm () {
       const data = this.getFormData();
-      if (!data.month && !data.companyCodeList && !data.dealerCodeList) {
+      if (!data.month && !data.parentOrgCodeList && !data.dealerCodeList) {
         this.$message.error('查询条件不允许全部为空');
         return false;
       }
