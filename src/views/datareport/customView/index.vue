@@ -70,7 +70,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
-import { page, deleteItems } from '@/api/datareport/customViewMain';
+import { page, deleteItems } from '@/libs/api/customView/customViewMain';
 import { getTableConfig, tableAddOrUpdate, getEnum } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import responsiveSearchForm from '@/libs/mixins/responsive';

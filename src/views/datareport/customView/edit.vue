@@ -217,8 +217,8 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/datareport/customViewMain';
-import { list, addOrUpdateField, deleteItems, syncDdlFields } from '@/api/datareport/customViewField';
+import { getDetail, addOrUpdate } from '@/libs/api/customView/customViewMain';
+import { list, addOrUpdateField, deleteItems, syncDdlFields } from '@/libs/api/customView/customViewField';
 import EditBaseContainer from '@/libs/components/EditBaseContainer/index.vue';
 import EditPageLayout from '@/libs/components/EditPageLayout/index.vue';
 import routeGuard from '@/libs/mixins/routeGuard';
