@@ -95,10 +95,7 @@
           <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
         </el-form-item>
         <el-form-item label="库位编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <el-input placeholder="请输入" v-model="form.locationCodeList" clearable />
-        </el-form-item>
-        <el-form-item label="领料申请说明" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <el-input placeholder="请输入" v-model="form.remark" clearable />
+          <el-input placeholder="请输入" v-model="form.locationName" clearable />
         </el-form-item>
       </template>
       <page-search-action
@@ -204,7 +201,7 @@ const defaultForm = {
   // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
   sparePartCodeList: null,
   sparePartName: '',
-  locationCodeList: null,
+  locationName: '',
   remark: ''
 };
 
@@ -525,7 +522,7 @@ export default {
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/sparepart/outbound/dealerOutboundOrder/edit',
-                  query: { id: row.maintenanceOutboundOrderId || row.id }
+                  query: { id: row.orderId }
                 });
               },
               type: 'primary'
@@ -548,7 +545,7 @@ export default {
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
           { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
           { props: 'inboundStatusLabel', label: '入库状态', visible: true, width: 120 },
-          { props: 'remark', label: '领料申请说明', visible: true, width: 200 },
+          { props: 'requestDescription', label: '领料申请说明', visible: true, width: 200 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
 
@@ -569,10 +566,10 @@ export default {
             }]
           },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
-          { props: 'locationCode', label: '库位编码', visible: true, width: 120 },
+          { props: 'locationName', label: '库位编码', visible: true, width: 120 },
           { props: 'availableQty', label: '可用库存', visible: true, align: 'right', width: 120 },
-          { props: 'salePrice', label: '销售单价', visible: true, align: 'right', width: 120 },
-          { props: 'costPrice', label: '成本单价', visible: true, align: 'right', width: 120 },
+          { props: 'salesUnitPrice', label: '销售单价', visible: true, align: 'right', width: 120 },
+          { props: 'costUnitPrice', label: '成本单价', visible: true, align: 'right', width: 120 },
           { props: 'qty', label: '数量', visible: true, align: 'right', width: 120 },
           { props: 'detailRemark', label: '明细备注', visible: true, width: 200 }
         ],
