@@ -116,7 +116,7 @@
         <el-form-item label="是否出库" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
           <fetch-select
             :request="fetchOptions"
-            enumCode="YesNotStringEnum"
+            enumCode="BooleanEnum"
             v-model="form.outboundIsList"
             placeholder="请选择"
             clearable
@@ -494,7 +494,7 @@ export default {
           },
           { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
           { props: 'remark', label: '订单备注', visible: true, width: 200 },
-          { props: 'customerManager', label: '客户经理', visible: true, width: 120 },
+          { props: 'serviceAdvisorName', label: '客户经理', visible: true, width: 120 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
 

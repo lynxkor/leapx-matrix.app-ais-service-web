@@ -45,7 +45,7 @@
               filterable
             />
           </el-form-item>
-          <el-form-item label="vin码">
+          <el-form-item label="VIN">
             <el-input
               placeholder="请输入"
               v-model="form.vehProfileVinLike"
@@ -122,7 +122,7 @@
           <el-form-item label="是否已入库" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
             <fetch-select
               :request="fetchOptions"
-              enumCode="YesNotStringEnum"
+              enumCode="BooleanEnum"
               v-model="form.inboundIsList"
               placeholder="请选择"
               clearable
