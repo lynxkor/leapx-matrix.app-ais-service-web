@@ -275,8 +275,8 @@ export default {
           { props: 'companyCode', label: '公司编码', visible: true, width: 180 },
           { props: 'companyName', label: '公司名称', visible: true, width: 200 },
           { props: 'bankName', label: '开户银行', visible: true, width: 200 },
-          { props: 'bankAccountName', label: '银行户主', visible: true, width: 200 },
-          { props: 'bankAccountNo', label: '开户账户', visible: true, width: 200 },
+          { props: 'bankAccountHolder', label: '银行户主', visible: true, width: 200 },
+          { props: 'bankAccount', label: '开户账户', visible: true, width: 200 },
           { props: 'availableAmount', label: '可用资金', visible: true, align: 'right', width: 120 },
           { props: 'frozenAmount', label: '冻结资金', visible: true, align: 'right', width: 120 },
           { props: 'marginAmount', label: '保证资金', visible: true, align: 'right', width: 120 },
@@ -332,10 +332,10 @@ export default {
         },
         dataProp: [
           /* ========== 账户维度 ========== */
-          { props: 'accountCode', label: '账户编号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: 'account/edit', query: { id: row.accountId } }); }, type: 'primary' }] },
+          { props: 'accountCode', label: '账户编号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/fund/account/edit', query: { id: row.accountId } }); }, type: 'primary' }] },
           { props: 'companyCode', label: '公司编码', visible: true, width: 180 },
           { props: 'companyName', label: '公司名称', visible: true, width: 200 },
-          { props: 'bankName', label: '开会银行', visible: true, width: 200 },
+          { props: 'bankName', label: '开户银行', visible: true, width: 200 },
           { props: 'bankAccountName', label: '银行户主', visible: true, width: 200 },
           { props: 'bankAccountNo', label: '开户账户', visible: true, width: 200 },
           { props: 'availableAmount', label: '可用资金', visible: true, width: 140, align: 'right' },
@@ -357,6 +357,7 @@ export default {
           { props: 'bizNo', label: '业务单号', visible: true, width: 200 },
           { props: 'accountingVoucher', label: '税务发票号', visible: true, width: 200 },
           { props: 'voucherYear', label: '开票日期', visible: true, width: 200 },
+          { props: 'postingTime', label: '入账时间', visible: true, width: 200 },
           { props: 'flowCreateTime', label: '流水创建时间', visible: true, width: 200 }
         ],
         total: 0
@@ -459,10 +460,6 @@ export default {
       } else {
         tableRef = this.$refs.tableRefAll;
         fetchPath = 'sp/web/fund/account/detailPage';
-      }
-      if (this.selectionList.length > 0) {
-        const ids = this.selectionList.map(item => item.id) || [];
-        reqParams.ids = ids;
       }
       exportTable({
         businessType: '备件现金账户',

@@ -94,6 +94,16 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <!-- ===== 全部备件 tab 专用 ===== -->
+        <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="备件名称" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
+        </el-form-item>
+        <el-form-item label="库位" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.locationNameList" placeholder="请输入" />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -200,27 +210,21 @@ import EditPage from './edit.vue';
 import ShipmentDialog from './ShipmentDialog.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  codeList: '',
-  outboundDealerCodeList: '',
-  outboundDealerName: '',
-  outboundWarehouseId: '',
-  inboundDealerCodeList: '',
-  inboundDealerName: '',
-  inboundContactPersonLike: '',
-  inboundContactPhone: '',
-  outboundStatusList: '',
+  codeList: null,
+  inboundDealerCodeList: null,
   createTime: '',
   updateTime: '',
+
+  // ===== 扩展条件（homePage + allSpareParts） =====
+  outboundDealerCodeList: null,
+  inboundContactPersonLike: '',
+  inboundContactPhone: '',
+  outboundStatusList: null,
 
   // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
   sparePartCodeList: null,
   sparePartName: '',
-  deliveryNoList: null,
-  saleVoucherList: null,
-  inboundNoList: null,
-  purchaseOrderNoList: null,
   locationNameList: null,
-  locationCodeList: null,
 };
 
 const pageSize = 20;
@@ -305,7 +309,7 @@ export default {
             mask: true,
             getValue: (row) => getDesensitize(row.id, 'sharedTransferOutbound', 'inboundContactPhone')
           },
-          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
+          { props: 'outboundStatus', label: '出库状态', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -383,22 +387,22 @@ export default {
             visible: true,
             width: 200,
             fixed: 'left',
-            buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/sharedTransferOutbound/edit', query: { id: row.id } }); }, type: 'primary' }]
+            buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/transfer/sharedTransferOutbound/edit', query: { id: row.sharedTransferOutboundId || row.id } }); }, type: 'primary' }]
           },
-          { props: 'outDealerCode', label: '出库门店编码', visible: true, width: 180 },
-          { props: 'outDealerName', label: '出库门店名称', visible: true, width: 200 },
-          { props: 'outWarehouseName', label: '出库方仓库', visible: true, width: 200 },
-          { props: 'inDealerCode', label: '入库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank'); }, type: 'primary' }] },
-          { props: 'inDealerName', label: '入库门店名称', visible: true, width: 200 },
-          { props: 'inContact', label: '入库方联系人', visible: true, width: 120 },
-          { props: 'inPhone', label: '入库方手机', visible: true, width: 140 },
-          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
+          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180 },
+          { props: 'outboundDealerName', label: '出库门店名称', visible: true, width: 200 },
+          { props: 'outboundWarehouseName', label: '出库方仓库', visible: true, width: 200 },
+          { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.inboundDealerCode}`, '_blank'); }, type: 'primary' }] },
+          { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
+          { props: 'inboundContactPerson', label: '入库方联系人', visible: true, width: 120 },
+          { props: 'inboundContactPhone', label: '入库方手机', visible: true, width: 140 },
+          { props: 'outboundStatus', label: '出库状态', visible: true, width: 120 },
           { props: 'remark', label: '订单备注', visible: true, width: 200 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
 
           /* ========== 明细维度 ========== */
-          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/sparePart/detail', query: { id: row.sparePartId } }); }, type: 'primary' }] },
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/basic/sparePart/edit', query: { id: row.sparePartId } }); }, type: 'primary' }] },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
           { props: 'locationName', label: '库位', visible: true, width: 120 },
           {
@@ -409,21 +413,21 @@ export default {
             align: 'right'
           },
           {
-            props: 'purchasePriceInTax',
+            props: 'purchasePriceTaxIncluded',
             label: '采购价格(含税)',
             visible: true,
             width: 140,
             align: 'right'
           },
           {
-            props: 'purchasePriceExTax',
+            props: 'purchasePriceTaxExcluded',
             label: '采购价格(不含税)',
             visible: true,
             width: 160,
             align: 'right'
           },
           {
-            props: 'amountInTax',
+            props: 'taxAmount',
             label: '金额（含税）',
             visible: true,
             width: 140,
@@ -579,11 +583,18 @@ export default {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
+      // 按 tab 切换导出接口
+      const fetchPath = this.activeName === 'allSpareParts'
+        ? 'sp/web/dealer/sharedTransferOutbound/detailPage'
+        : 'sp/web/dealer/sharedTransferOutbound/page';
+      const tableRef = this.activeName === 'allSpareParts'
+        ? this.$refs.tableRefAll
+        : this.$refs.tableRef;
       exportTable({
         businessType: '共享备件调拨出库',
-        dataFetchPath: 'sp/web/dealer/sharedTransferOutbound/page',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: tableRef && tableRef.getVisibleCols ? Object.fromEntries(tableRef.getVisibleCols()) : {},
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -688,6 +699,18 @@ export default {
       }
       // 排序字段
       data.sortColumns = this.sortColumns;
+
+      // 全部备件 tab 默认条件校验
+      // 【调拨出库单号】【订单创建时间】不允许全部为空
+      if (this.activeName === 'allSpareParts') {
+        const hasCode = !!(data.codeList && data.codeList.length);
+        const hasCreateTime = !!(data.createTimeStart && data.createTimeEnd);
+        if (!hasCode && !hasCreateTime) {
+          this.$message.warning('请至少填写【调拨出库单号】【订单创建时间】中的任意一个');
+          return null;
+        }
+      }
+
       return data;
     },
     async fetchOptions (code) {

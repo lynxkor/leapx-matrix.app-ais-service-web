@@ -9,7 +9,7 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="外购入库单号">
+      <el-form-item label="外购件入库单号">
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
         <el-form-item label="供应商名称">
@@ -256,7 +256,7 @@ export default {
         dataProp: [
           {
             props: 'code',
-            label: '外购入库单号',
+            label: '外购件入库单号',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -434,7 +434,7 @@ export default {
             visible: true,
             width: 200,
             fixed: 'left',
-            buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/dealerInboundOrder/edit', query: { id: row.id } }); }, type: 'primary' }]
+            buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/inbound/dealerInboundOrder/edit', query: { id: row.dealerInboundOrderId } }); }, type: 'primary' }]
           },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
