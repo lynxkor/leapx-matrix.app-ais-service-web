@@ -688,6 +688,10 @@ export default {
           { props: 'createTime', label: '创建时间', visible: true, width: 180 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
           { props: 'isIovVehicleLabel', label: '车联网对接', visible: true, width: 120 },
+          { props: 'certNumber', label: '合格证号', visible: false, width: 120 },
+          { props: 'carSalesVersionName', label: '公告车型', visible: false, width: 120 },
+          { props: 'enginenNumber', label: '发动机号', visible: false, width: 120 },
+          { props: 'batterySerialNumber', label: '电池序列号', visible: false, width: 120 },
           {
             props: 'operate',
             label: '操作',
