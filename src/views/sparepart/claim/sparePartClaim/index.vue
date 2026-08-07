@@ -30,14 +30,21 @@
             filterable
               />
         </el-form-item>
-      <template v-if="show">
-        <!-- <el-form-item label="门店名称">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dealerName"
+        <el-form-item label="门店名称" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="form.dealerNameList"
+            placeholder="请输入门店名称"
+            labelKey="orgName"
+            valueKey="orgName"
             clearable
+            multiple
+            collapseTags
+            filterable
           />
-        </el-form-item> -->
+        </el-form-item>
+      <template v-if="show">
         <el-form-item label="提交时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -73,6 +80,24 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="销售发货仓库">
+          <fetch-select
+            :remote-method="getWarehouse"
+            remote
+            v-model="form.outboundWarehouseIdList"
+            placeholder="请选择"
+            labelKey="name"
+            valueKey="id"
+            subLabelKey="code"
+            clearable
+            multiple
+            collapseTags
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="责任方">
+          <el-input placeholder="请输入" v-model="form.responsibleParty" clearable />
+        </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -98,6 +123,13 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
+        </el-form-item>
+        <!-- ===== 全部备件 tab 专用 ===== -->
+        <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="备件名称" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
         </el-form-item>
       </template>
       <page-search-action
@@ -175,7 +207,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, detailPage, deleteItem, enableItem, getCommit, getAgree, getReject } from '@/api/sparepart/claim/sparePartClaim/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listOemWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -189,25 +221,23 @@ import TagInput from '@/libs/components/TagInput';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  code: '',
-  purchaseOrderCode: '',
-  dealerCode: '',
-  dealerName: '',
-  submitTime: '',
-  claimTypeList: [],
-  claimStatusList: '',
+  codeList: null,
+  purchaseOrderCodeList: null,
   createTime: '',
   updateTime: '',
+
+  // ===== 默认条件（homePage + allSpareParts） =====
+  dealerCodeList: null,
+  dealerNameList: null,
+  submitTime: '',
+  claimTypeList: null,
+  claimStatusList: null,
+  outboundWarehouseIdList: null,
+  responsibleParty: '',
 
   // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
   sparePartCodeList: null,
   sparePartName: '',
-  deliveryNoList: null,
-  saleVoucherList: null,
-  inboundNoList: null,
-  purchaseOrderNoList: null,
-  locationNameList: null,
-  locationCodeList: null,
 };
 
 const pageSize = 20;
@@ -302,11 +332,13 @@ export default {
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
           { props: 'submitterName', label: '提交人', visible: true, width: 120 },
-          { props: 'claimTypeLabel', label: '索赔类型', visible: true, width: 120 },
-          { props: 'claimStatusLabel', label: '索赔状态', visible: true, width: 120 },
+          { props: 'claimType', label: '索赔类型', visible: true, width: 120 },
+          { props: 'claimStatus', label: '索赔状态', visible: true, width: 120 },
+          { props: 'deliveryWarehouseName', label: '销售发货仓库', visible: true, width: 200 },
+          { props: 'responsibleParty', label: '责任方', visible: true, width: 200 },
           { props: 'rejectionDescription', label: '驳回说明', visible: true, width: 200 },
           { props: 'approvalDescription', label: '审批说明', visible: true, width: 200 },
-          { props: 'completedIsLabel', label: '是否完结', visible: true, width: 120 },
+          { props: 'completedIs', label: '是否完结', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -408,31 +440,31 @@ export default {
         dataProp: [
           /* ========== 订单维度 ========== */
           {
-            props: 'claimNo',
+            props: 'code',
             label: '备件索赔单',
             visible: true,
             width: 200,
             fixed: 'left',
-            buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/claimOrder/edit', query: { id: row.claimId } }); }, type: 'primary' }]
+            buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/claim/sparePartClaim/edit', query: { id: row.claimOrderId || row.id } }); }, type: 'primary' }]
           },
-          { props: 'purchaseOrderNo', label: '采购订单号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/purchaseOrder/edit', query: { id: row.purchaseOrderId } }); }, type: 'primary' }] },
+          { props: 'purchaseOrderCode', label: '采购订单号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/purchase/purchaseOrder/edit', query: { id: row.purchaseOrderId } }); }, type: 'primary' }] },
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
-          { props: 'submitter', label: '提交人', visible: true, width: 120 },
-          { props: 'claimTypeLabel', label: '索赔类型', visible: true, width: 120 },
-          { props: 'claimStatusLabel', label: '索赔状态', visible: true, width: 120 },
-          { props: 'salesOutWarehouseName', label: '销售发货仓库', visible: true, width: 200 },
+          { props: 'submitterName', label: '提交人', visible: true, width: 120 },
+          { props: 'claimType', label: '索赔类型', visible: true, width: 120 },
+          { props: 'claimStatus', label: '索赔状态', visible: true, width: 120 },
+          { props: 'outboundWarehouseName', label: '销售发货仓库', visible: true, width: 200 },
           { props: 'responsibleParty', label: '责任方', visible: true, width: 200 },
-          { props: 'rejectDescription', label: '驳回说明', visible: true, width: 200 },
+          { props: 'rejectionDescription', label: '驳回说明', visible: true, width: 200 },
           { props: 'approvalDescription', label: '审批说明', visible: true, width: 200 },
-          { props: 'isClosed', label: '是否完结', visible: true, width: 100 },
+          { props: 'completedIs', label: '是否完结', visible: true, width: 100 },
           { props: 'remark', label: '订单备注', visible: true, width: 200 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
 
           /* ========== 明细维度 ========== */
-          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/sparePart/detail', query: { id: row.sparePartId } }); }, type: 'primary' }] },
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/basic/sparePart/detail', query: { id: row.sparePartId } }); }, type: 'primary' }] },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
           {
             props: 'inboundQty',
@@ -524,11 +556,18 @@ export default {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
+      // 按 tab 切换导出接口
+      const fetchPath = this.activeName === 'allSpareParts'
+        ? 'sp/web/claim/claimOrder/detailPage'
+        : 'sp/web/claim/claimOrder/page';
+      const tableRef = this.activeName === 'allSpareParts'
+        ? this.$refs.tableRefAll
+        : this.$refs.tableRef;
       exportTable({
         businessType: '备件索赔',
-        dataFetchPath: 'sp/web/claim/claimOrder/page',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: tableRef && tableRef.getVisibleCols ? Object.fromEntries(tableRef.getVisibleCols()) : {},
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -630,6 +669,25 @@ export default {
           data.updateTimeEnd = this.form.updateTime[1];
         }
       }
+      if (this.form.submitTime) {
+        delete data.submitTime;
+        if (this.form.submitTime.length > 1) {
+          data.submitTimeStart = this.form.submitTime[0];
+          data.submitTimeEnd = this.form.submitTime[1];
+        }
+      }
+
+      // 全部备件 tab 默认条件校验
+      // 【备件索赔单】【采购订单号】【订单创建时间】不允许全部为空
+      if (this.activeName === 'allSpareParts') {
+        const hasCode = !!(data.codeList && data.codeList.length);
+        const hasPo = !!(data.purchaseOrderCodeList && data.purchaseOrderCodeList.length);
+        const hasCreateTime = !!(data.createTimeStart && data.createTimeEnd);
+        if (!hasCode && !hasPo && !hasCreateTime) {
+          this.$message.warning('请至少填写【备件索赔单】【采购订单号】【订单创建时间】中的任意一个');
+          return null;
+        }
+      }
 
       return data;
     },
@@ -684,6 +742,14 @@ export default {
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
+      }
+    },
+    async getWarehouse (query) {
+      try {
+        const res = await listOemWarehouse({ codeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching warehouse list:', error);
       }
     },
     // 驳回
