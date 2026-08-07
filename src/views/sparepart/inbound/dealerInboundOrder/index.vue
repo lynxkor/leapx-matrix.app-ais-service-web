@@ -208,8 +208,7 @@ const defaultForm = {
   saleVoucherList: null,
   inboundNoList: null,
   purchaseOrderNoList: null,
-  locationNameList: null,
-  locationCodeList: null,
+  locationNameLike: '',
 };
 
 const pageSize = 20;

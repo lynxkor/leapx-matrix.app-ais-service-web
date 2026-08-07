@@ -111,7 +111,7 @@
           <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
         </el-form-item>
         <el-form-item label="库位" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <el-input placeholder="请输入" v-model="form.locationName" clearable />
+          <el-input placeholder="请输入" v-model="form.locationNameLike" clearable />
         </el-form-item>
         <el-form-item label="是否出库" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
           <fetch-select
@@ -278,8 +278,7 @@ const defaultForm = {
   // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
   sparePartCodeList: null,
   sparePartName: '',
-  locationName: '',
-  locationNameList: null,
+  locationNameLike: '',
   outboundIs: '',
   outboundIsList: null,
   picker: '',

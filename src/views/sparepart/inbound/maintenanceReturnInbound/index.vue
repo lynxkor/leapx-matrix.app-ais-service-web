@@ -104,7 +104,7 @@
             <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
           </el-form-item>
           <el-form-item label="库位" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-            <el-input placeholder="请输入" v-model="form.locationName" clearable />
+            <el-input placeholder="请输入" v-model="form.locationNameLike" clearable />
           </el-form-item>
           <el-form-item label="退料申请时间" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
             <el-date-picker
@@ -286,7 +286,7 @@ const defaultForm = {
   // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
   sparePartCodeList: null,
   sparePartName: '',
-  locationNameList: null,
+  locationNameLike: '',
   returnApplicationTime: null,
   inboundIsList: null,
   returnWarehousingTime: null,

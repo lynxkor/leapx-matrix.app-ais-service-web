@@ -91,7 +91,7 @@
           <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
         </el-form-item>
         <el-form-item label="库位" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <tag-input v-model="form.locationNameList" placeholder="请输入" />
+          <el-input placeholder="请输入" v-model="form.locationNameLike" clearable />
         </el-form-item>
       </template>
       <page-search-action
@@ -199,7 +199,7 @@ const defaultForm = {
 
   sparePartCodeList: null,
   sparePartName: '',
-  locationNameList: null,
+  locationNameLike: '',
 };
 
 const pageSize = 20;
