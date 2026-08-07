@@ -209,6 +209,10 @@ export default {
             }]
           },
           { props: 'mainFaultPartName', label: '主因件名称', visible: true, width: 180 },
+          { props: 'workingHourAmount', label: '工时总额', visible: true, width: 120 },
+          { props: 'partsAmount', label: '零件总额', visible: true, width: 120 },
+          { props: 'otherAmount', label: '其他总额', visible: true, width: 120 },
+          { props: 'totalAmount', label: '总金额', visible: true, width: 120 },
         ],
         total: this.tableTotal
       };
