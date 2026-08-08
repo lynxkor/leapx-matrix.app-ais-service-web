@@ -454,6 +454,9 @@
                 <el-form-item label="卡ICCID：">
                   <el-input clearable v-model="form.iccid" placeholder="请输入" disabled />
                 </el-form-item>
+                <el-form-item label="卡MSISDN：">
+                  <el-input clearable v-model="form.msisdn" placeholder="请输入" disabled />
+                </el-form-item>
                 <el-form-item label="受理时间：">
                   <el-input clearable v-model="form.acceptTime" placeholder="请输入" disabled />
                 </el-form-item>
@@ -470,6 +473,7 @@
                   <vxe-column field="operateTime" title="操作时间" min-width="10%" />
                   <vxe-column field="remark" title="描述" min-width="10%" />
                   <vxe-column field="iccid" title="卡ICCID" min-width="10%" />
+                  <vxe-column field="msisdn" title="卡MSISDN" min-width="10%" />
                   <vxe-column field="operatore" title="运营商" min-width="10%" />
                   <template #empty>
                     <div class="m-vxe-table-empty-text">暂无数据</div>
@@ -495,6 +499,9 @@
                 </el-form-item>
                 <el-form-item label="卡ICCID：">
                   {{ form.iccid }}
+                </el-form-item>
+                <el-form-item label="卡MSISDN：">
+                  {{ form.msisdn }}
                 </el-form-item>
                 <el-form-item label="受理时间：">
                   {{ form.acceptTime }}
