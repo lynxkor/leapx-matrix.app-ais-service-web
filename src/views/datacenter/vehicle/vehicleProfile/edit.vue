@@ -114,6 +114,12 @@
                     maxLength="50"
                   />
                 </el-form-item>
+                <el-form-item label="城市交付顺序：">
+                  <el-input clearable v-model="form.cityDeliveryNo" placeholder="请输入" disabled maxLength="50" />
+                </el-form-item>
+                <el-form-item label="全国交付顺序：">
+                  <el-input clearable v-model="form.countryDeliveryNo" placeholder="请输入" disabled maxLength="50" />
+                </el-form-item>
                 <el-form-item label="特殊备注：" prop="remark" v-if="!accountFlag">
                   <el-input clearable v-model="form.remark" placeholder="请输入内容"></el-input>
                 </el-form-item>
@@ -184,6 +190,12 @@
                 </el-form-item>
                 <el-form-item label="是否用户修改服务门店：">
                   {{ form.isUserChangeDealer === 0 ? '否' : '是' }}
+                </el-form-item>
+                <el-form-item label="城市交付顺序：">
+                  {{ form.cityDeliveryNo }}
+                </el-form-item>
+                <el-form-item label="全国交付顺序：">
+                  {{ form.countryDeliveryNo }}
                 </el-form-item>
                 <el-form-item label="特殊备注：" prop="remark" v-if="!accountFlag">
                   {{ form.remark }}
