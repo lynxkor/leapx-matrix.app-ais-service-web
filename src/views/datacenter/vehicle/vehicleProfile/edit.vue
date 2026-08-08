@@ -1110,10 +1110,6 @@ export default {
         return;
       }
       warrantyForecast(this._id).then(res => {
-        if (!res) {
-          this.$message.error('质保政策未维护，无法准确预测质保期');
-          return;
-        }
         this.$refs.containerRef.loadDetail();
       });
     },
