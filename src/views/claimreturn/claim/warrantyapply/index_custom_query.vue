@@ -1,5 +1,5 @@
 <template>
-  <div class="page-common m-warranty-apply-list" :class="{ 'is-preset-locked': formDisabled }">
+  <div class="page-common m-warranty-apply-list">
     <!--  TIPS: 自行调整如下label-width，满足label不换行  -->
     <el-form
       :inline="true"
@@ -11,10 +11,10 @@
     >
       <!-- 基础查询条件 -->
       <el-form-item label="保修申请单号：">
-        <tag-input v-model="form.applyNoList" placeholder="请输入保修申请单号" :disabled="formDisabled" />
+        <tag-input v-model="form.applyNoList" placeholder="请输入保修申请单号" />
       </el-form-item>
       <el-form-item label="VIN：">
-        <tag-input v-model="form.vinList" placeholder="请输入VIN" :disabled="formDisabled" />
+        <tag-input v-model="form.vinList" placeholder="请输入VIN" />
       </el-form-item>
 
       <!-- 扩展查询条件 -->
@@ -28,14 +28,13 @@
           clearable
           multiple
           filterable
-          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="施工单号：">
-        <tag-input v-model="form.serviceProxyNoList" placeholder="请输入施工单号" :disabled="formDisabled" />
+        <tag-input v-model="form.serviceProxyNoList" placeholder="请输入施工单号" />
       </el-form-item>
       <el-form-item label="结算单号：">
-        <tag-input v-model="form.statementCodeList" placeholder="请输入结算单号" :disabled="formDisabled" />
+        <tag-input v-model="form.statementCodeList" placeholder="请输入结算单号" />
       </el-form-item>
       <el-form-item label="保修单状态：">
         <fetch-select
@@ -46,7 +45,6 @@
           clearable
           multiple
           filterable
-          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="保修类型：">
@@ -62,11 +60,10 @@
           value-key="id"
           label-key="name"
           sub-label-key="code"
-          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="门店：">
-        <dealer-select v-model="form.dealerCodeList" multiple :disabled="formDisabled"/>
+        <dealer-select v-model="form.dealerCodeList" multiple/>
       </el-form-item>
       <el-form-item label="门店所属区域：">
         <fetch-select
@@ -80,7 +77,6 @@
           filterable
           value-key="code"
           label-key="name"
-          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="当前提交时间：">
@@ -94,7 +90,6 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
-          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="审批时间：">
@@ -108,14 +103,13 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
-          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="车牌号：">
-        <el-input v-model="form.vehiclePlateNo" placeholder="请输入车牌号" clearable :disabled="formDisabled" />
+        <el-input v-model="form.vehiclePlateNo" placeholder="请输入车牌号" clearable />
       </el-form-item>
       <el-form-item label="车主姓名：">
-        <el-input v-model="form.ownerName" placeholder="请输入车主姓名" clearable :disabled="formDisabled" />
+        <el-input v-model="form.ownerName" placeholder="请输入车主姓名" clearable />
       </el-form-item>
       <el-form-item label="车型：">
         <fetch-select
@@ -128,7 +122,6 @@
           params=""
           value-key="id"
           label-key="name"
-          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="保修开始日期：">
@@ -142,7 +135,6 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
-          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="维修开始日期：">
@@ -156,7 +148,6 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
-          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="主因件编码：">
@@ -172,20 +163,19 @@
           label-key="partName"
           subLabelKey="partCode"
           placeholder="请输入零件编码/名称"
-          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="服务月份：">
-        <el-input v-model="form.serviceMonth" placeholder="请输入" clearable :disabled="formDisabled" />
+        <el-input v-model="form.serviceMonth" placeholder="请输入" clearable />
       </el-form-item>
       <el-form-item label="工时分担比例：">
-        <el-input v-model="form.laborShareRatio" placeholder="请输入" clearable :disabled="formDisabled" />
+        <el-input v-model="form.laborShareRatio" placeholder="请输入" clearable />
       </el-form-item>
       <el-form-item label="备件分担比例：">
-        <el-input v-model="form.partsShareRatio" placeholder="请输入" clearable :disabled="formDisabled" />
+        <el-input v-model="form.partsShareRatio" placeholder="请输入" clearable />
       </el-form-item>
       <el-form-item label="其他分担比例：">
-        <el-input v-model="form.otherShareRatio" placeholder="请输入" clearable :disabled="formDisabled" />
+        <el-input v-model="form.otherShareRatio" placeholder="请输入" clearable />
       </el-form-item>
       <el-form-item label="创建时间：">
         <el-date-picker
@@ -198,7 +188,6 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
-          :disabled="formDisabled"
         />
       </el-form-item>
       <el-form-item label="修改时间：">
@@ -212,7 +201,6 @@
           value-format="yyyy-MM-dd HH:mm:ss"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
-          :disabled="formDisabled"
         />
       </el-form-item>
       </template>
@@ -1161,13 +1149,6 @@ export default {
   }
   .ais-table-c {
     height: calc(100% - 168px);
-  }
-  &.is-preset-locked {
-    ::v-deep .ais-search-form {
-      opacity: 0.6;
-      pointer-events: none;
-      transition: opacity 0.2s;
-    }
   }
 }
 </style>
