@@ -466,7 +466,7 @@ export default {
         packageId: this.selectedPackage.activityId + '#' + this.selectedPackage.id,
         packageCode: activityRes.activityCode,
         packageName: activityRes.activityName,
-        price: item.amount
+        price: item.unitPrice
       }));
       // 构建 serviceActivityItemId -> repairItem 的映射
       const itemMap = {};
