@@ -51,7 +51,7 @@
                     disabled
                   />
                 </el-form-item>
-                <el-form-item label="是否下发：" prop="suedDealer" v-show="!accountFlag">
+                <el-form-item label="是否下发：" prop="comboStatus" v-show="!accountFlag">
                   <el-radio-group v-model="form.comboStatus">
                     <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
                   </el-radio-group>
@@ -419,10 +419,10 @@ export default {
         typeIdList: [
           { required: true, message: '请选择套餐类型', trigger: 'change' }
         ],
-        suedDealer: [
+        comboStatus: [
           {
             validator: (rule, value, callback) => {
-              // suedDealer 有值时不做必填校验，避免已填写仍提示
+              // 是否下发 radio 有任一选择（是/否）时不做必填校验，只有未选择才提示
               if (value !== '' && value !== null && value !== undefined) {
                 callback();
                 return;
