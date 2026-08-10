@@ -411,6 +411,21 @@ export default {
               },
               type: 'info'
             }, {
+              name: '编辑',
+              show: (row) => {
+                return row.outboundStatus === '0' || row.outboundStatus === '3';
+              },
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/outbound/maintenanceOutboundOrder/edit',
+                  query: {
+                    id: row.id,
+                    isEditing: true
+                  }
+                });
+              },
+              type: 'info'
+            }, {
               name: '打印',
               show: (row) => {
                 return this.permissions.has('AISPART-maintenanceOutboundOrder-print');
