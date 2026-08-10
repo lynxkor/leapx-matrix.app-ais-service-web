@@ -112,6 +112,12 @@
                 <el-form-item label="服务月份：">
                   {{ form.warrantyApply?.serviceMonth }}
                 </el-form-item>
+                <el-form-item label="车系：">
+                  {{ form.warrantyApply?.vehicleSeriesName }}
+                </el-form-item>
+                <el-form-item label="年款：">
+                  {{ form.warrantyApply?.vehicleYearName }}
+                </el-form-item>
                 <el-form-item label="保修开始日期：">
                   {{ form.vehicleProfile?.warrantyStartdate }}
                 </el-form-item>
