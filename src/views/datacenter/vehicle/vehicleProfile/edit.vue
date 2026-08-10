@@ -1117,6 +1117,7 @@ export default {
         return;
       }
       warrantyForecast(this._id).then(res => {
+        this.$message.success('预测成功');
         this.$refs.containerRef.loadDetail();
       });
     },
