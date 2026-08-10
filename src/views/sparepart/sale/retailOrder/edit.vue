@@ -802,7 +802,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '备附件销售',
+      pageTitle: '备附件零售',
       pageType: 'edit',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-retailOrder',

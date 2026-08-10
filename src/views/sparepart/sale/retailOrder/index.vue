@@ -9,7 +9,7 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="备附件销售单号">
+      <el-form-item label="备附件零售单号">
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="VIN">
@@ -310,7 +310,7 @@ export default {
     return {
       isPartOrder: false,
       cooperationType: null,
-      pageTitle: '备附件销售',
+      pageTitle: '备附件零售',
       pageType: 'list',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-retailOrder',
@@ -913,7 +913,7 @@ export default {
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '备附件销售',
+        businessType: '备附件零售',
         dataFetchPath: 'sp/web/dealer/retailOrder/page',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
@@ -921,7 +921,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '备附件销售.xlsx');
+            await downloadExcel(res.excelUrl, '备附件零售.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',

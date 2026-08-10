@@ -156,8 +156,8 @@
         <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button>
         <el-button v-permission="moduleKey + '-canBoTransfer'" size="small" @click="handleBatchAllowTransfer" :disabled="selectionList.length === 0">允许BO调拨</el-button>
         <el-button v-permission="moduleKey + '-canBoTransfer'" size="small" @click="handleBatchForbidTransfer" :disabled="selectionList.length === 0">禁止BO调拨</el-button>
-        <el-button v-permission="moduleKey + '-canCetail'" size="small" @click="handleBatchAllowSales" :disabled="selectionList.length === 0">允许备附件销售</el-button>
-        <el-button v-permission="moduleKey + '-canCetail'" size="small" @click="handleBatchForbidSales" :disabled="selectionList.length === 0">禁止备附件销售</el-button>
+        <el-button v-permission="moduleKey + '-canCetail'" size="small" @click="handleBatchAllowSales" :disabled="selectionList.length === 0">允许备附件零售</el-button>
+        <el-button v-permission="moduleKey + '-canCetail'" size="small" @click="handleBatchForbidSales" :disabled="selectionList.length === 0">禁止备附件零售</el-button>
       </ButtonGroup>
     </div>
     <div
@@ -296,13 +296,14 @@ export default {
           { props: 'salePrice', label: '销售价格', visible: true, align: 'right', width: 120 },
           { props: 'purchasePrice', label: '采购价格', visible: true, align: 'right', width: 120 },
           { props: 'oemPartLabel', label: '是否OEM件', visible: true, width: 130 },
+          { props: 'oemRemark', label: 'OEM备注', visible: true, width: 130 },
           { props: 'saleableIsLabel', label: '是否可销售', visible: true, width: 130 },
           { props: 'standingInventoryIsLabel', label: '是否常备库存件', visible: true, width: 150 },
           { props: 'partsEngineer', label: '备件工程师', visible: true, width: 200 },
           { props: 'vfgName', label: 'VFG名称', visible: true, width: 200 },
           { props: 'vrtName', label: 'VRT名称', visible: true, width: 200 },
           { props: 'boTransferIsLabel', label: 'BO调拨', visible: true, width: 200 },
-          { props: 'retailIsLabel', label: '备附件销售', visible: true, width: 200 },
+          { props: 'retailIsLabel', label: '备附件零售', visible: true, width: 200 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 120 },
           { props: 'baseUnitLabel', label: '基本计量单位', visible: true, width: 200 },
