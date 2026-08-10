@@ -112,6 +112,9 @@
                 <el-form-item label="创建时间：">
                   {{ form.createTime }}
                 </el-form-item>
+                <el-form-item label="备注：">
+                  {{ form.remark }}
+                </el-form-item>
               </el-form>
             </div>
           </section>
