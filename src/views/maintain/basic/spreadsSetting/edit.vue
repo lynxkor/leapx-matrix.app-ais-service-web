@@ -84,7 +84,7 @@
                     type="textarea"
                     placeholder="请输入"
                     v-model="form.remark"
-                    maxlength="500"
+                    maxlength="100"
                     show-word-limit
                     clearable
                   />
