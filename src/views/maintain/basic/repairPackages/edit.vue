@@ -137,7 +137,7 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>套餐明细</h2>
+              <h2>项目明细</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
@@ -420,7 +420,17 @@ export default {
           { required: true, message: '请选择套餐类型', trigger: 'change' }
         ],
         suedDealer: [
-          { required: true, message: '请输入是否下发门店', trigger: 'change' }
+          {
+            validator: (rule, value, callback) => {
+              // suedDealer 有值时不做必填校验，避免已填写仍提示
+              if (value !== '' && value !== null && value !== undefined) {
+                callback();
+                return;
+              }
+              callback(new Error('请输入是否下发门店'));
+            },
+            trigger: 'change'
+          }
         ],
       },
       modelDialogVisible: false, // 适配车型弹窗
@@ -546,12 +556,12 @@ export default {
     },
     // 适配车型接口
     async getModelList () {
-      const res = await getModel({ repairPackagesId: this._id });
+      const res = await getModel({ repairPackagesId: this._id  , pageSize: 5000});
       this.tableDataModel = res.records || [];
     },
     // 维修项目套餐列表
     async getProjectPackage () {
-      const res = await getPackagesItem({ repairPackagesId: this._id });
+      const res = await getPackagesItem({ repairPackagesId: this._id  , pageSize: 5000});
       this.tableData = res.records || [];
       // 计算项目金额
       this.itemAmount = 0;

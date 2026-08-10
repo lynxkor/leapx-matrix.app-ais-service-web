@@ -30,6 +30,9 @@
             <el-form-item label="单次需补差价：" prop="spreadPrice">
               {{ info.spreadPrice  }}
             </el-form-item>
+            <el-form-item label="备注：" prop="remark">
+              {{ info.remark  }}
+            </el-form-item>
             <el-form-item label="生效开始日期：" prop="effectiveon">
               {{ info.effectiveon  }}
             </el-form-item>
