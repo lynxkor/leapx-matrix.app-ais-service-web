@@ -38,13 +38,13 @@
             plain
             size="small"
             :loading="actionLoading"
-            @click="handleAllowPartsAttachmentSales">允许备附件销售</el-button>
+            @click="handleAllowPartsAttachmentSales">允许备附件零售</el-button>
           <el-button
             v-if="canShowForbidSales"
             plain
             size="small"
             :loading="actionLoading"
-            @click="handleForbidPartsAttachmentSales">禁止备附件销售</el-button>
+            @click="handleForbidPartsAttachmentSales">禁止备附件零售</el-button>
         </template>
         <el-main>
           <section class="common-section">
