@@ -23,13 +23,6 @@
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="库名">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dsName"
-            clearable
-          />
-        </el-form-item>
         <el-form-item label="实体表">
           <el-input
             placeholder="请输入"
