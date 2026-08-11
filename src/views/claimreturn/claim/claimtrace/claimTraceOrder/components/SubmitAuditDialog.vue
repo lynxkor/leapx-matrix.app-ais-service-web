@@ -13,10 +13,12 @@
           <el-form-item prop="traceDesc" class="form-item-full" label="追溯说明：">
             <el-input type="textarea" v-model="form.traceDesc" placeholder="请输入" :rows="3" maxlength="500" show-word-limit />
           </el-form-item>
+          <!-- 追溯凭证：批量模式仍可上传，但通过 :key 强制 AisAttachment 重建，避免复用单条模式加载的原凭证 -->
           <el-form-item v-if="!batchMode" class="form-item-full" label="追溯凭证：">
             <AisAttachment
               style="padding-top: 5px;"
               ref="attachment"
+              :key="`single-${traceOrderId}`"
               :business-id="traceOrderId"
               attachType="不合格凭证"
               :uploadConfig="uploadConfig"
@@ -28,6 +30,7 @@
             <AisAttachment
               style="padding-top: 5px;"
               ref="attachment"
+              key="batch"
               attachType="不合格凭证"
               :uploadConfig="uploadConfig"
               hint="default"
