@@ -211,6 +211,7 @@
       <el-button size="small" @click="handleBatchAgree" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseApply-batchAgree'">批量同意</el-button>
       <el-button size="small" @click="handleBatchReject" :disabled="selectionList.length === 0" v-permission="'AISPART-purchaseApply-batchReject'">批量驳回</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport" v-permission="'AISPART-purchaseApply-importDistribution'">铺货导入</el-button>
+      <el-button v-if="canImport" size="small" @click="handleImport2" v-permission="'AISPART-purchaseApply-importDistribution'">铺货导入(相同备件)</el-button>
     </div>
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="订单列表" name="homePage"></el-tab-pane>
@@ -264,6 +265,13 @@
       id="sparePartPurchaseApplyDistribution"
       async
       @close="handleUploadDialogClose"
+    />
+    <Upload
+      :visible="uploadDialogVisible2"
+      id="sparePartPurchaseApplyDistributionSp"
+      async
+      :upload-url="'/sp/web/purchase/purchaseApply/import'"
+      @close="handleUploadDialogClose2"
     />
     <!-- 提交弹窗 -->
     <SubmitDialog
@@ -384,6 +392,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      uploadDialogVisible2: false,
       submitDialogVisible: false, // 提交按钮弹窗
       agreeDialogVisible: false, // 同意按钮弹窗.
       approvalDialogVisible: false, // 审批按钮弹窗.
@@ -758,6 +767,12 @@ export default {
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
+    },
+    handleImport2 () {
+      this.uploadDialogVisible2 = true;
+    },
+    handleUploadDialogClose2 () {
+      this.uploadDialogVisible2 = false;
     },
 
     handleAdd () {
