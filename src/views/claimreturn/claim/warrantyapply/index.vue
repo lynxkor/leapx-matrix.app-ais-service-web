@@ -16,6 +16,19 @@
       <el-form-item label="VIN：">
         <tag-input v-model="form.vinList" placeholder="请输入VIN" />
       </el-form-item>
+      <el-form-item label="创建时间：">
+        <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
 
       <!-- 扩展查询条件 -->
       <template v-if="show">
@@ -209,19 +222,6 @@
       </el-form-item>
       <el-form-item label="其他分担比例：">
         <el-input v-model="form.otherShareRatio" placeholder="请输入" clearable />
-      </el-form-item>
-      <el-form-item label="创建时间：">
-        <el-date-picker
-          :default-time="['00:00:00', '23:59:59']"
-          v-model="form.createTime"
-          type="daterange"
-          unlink-panels
-          :picker-options="pickerOptions"
-          range-separator="至"
-          value-format="yyyy-MM-dd HH:mm:ss"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        />
       </el-form-item>
       <el-form-item label="订单修改时间：">
         <el-date-picker
@@ -1406,7 +1406,6 @@ export default {
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
           { props: 'otherCode', label: '其他代码', visible: true, width: 200 },
           { props: 'otherName', label: '其他名称', visible: true, width: 200 },
-          { props: 'quantity', label: '数量', visible: true, width: 120, align: 'right' },
           { props: 'totalCostAmount', label: '其他明细总金额', visible: true, width: 160, align: 'right' },
           { props: 'remark', label: '其他明细备注', visible: true, width: 200 }
         ],
@@ -1765,7 +1764,6 @@ export default {
         this.form.createTime = null;
         this.form.currentSubmitTime = null;
         this.form.approvalTime = null;
-        this.form.logApprovalTime = null;
       }
 
       // 2. 非空校验：根据 tab 不同校验条件不同
