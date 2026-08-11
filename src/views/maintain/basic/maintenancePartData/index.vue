@@ -273,7 +273,7 @@ export default {
       exportTable({
         businessType: '保养零件主数据',
         dataFetchPath: 'maintain/web/basic/maintenancePartData/page',
-        reqParams: this.getFormData(),
+        reqParams: this.buildExportParams(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
@@ -348,7 +348,7 @@ export default {
       exportTable({
         businessType,
         dataFetchPath,
-        reqParams: this.getFormData(),
+        reqParams: this.buildExportParams(),
         titleMap,
         httpMethod: 'POST'
       }).then(async res => {
@@ -437,6 +437,14 @@ export default {
       }
 
       return data;
+    },
+    // 构造导出请求参数：勾选记录时按选中 ids 导出，否则按查询条件导出全部
+    buildExportParams () {
+      const params = this.getFormData();
+      if (this.selectionList.length > 0) {
+        params.ids = this.selectionList.map(item => item.id);
+      }
+      return params;
     },
     async fetchOptions (code) {
       if (code) {
