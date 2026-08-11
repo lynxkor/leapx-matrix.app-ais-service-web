@@ -371,6 +371,18 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <el-form-item label="发票创建时间">
+          <el-date-picker
+            v-model="form.invoiceCreateTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
         <el-form-item label="发票验收日期">
           <el-date-picker
             v-model="form.invoiceCheckTime"
@@ -519,6 +531,7 @@ const defaultForm = {
   invoiceNoList: [],
   invoiceCompanyName: '',
   invoiceDate: '',
+  invoiceCreateTime: '',
 };
 
 const pageSize = 20;
@@ -1365,6 +1378,7 @@ export default {
       if (!this.validateDateSpan(this.form.paymentConfirmTime, '付款确认日期')) return;
       // invoice tab 的发票开具日期校验
       if (!this.validateDateSpan(this.form.invoiceDate, '发票开具日期')) return;
+      if (!this.validateDateSpan(this.form.invoiceCreateTime, '发票创建时间')) return;
 
       this.tableForm.page = 1;
       this.getData();
@@ -1530,6 +1544,7 @@ export default {
       splitDate('invoiceCheckTime');
       splitDate('paymentConfirmTime');
       splitDate('invoiceDate');
+      splitDate('invoiceCreateTime');
 
       // 按页签清理专属参数
       const detailOnlyKeys = [
@@ -1539,7 +1554,8 @@ export default {
         'traceDetailCodeList', 'traceTypeList', 'businessCodeList'
       ];
       const invoiceOnlyKeys = [
-        'invoiceNoList', 'invoiceCompanyName', 'invoiceDateStart', 'invoiceDateEnd'
+        'invoiceNoList', 'invoiceCompanyName', 'invoiceDateStart', 'invoiceDateEnd',
+        'invoiceCreateTimeStart', 'invoiceCreateTimeEnd'
       ];
       if (this.activeTab === 'list') {
         detailOnlyKeys.forEach(key => delete data[key]);
