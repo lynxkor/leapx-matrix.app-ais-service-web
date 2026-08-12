@@ -209,7 +209,6 @@ import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
 import PartTable from './PartTable.vue';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { debounce } from 'lodash';
-import { getValidHourlyPrice } from '@/api/claimreturn/claim/basic/warrantyHourSetting';
 
 const defaultForm = {
   id: '',
@@ -289,8 +288,6 @@ export default {
       curPart: null,
       // ----
       isShow: true,
-      //
-      unitPrice: 0, // 标准工时单价
     };
   },
   computed: {
@@ -317,23 +314,7 @@ export default {
       }
     }
   },
-  mounted () {
-    this.getUnitPrice();
-  },
   methods: {
-    getUnitPrice () {
-      return new Promise((resolve) => {
-        if (this.unitPrice) {
-          return resolve(this.unitPrice);
-        }
-        if (this.isServiceCareActivity) {
-          getValidHourlyPrice().then(data => {
-            this.unitPrice = data;
-            resolve(this.unitPrice);
-          });
-        }
-      });
-    },
     handleDiscountAmount (row, isUpdate) {
       const maxDiscount = row.quantity * row.unitPrice;
       this.$set(row, 'amount', (maxDiscount - row.discountAmount).toFixed(2));
@@ -414,14 +395,7 @@ export default {
             return;
           }
           if (data) {
-            if (this.isServiceCareActivity && key === 'unitPrice') {
-              this.getUnitPrice().then(data => {
-                this.form.unitPrice = data;
-                this.handleDiscountAmount(this.form);
-              });
-            } else {
-              this.form[key] = data[key];
-            }
+            this.form[key] = data[key];
           } else {
             this.resetForm();
           }
