@@ -65,7 +65,7 @@
 
 <script>
 import { submitAudit, batchSubmitForAudit } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
-import { uploadFile, deleteFile, addOrUpdateFile, getFileList } from '@/libs/api/attachment/index';
+import { uploadFile, deleteFile, addOrUpdateFile, getFileList, getByCode } from '@/libs/api/attachment/index';
 import { isFileType } from '@/libs/utils/file.js';
 import AisUpload from '@/libs/components/AisAttachment/AisUpload/index.vue';
 
@@ -140,11 +140,36 @@ export default {
         this.attachFileList = [];
         if (!this.batchMode && this.traceOrderId) {
           this.loadExistingFiles();
+          // 单条模式加载后端配置(mcs_claimtrack_form 中"不合格凭证"项),
+          // 让弹窗 maxNum / acceptSuffix / maxSize 与详情页 AisAttachment 走同一后端来源
+          this.loadUploadConfig();
         }
       }
     }
   },
   methods: {
+    /** 从后端 configCode 配置拉取"不合格凭证"项的上传规则,与详情页 AisAttachment 同源 */
+    async loadUploadConfig () {
+      try {
+        const data = await getByCode({
+          configCode: 'mcs_claimtrack_form',
+          businessData: '',
+        });
+        if (data && Array.isArray(data.detailList)) {
+          const cfg = data.detailList.find(c => c.attachType === '不合格凭证');
+          if (cfg) {
+            this.uploadConfig = {
+              acceptSuffix: cfg.acceptSuffix || this.uploadConfig.acceptSuffix,
+              maxSize: cfg.maxSize || this.uploadConfig.maxSize,
+              maxNum: cfg.maxNum !== null && cfg.maxNum !== undefined ? Number(cfg.maxNum) : this.uploadConfig.maxNum,
+              required: cfg.required || this.uploadConfig.required,
+            };
+          }
+        }
+      } catch (e) {
+        console.error('加载追溯凭证上传配置失败:', e);
+      }
+    },
     /** 单条模式下加载服务端已有附件 */
     async loadExistingFiles () {
       try {
