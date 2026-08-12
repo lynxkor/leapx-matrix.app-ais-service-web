@@ -15,7 +15,8 @@
           permissions.has('AISPART-sparePart-modelImport') ||
           permissions.has('AISPART-sparePart-purchaseImport') ||
           permissions.has('AISPART-sparePart-transportImport') ||
-          permissions.has('AISPART-sparePart-salesImport')"
+          permissions.has('AISPART-sparePart-salesImport') ||
+          permissions.has('AISPART-sparePart-oldReturnType')"
       >
         <template #status>
           <span :class="['status', form.status ? 'primary' : 'danger']">{{ form.statusLabel }}</span>
@@ -166,7 +167,7 @@
                 </el-form-item>
                 <el-form-item label="旧件返还类型：" prop="oldReturnType">
                   <fetch-select
-                    disabled
+                    :disabled="!permissions.has('AISPART-sparePart-oldReturnType')"
                     :request="fetchOptions"
                     enumCode="OldReturnTypeEnum"
                     v-model="form.oldReturnType"

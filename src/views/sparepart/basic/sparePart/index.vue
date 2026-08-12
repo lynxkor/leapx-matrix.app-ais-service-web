@@ -147,6 +147,7 @@
         <el-button v-permission="moduleKey + '-purchaseImport'" size="small" @click="handleImport('sparePartPurchaseImport', '采购导入模板')">采购导入</el-button>
         <el-button v-permission="moduleKey + '-modelImport'" size="small" @click="handleImport('sparePartModelImport', '车型导入模板')">车型导入</el-button>
         <el-button v-permission="moduleKey + '-vfgImport'" size="small" @click="handleImport('sparePartVfgImport', 'VFG导入模板')">VFG导入</el-button>
+        <el-button v-permission="moduleKey + '-oldReturnTypeImport'" size="small" @click="handleImport('sparePartOldReturnType', '旧件返还类型导入模板')">旧件返还类型导入</el-button>
         <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
         <el-button v-permission="moduleKey + '-printImport'" size="small">打印报价单</el-button>
         <!-- <el-button v-permission="moduleKey + '-detail'" size="small">集中视图</el-button> -->
@@ -332,7 +333,7 @@ export default {
             buttons: [{
               name: '编辑 ',
               disabled: () => {
-                const a = this.permissions.has('AISPART-sparePart-vfgImport') || this.permissions.has('AISPART-sparePart-modelImport') || this.permissions.has('AISPART-sparePart-purchaseImport') || this.permissions.has('AISPART-sparePart-transportImport') || this.permissions.has('AISPART-sparePart-salesImport');
+                const a = this.permissions.has('AISPART-sparePart-vfgImport') || this.permissions.has('AISPART-sparePart-modelImport') || this.permissions.has('AISPART-sparePart-purchaseImport') || this.permissions.has('AISPART-sparePart-transportImport') || this.permissions.has('AISPART-sparePart-salesImport') || this.permissions.has('AISPART-sparePart-oldReturnType');
                 return !a;
               },
               click: (rowIndex, row) => {
