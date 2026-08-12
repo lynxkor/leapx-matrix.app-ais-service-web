@@ -876,13 +876,13 @@ export default {
       fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = (res?.records || []).map(item => {
+          optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          optionObj.total = res.total;
         }).finally(() => {
           this.loading = false;
         });
