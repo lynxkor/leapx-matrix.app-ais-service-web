@@ -35,10 +35,6 @@
             <el-form-item label="项目金额：" prop="purchaseQty">
               {{ repairDetail.actualAmount || 0 }}
             </el-form-item>
-            <el-form-item style="width: 100%;" label="备注：" prop="remark">
-              <el-input type="textarea" maxlength="500" show-word-limit v-model="repairDetail.remark" clearable
-                placeholder="请输入备注" />
-            </el-form-item>
           </el-form>
         </div>
       </section>
