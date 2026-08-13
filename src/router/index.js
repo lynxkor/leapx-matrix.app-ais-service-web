@@ -2684,6 +2684,7 @@ const routes = [
         name: '新页面',
         keepAlive: true,
         notRefresh: true,
+        customViewBizKey: 'warrantyapply'
       }
     }, {
       path: '/claimreturn/claim/warrantyApplyCustom',
