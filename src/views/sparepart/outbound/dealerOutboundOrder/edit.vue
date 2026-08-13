@@ -663,6 +663,7 @@ export default {
         dealerOutboundOrderCode: this.form.code,
         sparePartId: val.id,
         qty: val.qty,
+        remark: val.remark,
       };
       this.handleAddOrUpdate(params, 'update');
     },
