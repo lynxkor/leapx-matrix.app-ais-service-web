@@ -430,7 +430,7 @@ export default {
     },
     // 订单状态 领料同意 / 出库状态 未出库
     isOrderType () {
-      return (this.form.orderStatus === '10' || this.form.orderStatus === '40') && this.form.outboundStatus === '0';
+      return (this.form.orderStatus === '10' || this.form.orderStatus === '30' || this.form.orderStatus === '40') && this.form.outboundStatus === '0';
     },
     // 按钮配置
     extraButtons () {
