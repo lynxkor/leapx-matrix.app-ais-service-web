@@ -19,7 +19,8 @@
             </div>
             <div class="common-section-body">
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="130px" class="form-edit" v-if="isEditing || !_id">
-                <el-form-item label="系统：">
+                <!-- 本期只做销服：隐藏系统下拉框，默认 systemId='ais'。后续需要支持零小跑时去掉 v-if 即可恢复。 -->
+                <el-form-item v-if="false" label="系统：">
                   <fetch-select
                     v-model="systemId"
                     :options="[{ code: 'leapx', message: '零小跑' }, { code: 'ais', message: '销服' }]"
@@ -338,7 +339,7 @@ import {
   getTables,
   getColumns
 } from '@/api/desensitize/metadata';
-import { findByDictType, findUserList, getPostPage } from '@/api/common';
+import { findByDictType, findUserListWithStatus, getPostPage } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -467,7 +468,7 @@ export default {
       pageType: 'edit',
       moduleKey: 'AISSECURITY-desensitize',
       isEditing: false,
-      systemId: 'leapx',
+      systemId: 'ais',
       positionOptions: [],
       userOptions: [],
       userSearchLoading: false,
@@ -587,8 +588,11 @@ export default {
     },
     searchUserOptions (query) {
       this.userSearchLoading = true;
-      findUserList({
+      findUserListWithStatus({
         param: query || '',
+        // 启用状态多选过滤，后端接收 List<String>（不是逗号分隔字符串）；
+        // 后续若需动态取值则提取到常量或 props。
+        enabledList: ['0', '3'],
         page: 1,
         size: 50
       }).then(res => {
@@ -748,14 +752,31 @@ export default {
         }))
       };
       const isUpdate = !!payload.id;
-      if (isUpdate) {
-        return edit(payload);
+      const result = isUpdate ? edit(payload) : add(payload);
+      const id = await result;
+      // 新增保存成功后跳转到列表页（默认行为是停留在当前页 + 新 id 变详情页，
+      // 与本项目脱敏规则新增场景预期不符）。
+      // EditBaseContainer 支持 Promise.reject() 主动阻断默认 success 回调，
+      // 此处 reject 后 EOD 不会调用 success(id)（不会跳转到详情页），
+      // 也不会重复弹出 “保存成功” 提示（由本处统一提示）。
+      if (!isUpdate) {
+        this.$message.success('保存成功');
+        this.$router.replace('/desensitize/setting');
+        // 主动 reject 阻断 EditBaseContainer 默认 success 回调（其会跳转到详情页），
+        // EOD catch 吞掉 reject，finally 仍会复位 loading。
+        return Promise.reject(new Error('新增保存：父组件已接管跳转'));
       }
-      // 新增接口由后端负责唯一性校验；失败抛 BusinessException
-      return add(payload);
+      // 编辑保存：返回 id 让 EOD 重新 loadDetail （保留原逻辑）
+      return id;
     },
     getDefautlForm () {
-      return { ...defaultForm };
+      // 深拷贝子数组，避免多个组件实例共享 defaultForm 的 positionList / userList 引用，
+      // 导致上次新增保存的子配置残留到下次新增页。
+      return {
+        ...defaultForm,
+        positionList: [...defaultForm.positionList],
+        userList: [...defaultForm.userList]
+      };
     },
     // 数据分类下拉 - FetchSelect request 方法
     async fetchCategoryList () {
