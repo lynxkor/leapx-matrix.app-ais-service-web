@@ -290,10 +290,10 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180 },
+          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.outboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'outboundDealerName', label: '出库门店名称', visible: true, width: 200 },
           { props: 'outboundWarehouseName', label: '出库方仓库', visible: true, width: 200 },
-          { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180 },
+          { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.inboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
           {
             props: 'inboundContactPerson',
@@ -311,7 +311,7 @@ export default {
             mask: true,
             getValue: (row) => getDesensitize(row.id, 'sharedTransferOutbound', 'inboundContactPhone')
           },
-          { props: 'outboundStatus', label: '出库状态', visible: true, width: 120 },
+          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -391,14 +391,28 @@ export default {
             fixed: 'left',
             buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/transfer/sharedTransferOutbound/edit', query: { id: row.sharedTransferOutboundId || row.id } }); }, type: 'primary' }]
           },
-          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180 },
+          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.outboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'outboundDealerName', label: '出库门店名称', visible: true, width: 200 },
           { props: 'outboundWarehouseName', label: '出库方仓库', visible: true, width: 200 },
           { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.inboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
-          { props: 'inboundContactPerson', label: '入库方联系人', visible: true, width: 120 },
-          { props: 'inboundContactPhone', label: '入库方手机', visible: true, width: 140 },
-          { props: 'outboundStatus', label: '出库状态', visible: true, width: 120 },
+          {
+            props: 'inboundContactPerson',
+            label: '入库方联系人',
+            visible: true,
+            width: 160,
+            mask: true,
+            getValue: (row) => getDesensitize(row.sharedTransferOutboundId, 'sharedTransferOutbound', 'inboundContactPerson')
+          },
+          {
+            props: 'inboundContactPhone',
+            label: '入库方手机',
+            visible: true,
+            width: 180,
+            mask: true,
+            getValue: (row) => getDesensitize(row.sharedTransferOutboundId, 'sharedTransferOutbound', 'inboundContactPhone')
+          },
+          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
           { props: 'remark', label: '订单备注', visible: true, width: 200 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
