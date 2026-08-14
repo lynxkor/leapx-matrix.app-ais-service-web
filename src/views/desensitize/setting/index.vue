@@ -23,13 +23,6 @@
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="库名">
-          <el-input
-            placeholder="请输入"
-            v-model="form.dsName"
-            clearable
-          />
-        </el-form-item>
         <el-form-item label="实体表">
           <el-input
             placeholder="请输入"
@@ -307,6 +300,16 @@ export default {
     handleExport () {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
+      // 后端 desensitize/rule/page 分页参数为 page/size（与列表页查询一致），
+      // 通用导出(commonExport)固定传 pageNum/pageSize 无法被识别，会走默认 size=10，
+      // 故此处显式传 size 一次拉取全部所需数据，避免只导出第一页
+      if (this.selectionList.length > 0) {
+        const ids = this.selectionList.map(item => item.id) || [];
+        reqParams.ids = ids;
+        reqParams.size = ids.length;
+      } else {
+        reqParams.size = this.optionObj.total;
+      }
       exportTable({
         businessType: '脱敏规则',
         dataFetchPath: 'desensitize/rule/page',
