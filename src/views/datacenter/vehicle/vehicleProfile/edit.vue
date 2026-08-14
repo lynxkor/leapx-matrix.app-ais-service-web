@@ -1160,9 +1160,9 @@ export default {
         if (Array.isArray(data[key]) && !data[key].length) {
           delete data[key];
         }
-        if (data[key] === '' || data[key] === null) {
-          delete data[key];
-        }
+        // if (data[key] === '' || data[key] === null) {
+        //   delete data[key];
+        // }
       });
 
       return data;
