@@ -117,8 +117,9 @@ export default {
     async getList () {
       const params = {
         pageNum: 1,
-        pageSize: 1000,
-        inboundOrderId: this.id
+        pageSize: 5000, // 0 = 后端打印场景兜底大值，保证单订单明细一次拉全（排序需拿到全部行）
+        inboundOrderId: this.id,
+        isPrint: true // 关键：服务端按当前用户打印设置 sortOrder 内存排序
       };
       const res = await inboundOrderDetail(params);
       this.tableData = res.records || [];
