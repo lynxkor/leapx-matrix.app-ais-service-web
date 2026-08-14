@@ -331,10 +331,10 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180 },
+          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.outboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'outboundDealerName', label: '出库门店名称', visible: true, width: 200 },
           { props: 'outboundWarehouseName', label: '出库方仓库', visible: true, width: 200 },
-          { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180 },
+          { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.inboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
           {
             props: 'inboundContactName',
@@ -588,7 +588,7 @@ export default {
             fixed: 'left',
             buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/transfer/transferOutbound/edit', query: { id: row.transferOutboundId || row.id } }); }, type: 'primary' }]
           },
-          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180 },
+          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.outboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'outboundDealerName', label: '出库门店名称', visible: true, width: 200 },
           { props: 'outboundWarehouseName', label: '出库方仓库', visible: true, width: 200 },
           { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.inboundDealerCode}`, '_blank'); }, type: 'primary' }] },
