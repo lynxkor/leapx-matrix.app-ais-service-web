@@ -377,11 +377,11 @@ export default {
               },
               type: 'info'
             }, {
-              name: '允许备附件销售',
+              name: '允许备附件零售',
               show: (row) => {
                 return row.retailIs === '0' && row.oemPart === '1' && this.permissions.has('AISPART-sparePart-canCetail');
               },
-              popconfirmTitle: '此操作将允许备附件销售, 是否继续?',
+              popconfirmTitle: '此操作将允许备附件零售, 是否继续?',
               click: (rowIndex, row) => {
                 allowPartsAttachmentSales({
                   id: row.id
@@ -392,11 +392,11 @@ export default {
               },
               type: 'info'
             }, {
-              name: '禁止备附件销售',
+              name: '禁止备附件零售',
               show: (row) => {
                 return row.retailIs === '1' && row.oemPart === '1' && this.permissions.has('AISPART-sparePart-canCetail');
               },
-              popconfirmTitle: '此操作将禁止备附件销售, 是否继续?',
+              popconfirmTitle: '此操作将禁止备附件零售, 是否继续?',
               click: (rowIndex, row) => {
                 forbidPartsAttachmentSales({
                   id: row.id
