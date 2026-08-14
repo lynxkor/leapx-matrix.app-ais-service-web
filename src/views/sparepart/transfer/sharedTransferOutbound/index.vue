@@ -68,7 +68,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="创建时间">
+        <el-form-item label="订单创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
@@ -81,7 +81,7 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="修改时间">
+        <el-form-item label="订单修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
@@ -210,7 +210,9 @@ import EditPage from './edit.vue';
 import ShipmentDialog from './ShipmentDialog.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  codeList: null,
+  // 注意：被 <tag-input> 绑定的字段必须用 [] 而非 null，否则 reset 时
+  // TagInput 内部 tagList = null 会导致 slice()/length 抛错，UI 无法清空。
+  codeList: [],
   inboundDealerCodeList: null,
   createTime: '',
   updateTime: '',
@@ -222,7 +224,7 @@ const defaultForm = {
   outboundStatusList: null,
 
   // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
-  sparePartCodeList: null,
+  sparePartCodeList: [],
   sparePartName: '',
   locationNameLike: '',
 };
@@ -560,7 +562,9 @@ export default {
       const extraDefaults = this.activeName === 'allSpareParts'
         ? { createTime: this.getLastMonthRange() }
         : {};
-      this.form = { ...defaultForm, ...extraDefaults };
+      // 注意：不要整体替换 this.form —— 会丢失 Vue 2 响应性，导致子组件 watch 失效。
+      // 必须用 Object.assign 原地写入响应式对象，触发 setter 让 watcher 重新执行。
+      Object.assign(this.form, defaultForm, extraDefaults);
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       optionObj.form.size = pageSize;

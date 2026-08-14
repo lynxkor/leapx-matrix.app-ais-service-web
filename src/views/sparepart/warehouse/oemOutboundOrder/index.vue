@@ -130,7 +130,7 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="创建时间">
+        <el-form-item label="订单创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
@@ -143,7 +143,7 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="修改时间">
+        <el-form-item label="订单修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
@@ -309,7 +309,7 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="创建时间">
+        <el-form-item label="订单创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="sparePartForm.createTime"
@@ -322,7 +322,7 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="修改时间">
+        <el-form-item label="订单修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="sparePartForm.updateTime"

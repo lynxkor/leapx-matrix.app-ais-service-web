@@ -40,6 +40,7 @@
           filterable
             />
       </el-form-item>
+      <template v-if="show">
       <el-form-item label="公司" v-show="this.visibleCount === 3 || show">
         <fetch-select
           :remote-method="getParentCompany"
@@ -55,7 +56,6 @@
           filterable
         />
       </el-form-item>
-      <template v-if="show">
         <el-form-item label="仓库">
           <fetch-select
             :remote-method="getWarehouse"

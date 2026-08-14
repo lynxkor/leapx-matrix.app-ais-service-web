@@ -71,7 +71,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="缺货单状态" v-if="activeName === 'homePage'">
+        <el-form-item label="缺货单状态" v-if="activeName === 'homePage' || activeName === 'allSpareParts'">
           <fetch-select
             :request="fetchOptions"
             enumCode="BackOrderStatusEnum"
@@ -82,17 +82,18 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="提交人" v-if="activeName === 'homePage' || activeName === 'outOfStock' " >
+        <el-form-item label="采购提交人" v-if="activeName === 'homePage' || activeName === 'outOfStock' || activeName === 'allSpareParts'" >
           <fetch-select
             :remote-method="getUser"
             remote
-            v-model="form.submitter"
+            v-model="form.submitterList"
             placeholder="请输入名称"
             labelKey="username"
             valueKey="userId"
             clearable
             collapseTags
             filterable
+            multiple
             />
         </el-form-item>
         <el-form-item label="订单修改时间">
@@ -321,9 +322,11 @@ import LackEditPage from './outOfStock/edit.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
-  codeList: null,
+  // 注意：被 <tag-input> 绑定的字段必须用 [] 而非 null，否则 reset 时
+  // TagInput 内部 tagList = null 会导致 slice()/length 抛错，UI 无法清空。
+  codeList: [],
   purchaseApplyCode: '',
-  purchaseApplyCodeList: null,
+  purchaseApplyCodeList: [],
   dealerCode: '',
   dealerCodeList: null,
   purchaseOrderTypeList: [],
@@ -332,12 +335,14 @@ const defaultForm = {
   createTime: '',
   updateTime: '',
   // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
-  partCodeList: null,
+  partCodeList: [],
   partName: '',
   detailBackStatusList: null,
   detailRemark: '',
   sparePartIdList: null,
   marketingTypeList: null,
+  // ===== 采购提交人（多选，三个 tab 共用） =====
+  submitterList: null,
 };
 
 const pageSize = 20;
@@ -644,6 +649,7 @@ export default {
           { props: 'cancelOperator', label: '取消人', visible: true, width: 120 },
           { props: 'cancelTime', label: '取消时间', visible: true, width: 200 },
           { props: 'cancelDescription', label: '取消说明', visible: true, width: 200 },
+          { props: 'submitterName', label: '采购提交人', visible: true, width: 200 },
           { props: 'purchasePrice', label: '采购价', visible: true, align: 'right', width: 120 },
           { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
           { props: 'cashUnitPrice', label: '现金单价', visible: true, align: 'right', width: 120 },
@@ -689,7 +695,9 @@ export default {
       const extraDefaults = this.activeName === 'allSpareParts'
         ? { createTime: this.getLastMonthRange() }
         : {};
-      this.form = { ...defaultForm, ...extraDefaults };
+      // 注意：不要整体替换 this.form —— 会丢失 Vue 2 响应性，导致子组件 watch 失效。
+      // 必须用 Object.assign 原地写入响应式对象，触发 setter 让 watcher 重新执行。
+      Object.assign(this.form, defaultForm, extraDefaults);
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       optionObj.form.size = 20;
