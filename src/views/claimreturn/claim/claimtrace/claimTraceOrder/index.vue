@@ -33,6 +33,20 @@
         <el-form-item label="门店编码">
           <dealer-select v-model="form.dealerCodes" multiple/>
         </el-form-item>
+        <el-form-item label="门店所属区域：">
+          <fetch-select
+            :key="regionSelectKey"
+            v-model="form.dealerRegionCodeList"
+            :remote-method="getScopeTypeOrg"
+            placeholder="请选择"
+            clearable
+            remote
+            multiple
+            filterable
+            value-key="code"
+            label-key="name"
+          />
+        </el-form-item>
         <el-form-item label="计划追溯金额">
           <el-input
             placeholder="开始金额"
@@ -262,7 +276,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, enableItem, agreeTrace, getDetailDecryptField } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getAllRegion } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -287,6 +301,7 @@ const defaultForm = {
   warrantyCodes: [],
   vins: [],
   dealerCodes: [],
+  dealerRegionCodeList: [],
   dealerName: '',
   planTraceAmountStart: '',
   planTraceAmountEnd: '',
@@ -336,6 +351,7 @@ export default {
       },
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
+      regionSelectKey: 0,
       show: false,
       loading: false,
       exportLoading: false,
@@ -422,6 +438,7 @@ export default {
             }]
           },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'dealerRegionName', label: '门店所属区域', visible: true, width: 140 },
           { props: 'laborClaimTotal', label: '保修工时金额', visible: true, width: 160, align: 'right' },
           { props: 'partsClaimTotal', label: '保修备件金额', visible: true, width: 160, align: 'right' },
           { props: 'otherClaimTotal', label: '保修其他金额', visible: true, width: 160, align: 'right' },
@@ -603,6 +620,8 @@ export default {
       this.form = { ...defaultForm };
       this.optionObj.form.page = 1;
       this.optionObj.form.pageSize = pageSize;
+      this._scopeTypeOrgCache = null;
+      this.regionSelectKey++;
       this.getData();
     },
     exportExcel () {
@@ -775,6 +794,17 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    async getScopeTypeOrg (query) {
+      if (!this._scopeTypeOrgCache) {
+        const res = await getAllRegion();
+        this._scopeTypeOrgCache = res?.data || res || [];
+      }
+      if (!query) {
+        return { data: this._scopeTypeOrgCache };
+      }
+      const filtered = this._scopeTypeOrgCache.filter(item => item.name && item.name.includes(query));
+      return { data: filtered };
     },
     // 批量启用停用
     handleBatchEnable (status) {

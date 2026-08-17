@@ -461,9 +461,6 @@ import {
   getOtherList,
   getApprovalList,
   submit,
-  withdraw,
-  approve,
-  batchCancel,
   getDetailDecryptField,
   print,
 } from '@/api/claimreturn/claim/warrantyapply/index';
@@ -498,6 +495,7 @@ import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
 import { getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity';
+import customViewMixin from '@/libs/mixins/customView';
 
 // 创建时间默认值：最近 3 个月
 function getDefaultCreateTime () {
@@ -573,7 +571,7 @@ const mockConfig = {
 };
 
 export default {
-  mixins: [responsiveSearchForm, permissions, commonMixins],
+  mixins: [responsiveSearchForm, permissions, commonMixins, customViewMixin],
   components: {
     PageSearchAction,
     LPVxeTable,
@@ -1803,6 +1801,7 @@ export default {
       this.getData();
     },
     onReset () {
+      this.resetCustomView();
       this.form = { ...defaultForm, createTime: getDefaultCreateTime() };
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
@@ -1815,6 +1814,8 @@ export default {
       this.getData();
     },
     getData () {
+      // 视图锁定(有 activePresetId)时交给 mixin 走 executeQuery,否则走业务列表查询
+      if (this.fetchByCustomView()) return;
       this.loading = true;
       this.selectionList = [];
 
@@ -1849,6 +1850,20 @@ export default {
     debouncedGetData: debounce(function () {
       this.getData();
     }, 300),
+    // ---- customViewMixin 字段适配(本页用 tableForm/tableDataList/tableTotal,非默认 optionObj 命名) ----
+    /** 分页对象引用(读写同一份,保持单一来源) */
+    _cvPager () {
+      return this.tableForm;
+    },
+    /** 视图取数结果回填表格 */
+    _cvSetResult (records, total) {
+      this.tableDataList = records;
+      this.tableTotal = total;
+    },
+    /** 视图取数结果 → 表格行(注入行级 deleteLoading,与业务列表保持一致) */
+    customViewListAdapter (records) {
+      return (records || []).map(item => ({ ...item, deleteLoading: false }));
+    },
     getConfig () {
       // 后端 user_define_table 表中可能存了 warrantyApplyTable 的旧配置，
       // 会覆盖前端 optionObj.dataProp 的列顺序。这里主动用前端硬编码的
@@ -2103,7 +2118,18 @@ export default {
       this.exportLoading = true;
       const reqParams = this.getFormData() || {};
       if (this.selectionList.length > 0) {
-        const ids = this.selectionList.map(item => item.id) || [];
+        // 各页签 row 是「申请单 × 明细」的 JOIN 行，row.id 是申请单主键；
+        // 按 id 过滤会导致 JOIN 后膨胀成多行。这里按各页签对应明细主键过滤，
+        // 与后端 mapper 中 `wap.id / waw.id / wao.id / waa.id IN (...)` 配套。
+        // all / manager / gm 走原 /page 接口，本身不是 JOIN 视图，按 id 过滤。
+        const detailIdFieldMap = {
+          approval: 'approvalId',
+          parts: 'partDetailId',
+          workhours: 'workhourDetailId',
+          other: 'otherDetailId'
+        };
+        const idField = detailIdFieldMap[this.activeTab] || 'id';
+        const ids = this.selectionList.map(item => item[idField]) || [];
         reqParams.ids = ids;
       }
       // 通用导出微服务回调后端分页接口时不会自动补 pageNum/pageSize；

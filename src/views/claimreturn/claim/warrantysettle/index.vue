@@ -1396,7 +1396,18 @@ export default {
       this.exportLoadingTable = true;
       const reqParams = this.getFormData() || {};
       if (this.selectionList.length > 0) {
-        const ids = this.selectionList.map(item => item.id) || [];
+        // 通知书明细 / 追溯明细 / 开票明细 三个页签的 row 是「结算单 × 明细」的 JOIN 行，
+        // row.id 是结算单主键；按 id 过滤会导致 JOIN 后膨胀成多行。
+        // 这里按各页签对应明细主键过滤，与后端 mapper 中
+        // `wscd.id / ctd.id / wsir.id IN (...)` 配套。
+        // 「保修结算通知书」主页签不是 JOIN 视图，按 id 过滤。
+        const detailIdFieldMap = {
+          detail: 'claimDetailId',
+          trace: 'traceDetailId',
+          invoice: 'invoiceRecordId'
+        };
+        const idField = detailIdFieldMap[this.activeTab] || 'id';
+        const ids = this.selectionList.map(item => item[idField]) || [];
         reqParams.ids = ids;
       }
       // 通用导出微服务回调后端分页接口时不会自动补 pageNum/pageSize；
