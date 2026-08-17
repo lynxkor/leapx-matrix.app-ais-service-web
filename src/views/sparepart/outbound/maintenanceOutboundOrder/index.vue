@@ -30,7 +30,7 @@
           filterable
         />
       </el-form-item>
-      <el-form-item label="订单创建时间">
+      <el-form-item label="创建时间">
         <el-date-picker
          :default-time="['00:00:00', '23:59:59']"
           v-model="form.createTime"
@@ -83,7 +83,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="订单修改时间">
+        <el-form-item label="修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
@@ -755,6 +755,15 @@ export default {
           data.pickTimeStart = this.form.pickTime[0];
           data.pickTimeEnd = this.form.pickTime[1];
         }
+      }
+
+      if (Array.isArray(this.form.codeList) && this.form.codeList.length <= 1) {
+        delete data.codeList;
+        data.code = this.form.codeList[0] || '';
+      }
+      if (Array.isArray(this.form.serviceProxyIdList) && this.form.serviceProxyIdList.length <= 1) {
+        delete data.serviceProxyIdList;
+        data.serviceProxyId = this.form.serviceProxyIdList[0] || '';
       }
 
       // ===== 全部备件 tab 默认条件校验 =====
