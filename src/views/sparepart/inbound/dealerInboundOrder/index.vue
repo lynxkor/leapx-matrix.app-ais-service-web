@@ -9,7 +9,7 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="外购入库单号">
+      <el-form-item label="外购件入库单号">
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
         <el-form-item label="供应商名称">
@@ -106,8 +106,13 @@
       <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
     </div>
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
+      <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
+    </el-tabs>
     <div
       class="ais-table-c"
+      v-if="activeName === 'homePage'"
     >
       <LPVxeTable
         ref="tableRef"
@@ -123,6 +128,27 @@
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
         @sortChange="handleSortChange"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
+    </div>
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'allSpareParts'"
+    >
+      <LPVxeTable
+        :key="2"
+        ref="tableRefAll"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        :option-obj="optionObjAll"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
@@ -149,7 +175,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, dealerInboundOrderCommit, dealerInboundOrderAgree, dealerInboundOrderReject, dealerInboundOrderInbound } from '@/api/sparepart/inbound/dealerInboundOrder/index';
+import { getList, detailPage, deleteItem, enableItem, dealerInboundOrderCommit, dealerInboundOrderAgree, dealerInboundOrderReject, dealerInboundOrderInbound } from '@/api/sparepart/inbound/dealerInboundOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getSupplierInfo, getLoginUser } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -174,6 +200,15 @@ const defaultForm = {
   totalAmount: '',
   createTime: '',
   updateTime: '',
+
+  // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
+  sparePartCodeList: null,
+  sparePartName: '',
+  deliveryNoList: null,
+  saleVoucherList: null,
+  inboundNoList: null,
+  purchaseOrderNoList: null,
+  locationNameLike: '',
 };
 
 const pageSize = 20;
@@ -209,6 +244,7 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      activeName: 'homePage',
       optionObj: {
         id: 'dealerInboundOrderTable',
         dataList: [],
@@ -219,7 +255,7 @@ export default {
         dataProp: [
           {
             props: 'code',
-            label: '外购入库单号',
+            label: '外购件入库单号',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -382,6 +418,81 @@ export default {
         ],
         total: 0
       },
+      optionObjAll: {
+        id: 'dealerInboundOrderTableAll',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
+          /* ========== 订单维度 ========== */
+          {
+            props: 'code',
+            label: '外购入库单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/inbound/dealerInboundOrder/edit', query: { id: row.dealerInboundOrderId } }); }, type: 'primary' }]
+          },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank'); }, type: 'primary' }] },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
+          { props: 'supplierName', label: '供应商名称', visible: true, width: 200 },
+          { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
+          { props: 'inboundStatusLabel', label: '入库状态', visible: true, width: 120 },
+          {
+            props: 'inboundAmount',
+            label: '入库金额',
+            visible: true,
+            width: 140,
+            align: 'right'
+          },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+
+          /* ========== 明细维度 ========== */
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/sparePart/detail', query: { id: row.sparePartId } }); }, type: 'primary' }] },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'locationCode', label: '库位编码', visible: true, width: 120 },
+          {
+            props: 'availableQty',
+            label: '可用库存',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'returnableQty',
+            label: '可退数量',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'purchaseUnitPrice',
+            label: '采购单价',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'inboundQty',
+            label: '入库数量',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'inboundAmountDetail',
+            label: '入库金额',
+            visible: true,
+            width: 140,
+            align: 'right'
+          },
+        ],
+        total: 0
+      },
       sortColumns: [
         // {
         // column: 'create_time',
@@ -420,6 +531,24 @@ export default {
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
+    getOptionObj () {
+      if (this.activeName === 'homePage') {
+        return this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        return this.optionObjAll;
+      }
+      return this.optionObj;
+    },
+    handleClick (item) {
+      this.activeName = item.name;
+      this.show = false;
+      // 跨 tab 切换时，把所有 tab 的分页状态都重置为 page 1 + 默认 size
+      this.optionObj.form.page = 1;
+      this.optionObj.form.size = pageSize;
+      this.optionObjAll.form.page = 1;
+      this.optionObjAll.form.size = pageSize;
+      this.onReset();
+    },
     handleImport () {
       this.uploadDialogVisible = true;
     },
@@ -432,14 +561,30 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      // 全部备件 tab：默认创建时间 = 最近一个月（end 用 23:59:59）
+      const extraDefaults = this.activeName === 'allSpareParts'
+        ? { createTime: this.getLastMonthRange() }
+        : {};
+      this.form = { ...defaultForm, ...extraDefaults };
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
+      optionObj.form.size = pageSize;
       this.getData();
+    },
+    getLastMonthRange () {
+      const end = new Date();
+      const start = new Date();
+      start.setMonth(start.getMonth() - 1);
+      const fmt = (d, isEnd) => {
+        const pad = (n) => (n < 10 ? `0${n}` : n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${isEnd ? '23:59:59' : '00:00:00'}`;
+      };
+      return [fmt(start, false), fmt(end, true)];
     },
     exportExcel () {
       this.exportLoading = true;
@@ -477,17 +622,24 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
+      const optionObj = this.getOptionObj();
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      const fetchApi = this.activeName === 'allSpareParts' ? detailPage : getList;
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.loading = false;
+        return;
+      }
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          optionObj.dataList = res.records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          optionObj.total = res.total;
         }).finally(() => {
           this.loading = false;
         });
@@ -497,8 +649,9 @@ export default {
       this.getData();
     }, 300),
     getConfig () {
+      const optionObj = this.getOptionObj();
       return new Promise((resolve, reject) => {
-        getTableConfig(this.optionObj.id).then(data => {
+        getTableConfig(optionObj.id).then(data => {
           resolve({ data });
         }).catch(err => {
           // 容错：此处如果接口挂了，也不应该影响正常使用
@@ -511,10 +664,11 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
+      const optionObj = this.getOptionObj();
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        optionObj.form.page = num;
       } else {
-        this.optionObj.form.size = num;
+        optionObj.form.size = num;
       }
       this.debouncedGetData();
     },

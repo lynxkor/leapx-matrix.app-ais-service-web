@@ -2268,7 +2268,7 @@ const routes = [
       component: () => import('@/views/sparepart/sale/retailOrder/index.vue'),
 
       meta: {
-        name: '备附件销售',
+        name: '备附件零售',
         keepAlive: true
       }
     }, {
@@ -2277,7 +2277,7 @@ const routes = [
       component: () => import('@/views/sparepart/sale/retailOrderOut/index.vue'),
 
       meta: {
-        name: '备附件销售出库',
+        name: '备附件零售出库',
         keepAlive: true
       }
     }, {
@@ -2937,6 +2937,70 @@ const routes = [
       meta: {
         name: '门店备件库存流水详情',
         noResourceUrl: 'true'
+      }
+    }, {
+      path: '/desensitize/fieldMapping',
+      name: 'desensitizeFieldMapping',
+      component: () => import('@/views/desensitize/fieldMapping/index.vue'),
+      meta: {
+        name: '字段映射管理',
+        keepAlive: true,
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/desensitize/fieldMapping/edit',
+      name: 'desensitizeFieldMappingEdit',
+      component: () => import('@/views/desensitize/fieldMapping/edit.vue'),
+      meta: {
+        name: '字段映射管理-编辑',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/desensitize/setting',
+      name: 'desensitizeSetting',
+      component: () => import('@/views/desensitize/setting/index.vue'),
+      meta: {
+        name: '脱敏设置',
+        keepAlive: true,
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/desensitize/setting/edit',
+      name: 'desensitizeSettingEdit',
+      component: () => import('@/views/desensitize/setting/edit.vue'),
+      meta: {
+        name: '脱敏设置-编辑',
+        noResourceUrl: 'true'
+      }
+    }, {
+      // 数据上报 - 门店利润明细
+      path: '/datareport/profitDetail',
+      name: 'profitDetail',
+      component: () => import('@/views/datareport/profitDetail/index.vue'),
+
+      meta: {
+        name: '门店利润明细',
+        keepAlive: true
+      }
+    }, {
+      // 数据上报 - 门店营收报表
+      path: '/datareport/storeRevenue',
+      name: 'storeRevenue',
+      component: () => import('@/views/datareport/storeRevenue/index.vue'),
+
+      meta: {
+        name: '门店营收报表',
+        keepAlive: true
+      }
+    }, {
+      // 数据上报 - 门店产值报表
+      path: '/datareport/storeOutputValue',
+      name: 'storeOutputValue',
+      component: () => import('@/views/datareport/storeOutputValue/index.vue'),
+
+      meta: {
+        name: '门店产值报表',
+        keepAlive: true
       }
     }]
   }
