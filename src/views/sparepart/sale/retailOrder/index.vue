@@ -15,7 +15,7 @@
       <el-form-item label="VIN">
         <el-input
           placeholder="请输入"
-          v-model="form.vinLike"
+          v-model="form.vin"
           clearable
         />
       </el-form-item>
@@ -33,6 +33,19 @@
           collapseTags
           filterable
             />
+      </el-form-item>
+      <el-form-item label="订单创建时间">
+        <el-date-picker
+         :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="门店合作类型">
@@ -61,14 +74,14 @@
         <el-form-item label="客户编码">
           <el-input
             placeholder="请输入"
-            v-model="form.customerCodeLike"
+            v-model="form.customerCode"
             clearable
           />
         </el-form-item>
         <el-form-item label="客户名称">
           <el-input
             placeholder="请输入"
-            v-model="form.customerNameLike"
+            v-model="form.customerName"
             clearable
           />
         </el-form-item>
@@ -88,19 +101,6 @@
             clearable
             multiple
             filterable
-          />
-        </el-form-item>
-        <el-form-item label="订单创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            unlink-panels
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
           />
         </el-form-item>
         <el-form-item label="订单修改时间">
@@ -125,6 +125,82 @@
         </el-form-item>
         <el-form-item label="库位" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
           <el-input placeholder="请输入" v-model="form.locationNameLike" clearable />
+        </el-form-item>
+        <el-form-item label="价格类型" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="RetailOrderPriceTypeEnum"
+            v-model="form.priceTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="是否出库" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.outboundIsList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="出库操作人" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :remote-method="getUser"
+            remote
+            v-model="form.outboundOperatorList"
+            placeholder="请输入名称"
+            labelKey="username"
+            valueKey="userId"
+            clearable
+            collapseTags
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="入库操作人" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :remote-method="getUser"
+            remote
+            v-model="form.inboundOperatorList"
+            placeholder="请输入名称"
+            labelKey="username"
+            valueKey="userId"
+            clearable
+            collapseTags
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="出库操作时间" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.outboundTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="入库操作时间" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.inboundTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
         </el-form-item>
       </template>
       <page-search-action
@@ -269,9 +345,9 @@ const defaultForm = {
   cooperationTypeList: [],
   warehouseId: '',
   customerTypeList: [],
-  vinLike: '',
-  customerCodeLike: '',
-  customerNameLike: '',
+  vin: '',
+  customerCode: '',
+  customerName: '',
   orderStatusList: [],
   customerContactInfo: '',
   remark: '',
@@ -287,6 +363,12 @@ const defaultForm = {
   inboundNoList: null,
   purchaseOrderNoList: null,
   locationNameLike: '',
+  priceTypeList: [],
+  outboundIsList: [],
+  outboundOperatorList: [],
+  inboundOperatorList: [],
+  outboundTime: '',
+  inboundTime: '',
 };
 
 const pageSize = 20;
@@ -680,7 +762,14 @@ export default {
           { props: 'customerTypeLabel', label: '客户类型', visible: true, width: 120 },
           { props: 'vin', label: 'VIN', visible: true, width: 200 },
           { props: 'customerCode', label: '客户编码', visible: true, width: 180 },
-          { props: 'customerName', label: '客户名称', visible: true, width: 200 },
+          {
+            props: 'customerName',
+            label: '客户名称',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDesensitize(row.retailOrderId, 'retailOrder', 'customerName')
+          },
           {
             props: 'customerContactInfo',
             label: '客户联系方式',
@@ -723,7 +812,7 @@ export default {
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
 
           /* ========== 明细维度 ========== */
-          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/sparePart/detail', query: { id: row.sparePartId } }); }, type: 'primary' }] },
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/basic/sparePart/detail', query: { id: row.sparePartId } }); }, type: 'primary' }] },
           { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
           { props: 'locationName', label: '库位', visible: true, width: 120 },
           {
@@ -763,9 +852,23 @@ export default {
             align: 'right'
           },
           { props: 'outboundIsLabel', label: '是否出库', visible: true, width: 120 },
-          { props: 'outboundOperatorName', label: '出库操作人', visible: true, width: 120 },
+          {
+            props: 'outboundOperatorName',
+            label: '出库操作人',
+            visible: true,
+            width: 120,
+            mask: true,
+            getValue: (row) => getDesensitize(row.retailOrderId, 'retailOrder', 'outboundOperatorName')
+          },
           { props: 'outboundTime', label: '出库操作时间', visible: true, width: 200 },
-          { props: 'inboundOperatorName', label: '入库操作人', visible: true, width: 120 },
+          {
+            props: 'inboundOperatorName',
+            label: '入库操作人',
+            visible: true,
+            width: 120,
+            mask: true,
+            getValue: (row) => getDesensitize(row.retailOrderId, 'retailOrder', 'inboundOperatorName')
+          },
           { props: 'inboundTime', label: '入库操作时间', visible: true, width: 200 },
         ],
         total: 0
@@ -1051,6 +1154,31 @@ export default {
         if (this.form.updateTime.length > 1) {
           data.updateTimeStart = this.form.updateTime[0];
           data.updateTimeEnd = this.form.updateTime[1];
+        }
+      }
+      if (this.form.outboundTime) {
+        delete data.outboundTime;
+        if (this.form.outboundTime.length > 1) {
+          data.outboundTimeStart = this.form.outboundTime[0];
+          data.outboundTimeEnd = this.form.outboundTime[1];
+        }
+      }
+      if (this.form.inboundTime) {
+        delete data.inboundTime;
+        if (this.form.inboundTime.length > 1) {
+          data.inboundTimeStart = this.form.inboundTime[0];
+          data.inboundTimeEnd = this.form.inboundTime[1];
+        }
+      }
+      // ===== 全部备件 tab：订单创建时间跨度校验（不超过半年） =====
+      if (this.activeName === 'allSpareParts' && data.createTimeStart && data.createTimeEnd) {
+        const start = new Date(data.createTimeStart);
+        const end = new Date(data.createTimeEnd);
+        const sixMonthsLater = new Date(start);
+        sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+        if (end > sixMonthsLater) {
+          this.$message.warning('【订单创建时间】跨度不能超过半年');
+          return null;
         }
       }
       // 排序字段
