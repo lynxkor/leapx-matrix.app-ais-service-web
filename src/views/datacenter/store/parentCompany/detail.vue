@@ -160,7 +160,7 @@ export default {
     return {
       pageTitle: '母公司详情',
       pageType: 'detail',
-      moduleKey: 'AISMC-parentCompany',
+      moduleKey: 'AISDC-parentCompany',
       isEditing: false,
       form: { ...defaultForm }
     };

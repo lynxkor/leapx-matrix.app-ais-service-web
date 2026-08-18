@@ -183,7 +183,7 @@ export default {
     return {
       pageTitle: '门店详情',
       pageType: 'detail',
-      moduleKey: 'AISMC-store',
+      moduleKey: 'AISDC-store',
       isEditing: false,
       form: { ...defaultForm }
     };
