@@ -113,17 +113,31 @@ export function getDetail (data) { return api.jsonPost(prefix + 'get', data); }
 | 经营状态-服务 | `FetchSelect` enumCode=`store_service_status` multiple | `form.serviceStatusList` | `serviceStatusList` |
 | 经营状态-交付 | `FetchSelect` enumCode=`store_delivery_status` multiple | `form.deliveryStatusList` | `deliveryStatusList` |
 | 门店等级 | `FetchSelect` enumCode=`store_level` | `form.storeLevel` | `storeLevel` |
-| 是否有销售能力 | `el-switch` | `form.isSales` | `isSales` |
-| 是否有试驾能力 | `el-switch` | `form.isTestDrive` | `isTestDrive` |
-| 是否有批售能力 | `el-switch` | `form.isWholesaleSale` | `isWholesaleSale` |
-| 是否有交付能力 | `el-switch` | `form.isSupportDeliver` | `isSupportDeliver` |
-| 是否有维修能力 | `el-switch` | `form.isRepair` | `isRepair` |
-| 是否有维保能力 | `el-switch` | `form.isMaintenance` | `isMaintenance` |
-| 是否有道路救援能力 | `el-switch` | `form.isSupportRescue` | `isSupportRescue` |
-| 是否支持事故维修 | `el-switch` | `form.isAccidentRepair` | `isAccidentRepair` |
-| 是否有备附件订购能力 | `el-switch` | `form.isPartOrder` | `isPartOrder` |
+| 是否有销售能力 | `FetchSelect` enumCode=`BooleanEnum` multiple | `form.isSales` | `isSales` |
+| 是否有试驾能力 | `FetchSelect` enumCode=`BooleanEnum` multiple | `form.isTestDrive` | `isTestDrive` |
+| 是否有批售能力 | `FetchSelect` enumCode=`BooleanEnum` multiple | `form.isWholesaleSale` | `isWholesaleSale` |
+| 是否有交付能力 | `FetchSelect` enumCode=`BooleanEnum` multiple | `form.isSupportDeliver` | `isSupportDeliver` |
+| 是否有维修能力 | `FetchSelect` enumCode=`BooleanEnum` multiple | `form.isRepair` | `isRepair` |
+| 是否有维保能力 | `FetchSelect` enumCode=`BooleanEnum` multiple | `form.isMaintenance` | `isMaintenance` |
+| 是否有道路救援能力 | `FetchSelect` enumCode=`BooleanEnum` multiple | `form.isSupportRescue` | `isSupportRescue` |
+| 是否支持事故维修 | `FetchSelect` enumCode=`BooleanEnum` multiple | `form.isAccidentRepair` | `isAccidentRepair` |
+| 是否有备附件订购能力 | `FetchSelect` enumCode=`BooleanEnum` multiple | `form.isPartOrder` | `isPartOrder` |
 
-> 备注：9 个能力开关均绑定到 `StorePageReq` 已支持的 Boolean 字段（`isPartOrder` 已由后端补齐）。
+> 备注：9 个能力开关均绑定到 `StorePageReq` 已支持的 Boolean 字段（`isPartOrder` 已由后端补齐）。所有开关控件统一用 `FetchSelect` + `BooleanEnum` 多选，避免与"是否"语义不一致。
+
+**FetchSelect + BooleanEnum 模板**（9 个能力筛选项均沿用此模板，仅 `v-model` 与 `enumCode` 不同）：
+
+```html
+<fetch-select
+  :request="fetchOptions"
+  enumCode="BooleanEnum"
+  v-model="form.isSales"
+  placeholder="请选择"
+  clearable
+  multiple
+  filterable
+/>
+```
 
 ### 4.3 列表字段
 
@@ -364,7 +378,7 @@ vxe-table 渲染 `form.investorEquityList`，列：
 ## 8. 关键复用与约定
 
 - mixins：`responsiveSearchForm`、`permissions`、`commonMixins`
-- 组件：`LPVxeTable`、`EditPageLayout`、`EditBaseContainer`、`PageSearchAction`、`FetchSelect`、`el-cascader`、`el-switch`、`el-date-picker`
+- 组件：`LPVxeTable`、`EditPageLayout`、`EditBaseContainer`、`PageSearchAction`、`FetchSelect`、`el-cascader`、`el-date-picker`
 - 表单提交模型：`LpBaseParam` 通用规范（pageNum/pageSize/sortColumns 等由前端统一构造）
 - 时间字段：`acceptanceTime`（`LocalDate`）直接展示，不做时区转换
 - 布尔字段展示：统一 `formatter: (row) => (row.isXxx ? '是' : '否')`
