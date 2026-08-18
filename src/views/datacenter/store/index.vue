@@ -8,54 +8,45 @@
       label-width="120px"
       class="ais-search-form"
     >
-      <el-form-item label="关键字">
+      <el-form-item label="门店名称/编码">
         <el-input
-          placeholder="门店名称/编码"
+          placeholder="请输入"
           v-model="form.keyword"
           clearable
         />
       </el-form-item>
-      <el-form-item label="门店编码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.storeCode"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="门店名称">
-        <el-input
-          placeholder="请输入"
-          v-model="form.storeName"
-          clearable
-        />
-      </el-form-item>
       <el-form-item label="门店大区">
+
         <fetch-select
-          :request="fetchOptions"
-          enumCode="ais_base_region"
-          v-model="form.regionList"
-          placeholder="请选择"
-          clearable
-          multiple
           filterable
+          clearable
+          remote
+          v-model="form.regionList"
+          :remote-method="getRegionList"
+          value-key="orgCode"
+          label-key="orgName"
         />
       </el-form-item>
       <el-form-item label="门店省市区">
-        <el-input
-          placeholder="请输入编码"
+        <el-cascader
+          placeholder="请选择省市区"
           v-model="form.areaCode"
-          clearable
-        />
+          :props="orgProps"
+          :options="areaOptions"
+          filterable
+          @change="handleChangeArea"
+          clearable>
+        </el-cascader>
       </el-form-item>
       <el-form-item label="建店类型">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="store_build_type"
-          v-model="form.buildStoreType"
+        <el-cascader
+          class="cascader"
+          v-model="form.buildStoreTypeArray"
           placeholder="请选择"
-          clearable
-          multiple
-          filterable
+          :options="storeTypeOptions"
+          :props="storeTypeProp"
+          collapse-tags
+          @change="handleCascaderChange"
         />
       </el-form-item>
       <el-form-item label="经营状态">
@@ -205,7 +196,6 @@
         </el-form-item>
       </template>
       <page-search-action
-        v-if="canList"
         v-model="show"
         is-expandable
         :loading="loading"
@@ -235,7 +225,8 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList } from '@/api/datacenter/store/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getAreaTree } from '@/utils';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getRegion, getBuildType } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
@@ -249,6 +240,7 @@ const defaultForm = {
   regionList: [],
   areaCode: '',
   buildStoreType: [],
+  buildStoreTypeArray: [],
   statusList: [],
   saleStatusList: [],
   serviceStatusList: [],
@@ -275,11 +267,23 @@ export default {
     return {
       pageTitle: '门店管理',
       pageType: 'list',
-      moduleKey: 'AISMC-store',
+      moduleKey: 'AISDC-store',
       form: { ...defaultForm },
       show: false,
       loading: false,
       exportLoading: false,
+      storeTypeOptions: [],
+      storeTypeProp: {
+        multiple: true
+      },
+      orgProps: {
+        checkStrictly: true,
+        emitPath: true,
+        label: 'name',
+        value: 'code',
+        children: 'child'
+      },
+      areaOptions: getAreaTree(),
       optionObj: {
         id: 'storeTable',
         dataList: [],
@@ -352,6 +356,9 @@ export default {
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
+  },
+  mounted () {
+    this.getStore();
   },
   methods: {
     buildBoolCols (pairs) {
@@ -440,16 +447,54 @@ export default {
     },
     getFormData () {
       const data = { ...this.form };
+      delete data.buildStoreTypeArray;
       Object.keys(this.form).forEach(key => {
         if (Array.isArray(data[key]) && !data[key].length) delete data[key];
         if (data[key] === '' || data[key] === null || data[key] === undefined) delete data[key];
       });
       return data;
     },
+    async getRegionList (params) {
+      return getRegion({ orgName: params });
+    },
     async fetchOptions (code) {
       if (code) return getEnum(code);
       return [];
-    }
+    },
+    handleChangeArea (val, row) {
+      console.log(val, row);
+      let length = val.length;
+      switch (length) {
+        case 0:
+          this.form.areaCode = null;
+          break;
+        case 1:
+          this.form.areaCode = val[0];
+          break;
+        case 2:
+          this.form.areaCode = val[1];
+          break;
+        case 3:
+          this.form.areaCode = val[2];
+          break;
+      }
+    },
+    handleCascaderChange (value) {
+      console.log('handleCascaderChange', value);
+      if (value && value.length > 0) {
+        let array = [];
+        for (let i = 0; i < value.length; i++) {
+          array.push(value[i][1]);
+        }
+        this.form.buildStoreType = array;
+      } else {
+        this.form.buildStoreType = null;
+      }
+    },
+    async getStore () {
+      const res = await getBuildType();
+      this.storeTypeOptions = res || [];
+    },
   }
 };
 </script>

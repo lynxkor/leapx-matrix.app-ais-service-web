@@ -50,7 +50,6 @@
         />
       </el-form-item>
       <page-search-action
-        v-if="canList"
         :loading="loading"
         @submit="onSubmit"
         @reset="onReset"
@@ -103,7 +102,7 @@ export default {
     return {
       pageTitle: '母公司管理',
       pageType: 'list',
-      moduleKey: 'AISMC-parentCompany',
+      moduleKey: 'AISDC-parentCompany',
       form: { ...defaultForm },
       loading: false,
       exportLoading: false,

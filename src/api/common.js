@@ -18,6 +18,17 @@ export function getTableConfig (tableCode) {
 export function tableAddOrUpdate (data) {
   return api.jsonPost(prefix + 'userDefineTable/addOrUpdate', data);
 }
+/**
+ * 大区列表查询
+ * @param {*} data
+ */
+export function getRegion (data) {
+  data = {
+    ...data,
+    orgType: '1020',
+  };
+  return api.jsonPost('/accountService/orgInfo/findByReginType2R', data);
+}
 
 /**
  * 列表通用下载模板
