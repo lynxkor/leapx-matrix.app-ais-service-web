@@ -370,7 +370,7 @@ export default {
     onReset () {
       this.form = { ...defaultForm };
       this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      this.optionObj.form.size = pageSize;
       this.getData();
     },
     exportExcel () {
@@ -395,6 +395,9 @@ export default {
             { message: '正在导出中，是否要跳转"系统管理-文件管理-导出任务"中查看？' }
           );
         }
+      }).catch(err => {
+        console.error('导出失败:', err);
+        this.$message({ type: 'error', message: '导出失败' });
       }).finally(() => {
         this.exportLoading = false;
       });
@@ -408,6 +411,7 @@ export default {
           this.optionObj.total = res.total;
         }).catch(err => {
           console.error('获取门店列表数据失败:', err);
+          this.$message.error('获取门店列表数据失败');
         }).finally(() => {
           this.loading = false;
         });
