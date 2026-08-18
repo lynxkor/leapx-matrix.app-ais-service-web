@@ -206,6 +206,16 @@ export function getBuildType (data) {
 }
 
 /**
+ * 网发下拉字典批量查询（经营状态、门店等级等）
+ * 入参按需设置标记字段为 1，例如 { storeStatus: 1, storeLevel: 1 }
+ * 返回 Map<dictKey, DataDictDTO[]>
+ * @param {Object} data
+ */
+export function getDataDict (data) {
+  return api.get('/network/portal/DataDict/getSelectList', data);
+}
+
+/**
  * 备件主数据表列表查询
  * @param {*} data
  */

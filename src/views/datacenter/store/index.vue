@@ -51,13 +51,14 @@
       </el-form-item>
       <el-form-item label="经营状态">
         <fetch-select
-          :request="fetchOptions"
-          enumCode="store_status"
+          :options="statusOptions"
           v-model="form.statusList"
           placeholder="请选择"
           clearable
           multiple
           filterable
+          value-key="code"
+          label-key="name"
         />
       </el-form-item>
       <el-form-item label="经营状态-销售">
@@ -95,12 +96,13 @@
       </el-form-item>
       <el-form-item label="门店等级">
         <fetch-select
-          :request="fetchOptions"
-          enumCode="store_level"
+          :options="storeLevelOptions"
           v-model="form.storeLevel"
           placeholder="请选择"
           clearable
           filterable
+          value-key="code"
+          label-key="name"
         />
       </el-form-item>
       <template v-if="show">
@@ -226,7 +228,7 @@ import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList } from '@/api/datacenter/store/index';
 import { getAreaTree } from '@/utils';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getRegion, getBuildType } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getRegion, getBuildType, getDataDict } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
@@ -276,6 +278,8 @@ export default {
       storeTypeProp: {
         multiple: true
       },
+      statusOptions: [],
+      storeLevelOptions: [],
       orgProps: {
         checkStrictly: true,
         emitPath: true,
@@ -359,6 +363,7 @@ export default {
   },
   mounted () {
     this.getStore();
+    this.getDictList();
   },
   methods: {
     buildBoolCols (pairs) {
@@ -494,6 +499,13 @@ export default {
     async getStore () {
       const res = await getBuildType();
       this.storeTypeOptions = res || [];
+    },
+    async getDictList () {
+      const res = await getDataDict({ storeStatus: 1, storeLevel: 1 });
+      if (res) {
+        this.statusOptions = res.storeStatus || [];
+        this.storeLevelOptions = res.storeLevel || [];
+      }
     },
   }
 };
