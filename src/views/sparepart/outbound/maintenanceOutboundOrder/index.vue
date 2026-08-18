@@ -83,6 +83,20 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="客户经理" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :remote-method="getUser"
+            remote
+            v-model="form.serviceProxyCreatorList"
+            placeholder="请输入名称"
+            labelKey="username"
+            valueKey="userId"
+            clearable
+            collapseTags
+            multiple
+            filterable
+          />
+        </el-form-item>
         <el-form-item label="修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -97,13 +111,6 @@
           />
         </el-form-item>
         <!-- ===== 全部备件 tab 专用查询 ===== -->
-        <el-form-item label="客户经理" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <el-input
-            placeholder="请输入"
-            v-model="form.customerManager"
-            clearable
-          />
-        </el-form-item>
         <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
           <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
         </el-form-item>
@@ -273,8 +280,7 @@ const defaultForm = {
   carPlateLike: '',
   outboundStatus: '',
   outboundStatusList: null,
-  customerManager: '',
-  customerManagerList: null,
+  serviceProxyCreatorList: [],
   createTime: '',
   updateTime: '',
   // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
@@ -399,6 +405,7 @@ export default {
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'serviceProxyCreatorName', label: '客户经理', visible: true, width: 120 },
           {
             props: 'operate',
             label: '操作',
@@ -512,7 +519,7 @@ export default {
           },
           { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
           { props: 'remark', label: '订单备注', visible: true, width: 200 },
-          { props: 'serviceAdvisorName', label: '客户经理', visible: true, width: 120 },
+          { props: 'serviceProxyCreatorName', label: '客户经理', visible: true, width: 120 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
 

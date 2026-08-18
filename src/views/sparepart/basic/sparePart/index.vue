@@ -165,6 +165,7 @@
       class="ais-table-c"
     >
       <LPVxeTable
+        :key="tableKey"
         ref="tableRef"
         v-loading="loading"
         is-checkbox
@@ -198,7 +199,7 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, allowBoTransfer, forbidBoTransfer, allowPartsAttachmentSales, forbidPartsAttachmentSales } from '@/api/sparepart/basic/sparePart';
 import { vfglist } from '@/api/claimreturn/claim/basic/vfg';
 import { vrtlist } from '@/api/claimreturn/claim/basic/vrt';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getLoginUser } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -265,6 +266,11 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      // 厂端账号 = true（显示 oem 备注）；门店账号 = false（隐藏 oem 备注）
+      oem: false,
+      // 拿到 loginUser 信息后，递增这个 key 强制 LPVxeTable 重挂载，
+      // 让它重新把 dataProp 的 visible 拷到内部的 config.columnConfig
+      tableKey: 0,
       optionObj: {
         id: 'sparePartTable',
         dataList: [],
@@ -297,7 +303,7 @@ export default {
           { props: 'salePrice', label: '销售价格', visible: true, align: 'right', width: 120 },
           { props: 'purchasePrice', label: '采购价格', visible: true, align: 'right', width: 120 },
           { props: 'oemPartLabel', label: '是否OEM件', visible: true, width: 130 },
-          { props: 'oemRemark', label: 'OEM备注', visible: true, width: 130 },
+          { props: 'oemRemark', label: 'OEM备注', visible: this.oem, width: 130, disabled: true },
           { props: 'saleableIsLabel', label: '是否可销售', visible: true, width: 130 },
           { props: 'standingInventoryIsLabel', label: '是否常备库存件', visible: true, width: 150 },
           { props: 'partsEngineer', label: '备件工程师', visible: true, width: 200 },
@@ -442,6 +448,7 @@ export default {
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    this.getLoginUser();
     this.getData();
   },
   methods: {
@@ -451,6 +458,24 @@ export default {
 
     listVfg (query) {
       return vfglist({ vfgNameLike: query });
+    },
+
+    async getLoginUser () {
+      try {
+        const res = await getLoginUser();
+        // accountFlag=true 表示门店账号 → 隐藏 oem 备注；厂端账号才显示
+        const isOem = !res.accountFlag;
+        // 先把 dataProp 里 oemRemark 列的 visible 同步成最新的 oem
+        // LPVxeTable 初始化时会拷一次 dataProp -> 内部的 config.columnConfig，
+        // 所以拷贝完之后必须强制重挂载，下面通过 :key 触发
+        const col = this.optionObj.dataProp.find(c => c.props === 'oemRemark');
+        if (col) col.visible = isOem;
+        // 同步 this.oem + 递增 tableKey，触发 LPVxeTable 重新走一次 init
+        this.oem = isOem;
+        this.tableKey++;
+      } catch (error) {
+        console.error('Error fetching login user:', error);
+      }
     },
 
     listVrt (query) {

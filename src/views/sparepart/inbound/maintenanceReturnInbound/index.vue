@@ -83,6 +83,20 @@
               filterable
             />
           </el-form-item>
+          <el-form-item label="客户经理" v-show="this.visibleCount === 3 || show">
+            <fetch-select
+              :remote-method="getUser"
+              remote
+              v-model="form.serviceProxyCreatorList"
+              placeholder="请输入名称"
+              labelKey="username"
+              valueKey="userId"
+              clearable
+              collapseTags
+              multiple
+              filterable
+            />
+          </el-form-item>
           <el-form-item label="订单修改时间">
             <el-date-picker
              :default-time="['00:00:00', '23:59:59']"
@@ -283,6 +297,7 @@ const defaultForm = {
   carPlate: '',
   carPlateLike: '',
   returnMaterialStatusList: [],
+  serviceProxyCreatorList: [],
   createTime: '',
   updateTime: '',
   // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
@@ -409,6 +424,7 @@ export default {
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'serviceProxyCreatorName', label: '客户经理', visible: true, width: 120 },
           {
             props: 'operate',
             label: '操作',
@@ -503,6 +519,7 @@ export default {
           { props: 'remark', label: '订单备注', visible: true, width: 200 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+          { props: 'serviceProxyCreatorName', label: '客户经理', visible: true, width: 120 },
 
           /* ========== 退料明细维度 ========== */
           {
