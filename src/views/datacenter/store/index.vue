@@ -63,35 +63,38 @@
       </el-form-item>
       <el-form-item label="经营状态-销售">
         <fetch-select
-          :request="fetchOptions"
-          enumCode="store_sale_status"
+          :options="statusOptions"
           v-model="form.saleStatusList"
           placeholder="请选择"
           clearable
           multiple
           filterable
+          value-key="code"
+          label-key="name"
         />
       </el-form-item>
       <el-form-item label="经营状态-服务">
         <fetch-select
-          :request="fetchOptions"
-          enumCode="store_service_status"
+          :options="statusOptions"
           v-model="form.serviceStatusList"
           placeholder="请选择"
           clearable
           multiple
           filterable
+          value-key="code"
+          label-key="name"
         />
       </el-form-item>
       <el-form-item label="经营状态-交付">
         <fetch-select
-          :request="fetchOptions"
-          enumCode="store_delivery_status"
+          :options="statusOptions"
           v-model="form.deliveryStatusList"
           placeholder="请选择"
           clearable
           multiple
           filterable
+          value-key="code"
+          label-key="name"
         />
       </el-form-item>
       <el-form-item label="门店等级">
