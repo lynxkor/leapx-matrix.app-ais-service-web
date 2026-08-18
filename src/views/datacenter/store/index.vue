@@ -5,7 +5,7 @@
       :model="form"
       size="small"
       label-position="right"
-      label-width="120px"
+      label-width="150px"
       class="ais-search-form"
     >
       <el-form-item label="门店名称/编码">
@@ -16,7 +16,6 @@
         />
       </el-form-item>
       <el-form-item label="门店大区">
-
         <fetch-select
           filterable
           clearable
@@ -27,6 +26,7 @@
           label-key="orgName"
         />
       </el-form-item>
+      <template v-if="show">
       <el-form-item label="门店省市区">
         <el-cascader
           placeholder="请选择省市区"
@@ -52,46 +52,42 @@
       <el-form-item label="经营状态">
         <fetch-select
           :options="statusOptions"
-          v-model="form.statusList"
+          v-model="form.status"
           placeholder="请选择"
           clearable
-          multiple
           filterable
           value-key="code"
           label-key="name"
         />
       </el-form-item>
-      <el-form-item label="经营状态-销售">
+      <el-form-item label="经营状态(销售)">
         <fetch-select
           :options="statusOptions"
-          v-model="form.saleStatusList"
+          v-model="form.saleStatus"
           placeholder="请选择"
           clearable
-          multiple
           filterable
           value-key="code"
           label-key="name"
         />
       </el-form-item>
-      <el-form-item label="经营状态-服务">
+      <el-form-item label="经营状态(服务)">
         <fetch-select
           :options="statusOptions"
-          v-model="form.serviceStatusList"
+          v-model="form.serviceStatus"
           placeholder="请选择"
           clearable
-          multiple
           filterable
           value-key="code"
           label-key="name"
         />
       </el-form-item>
-      <el-form-item label="经营状态-交付">
+      <el-form-item label="经营状态(交付)">
         <fetch-select
           :options="statusOptions"
-          v-model="form.deliveryStatusList"
+          v-model="form.deliveryStatus"
           placeholder="请选择"
           clearable
-          multiple
           filterable
           value-key="code"
           label-key="name"
@@ -108,32 +104,12 @@
           label-key="name"
         />
       </el-form-item>
-      <template v-if="show">
+
         <el-form-item label="是否有销售能力">
           <fetch-select
             :request="fetchOptions"
             enumCode="BooleanEnum"
             v-model="form.isSales"
-            placeholder="请选择"
-            clearable
-            filterable
-          />
-        </el-form-item>
-        <el-form-item label="是否有试驾能力">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="BooleanEnum"
-            v-model="form.isTestDrive"
-            placeholder="请选择"
-            clearable
-            filterable
-          />
-        </el-form-item>
-        <el-form-item label="是否有批售能力">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="BooleanEnum"
-            v-model="form.isWholesaleSale"
             placeholder="请选择"
             clearable
             filterable
@@ -149,6 +125,27 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="是否有批售能力">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.isWholesaleSale"
+            placeholder="请选择"
+            clearable
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="是否有试驾能力">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.isTestDrive"
+            placeholder="请选择"
+            clearable
+            filterable
+          />
+        </el-form-item>
+
         <el-form-item label="是否有维修能力">
           <fetch-select
             :request="fetchOptions"
@@ -169,16 +166,6 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="是否有道路救援能力">
-          <fetch-select
-            :request="fetchOptions"
-            enumCode="BooleanEnum"
-            v-model="form.isSupportRescue"
-            placeholder="请选择"
-            clearable
-            filterable
-          />
-        </el-form-item>
         <el-form-item label="是否支持事故维修">
           <fetch-select
             :request="fetchOptions"
@@ -189,11 +176,11 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="是否有备附件订购能力">
+        <el-form-item label="是否有道路救援能力">
           <fetch-select
             :request="fetchOptions"
             enumCode="BooleanEnum"
-            v-model="form.isPartOrder"
+            v-model="form.isSupportRescue"
             placeholder="请选择"
             clearable
             filterable
@@ -246,10 +233,10 @@ const defaultForm = {
   areaCode: '',
   buildStoreType: [],
   buildStoreTypeArray: [],
-  statusList: [],
-  saleStatusList: [],
-  serviceStatusList: [],
-  deliveryStatusList: [],
+  status: [],
+  saleStatus: [],
+  serviceStatus: [],
+  deliveryStatus: [],
   storeLevel: '',
   isSales: '',
   isTestDrive: '',
@@ -265,6 +252,18 @@ const defaultForm = {
 const pageSize = 20;
 const mockConfig = { data: null };
 
+const BOOL_COLS = [
+  ['isSales', '是否有销售能力'],
+  ['isTestDrive', '是否有试驾能力'],
+  ['isWholesaleSale', '是否有批售能力'],
+  ['isSupportDeliver', '是否有交付能力'],
+  ['isRepair', '是否有维修能力'],
+  ['isMaintenance', '是否有维保能力'],
+  ['isSupportRescue', '是否有道路救援能力'],
+  ['isAccidentRepair', '是否支持事故维修'],
+  ['isPartOrder', '是否有备附件订购能力']
+];
+
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: { PageSearchAction, LPVxeTable, FetchSelect },
@@ -277,6 +276,7 @@ export default {
       show: false,
       loading: false,
       exportLoading: false,
+      boolKeys: BOOL_COLS.map(([key]) => key),
       storeTypeOptions: [],
       storeTypeProp: {
         multiple: true
@@ -296,12 +296,12 @@ export default {
         dataList: [],
         form: { page: 1, size: pageSize },
         dataProp: [
+          { props: 'storeName', label: '门店名称', visible: true, width: 200 },
           {
             props: 'storeCode',
             label: '门店编码',
             visible: true,
             width: 160,
-            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -312,26 +312,36 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'storeName', label: '门店名称', visible: true, width: 200 },
           { props: 'parentCompanyName', label: '公司名称', visible: true, width: 200 },
-          { props: 'parentCompanyCode', label: '公司编码', visible: true, width: 160 },
+          {
+            props: 'parentCompanyCode',
+            label: '公司编码',
+            visible: true,
+            width: 160,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/datacenter/store/parentCompany/detail',
+                  query: { storeCode: row.parentCompanyCode }
+                });
+              },
+              type: 'primary'
+            }]
+          },
           { props: 'region', label: '大区', visible: true, width: 120 },
           {
-            props: 'areaName',
+            props: 'storeBuildAddress',
             label: '省市区',
             visible: true,
-            width: 200,
-            formatter: ({ row }) => {
-              const arr = [row.provinceName, row.cityName, row.countyName].filter(Boolean);
-              return arr.join('/') || '-';
-            }
+            width: 200
           },
           { props: 'storeTypeBroadTypeName', label: '建店类型(大类)', visible: true, width: 140 },
           { props: 'buildStoreType', label: '建店类型(小类)', visible: true, width: 140 },
           { props: 'statusName', label: '经营状态', visible: true, width: 120 },
-          { props: 'saleStatusName', label: '经营状态-销售', visible: true, width: 120 },
-          { props: 'serviceStatusName', label: '经营状态-服务', visible: true, width: 120 },
-          { props: 'deliveryStatusName', label: '经营状态-交付', visible: true, width: 120 },
+          { props: 'saleStatusName', label: '经营状态(销售)', visible: true, width: 120 },
+          { props: 'serviceStatusName', label: '经营状态(服务)', visible: true, width: 120 },
+          { props: 'deliveryStatusName', label: '经营状态(交付)', visible: true, width: 120 },
+          ...this.buildBoolCols(BOOL_COLS),
           { props: 'roadRescueAddress', label: '道路救援服务地址', visible: true, width: 220 },
           { props: 'acceptanceTime', label: '验收完成时间', visible: true, width: 160 },
           { props: 'storeLevelName', label: '门店等级', visible: true, width: 120 },
@@ -340,21 +350,12 @@ export default {
           { props: 'businessTime', label: '营业时间', visible: true, width: 160 },
           { props: 'salesHotline', label: '销售热线', visible: true, width: 140 },
           { props: 'serviceHotline', label: '服务热线', visible: true, width: 140 },
-          ...this.buildBoolCols([
-            ['isSales', '是否有销售能力'],
-            ['isTestDrive', '是否有试驾能力'],
-            ['isWholesaleSale', '是否有批售能力'],
-            ['isSupportDeliver', '是否有交付能力'],
-            ['isRepair', '是否有维修能力'],
-            ['isMaintenance', '是否有维保能力'],
-            ['isSupportRescue', '是否有道路救援能力'],
-            ['isAccidentRepair', '是否支持事故维修'],
-            ['isPartOrder', '是否有备附件订购能力']
-          ]),
-          { props: 'partRecipient', label: '备件收货人姓名', visible: true, width: 140, formatter: () => '-' },
-          { props: 'partPhone', label: '备件收货人手机', visible: true, width: 140, formatter: () => '-' },
-          { props: 'partAddress', label: '备件收货地', visible: true, width: 200, formatter: () => '-' },
-          { props: 'isAllowedThirdDelivered', label: '是否允许第三方收货', visible: true, width: 140, formatter: () => '-' }
+
+          { props: 'partRecipient', label: '备件收货人姓名', visible: true, width: 140 },
+          { props: 'partPhone', label: '备件收货人手机', visible: true, width: 140 },
+          { props: 'partArea', label: '备件收货省市区', visible: true, width: 140 },
+          { props: 'partAddress', label: '备件收货地', visible: true, width: 200 },
+          { props: 'isAllowedThirdDelivered', label: '是否允许第三方收货', visible: true, width: 140 }
         ],
         total: 0
       }
@@ -374,9 +375,11 @@ export default {
         props: key,
         label,
         visible: true,
-        width: 140,
-        formatter: ({ row }) => (row[key] === true || row[key] === 'true' || row[key] === 1 ? '是' : '否')
+        width: 180
       }));
+    },
+    boolLabel (v) {
+      return v === true || v === 'true' || v === 1 ? '是' : '否';
     },
     onSubmit () {
       this.optionObj.form.page = 1;
@@ -422,7 +425,13 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           if (!res || !res.records) return;
-          this.optionObj.dataList = res.records.map(item => ({ ...item, deleteLoading: false }));
+          this.optionObj.dataList = res.records.map(item => {
+            const row = { ...item, deleteLoading: false };
+            this.boolKeys.forEach(k => {
+              if (k in row) row[k] = this.boolLabel(row[k]);
+            });
+            return row;
+          });
           this.optionObj.total = res.total;
         }).catch(err => {
           console.error('获取门店列表数据失败:', err);
