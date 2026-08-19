@@ -371,10 +371,16 @@ export default {
         dataFetchPath: '/maintain/web/basic/repairItem/page',
         reqParams: {
           ...this.getFormData(),
-          sortColumns: [{
-            column: 'id',
-            sort: 'DESC'
-          }]
+          sortColumns: [
+            {
+              column: 'create_time',
+              sort: 'DESC'
+            },
+            {
+              column: 'id',
+              sort: 'DESC'
+            }
+          ]
         },
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
