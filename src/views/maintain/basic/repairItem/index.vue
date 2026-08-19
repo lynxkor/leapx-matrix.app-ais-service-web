@@ -369,7 +369,13 @@ export default {
       exportTable({
         businessType: '维修项目',
         dataFetchPath: '/maintain/web/basic/repairItem/page',
-        reqParams: this.getFormData(),
+        reqParams: {
+          ...this.getFormData(),
+          sortColumns: [{
+            column: 'id',
+            sort: 'DESC'
+          }]
+        },
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
