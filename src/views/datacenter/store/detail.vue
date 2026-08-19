@@ -20,18 +20,20 @@
                 <el-form-item label="门店名称：">{{ form.storeName }}</el-form-item>
                 <el-form-item label="公司名称：">{{ form.companyName }}</el-form-item>
                 <el-form-item label="所属大区：">{{ form.region }}</el-form-item>
-                <el-form-item label="建店类型：">{{ form.buildStoreType }}</el-form-item>
+                <el-form-item label="建店类型：">{{ form.storeTypeBroadTypeName +'/'+ form.buildStoreType }}</el-form-item>
                 <el-form-item label="店面地址：">{{ joinArea(form) }}</el-form-item>
-                <el-form-item label="经营状态-销售：">{{ form.saleStatus || '-' }}</el-form-item>
-                <el-form-item label="经营状态-服务：">{{ form.serviceStatus || '-' }}</el-form-item>
-                <el-form-item label="经营状态-交付：">{{ form.deliveryStatus || '-' }}</el-form-item>
+                <el-form-item label="经营状态：">{{ form.statusName || '-' }}</el-form-item>
+                <el-form-item label="经营状态(销售)：">{{ form.saleStatusName || '-' }}</el-form-item>
+                <el-form-item label="经营状态(服务)：">{{ form.serviceStatusName || '-' }}</el-form-item>
+                <el-form-item label="经营状态(交付)：">{{ form.deliveryStatusName || '-' }}</el-form-item>
+                <el-form-item label="店面地址：">{{ form.storeBuildAddress }}</el-form-item>
                 <el-form-item label="店面详细地址：">{{ form.storeAddress }}</el-form-item>
                 <el-form-item label="经纬度：">{{ form.addressXy }}</el-form-item>
-                <el-form-item label="专属交付门店：">{{ form.exclusiveDeliveryStoreName }}</el-form-item>
-                <el-form-item label="专属服务门店：">{{ form.exclusiveServiceStoreName }}</el-form-item>
-                <el-form-item label="营业时间：">{{ form.businessTime }}</el-form-item>
-                <el-form-item label="销售热线：">{{ form.salesHotline }}</el-form-item>
-                <el-form-item label="服务热线：">{{ form.serviceHotline }}</el-form-item>
+<!--                <el-form-item label="专属交付门店：">{{ form.exclusiveDeliveryStoreName }}</el-form-item>-->
+<!--                <el-form-item label="专属服务门店：">{{ form.exclusiveServiceStoreName }}</el-form-item>-->
+<!--                <el-form-item label="营业时间：">{{ form.businessTime }}</el-form-item>-->
+<!--                <el-form-item label="销售热线：">{{ form.salesHotline }}</el-form-item>-->
+<!--                <el-form-item label="服务热线：">{{ form.serviceHotline }}</el-form-item>-->
                 <el-form-item label="验收完成时间：">{{ form.acceptanceTime }}</el-form-item>
               </el-form>
             </div>
@@ -42,15 +44,15 @@
             <div class="common-section-header"><h2>服务项目类别</h2></div>
             <div class="common-section-body">
               <el-form :inline="true" :model="form" class="form-detail">
-                <el-form-item label="是否有销售能力：">{{ boolLabel(form.isSales) }}</el-form-item>
-                <el-form-item label="是否有试驾能力：">{{ boolLabel(form.isTestDrive) }}</el-form-item>
-                <el-form-item label="是否有批售能力：">{{ boolLabel(form.isWholesaleSale) }}</el-form-item>
-                <el-form-item label="是否有交付能力：">{{ boolLabel(form.isSupportDeliver) }}</el-form-item>
-                <el-form-item label="是否有维修能力：">{{ boolLabel(form.isRepair) }}</el-form-item>
-                <el-form-item label="是否有维保能力：">{{ boolLabel(form.isMaintenance) }}</el-form-item>
-                <el-form-item label="是否有道路救援能力：">{{ boolLabel(form.isSupportRescue) }}</el-form-item>
-                <el-form-item label="是否支持事故维修：">{{ boolLabel(form.isAccidentRepair) }}</el-form-item>
-                <el-form-item label="是否有备附件订购能力：">{{ boolLabel(form.isPartOrder) }}</el-form-item>
+                <el-form-item label="是否有销售能力：">{{ form.isSales || '' }}</el-form-item>
+                <el-form-item label="是否有试驾能力：">{{ form.isTestDrive || '' }}</el-form-item>
+                <el-form-item label="是否有批售能力：">{{ form.isWholesaleSale || '' }}</el-form-item>
+                <el-form-item label="是否有交付能力：">{{ form.isSupportDeliver || '' }}</el-form-item>
+                <el-form-item label="是否有维修能力：">{{ form.isRepair || '' }}</el-form-item>
+                <el-form-item label="是否有维保能力：">{{ form.isMaintenance || '' }}</el-form-item>
+                <el-form-item label="是否有道路救援能力：">{{ form.isSupportRescue || '' }}</el-form-item>
+                <el-form-item label="是否支持事故维修：">{{ form.isAccidentRepair || '' }}</el-form-item>
+                <el-form-item label="是否有备附件订购能力：">{{ form.isPartOrder || '' }}</el-form-item>
                 <el-form-item label="道路救援服务地址：">{{ form.roadRescueAddress }}</el-form-item>
                 <el-form-item label="门店等级：">{{ form.storeLevelName }}</el-form-item>
                 <el-form-item label="专属交付门店：">{{ form.exclusiveDeliveryStoreName }}</el-form-item>
@@ -67,11 +69,11 @@
             <div class="common-section-header"><h2>备件收货信息</h2></div>
             <div class="common-section-body">
               <el-form :inline="true" :model="form" class="form-detail">
-                <el-form-item label="备件收货人姓名：">{{ form.sparePartReceiving?.partRecipient }}</el-form-item>
-                <el-form-item label="备件收货人手机：">{{ form.sparePartReceiving?.partPhone }}</el-form-item>
-                <el-form-item label="省市区：">{{ joinSpareArea(form.sparePartReceiving) }}</el-form-item>
-                <el-form-item label="备件收货地址：">{{ form.sparePartReceiving?.partAddress }}</el-form-item>
-                <el-form-item label="是否允许第三方收货：">{{ spareThirdLabel(form.sparePartReceiving?.isAllowedThirdDelivered) }}</el-form-item>
+                <el-form-item label="备件收货人姓名：">{{ form.partRecipient }}</el-form-item>
+                <el-form-item label="备件收货人手机：">{{ form.partPhone }}</el-form-item>
+                <el-form-item label="省市区：">{{ form.partArea || '-' }}</el-form-item>
+                <el-form-item label="备件收货地址：">{{ form.partAddress }}</el-form-item>
+                <el-form-item label="是否允许第三方收货：">{{ form.isAllowedThirdDelivered || '-' }}</el-form-item>
               </el-form>
             </div>
           </section>
@@ -101,10 +103,10 @@
                 <vxe-column field="contacts" title="商品车接收联系人" min-width="140" />
                 <vxe-column field="contactPhone" title="联系人手机号码" min-width="140" />
                 <vxe-column title="是否默认仓库" min-width="120">
-                  <template #default="{ row }">{{ row.isDefault === 1 ? '是' : '否' }}</template>
+                  <template #default="{ row }">{{ boolLabel(row.isDefault, true) }}</template>
                 </vxe-column>
                 <vxe-column title="是否冻结" min-width="100">
-                  <template #default="{ row }">{{ row.isFrozen ? '是' : '否' }}</template>
+                  <template #default="{ row }">{{ boolLabel(row.isFrozen) }}</template>
                 </vxe-column>
               </vxe-table>
             </div>
@@ -153,7 +155,6 @@ const defaultForm = {
   isPartOrder: false,
   roadRescueAddress: '',
   storeLevelName: '',
-  sparePartReceiving: null,
   warehouseList: []
 };
 
@@ -202,15 +203,15 @@ export default {
       const arr = [obj.provinceName, obj.cityName, obj.countyName].filter(Boolean);
       return arr.join('/') || '-';
     },
-    joinSpareArea (sp) {
-      if (!sp || !sp.areaCode || !sp.areaCode.length) return '-';
-      return sp.areaCode.join('/');
-    },
-    boolLabel (v) {
-      return v === true || v === 'true' || v === 1 ? '是' : '否';
-    },
-    spareThirdLabel (v) {
-      return v === 1 ? '是' : '否';
+    /**
+     * 布尔值渲染：null → 空；其余 → "是/否"
+     * @param {*} v 原始值
+     * @param {boolean} [asInt] 是否按 0/1 整数判断（针对 Integer 0/1 字段）
+     */
+    boolLabel (v, asInt) {
+      if (v === null) return '';
+      if (asInt) return Number(v) === 1 ? '是' : '否';
+      return v ? '是' : '否';
     }
   }
 };

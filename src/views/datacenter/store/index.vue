@@ -252,18 +252,6 @@ const defaultForm = {
 const pageSize = 20;
 const mockConfig = { data: null };
 
-const BOOL_COLS = [
-  ['isSales', '是否有销售能力'],
-  ['isTestDrive', '是否有试驾能力'],
-  ['isWholesaleSale', '是否有批售能力'],
-  ['isSupportDeliver', '是否有交付能力'],
-  ['isRepair', '是否有维修能力'],
-  ['isMaintenance', '是否有维保能力'],
-  ['isSupportRescue', '是否有道路救援能力'],
-  ['isAccidentRepair', '是否支持事故维修'],
-  ['isPartOrder', '是否有备附件订购能力']
-];
-
 export default {
   mixins: [responsiveSearchForm, permissions, commonMixins],
   components: { PageSearchAction, LPVxeTable, FetchSelect },
@@ -276,7 +264,6 @@ export default {
       show: false,
       loading: false,
       exportLoading: false,
-      boolKeys: BOOL_COLS.map(([key]) => key),
       storeTypeOptions: [],
       storeTypeProp: {
         multiple: true
@@ -341,7 +328,15 @@ export default {
           { props: 'saleStatusName', label: '经营状态(销售)', visible: true, width: 120 },
           { props: 'serviceStatusName', label: '经营状态(服务)', visible: true, width: 120 },
           { props: 'deliveryStatusName', label: '经营状态(交付)', visible: true, width: 120 },
-          ...this.buildBoolCols(BOOL_COLS),
+          { props: 'isSales', label: '是否有销售能力', visible: true, width: 180 },
+          { props: 'isTestDrive', label: '是否有试驾能力', visible: true, width: 180 },
+          { props: 'isWholesaleSale', label: '是否有批售能力', visible: true, width: 180 },
+          { props: 'isSupportDeliver', label: '是否有交付能力', visible: true, width: 180 },
+          { props: 'isRepair', label: '是否有维修能力', visible: true, width: 180 },
+          { props: 'isMaintenance', label: '是否有维保能力', visible: true, width: 180 },
+          { props: 'isSupportRescue', label: '是否有道路救援能力', visible: true, width: 180 },
+          { props: 'isAccidentRepair', label: '是否支持事故维修', visible: true, width: 180 },
+          { props: 'isPartOrder', label: '是否有备附件订购能力', visible: true, width: 180 },
           { props: 'roadRescueAddress', label: '道路救援服务地址', visible: true, width: 220 },
           { props: 'acceptanceTime', label: '验收完成时间', visible: true, width: 160 },
           { props: 'storeLevelName', label: '门店等级', visible: true, width: 120 },
@@ -370,17 +365,6 @@ export default {
     this.getDictList();
   },
   methods: {
-    buildBoolCols (pairs) {
-      return pairs.map(([key, label]) => ({
-        props: key,
-        label,
-        visible: true,
-        width: 180
-      }));
-    },
-    boolLabel (v) {
-      return v === true || v === 'true' || v === 1 ? '是' : '否';
-    },
     onSubmit () {
       this.optionObj.form.page = 1;
       this.getData();
@@ -425,13 +409,7 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           if (!res || !res.records) return;
-          this.optionObj.dataList = res.records.map(item => {
-            const row = { ...item, deleteLoading: false };
-            this.boolKeys.forEach(k => {
-              if (k in row) row[k] = this.boolLabel(row[k]);
-            });
-            return row;
-          });
+          this.optionObj.dataList = res.records.map(item => ({ ...item, deleteLoading: false }));
           this.optionObj.total = res.total;
         }).catch(err => {
           console.error('获取门店列表数据失败:', err);
