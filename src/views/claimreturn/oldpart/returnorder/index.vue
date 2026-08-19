@@ -216,7 +216,7 @@ export default {
             width: 140,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/datacenter/store/store/detail?num=2&storeCode=${row.dealerCode}`, '_blank');
+                window.open(`/datacenter/store/store/detail?storeCode=${row.dealerCode}`, '_blank');
               },
               type: 'primary'
             }]

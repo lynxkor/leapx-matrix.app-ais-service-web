@@ -245,7 +245,7 @@ export default {
                     this.$message.warning('该门店暂无编码，无法跳转');
                     return;
                   }
-                  const url = `/datacenter/store/store/detail?num=2&storeCode=${row.dealerCode}`;
+                  const url = `/datacenter/store/store/detail?storeCode=${row.dealerCode}`;
                   window.open(url, '_blank');
                 },
                 type: 'primary'

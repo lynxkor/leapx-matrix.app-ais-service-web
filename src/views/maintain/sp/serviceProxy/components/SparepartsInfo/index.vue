@@ -24,7 +24,7 @@
           </vxe-column>
           <vxe-column field="dealerName" title="门店名称" min-width="200">
             <template v-slot="{ row }">
-              <el-link type="success" :href="`/datacenter/store/store/detail?num=2&storeCode=${row.dealerCode}`" target="_blank">{{ row.dealerName }}</el-link>
+              <el-link type="success" :href="`/datacenter/store/store/detail?storeCode=${row.dealerCode}`" target="_blank">{{ row.dealerName }}</el-link>
             </template>
           </vxe-column>
           <vxe-column field="vehProfileVin" title="VIN码" min-width="200"/>

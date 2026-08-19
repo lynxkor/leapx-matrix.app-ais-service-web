@@ -155,7 +155,7 @@
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   <el-link type="success"
-                    :href="`/datacenter/store/store/detail?num=2&storeCode=${form.dealerCode}`"
+                    :href="`/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                     target="_blank">{{ form.dealerName }}</el-link>
                 </el-form-item>
                 <el-form-item label="仓库名称：" prop="warehouseName">

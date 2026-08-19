@@ -156,7 +156,7 @@
                   <el-link
                     v-if="form.salesDealerCode"
                     type="primary"
-                    :href="`/datacenter/store/store/detail?num=2&storeCode=${form.salesDealerCode}`"
+                    :href="`/datacenter/store/store/detail?storeCode=${form.salesDealerCode}`"
                     target="_blank"
                   >{{ form.salesDealerName }}</el-link>
                   <span v-else>{{ form.salesDealerName }}</span>
@@ -168,7 +168,7 @@
                   <el-link
                     v-if="form.deliveryDealerCode"
                     type="primary"
-                    :href="`/datacenter/store/store/detail?num=2&storeCode=${form.deliveryDealerCode}`"
+                    :href="`/datacenter/store/store/detail?storeCode=${form.deliveryDealerCode}`"
                     target="_blank"
                   >{{ form.deliveryDealerName }}</el-link>
                   <span v-else>{{ form.deliveryDealerName }}</span>
@@ -180,7 +180,7 @@
                   <el-link
                     v-if="form.serviceDealerCode"
                     type="primary"
-                    :href="`/datacenter/store/store/detail?num=2&storeCode=${form.serviceDealerCode}`"
+                    :href="`/datacenter/store/store/detail?storeCode=${form.serviceDealerCode}`"
                     target="_blank"
                   >{{ form.serviceDealerName }}</el-link>
                   <span v-else>{{ form.serviceDealerName }}</span>
