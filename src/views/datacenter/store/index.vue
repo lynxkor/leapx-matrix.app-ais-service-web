@@ -283,12 +283,12 @@ export default {
         dataList: [],
         form: { page: 1, size: pageSize },
         dataProp: [
-          { props: 'storeName', label: '门店名称', visible: true, width: 200 },
           {
             props: 'storeCode',
             label: '门店编码',
             visible: true,
             width: 160,
+            fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
                 this.$router.push({
@@ -299,6 +299,7 @@ export default {
               type: 'primary'
             }]
           },
+          { props: 'storeName', label: '门店名称', visible: true, width: 200 },
           { props: 'parentCompanyName', label: '公司名称', visible: true, width: 200 },
           {
             props: 'parentCompanyCode',
