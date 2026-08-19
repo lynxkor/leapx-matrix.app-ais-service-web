@@ -6,10 +6,10 @@
 
 | 项目 | 文件数 | 替换处数 |
 |---|---|---|
-| `sparepart/` | 50 | 约 56 处 |
-| `datacenter/` | 9 | 约 14 处 |
-| `claimreturn/` | 22 | 约 24 处 |
-| `maintain/` | 18 | 约 18 处 |
+| `sparepart/` | 54 | 约 60 处 |
+| `datacenter/` | 7 | 约 11 处 |
+| `claimreturn/` | 13 | 约 15 处 |
+| `maintain/` | 25 | 约 26 处 |
 | `libs/mixins/` | 1 | 1 处 |
 | **合计** | **100** | **114** |
 
@@ -139,7 +139,22 @@
 
 | # | 文件 | 说明 |
 |---|---|---|
-| 1 | `src/libs/mixins/commonMixins.js` | `goShopDetail()` 工具方法内部 URL 替换 |
+| 1 | `src/libs/mixins/commonMixins.js` | `navigateToRoute()` 工具方法内部 docstring 示例 |
+
+### 2.6 `navigateToRoute({ path: ..., query: { dealerCode } })` 模式 — 6 个文件
+
+实际调用 `this.navigateToRoute({ path: '/partner/channelManagement/shopDetail', query: { dealerCode } })` 的位置（不是 `window.open` 也不是 `<el-link>`，而是 `$router.push` 包装）：
+
+| # | 文件 | 行号 | query 来源 |
+|---|---|---|---|
+| 1 | `src/views/maintain/basic/dealerDiscount/index.vue` | 184 | `row.dealerCode` |
+| 2 | `src/views/claimreturn/oldpart/inventory/oem/index.vue` | 448 | `row.dealerCode` |
+| 3 | `src/views/claimreturn/oldpart/inventory/oem/edit.vue` | 160 | `form.dealerCode` |
+| 4 | `src/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/index.vue` | 207 | `row.dealerCode` |
+| 5 | `src/views/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit.vue` | 326 | `row.dealerCode` |
+| 6 | `src/views/claimreturn/oldpart/returnorder/index.vue` | 203 | `row.dealerCode` |
+
+> 全部 6 处都通过 `this.navigateToRoute({ path: '/partner/channelManagement/shopDetail', query: { dealerCode: ... } })` 跳转。sed 第二条命令会同时把 `path:` 后面的 URL 字符串与 `dealerCode:` 字段名替换。
 
 ## 3. 替换操作
 
