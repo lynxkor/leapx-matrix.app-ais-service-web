@@ -624,7 +624,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.salesDealerCode}`, '_blank');
+                window.open(`/datacenter/store/store/detail?num=2&storeCode=${row.salesDealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -637,7 +637,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.deliveryDealerCode}`, '_blank');
+                window.open(`/datacenter/store/store/detail?num=2&storeCode=${row.deliveryDealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -650,7 +650,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.serviceDealerCode}`, '_blank');
+                window.open(`/datacenter/store/store/detail?num=2&storeCode=${row.serviceDealerCode}`, '_blank');
               },
               type: 'primary'
             }]

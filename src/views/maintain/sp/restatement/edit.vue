@@ -513,7 +513,7 @@ export default {
     },
     goToDealerDetail () {
       if (this.form.dealerCode) {
-        window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${this.form.dealerCode}`, '_blank');
+        window.open(`/datacenter/store/store/detail?num=2&storeCode=${this.form.dealerCode}`, '_blank');
       } else {
         this.$message.warning('未找到厅店信息');
       }

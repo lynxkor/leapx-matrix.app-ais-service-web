@@ -377,7 +377,7 @@
                 </el-form>
                 <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                   <el-form-item label="服务中心名称：" prop="serviceCenterName">
-                    <el-link type="success" :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.serviceCenterCode}`" target="_blank">{{ form.serviceCenterName }}</el-link>
+                    <el-link type="success" :href="`/datacenter/store/store/detail?num=2&storeCode=${form.serviceCenterCode}`" target="_blank">{{ form.serviceCenterName }}</el-link>
                   </el-form-item>
                   <el-form-item label="服务中心代码：" prop="serviceCenterCode">
                     {{ form.serviceCenterCode }}

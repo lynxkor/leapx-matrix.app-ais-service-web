@@ -194,7 +194,7 @@
                   <el-link
                     v-if="form.dealerCode"
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    :href="`/datacenter/store/store/detail?num=2&storeCode=${form.dealerCode}`"
                     target="_blank"
                   >{{ form.dealerCode }}</el-link>
                   <span v-else>{{ form.dealerCode }}</span>
@@ -206,7 +206,7 @@
                   <el-link
                     v-if="form.dealerCode"
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    :href="`/datacenter/store/store/detail?num=2&storeCode=${form.dealerCode}`"
                     target="_blank"
                   >{{ form.dealerName }}</el-link>
                   <span v-else>{{ form.dealerName }}</span>

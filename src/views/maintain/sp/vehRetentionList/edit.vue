@@ -166,7 +166,7 @@
                   {{ form.manufactureOn }}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
-                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`" target="_blank">{{ form.dealerName }}</el-link>
+                  <el-link type="primary" :href="`/datacenter/store/store/detail?num=2&storeCode=${form.dealerCode}`" target="_blank">{{ form.dealerName }}</el-link>
                 </el-form-item>
                 <el-form-item label="故障描述：" prop="faultDesc">
                   {{ form.faultDesc }}

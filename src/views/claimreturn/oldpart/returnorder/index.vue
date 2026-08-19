@@ -200,9 +200,9 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.navigateToRoute({
-                  path: '/partner/channelManagement/shopDetail',
+                  path: '/datacenter/store/store/detail',
                   query: {
-                    dealerCode: row.dealerCode,
+                    storeCode: row.dealerCode,
                   },
                 });
               },
@@ -216,7 +216,7 @@ export default {
             width: 140,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+                window.open(`/datacenter/store/store/detail?num=2&storeCode=${row.dealerCode}`, '_blank');
               },
               type: 'primary'
             }]
