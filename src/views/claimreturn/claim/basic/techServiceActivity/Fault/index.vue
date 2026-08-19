@@ -4,7 +4,7 @@
       <h2>故障名称</h2>
     </div>
     <div class="common-section-body" v-if="id">
-      <section class="common-section">
+      <section class="common-section" v-if="canAddOrUpdate">
         <ccc-search
           @update="addData"
           :isAdd="true"
