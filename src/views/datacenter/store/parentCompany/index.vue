@@ -22,34 +22,44 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="大区">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="ais_base_region"
-          v-model="form.region"
-          placeholder="请选择"
-          clearable
-          filterable
-        />
-      </el-form-item>
-      <el-form-item label="省市区">
-        <el-input
-          placeholder="请输入编码"
-          v-model="form.areaCode"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="合作类型">
-        <fetch-select
-          :request="fetchOptions"
-          enumCode="parent_company_cooperation_type"
-          v-model="form.cooperationType"
-          placeholder="请选择"
-          clearable
-          filterable
-        />
-      </el-form-item>
+      <template v-if="show">
+        <el-form-item label="大区">
+          <fetch-select
+            filterable
+            clearable
+            remote
+            v-model="form.region"
+            :remote-method="getRegionList"
+            value-key="orgCode"
+            label-key="orgName"
+          />
+        </el-form-item>
+        <el-form-item label="省市区">
+          <el-cascader
+            placeholder="请选择省市区"
+            v-model="form.areaCode"
+            :props="orgProps"
+            :options="areaOptions"
+            filterable
+            @change="handleChangeArea"
+            clearable>
+          </el-cascader>
+        </el-form-item>
+        <el-form-item label="合作类型">
+          <fetch-select
+            :options="cooperationTypeOptions"
+            v-model="form.cooperationType"
+            placeholder="请选择"
+            clearable
+            filterable
+            value-key="code"
+            label-key="name"
+          />
+        </el-form-item>
+      </template>
       <page-search-action
+        v-model="show"
+        is-expandable
         :loading="loading"
         @submit="onSubmit"
         @reset="onReset"
@@ -77,7 +87,8 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList } from '@/api/datacenter/parentCompany/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getRegion } from '@/api/common';
+import { getAreaTree } from '@/utils';
 import FetchSelect from '@/libs/components/FetchSelect';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
@@ -100,22 +111,37 @@ export default {
   components: { PageSearchAction, LPVxeTable, FetchSelect },
   data () {
     return {
-      pageTitle: '母公司管理',
+      pageTitle: '母公司信息查询',
       pageType: 'list',
       moduleKey: 'AISDC-parentCompany',
       form: { ...defaultForm },
       loading: false,
       exportLoading: false,
+      show: false,
+      orgProps: {
+        checkStrictly: true,
+        emitPath: true,
+        label: 'name',
+        value: 'code',
+        children: 'child'
+      },
+      areaOptions: getAreaTree(),
+      // 合作类型：对应 com.leapmotor.cloud.network.business.base.enums.CooperationTypeEnum
+      cooperationTypeOptions: [
+        { code: '0', name: '直营店' },
+        { code: '1', name: '二网' },
+        { code: '2', name: '合作伙伴' }
+      ],
       optionObj: {
         id: 'parentCompanyTable',
         dataList: [],
         form: { page: 1, size: pageSize },
         dataProp: [
           {
-            props: 'companyName',
-            label: '公司名称',
+            props: 'companyCode',
+            label: '公司编码',
             visible: true,
-            width: 220,
+            width: 160,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {
@@ -127,17 +153,17 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'companyCode', label: '公司编码', visible: true, width: 160 },
+          { props: 'companyName', label: '公司名称', visible: true, width: 220 },
           { props: 'regionName', label: '大区', visible: true, width: 120 },
-          { props: 'cooperationType', label: '合作类型', visible: true, width: 120, formatter: ({ row }) => row.cooperationTypeName || row.cooperationType || '-' },
+          { props: 'cooperationTypeName', label: '合作类型', visible: true, width: 120 },
           { props: 'companyCustomerTypeName', label: '企业客户分类', visible: true, width: 140 },
-          { props: 'financialInvoiceType', label: '财务发票分类', visible: true, width: 120 },
+          { props: 'financialInvoiceTypeName', label: '财务发票分类', visible: true, width: 120 },
           { props: 'legalPerson', label: '法人代表', visible: true, width: 120 },
           { props: 'legalPersonTelephone', label: '法人联系方式', visible: true, width: 160 },
           { props: 'email', label: '公司邮箱', visible: true, width: 200 },
           { props: 'address', label: '公司注册地址', visible: true, width: 240 },
           { props: 'detailAddress', label: '详细地址', visible: true, width: 240 },
-          { props: 'bankName', label: '开户银行', visible: true, width: 200 },
+          { props: 'bankName', label: '开户银行（开户银行代码）', visible: true, width: 200 },
           { props: 'taxNumber', label: '税号', visible: true, width: 200 },
           { props: 'openAccount', label: '开户账户', visible: true, width: 200 },
           { props: 'invoicePhone', label: '开票电话', visible: true, width: 160 },
@@ -236,9 +262,15 @@ export default {
       });
       return data;
     },
-    async fetchOptions (code) {
-      if (code) return getEnum(code);
-      return [];
+    async getRegionList (params) {
+      return getRegion({ orgName: params });
+    },
+    handleChangeArea (val) {
+      if (!val || !val.length) {
+        this.form.areaCode = null;
+      } else {
+        this.form.areaCode = val[val.length - 1];
+      }
     }
   }
 };

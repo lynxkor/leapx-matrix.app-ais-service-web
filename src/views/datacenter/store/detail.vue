@@ -29,12 +29,13 @@
                 <el-form-item label="店面地址：">{{ form.storeBuildAddress }}</el-form-item>
                 <el-form-item label="店面详细地址：">{{ form.storeAddress }}</el-form-item>
                 <el-form-item label="经纬度：">{{ form.addressXy }}</el-form-item>
-<!--                <el-form-item label="专属交付门店：">{{ form.exclusiveDeliveryStoreName }}</el-form-item>-->
-<!--                <el-form-item label="专属服务门店：">{{ form.exclusiveServiceStoreName }}</el-form-item>-->
-<!--                <el-form-item label="营业时间：">{{ form.businessTime }}</el-form-item>-->
-<!--                <el-form-item label="销售热线：">{{ form.salesHotline }}</el-form-item>-->
-<!--                <el-form-item label="服务热线：">{{ form.serviceHotline }}</el-form-item>-->
+                <el-form-item label="专属交付门店：">{{ form.exclusiveDeliveryStoreName }}</el-form-item>
+                <el-form-item label="专属服务门店：">{{ form.exclusiveServiceStoreName }}</el-form-item>
+                <el-form-item label="营业时间：">{{ form.businessTime }}</el-form-item>
+                <el-form-item label="销售热线：">{{ form.salesHotline }}</el-form-item>
+                <el-form-item label="服务热线：">{{ form.serviceHotline }}</el-form-item>
                 <el-form-item label="验收完成时间：">{{ form.acceptanceTime }}</el-form-item>
+                <el-form-item label="门店等级：">{{ form.storeLevelName }}</el-form-item>
               </el-form>
             </div>
           </section>
@@ -54,12 +55,12 @@
                 <el-form-item label="是否支持事故维修：">{{ form.isAccidentRepair || '' }}</el-form-item>
                 <el-form-item label="是否有备附件订购能力：">{{ form.isPartOrder || '' }}</el-form-item>
                 <el-form-item label="道路救援服务地址：">{{ form.roadRescueAddress }}</el-form-item>
-                <el-form-item label="门店等级：">{{ form.storeLevelName }}</el-form-item>
-                <el-form-item label="专属交付门店：">{{ form.exclusiveDeliveryStoreName }}</el-form-item>
-                <el-form-item label="专属服务门店：">{{ form.exclusiveServiceStoreName }}</el-form-item>
-                <el-form-item label="营业时间：">{{ form.businessTime }}</el-form-item>
-                <el-form-item label="销售热线：">{{ form.salesHotline }}</el-form-item>
-                <el-form-item label="服务热线：">{{ form.serviceHotline }}</el-form-item>
+                <el-form-item label="道路救援电话：">{{ form.rescuePhone }}</el-form-item>
+<!--                <el-form-item label="专属交付门店：">{{ form.exclusiveDeliveryStoreName }}</el-form-item>-->
+<!--                <el-form-item label="专属服务门店：">{{ form.exclusiveServiceStoreName }}</el-form-item>-->
+<!--                <el-form-item label="营业时间：">{{ form.businessTime }}</el-form-item>-->
+<!--                <el-form-item label="销售热线：">{{ form.salesHotline }}</el-form-item>-->
+<!--                <el-form-item label="服务热线：">{{ form.serviceHotline }}</el-form-item>-->
               </el-form>
             </div>
           </section>
@@ -190,7 +191,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店管理', '门店详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['门店基础信息查询', '门店详情']);
   },
   methods: {
     async detailRequest () {

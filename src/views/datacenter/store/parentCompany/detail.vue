@@ -18,7 +18,7 @@
               <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="母公司名称：">{{ form.companyName }}</el-form-item>
                 <el-form-item label="母公司编码：">{{ form.companyCode }}</el-form-item>
-                <el-form-item label="财务发票分类：">{{ form.financialInvoiceType }}</el-form-item>
+                <el-form-item label="财务发票分类：">{{ form.financialInvoiceTypeName || form.financialInvoiceType }}</el-form-item>
                 <el-form-item label="合作类型：">{{ form.cooperationTypeName || form.cooperationType }}</el-form-item>
                 <el-form-item label="所属大区：">{{ form.regionName }}</el-form-item>
                 <el-form-item label="企业客户分类：">{{ form.companyCustomerTypeName }}</el-form-item>
@@ -45,7 +45,7 @@
             <div class="common-section-header"><h2>开户信息</h2></div>
             <div class="common-section-body">
               <el-form :inline="true" :model="form" class="form-detail">
-                <el-form-item label="开户银行：">{{ form.bankName }}</el-form-item>
+                <el-form-item label="开户银行（开户银行代码）：">{{ form.bankName }}</el-form-item>
                 <el-form-item label="税号：">{{ form.taxNumber }}</el-form-item>
                 <el-form-item label="开户账户：">{{ form.openAccount }}</el-form-item>
                 <el-form-item label="开票电话：">{{ form.invoicePhone }}</el-form-item>
@@ -76,8 +76,8 @@
                 <vxe-column field="equityRatio" title="股权占比（%）" min-width="160" align="right" header-align="right">
                   <template #default="{ row }">{{ row.equityRatio }}</template>
                 </vxe-column>
-                <vxe-column field="investorType" title="投资人类型" min-width="160">
-                  <template #default="{ row }">{{ row.investorType }}</template>
+                <vxe-column field="investorTypeName" title="投资人类型" min-width="160">
+                  <template #default="{ row }">{{ row.investorTypeName || row.investorType }}</template>
                 </vxe-column>
                 <template #footer>
                   <table class="vxe-table--footer">
@@ -110,6 +110,7 @@ const defaultForm = {
   companyName: '',
   companyCode: '',
   financialInvoiceType: '',
+  financialInvoiceTypeName: '',
   cooperationType: '',
   cooperationTypeName: '',
   regionName: '',
@@ -166,7 +167,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['母公司管理', '母公司详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['母公司信息查询', '母公司详情']);
   },
   methods: {
     async detailRequest () {

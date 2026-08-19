@@ -257,7 +257,7 @@ export default {
   components: { PageSearchAction, LPVxeTable, FetchSelect },
   data () {
     return {
-      pageTitle: '门店管理',
+      pageTitle: '门店基础信息查询',
       pageType: 'list',
       moduleKey: 'AISDC-store',
       form: { ...defaultForm },
@@ -338,6 +338,7 @@ export default {
           { props: 'isAccidentRepair', label: '是否支持事故维修', visible: true, width: 180 },
           { props: 'isPartOrder', label: '是否有备附件订购能力', visible: true, width: 180 },
           { props: 'roadRescueAddress', label: '道路救援服务地址', visible: true, width: 220 },
+          { props: 'rescuePhone', label: '道路救援电话', visible: true, width: 220 },
           { props: 'acceptanceTime', label: '验收完成时间', visible: true, width: 160 },
           { props: 'storeLevelName', label: '门店等级', visible: true, width: 120 },
           { props: 'exclusiveDeliveryStoreName', label: '专属交付门店', visible: true, width: 160 },
@@ -387,7 +388,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '门店管理.xlsx');
+            await downloadExcel(res.excelUrl, '门店信息查询.xlsx');
           } catch (error) {
             this.$message({ type: 'error', message: '文件导出失败' });
           }
