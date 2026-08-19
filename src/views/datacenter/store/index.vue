@@ -20,7 +20,7 @@
           filterable
           clearable
           remote
-          v-model="form.regionList"
+          v-model="form.region"
           :remote-method="getRegionList"
           value-key="orgCode"
           label-key="orgName"
