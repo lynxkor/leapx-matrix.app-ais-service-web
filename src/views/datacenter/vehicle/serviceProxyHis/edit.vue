@@ -43,7 +43,7 @@
                 <el-form-item label="维修门店名称：">
                   <el-link
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    :href="`/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                     target="_blank"
                   >{{ form.dealerName }}</el-link>
                 </el-form-item>

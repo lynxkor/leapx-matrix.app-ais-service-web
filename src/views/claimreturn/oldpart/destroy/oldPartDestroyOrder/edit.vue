@@ -323,9 +323,9 @@ export default {
           width: '150',
           click: (row) => {
             this.navigateToRoute({
-              path: '/partner/channelManagement/shopDetail',
+              path: '/datacenter/store/store/detail',
               query: {
-                dealerCode: row.dealerCode,
+                storeCode: row.dealerCode,
               },
             });
           }

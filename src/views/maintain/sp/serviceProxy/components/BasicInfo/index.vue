@@ -488,7 +488,7 @@
           {{ form.dataSourceLabel }}
         </el-form-item>
         <el-form-item label="门店名称：" prop="dealerName">
-          <el-link type="success" :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`" target="_blank">{{ form.dealerName }}</el-link>
+          <el-link type="success" :href="`/datacenter/store/store/detail?storeCode=${form.dealerCode}`" target="_blank">{{ form.dealerName }}</el-link>
         </el-form-item>
         <el-form-item label="客户类型：" prop="custTypeLabel">
           {{ form.custTypeLabel }}
@@ -500,7 +500,7 @@
           {{ form.saleDate }}
         </el-form-item>
         <el-form-item label="专属服务门店：" prop="exclusiveServiceDealerName">
-          <el-link type="success" :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.exclusiveServiceDealerCode}`" target="_blank">{{ form.exclusiveServiceDealerName }}</el-link>
+          <el-link type="success" :href="`/datacenter/store/store/detail?storeCode=${form.exclusiveServiceDealerCode}`" target="_blank">{{ form.exclusiveServiceDealerName }}</el-link>
         </el-form-item>
         <el-form-item label="预约单号：" prop="appointmentNo">
           {{ form.appointmentNo }}

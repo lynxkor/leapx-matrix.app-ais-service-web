@@ -33,7 +33,7 @@
                 <el-form-item label="门店名称：" prop="dealerName">
                   <InputLink
                     v-model="form.dealerName"
-                    :link="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`"
+                    :link="`/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                     placeholder="请输入"
                     readonly
                   />
