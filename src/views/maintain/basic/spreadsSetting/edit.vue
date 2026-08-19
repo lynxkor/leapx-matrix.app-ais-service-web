@@ -84,7 +84,7 @@
                     type="textarea"
                     placeholder="请输入"
                     v-model="form.remark"
-                    maxlength="500"
+                    maxlength="100"
                     show-word-limit
                     clearable
                   />
@@ -111,6 +111,9 @@
                 </el-form-item>
                 <el-form-item label="创建时间：">
                   {{ form.createTime }}
+                </el-form-item>
+                <el-form-item label="备注：">
+                  {{ form.remark }}
                 </el-form-item>
               </el-form>
             </div>

@@ -26,15 +26,15 @@
           }"
           close-tip="确定删除该项目零件吗？"
           closeText="删除"
-          :disabled="!isEditing"
+          :disabled="!canAddOrUpdate || !isEditing"
           @remove="onRemove"
           @add="onTabAdd"
-          :menus="menus"
+          :menus="tabMenus"
           />
         </section>
         <section class="common-section" v-if="partId && isShow">
           <el-form
-            v-if="isEditing"
+            v-if="isEditing && canAddOrUpdate"
             :inline="true"
             :model="form"
             :rules="rules"
@@ -209,7 +209,6 @@ import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
 import PartTable from './PartTable.vue';
 import BaseSearch from '@/libs/components/BaseSearch';
 import { debounce } from 'lodash';
-import { getValidHourlyPrice } from '@/api/claimreturn/claim/basic/warrantyHourSetting';
 
 const defaultForm = {
   id: '',
@@ -273,24 +272,12 @@ export default {
         ]
       },
       supplierOptions: [],
-      menus: [
-        {
-          label: '复制',
-          value: 'copy',
-        },
-        {
-          label: '删除',
-          value: 'delete',
-        },
-      ],
       // ----
       currentVehicleId: '',
       part: '',
       curPart: null,
       // ----
       isShow: true,
-      //
-      unitPrice: 0, // 标准工时单价
     };
   },
   computed: {
@@ -301,7 +288,18 @@ export default {
         pageNum: 1,
         pageSize: 999,
       };
-    }
+    },
+    // 项目零件 tab 操作菜单：按权限动态生成
+    tabMenus () {
+      const menus = [];
+      if (this.canAddOrUpdate) {
+        menus.push({ label: '复制', value: 'copy' });
+      }
+      if (this.canDelete) {
+        menus.push({ label: '删除', value: 'delete' });
+      }
+      return menus;
+    },
   },
   watch: {
     schemeId: {
@@ -317,23 +315,7 @@ export default {
       }
     }
   },
-  mounted () {
-    this.getUnitPrice();
-  },
   methods: {
-    getUnitPrice () {
-      return new Promise((resolve) => {
-        if (this.unitPrice) {
-          return resolve(this.unitPrice);
-        }
-        if (this.isServiceCareActivity) {
-          getValidHourlyPrice().then(data => {
-            this.unitPrice = data;
-            resolve(this.unitPrice);
-          });
-        }
-      });
-    },
     handleDiscountAmount (row, isUpdate) {
       const maxDiscount = row.quantity * row.unitPrice;
       this.$set(row, 'amount', (maxDiscount - row.discountAmount).toFixed(2));
@@ -414,14 +396,7 @@ export default {
             return;
           }
           if (data) {
-            if (this.isServiceCareActivity && key === 'unitPrice') {
-              this.getUnitPrice().then(data => {
-                this.form.unitPrice = data;
-                this.handleDiscountAmount(this.form);
-              });
-            } else {
-              this.form[key] = data[key];
-            }
+            this.form[key] = data[key];
           } else {
             this.resetForm();
           }

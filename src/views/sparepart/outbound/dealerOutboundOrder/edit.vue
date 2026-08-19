@@ -292,7 +292,7 @@
                     </template>
                   </vxe-column>
                   <vxe-column field="createTime" title="创建时间" min-width="10%" />
-                  <vxe-column title="操作" width="100" v-if="(canDelete && isEditing || !_id) || isOrderType">
+                  <vxe-column title="操作" width="100" v-if="((canDelete && isEditing || !_id) || isOrderType)&&permissions.has('AISPART-dealerOutboundOrder-addOrUpdate')">
                     <template #default="{ rowIndex }">
                       <el-popconfirm title="确定要删除吗？" confirm-button-text="删除" confirm-button-type="danger" @confirm="handleDeleteRow(rowIndex)">
                         <span slot="reference" type="text" size="small" class="btn-delete">删除</span>
@@ -430,7 +430,7 @@ export default {
     },
     // 订单状态 领料同意 / 出库状态 未出库
     isOrderType () {
-      return (this.form.orderStatus === '10' || this.form.orderStatus === '40') && this.form.outboundStatus === '0';
+      return (this.form.orderStatus === '10' || this.form.orderStatus === '30' || this.form.orderStatus === '40') && this.form.outboundStatus === '0';
     },
     // 按钮配置
     extraButtons () {
@@ -616,7 +616,7 @@ export default {
       orderDetailDelete([item.id]).then(res => {
         this.$message.success('删除成功');
         // this.tableData.splice(index, 1);
-        this.getData();
+        this.handleRefresh();
       });
     },
     // 查询新增项的列表
@@ -663,6 +663,7 @@ export default {
         dealerOutboundOrderCode: this.form.code,
         sparePartId: val.id,
         qty: val.qty,
+        remark: val.remark,
       };
       this.handleAddOrUpdate(params, 'update');
     },

@@ -524,53 +524,53 @@ export default {
             label: '整车订单',
             visible: true,
             width: 180,
-            // buttons: [{
-            //   click: (rowIndex, row) => {
-            //     this.navigateToRoute({
-            //       path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
-            //       query: {
-            //         id: row.vehicleOrderId
-            //       }
-            //     });
-            //   },
-            //   type: 'primary'
-            // }]
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.navigateToRoute({
+                  path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
+                  query: {
+                    id: row.vehicleOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
           },
           {
             props: 'shopcode',
             label: '商城订单',
             visible: true,
             width: 180,
-            // buttons: [{
-            //   click: (rowIndex, row) => {
-            //     if (row.shopcode) {
-            //       this.navigateToRoute({
-            //         path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
-            //         query: {
-            //           id: row.vehicleOrderId
-            //         }
-            //       });
-            //     }
-            //   },
-            //   type: 'primary'
-            // }]
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.shopcode) {
+                  this.navigateToRoute({
+                    path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
+                    query: {
+                      id: row.vehicleOrderId
+                    }
+                  });
+                }
+              },
+              type: 'primary'
+            }]
           },
           {
             props: 'vehicleEnterpriseOrder',
             label: '企业整车订单',
             visible: true,
             width: 180,
-            // buttons: [{
-            //   click: (rowIndex, row) => {
-            //     this.navigateToRoute({
-            //       path: '/sales/vehwholesale/entorder/entVehicleOrder/edit',
-            //       query: {
-            //         id: row.vehicleEnterpriseOrderId
-            //       }
-            //     });
-            //   },
-            //   type: 'primary'
-            // }]
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.navigateToRoute({
+                  path: '/sales/vehwholesale/entorder/entVehicleOrder/edit',
+                  query: {
+                    id: row.vehicleEnterpriseOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
           },
           { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 160 },
           {
@@ -688,6 +688,10 @@ export default {
           { props: 'createTime', label: '创建时间', visible: true, width: 180 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
           { props: 'isIovVehicleLabel', label: '车联网对接', visible: true, width: 120 },
+          { props: 'certNumber', label: '合格证号', visible: false, width: 120 },
+          { props: 'carSalesVersionName', label: '公告车型', visible: false, width: 120 },
+          { props: 'enginenNumber', label: '发动机号', visible: false, width: 120 },
+          { props: 'batterySerialNumber', label: '电池序列号', visible: false, width: 120 },
           {
             props: 'operate',
             label: '操作',
