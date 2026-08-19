@@ -30,6 +30,19 @@
       <el-form-item label="调拨出库单号" v-show="this.visibleCount === 3 || show">
         <tag-input v-model="form.transferOutboundCodeList" placeholder="请输入" />
       </el-form-item>
+      <el-form-item label="订单创建时间">
+        <el-date-picker
+         :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
       <template v-if="show">
         <el-form-item label="入库门店">
           <fetch-select
@@ -55,19 +68,6 @@
             clearable
             multiple
             filterable
-          />
-        </el-form-item>
-        <el-form-item label="订单创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            unlink-panels
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
           />
         </el-form-item>
         <el-form-item label="订单修改时间">
@@ -668,6 +668,17 @@ export default {
         if (!hasCode && !hasCreateTime && !hasOutCode) {
           this.$message.warning('请至少填写【调拨入库单号】【订单创建时间】【调拨出库单号】中的任意一个');
           return null;
+        }
+        // ===== 全部备件 tab：订单创建时间跨度校验（不超过半年） =====
+        if (data.createTimeStart && data.createTimeEnd) {
+          const start = new Date(data.createTimeStart);
+          const end = new Date(data.createTimeEnd);
+          const sixMonthsLater = new Date(start);
+          sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+          if (end > sixMonthsLater) {
+            this.$message.warning('【订单创建时间】跨度不能超过半年');
+            return null;
+          }
         }
       }
 
