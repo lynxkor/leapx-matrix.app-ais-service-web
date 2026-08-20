@@ -311,7 +311,7 @@ export default {
     color: #b91919;
   }
   &.btn-reset {
-    color: #c97a16;
+    color: #67c23a;
   }
   &.btn-reset-loading {
     color: #999;
