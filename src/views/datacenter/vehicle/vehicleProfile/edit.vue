@@ -818,6 +818,9 @@
           :visible.sync="infoDialogVisible"
           :vehicleProfileId="form.id"
           :data="infoDialogData"
+          :vin="form.vin"
+          :canReset="modifyMaintenanceRecord"
+          @vehicle-reset="onVehicleReset"
           @update="onInfoSuccess"
         />
       </edit-base-container>
@@ -1198,6 +1201,11 @@ export default {
     onInfoSuccess () {
       this.$refs?.nextTable?.getDetailPageApi();
       this.$refs?.containerRef?.loadDetail();
+    },
+    onVehicleReset (res) {
+      if (!res) return;
+      this.form.nextMaintainDate = res.nextMaintainDate;
+      this.form.nextMaintainMileages = res.nextMaintainMileages;
     },
     onReturnSuccess () {
       this.$refs.containerRef.loadDetail();
