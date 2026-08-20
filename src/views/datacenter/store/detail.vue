@@ -22,7 +22,7 @@
                   <el-link
                     v-if="form.companyCode"
                     type="primary"
-                    :href="`/datacenter/store/parentCompany/detail?companyCode=${form.companyCode}`"
+                    :href="`/service/datacenter/store/parentCompany/detail?companyCode=${form.companyCode}`"
                     target="_blank"
                   >{{ form.companyName }}</el-link>
                   <span v-else>{{ form.companyName }}</span>
