@@ -424,30 +424,30 @@ import { cloneDeep } from 'lodash';
         this.$message.warning('缺少 VIN 或零件代码,无法重置');
         return;
       }
+      // mileageType 为后端枚举 MileageTypeEnum 的 code: TOTAL_MILEAGE / EXTENDED_MILEAGE
       const mileageType = row.mileageType;
-      if (mileageType !== '总里程' && mileageType !== '增程里程') {
-        // 兼容 enum value 形式(如 "TOTAL"/"EXTEND"),由后端枚举为准
-        // 若 mileageTypeLabel 已有 label,优先用 mileageTypeLabel 判断
-      }
       this.resettingRowId = row.id;
       try {
         const carInfo = await getCarInfo(this.vin);
         let mileageValue;
         let mileageLabel;
-        if (mileageType === '增程里程') {
+        if (mileageType === 'EXTENDED_MILEAGE') {
           mileageValue = carInfo && carInfo.oilMileage;
           mileageLabel = '增';
           if (mileageValue === null || mileageValue === undefined || mileageValue === '') {
             this.$message.warning('该车辆暂无增程里程数据');
             return;
           }
-        } else {
+        } else if (mileageType === 'TOTAL_MILEAGE') {
           mileageValue = carInfo && carInfo.mileage;
           mileageLabel = '总';
           if (mileageValue === null || mileageValue === undefined || mileageValue === '') {
             this.$message.warning('未获取到车联网里程,无法重置');
             return;
           }
+        } else {
+          this.$message.error('零件里程类型异常,无法重置');
+          return;
         }
         await this.$confirm(
           `当前车联网里程数(${mileageLabel})为 ${mileageValue} km,是否确定重置?`,
@@ -478,7 +478,7 @@ import { cloneDeep } from 'lodash';
     },
 ```
 
-> **重要提示**:`mileageType` 实际值以后端枚举 `MileageTypeEnum` 为准,常见值如 `TOTAL`/`EXTEND_RANGE` 或中文 `总里程`/`增程里程`。Step 6.4 默认按中文匹配,如实际是英文 enum code,需把判断改为 `mileageType === '<总里程对应code>'`。**实施时先用一次浏览器调试确认 `row.mileageType` 与 `row.mileageTypeLabel` 的真实值,再调整判断**。
+> **枚举值已确认**:`MileageTypeEnum` 包含 `TOTAL_MILEAGE(10, "总里程")` 与 `EXTENDED_MILEAGE(20, "增程里程")`,`row.mileageType` 存的是 code 值。
 
 ### Step 6.5: 在操作栏 `<template v-else>` 内"编辑"按钮后增加"重置"按钮
 
@@ -758,6 +758,9 @@ git log --oneline -5
 
 ## 已知风险
 
-1. **`row.mileageType` 的真实值**:Step 6.4 默认按中文匹配,若实际是 enum code(英文),需调整 `mileageType === '总里程'` 判断。**实施时必须先用浏览器调试确认一次。**
-2. **`resetVehicle` / `resetPart` 的返回字段**:设计文档 §3 假设 `nextMaintainDate`/`nextMaintainMileages`/`nextMaintenanceDate`/`nextMileage`,若后端实际字段不同,需调整 `handleResetVehicle` 与 `handleResetPart` 中的赋值语句。
-3. **`form.vin` 字段名**:Step 9.1 默认用 `form.vin`,若 `edit.vue` 中实际叫 `vehProfileVin` 等,需相应替换。
+1. **`resetVehicle` / `resetPart` 的返回字段**:设计文档 §3 假设 `nextMaintainDate`/`nextMaintainMileages`/`nextMaintenanceDate`/`nextMileage`,若后端实际字段不同,需调整 `handleResetVehicle` 与 `handleResetPart` 中的赋值语句。
+2. **`form.vin` 字段名**:已确认是 `form.vin`,无需替换。
+
+> 以下两点已核实,不再列为风险:
+> - `row.mileageType` = 后端枚举 code,`TOTAL_MILEAGE` / `EXTENDED_MILEAGE`(详见 Step 6.4)
+> - `getCarInfo` 响应字段 `mileage` / `oilMileage`(已用现有调用处 `qualityOrderReport/edit.vue:1270`、`serviceProxy/.../BasicInfo/index.vue:903,907` 复核)
