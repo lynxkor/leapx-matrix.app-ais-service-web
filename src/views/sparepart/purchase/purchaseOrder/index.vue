@@ -15,20 +15,15 @@
       <el-form-item label="采购申请单">
         <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="备件" v-if="activeName === 'allSpareParts'||activeName === 'proxySign'" v-show="this.visibleCount === 3 || show">
-        <fetch-select
-            :remote-method="getSparePart"
-            remote
-            v-model="form.sparePartIdList"
-            placeholder="请输入编码或名称"
-            labelKey="name"
-            valueKey="id"
-            subLabelKey="code"
-            clearable
-            multiple
-            collapseTags
-            filterable
-              />
+      <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'||activeName === 'proxySign'" v-show="this.visibleCount === 3 || show">
+        <tag-input v-model="form.partCodeList" placeholder="请输入" />
+      </el-form-item>
+      <el-form-item label="备件名称" v-if="activeName === 'allSpareParts'||activeName === 'proxySign'" v-show="this.visibleCount === 3 || show">
+        <el-input
+          placeholder="请输入"
+          v-model="form.partName"
+          clearable
+        />
       </el-form-item>
       <el-form-item label="缺货单号"  v-show="this.visibleCount === 3 || show" v-if="activeName === 'homePage'">
         <tag-input v-model="form.backOrderCodeList" placeholder="请输入" />
@@ -292,7 +287,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, pageAll, pageWaitSign } from '@/api/sparepart/purchase/purchaseOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listOemWarehouse, sparePartListShort } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listOemWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -329,6 +324,9 @@ const defaultForm = {
   rebateAmount: '',
   createTime: '',
   updateTime: '',
+  // ===== 全部备件 / 待签收备件 tab 专用（与 purchaseApply 保持一致） =====
+  partCodeList: [],
+  partName: '',
 };
 
 const pageSize = 20;
@@ -815,18 +813,6 @@ export default {
       }).finally(() => {
         this.exportLoading = false;
       });
-    },
-    async getSparePart (query) {
-      try {
-        const res = await sparePartListShort({ partCodeLikeOrList: query });
-        // res.records = res.records?.map(item => ({
-        //   ...item,
-        //   displayName: item.companyName + `(${item.companyCode})`
-        // }));
-        return res;
-      } catch (error) {
-        console.error('Error fetching series list:', error);
-      }
     },
     getData () {
       this.loading = true;
