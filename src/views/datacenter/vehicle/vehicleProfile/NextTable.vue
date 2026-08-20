@@ -73,17 +73,11 @@
             编辑
           </span>
           <span
-            v-if="canReset && row.maintenancePartCode && (row.mileageTypeLabel === '总里程' || row.mileageTypeLabel === '增程里程') && resettingRowId !== row.id"
-            class="action-button btn-reset"
-            @click="handleResetPart(row)"
+            v-if="canReset && row.maintenancePartCode && (row.mileageTypeLabel === '总里程' || row.mileageTypeLabel === '增程里程')"
+            :class="['action-button', resettingRowId === row.id ? 'btn-reset-loading' : 'btn-reset']"
+            @click="resettingRowId === row.id ? null : handleResetPart(row)"
           >
             重置
-          </span>
-          <span
-            v-else-if="canReset && row.maintenancePartCode && (row.mileageTypeLabel === '总里程' || row.mileageTypeLabel === '增程里程') && resettingRowId === row.id"
-            class="action-button btn-reset-loading"
-          >
-            重置中...
           </span>
         </template>
       </template>
