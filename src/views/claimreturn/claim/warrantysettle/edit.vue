@@ -67,7 +67,7 @@
               <el-link
                 v-if="form.dealerCode"
                 type="primary"
-                :href="`/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
+                :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                 target="_blank"
               >{{ form.dealerCode }}</el-link>
               <span v-else>{{ form.dealerCode }}</span>

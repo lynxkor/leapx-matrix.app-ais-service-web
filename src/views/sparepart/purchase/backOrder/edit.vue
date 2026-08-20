@@ -181,7 +181,7 @@
                   {{ form.code }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  <el-link type="primary" :href="`/datacenter/store/store/detail?storeCode=${form.dealerCode}`" target="_blank">
+                  <el-link type="primary" :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`" target="_blank">
                     {{ form.dealerCode }}
                   </el-link>
                 </el-form-item>
