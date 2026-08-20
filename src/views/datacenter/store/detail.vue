@@ -18,7 +18,15 @@
               <el-form :inline="true" :model="form" class="form-detail">
                 <el-form-item label="门店编码：">{{ form.storeCode }}</el-form-item>
                 <el-form-item label="门店名称：">{{ form.storeName }}</el-form-item>
-                <el-form-item label="公司名称：">{{ form.companyName }}</el-form-item>
+                <el-form-item label="公司名称：">
+                  <el-link
+                    v-if="form.companyCode"
+                    type="primary"
+                    :href="`/datacenter/store/parentCompany/detail?companyCode=${form.companyCode}`"
+                    target="_blank"
+                  >{{ form.companyName }}</el-link>
+                  <span v-else>{{ form.companyName }}</span>
+                </el-form-item>
                 <el-form-item label="所属大区：">{{ form.region }}</el-form-item>
                 <el-form-item label="建店类型：">{{ form.storeTypeBroadTypeName +'/'+ form.buildStoreType }}</el-form-item>
                 <el-form-item label="店面地址：">{{ joinArea(form) }}</el-form-item>
@@ -199,6 +207,12 @@ export default {
       if (!code) return null;
       const res = await getDetail({ storeCode: code });
       return res || { ...defaultForm };
+    },
+    goParentCompany () {
+      this.$router.push({
+        path: '/datacenter/store/parentCompany/detail',
+        query: { companyCode: this.form.companyCode }
+      });
     },
     joinArea (obj = {}) {
       const arr = [obj.provinceName, obj.cityName, obj.countyName].filter(Boolean);

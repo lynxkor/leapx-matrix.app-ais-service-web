@@ -310,7 +310,7 @@ export default {
               click: (rowIndex, row) => {
                 this.$router.push({
                   path: '/datacenter/store/parentCompany/detail',
-                  query: { storeCode: row.parentCompanyCode }
+                  query: { companyCode: row.parentCompanyCode }
                 });
               },
               type: 'primary'
