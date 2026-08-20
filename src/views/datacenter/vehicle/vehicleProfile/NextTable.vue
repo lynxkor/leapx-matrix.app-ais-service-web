@@ -73,14 +73,14 @@
             编辑
           </span>
           <span
-            v-if="canReset && row.maintenancePartCode && (row.mileageType === 'TOTAL_MILEAGE' || row.mileageType === 'EXTENDED_MILEAGE') && resettingRowId !== row.id"
+            v-if="canReset && row.maintenancePartCode && (row.mileageTypeLabel === '总里程' || row.mileageTypeLabel === '增程里程') && resettingRowId !== row.id"
             class="action-button btn-reset"
             @click="handleResetPart(row)"
           >
             重置
           </span>
           <span
-            v-else-if="canReset && row.maintenancePartCode && (row.mileageType === 'TOTAL_MILEAGE' || row.mileageType === 'EXTENDED_MILEAGE') && resettingRowId === row.id"
+            v-else-if="canReset && row.maintenancePartCode && (row.mileageTypeLabel === '总里程' || row.mileageTypeLabel === '增程里程') && resettingRowId === row.id"
             class="action-button btn-reset-loading"
           >
             重置中...
@@ -229,21 +229,21 @@ export default {
         this.$message.warning('缺少 VIN 或零件代码,无法重置');
         return;
       }
-      // mileageType 为后端枚举 MileageTypeEnum 的 code: TOTAL_MILEAGE / EXTENDED_MILEAGE
-      const mileageType = row.mileageType;
+      // mileageTypeLabel 为后端返回的中文里程类型标签: 总里程 / 增程里程
+      const mileageType = row.mileageTypeLabel;
       this.resettingRowId = row.id;
       try {
         const carInfo = await getCarInfo(this.vin);
         let mileageValue;
         let mileageLabel;
-        if (mileageType === 'EXTENDED_MILEAGE') {
+        if (mileageType === '增程里程') {
           mileageValue = carInfo && carInfo.oilMileage;
           mileageLabel = '增';
           if (mileageValue === null || mileageValue === undefined || mileageValue === '') {
             this.$message.warning('该车辆暂无增程里程数据');
             return;
           }
-        } else if (mileageType === 'TOTAL_MILEAGE') {
+        } else if (mileageType === '总里程') {
           mileageValue = carInfo && carInfo.mileage;
           mileageLabel = '总';
           if (mileageValue === null || mileageValue === undefined || mileageValue === '') {
