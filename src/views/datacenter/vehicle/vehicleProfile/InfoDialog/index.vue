@@ -24,7 +24,7 @@
           placeholder="请输入"
           maxlength="20"
           @change="onFieldChange"
-          style="width: calc(100% - 80px);"
+          :style="{ width: canReset ? 'calc(100% - 80px)' : '100%' }"
         />
         <el-button
           v-if="canReset"
