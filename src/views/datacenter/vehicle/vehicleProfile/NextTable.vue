@@ -72,6 +72,19 @@
           >
             编辑
           </span>
+          <span
+            v-if="canReset && row.maintenancePartCode && resettingRowId !== row.id"
+            class="action-button btn-reset"
+            @click="handleResetPart(row)"
+          >
+            重置
+          </span>
+          <span
+            v-else-if="canReset && row.maintenancePartCode && resettingRowId === row.id"
+            class="action-button btn-reset-loading"
+          >
+            重置中...
+          </span>
         </template>
       </template>
     </vxe-column>
@@ -98,6 +111,8 @@
 </template>
 <script>
 import { vehicleProfileMaintenanceRecordPage, editMaintenanceRecord } from '@/api/datacenter/vehicle/vehicleProfile';
+import { resetPart } from '@/api/maintain/basic/maintenanceRemind';
+import { getCarInfo } from '@/api/maintain/sp/serviceProxy';
 import permissions from '@/libs/mixins/permissions';
 import { cloneDeep } from 'lodash';
 
@@ -110,6 +125,14 @@ export default {
       type: Boolean,
     },
     isEdit: {
+      type: Boolean,
+      default: false,
+    },
+    vin: {
+      type: String,
+      default: '',
+    },
+    canReset: {
       type: Boolean,
       default: false,
     }
@@ -133,6 +156,7 @@ export default {
       total: 0,
       tableData: [],
       loading: false,
+      resettingRowId: null,
     };
   },
   watch: {
@@ -199,6 +223,64 @@ export default {
         this.$emit('update');
       });
     },
+    async handleResetPart (row) {
+      if (this.resettingRowId || this.eidtRowIndex !== -1) return;
+      if (!this.vin || !row.maintenancePartCode) {
+        this.$message.warning('缺少 VIN 或零件代码,无法重置');
+        return;
+      }
+      // mileageType 为后端枚举 MileageTypeEnum 的 code: TOTAL_MILEAGE / EXTENDED_MILEAGE
+      const mileageType = row.mileageType;
+      this.resettingRowId = row.id;
+      try {
+        const carInfo = await getCarInfo(this.vin);
+        let mileageValue;
+        let mileageLabel;
+        if (mileageType === 'EXTENDED_MILEAGE') {
+          mileageValue = carInfo && carInfo.oilMileage;
+          mileageLabel = '增';
+          if (mileageValue === null || mileageValue === undefined || mileageValue === '') {
+            this.$message.warning('该车辆暂无增程里程数据');
+            return;
+          }
+        } else if (mileageType === 'TOTAL_MILEAGE') {
+          mileageValue = carInfo && carInfo.mileage;
+          mileageLabel = '总';
+          if (mileageValue === null || mileageValue === undefined || mileageValue === '') {
+            this.$message.warning('未获取到车联网里程,无法重置');
+            return;
+          }
+        } else {
+          this.$message.error('零件里程类型异常,无法重置');
+          return;
+        }
+        await this.$confirm(
+          `当前车联网里程数(${mileageLabel})为 ${mileageValue} km,是否确定重置?`,
+          '重置确认',
+          { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+        );
+        const res = await resetPart({
+          vin: this.vin,
+          maintenancePartCode: row.maintenancePartCode,
+        });
+        const idx = this.tableData.findIndex(r => r.id === row.id);
+        if (idx !== -1) {
+          this.tableData[idx].nextMaintenanceDate = res.nextMaintenanceDate;
+          this.tableData[idx].nextMileage = res.nextMileage;
+          const oIdx = this.originTableData.findIndex(r => r.id === row.id);
+          if (oIdx !== -1) {
+            this.originTableData[oIdx] = cloneDeep(this.tableData[idx]);
+          }
+        }
+        this.$message.success('重置成功');
+        this.$emit('update');
+      } catch (e) {
+        if (e === 'cancel' || e?.message === 'cancel') return;
+        this.$message.error(e?.message || '重置失败');
+      } finally {
+        this.resettingRowId = null;
+      }
+    },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;
       this.current = 1;
@@ -227,6 +309,13 @@ export default {
   }
   &.btn-delete {
     color: #b91919;
+  }
+  &.btn-reset {
+    color: #c97a16;
+  }
+  &.btn-reset-loading {
+    color: #999;
+    cursor: not-allowed;
   }
 }
 </style>
