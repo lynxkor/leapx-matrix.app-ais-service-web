@@ -18,24 +18,26 @@
         />
       </el-form-item>
       <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
-        <el-input
-          clearable
-          v-model="form.nextMaintainMileages"
-          placeholder="请输入"
-          maxlength="20"
-          @change="onFieldChange"
-          :style="{ width: canReset ? 'calc(100% - 80px)' : '100%' }"
-        />
-        <el-button
-          v-if="canReset"
-          size="small"
-          type="primary"
-          plain
-          :loading="resettingVehicle"
-          :disabled="saving"
-          style="margin-left: 10px;"
-          @click="handleResetVehicle"
-        >重置</el-button>
+        <div style="display: flex; align-items: center; width: 100%;">
+          <el-input
+            clearable
+            v-model="form.nextMaintainMileages"
+            placeholder="请输入"
+            maxlength="20"
+            @change="onFieldChange"
+            style="flex: 1; min-width: 0;"
+          />
+          <el-button
+            v-if="canReset"
+            size="small"
+            type="primary"
+            plain
+            :loading="resettingVehicle"
+            :disabled="saving"
+            style="margin-left: 10px; flex-shrink: 0;"
+            @click="handleResetVehicle"
+          >重置</el-button>
+        </div>
       </el-form-item>
     </el-form>
     <next-table
