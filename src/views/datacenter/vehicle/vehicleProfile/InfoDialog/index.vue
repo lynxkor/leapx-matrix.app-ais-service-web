@@ -30,8 +30,7 @@
           <el-button
             v-if="canReset"
             size="small"
-            type="primary"
-            plain
+            type="success"
             :loading="resettingVehicle"
             :disabled="saving"
             style="margin-left: 10px; flex-shrink: 0;"
