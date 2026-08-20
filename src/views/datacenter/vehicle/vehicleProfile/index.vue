@@ -624,7 +624,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/datacenter/store/store/detail?storeCode=${row.salesDealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.salesDealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -637,7 +637,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/datacenter/store/store/detail?storeCode=${row.deliveryDealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.deliveryDealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -650,7 +650,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/datacenter/store/store/detail?storeCode=${row.serviceDealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.serviceDealerCode}`, '_blank');
               },
               type: 'primary'
             }]
