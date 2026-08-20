@@ -849,6 +849,7 @@
 
 <script>
 import { getDetail, getDetailDecryptField, syncMaintenance, updateFlat, warrantyForecast, realnameRecordPage } from '@/api/datacenter/vehicle/vehicleProfile/index';
+import moment from 'moment';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -1204,8 +1205,10 @@ export default {
     },
     onVehicleReset (res) {
       if (!res) return;
-      this.form.nextMaintainDate = res.nextMaintainDate;
-      this.form.nextMaintainMileages = res.nextMaintainMileages;
+      this.form.nextMaintainDate = res.nextMaintainDate && moment(res.nextMaintainDate).isValid()
+        ? moment(res.nextMaintainDate).format('YYYY-MM-DD HH:mm:ss')
+        : null;
+      this.form.nextMaintainMileages = res.nextMaintainMileages ?? '';
     },
     onReturnSuccess () {
       this.$refs.containerRef.loadDetail();
