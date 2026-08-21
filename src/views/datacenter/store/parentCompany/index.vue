@@ -11,14 +11,14 @@
       <el-form-item label="公司名称">
         <el-input
           placeholder="请输入"
-          v-model="form.companyName"
+          v-model.trim="form.companyName"
           clearable
         />
       </el-form-item>
       <el-form-item label="公司编码">
         <el-input
           placeholder="请输入"
-          v-model="form.companyCode"
+          v-model.trim="form.companyCode"
           clearable
         />
       </el-form-item>

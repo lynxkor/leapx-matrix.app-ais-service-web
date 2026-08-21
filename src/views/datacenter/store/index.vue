@@ -11,8 +11,9 @@
       <el-form-item label="门店名称/编码">
         <el-input
           placeholder="请输入"
-          v-model="form.keyword"
+          v-model.trim="form.keyword"
           clearable
+
         />
       </el-form-item>
       <el-form-item label="门店大区">
