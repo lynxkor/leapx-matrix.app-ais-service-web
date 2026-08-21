@@ -20,28 +20,63 @@
             <div class="common-section-body">
               <!-- TIPS: 自行调整 label-width="150px"，使得 label 不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="auto" class="form-edit" v-show="isEditing || !_id">
-                <el-form-item class="form-item-line">
-                  <span>除当前保修申请单外，创建日期大于等于当前日期- </span>
-                  <el-input-number
-                    placeholder="请输入天数"
-                    v-model="form.judgeDays"
-                    :controls = "false"
-                    :max="999999999"
-                    :min=0
-                    clearable
-                    style="width: 150px;"
-                  />
-                  <span> 的其他保修单，若【VIN】【主因故障零件】等于当前保修申请单且是已提交、审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款的记录数大于</span>
-                  <el-input-number
-                    placeholder="请输入次数"
-                    v-model="form.judgeTimes"
-                    :controls = "false"
-                    :max="999999999"
-                    :min="0"
-                    clearable
-                    style="width: 150px;"
-                  />
-                  笔记录则提醒
+                <!-- BXYJ002 车主信息不一致预警：仅 OCR 行驶证所有者 vs 车主姓名 -->
+                <template v-if="form.ruleCode === 'WWR-BXYJ002'">
+                  <el-form-item class="form-item-line">
+                    <span>当保修单上传行驶证附件时，比较 OCR 行驶证识别车主姓名（所有人）与保修单车主姓名，若不一致则提醒：</span>
+                    <el-input
+                      type="textarea"
+                      :rows="4"
+                      maxlength="500"
+                      show-word-limit
+                      placeholder="请输入提醒内容"
+                      v-model="form.remindContent"
+                      clearable
+                      style="width: 400px;"
+                    />
+                  </el-form-item>
+                </template>
+                <!-- 其他规则（BXYJ001 重复维修预警等）：保留原描述文案 -->
+                <template v-else>
+                  <el-form-item class="form-item-line">
+                    <span>除当前保修申请单外，创建日期大于等于当前日期- </span>
+                    <el-input-number
+                      placeholder="请输入天数"
+                      v-model="form.judgeDays"
+                      :controls = "false"
+                      :max="999999999"
+                      :min=0
+                      clearable
+                      style="width: 150px;"
+                    />
+                    <span> 的其他保修单，若【VIN】【主因故障零件】等于当前保修申请单且是已提交、审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款的记录数大于</span>
+                    <el-input-number
+                      placeholder="请输入次数"
+                      v-model="form.judgeTimes"
+                      :controls = "false"
+                      :max="999999999"
+                      :min="0"
+                      clearable
+                      style="width: 150px;"
+                    />
+                    笔记录则提醒
+                    <el-input
+                      type="textarea"
+                      :rows="4"
+                      maxlength="500"
+                      show-word-limit
+                      placeholder="请输入提醒内容"
+                      v-model="form.remindContent"
+                      clearable
+                      style="width: 400px;"
+                    />
+                  </el-form-item>
+                </template>
+              </el-form>
+              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
+                <!-- BXYJ002 详情 -->
+                <el-form-item class="form-item-line" v-if="form.ruleCode === 'WWR-BXYJ002'">
+                  <span>当保修单上传行驶证附件时，比较 OCR 行驶证识别车主姓名（所有人）与保修单车主姓名，若不一致则提醒：</span>
                   <el-input
                     type="textarea"
                     :rows="4"
@@ -50,12 +85,12 @@
                     placeholder="请输入提醒内容"
                     v-model="form.remindContent"
                     clearable
+                    disabled
                     style="width: 400px;"
                   />
                 </el-form-item>
-              </el-form>
-              <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
-                <el-form-item class="form-item-line" prop="judgeDays">
+                <!-- 其他规则详情 -->
+                <el-form-item class="form-item-line" v-else prop="judgeDays">
                   <span>除当前保修申请单外，创建日期大于等于当前日期- </span>
                   <el-input
                     placeholder="请输入天数"
