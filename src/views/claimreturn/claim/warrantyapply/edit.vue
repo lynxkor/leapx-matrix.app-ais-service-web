@@ -518,8 +518,13 @@
                 :disabled="!isFormEditing"
               >
                 <template #option="{ item }">
-                  <span v-if="item.disabled">{{ item.placeholder }}</span>
-                  <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
+                  <template v-if="item.supplierCode">
+                    <span v-if="item.disabled">{{ item.placeholder }}</span>
+                    <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
+                  </template>
+                  <template v-else>
+                    <span></span>
+                  </template>
                 </template>
               </fetch-select>
             </el-form-item>
