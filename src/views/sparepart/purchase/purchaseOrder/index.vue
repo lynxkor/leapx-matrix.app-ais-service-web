@@ -312,13 +312,21 @@ const defaultForm = {
   purchaseApplyCodeList: [],
   backOrderCode: '',
   backOrderCodeList: [],
+  remarkLike: '',         // 备注（homePage）
   remark: '',
   deliveryWarehouse: '',
+  dealerCodeList: [],     // 门店（fetch-select multiple）
   dealerCode: '',
   dealerName: '',
   receiveWarehouseId: '',
+  purchaseOrderTypeList: [],  // 订单类型（homePage/allSpareParts，multiple）
   purchaseOrderType: '',
+  orderStatusList: [],    // 订单状态（homePage/allSpareParts，multiple）
   orderStatus: '',
+  shippingOrderLike: '',  // 发运单（homePage）
+  cancelOperatorLike: '', // 取消人（allSpareParts）
+  cancelTime: '',         // 取消时间（allSpareParts，daterange）
+  shippingTime: '',       // 发货时间（daterange）
   purchaseAmount: '',
   cashAmount: '',
   rebateAmount: '',
