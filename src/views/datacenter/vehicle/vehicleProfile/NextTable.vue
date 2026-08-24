@@ -73,7 +73,7 @@
             编辑
           </span>
           <span
-            v-if="canReset && row.maintenancePartCode && (row.mileageTypeLabel === '总里程' || row.mileageTypeLabel === '增程里程')"
+            v-if="canResetPart && row.maintenancePartCode "
             :class="['action-button', resettingRowId === row.id ? 'btn-reset-loading' : 'btn-reset']"
             @click="resettingRowId === row.id ? null : handleResetPart(row)"
           >
@@ -126,7 +126,7 @@ export default {
       type: String,
       default: '',
     },
-    canReset: {
+    canResetPart: {
       type: Boolean,
       default: false,
     }

@@ -273,6 +273,8 @@
                   <next-table
                     v-if="!(isEditing || !_id)"
                     ref="nextTable"
+                    :can-reset-part="canResetPart"
+                    :can-reset-vehicle="canResetVehicle"
                     :id="form.id"
                   />
                 </el-form-item>
@@ -819,7 +821,8 @@
           :vehicleProfileId="form.id"
           :data="infoDialogData"
           :vin="form.vin"
-          :canReset="modifyMaintenanceRecord"
+          :canResetVehicle="canResetVehicle"
+          :canResetPart="canResetPart"
           @vehicle-reset="onVehicleReset"
           @update="onInfoSuccess"
         />
@@ -1081,6 +1084,8 @@ export default {
       infoDialogData: {},
       // 权限
       canReturn: false,
+      canResetPart: false,
+      canResetVehicle: false,
       canViewLifetimeBenefits: false,
       syncPad: false,
       modifyMaintenanceRecord: false,
@@ -1096,6 +1101,8 @@ export default {
   },
   created () {
     this.canReturn = this.permissions.has(`${this.moduleKey}-return`);
+    this.canResetPart = this.permissions.has(`${this.moduleKey}-resetPart`);
+    this.canResetVehicle = this.permissions.has(`${this.moduleKey}-resetVehicle`);
     this.canViewLifetimeBenefits = this.permissions.has(`${this.moduleKey}-viewLifetimeBenefits`);
     this.syncPad = this.permissions.has(`${this.moduleKey}-syncPad`);
     this.modifyMaintenanceRecord = this.permissions.has(`${this.moduleKey}-modifyMaintenanceRecord`);
