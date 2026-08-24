@@ -260,7 +260,8 @@ export default {
         const idx = this.tableData.findIndex(r => r.id === row.id);
         if (idx !== -1) {
           this.tableData[idx].nextMaintenanceDate = res.nextMaintenanceDate;
-          this.tableData[idx].nextMileage = res.nextMileage;
+          // 后端字段:nextMaintenanceMileage(注意"Maintenance"全词)
+          this.tableData[idx].nextMileage = res.nextMaintenanceMileage;
           const oIdx = this.originTableData.findIndex(r => r.id === row.id);
           if (oIdx !== -1) {
             this.originTableData[oIdx] = cloneDeep(this.tableData[idx]);

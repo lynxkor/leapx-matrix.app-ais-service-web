@@ -150,10 +150,11 @@ export default {
           { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
         );
         const res = await resetVehicle({ vin: this.vin });
-        this.form.nextMaintainDate = res.nextMaintainDate && moment(res.nextMaintainDate).isValid()
-          ? moment(res.nextMaintainDate).format('YYYY-MM-DD HH:mm:ss')
+        // 后端字段:nextMaintenanceDate / nextMaintenanceMileage(注意"tion"和单数)
+        this.form.nextMaintainDate = res.nextMaintenanceDate && moment(res.nextMaintenanceDate).isValid()
+          ? moment(res.nextMaintenanceDate).format('YYYY-MM-DD HH:mm:ss')
           : null;
-        this.form.nextMaintainMileages = res.nextMaintainMileages ?? '';
+        this.form.nextMaintainMileages = res.nextMaintenanceMileage ?? '';
         this.originalForm = { ...this.form };
         this.$message.success('重置成功');
         this.$emit('vehicle-reset', res);
