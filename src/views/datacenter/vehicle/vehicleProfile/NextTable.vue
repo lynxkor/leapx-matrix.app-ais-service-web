@@ -269,9 +269,6 @@ export default {
         }
         this.$message.success('重置成功');
         this.$emit('update');
-      } catch (e) {
-        if (e === 'cancel' || e?.message === 'cancel') return;
-        this.$message.error(e?.message || '重置失败');
       } finally {
         this.resettingRowId = null;
       }
