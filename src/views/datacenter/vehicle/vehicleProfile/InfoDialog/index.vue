@@ -18,17 +18,31 @@
         />
       </el-form-item>
       <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
-        <el-input
-          clearable
-          v-model="form.nextMaintainMileages"
-          placeholder="请输入"
-          maxlength="20"
-          @change="onFieldChange"
-        />
+        <div style="display: flex; align-items: center; width: 100%;">
+          <el-input
+            clearable
+            v-model="form.nextMaintainMileages"
+            placeholder="请输入"
+            maxlength="20"
+            @change="onFieldChange"
+            style="flex: 1; min-width: 0;"
+          />
+          <el-button
+            v-if="canReset"
+            size="small"
+            type="success"
+            :loading="resettingVehicle"
+            :disabled="saving"
+            style="margin-left: 10px; flex-shrink: 0;"
+            @click="handleResetVehicle"
+          >重置</el-button>
+        </div>
       </el-form-item>
     </el-form>
     <next-table
       :id="vehicleProfileId"
+      :vin="vin"
+      :canReset="canReset"
       :isEdit="true"
       @update="$emit('update')"
     />
@@ -39,6 +53,8 @@
 import moment from 'moment';
 import NextTable from '../NextTable.vue';
 import { updateFlat } from '@/api/datacenter/vehicle/vehicleProfile';
+import { resetVehicle } from '@/api/maintain/basic/maintenanceRemind';
+import { getCarInfo } from '@/api/maintain/sp/serviceProxy';
 
 export default {
   name: 'InfoDialog',
@@ -57,6 +73,14 @@ export default {
     data: {
       type: Object,
       default: () => ({}),
+    },
+    vin: {
+      type: String,
+      default: '',
+    },
+    canReset: {
+      type: Boolean,
+      default: false,
     },
   },
   data () {
@@ -81,6 +105,7 @@ export default {
       },
       saving: false,
       pendingSave: false,
+      resettingVehicle: false,
     };
   },
   computed: {
@@ -105,6 +130,42 @@ export default {
     },
   },
   methods: {
+    async handleResetVehicle () {
+      if (this.resettingVehicle || this.saving) return;
+      if (!this.vin) {
+        this.$message.warning('缺少车辆 VIN,无法重置');
+        return;
+      }
+      this.resettingVehicle = true;
+      try {
+        const carInfo = await getCarInfo(this.vin);
+        const totalMileage = carInfo && carInfo.mileage;
+        if (totalMileage === null || totalMileage === undefined || totalMileage === '') {
+          this.$message.warning('未获取到车联网里程,无法重置');
+          return;
+        }
+        await this.$confirm(
+          `当前车联网里程(总)为 ${totalMileage} km,是否确定重置?`,
+          '重置确认',
+          { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+        );
+        const res = await resetVehicle({ vin: this.vin });
+        // 后端字段:nextMaintenanceDate / nextMaintenanceMileage(注意"tion"和单数)
+        this.form.nextMaintainDate = res.nextMaintenanceDate && moment(res.nextMaintenanceDate).isValid()
+          ? moment(res.nextMaintenanceDate).format('YYYY-MM-DD HH:mm:ss')
+          : null;
+        this.form.nextMaintainMileages = res.nextMaintenanceMileage ?? '';
+        this.originalForm = { ...this.form };
+        this.$message.success('重置成功');
+        this.$emit('vehicle-reset', res);
+        this.$emit('update');
+      } catch (e) {
+        if (e === 'cancel' || e?.message === 'cancel') return;
+        this.$message.error(e?.message || '重置失败');
+      } finally {
+        this.resettingVehicle = false;
+      }
+    },
     onClose () {
       this.dialogVisible = false;
     },

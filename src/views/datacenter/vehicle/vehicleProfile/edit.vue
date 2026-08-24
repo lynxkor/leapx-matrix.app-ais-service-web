@@ -818,6 +818,9 @@
           :visible.sync="infoDialogVisible"
           :vehicleProfileId="form.id"
           :data="infoDialogData"
+          :vin="form.vin"
+          :canReset="modifyMaintenanceRecord"
+          @vehicle-reset="onVehicleReset"
           @update="onInfoSuccess"
         />
       </edit-base-container>
@@ -846,6 +849,7 @@
 
 <script>
 import { getDetail, getDetailDecryptField, syncMaintenance, updateFlat, warrantyForecast, realnameRecordPage } from '@/api/datacenter/vehicle/vehicleProfile/index';
+import moment from 'moment';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -1198,6 +1202,14 @@ export default {
     onInfoSuccess () {
       this.$refs?.nextTable?.getDetailPageApi();
       this.$refs?.containerRef?.loadDetail();
+    },
+    onVehicleReset (res) {
+      if (!res) return;
+      // 后端字段:nextMaintenanceDate / nextMaintenanceMileage(注意"tion"和单数)
+      this.form.nextMaintainDate = res.nextMaintenanceDate && moment(res.nextMaintenanceDate).isValid()
+        ? moment(res.nextMaintenanceDate).format('YYYY-MM-DD HH:mm:ss')
+        : null;
+      this.form.nextMaintainMileages = res.nextMaintenanceMileage ?? '';
     },
     onReturnSuccess () {
       this.$refs.containerRef.loadDetail();
