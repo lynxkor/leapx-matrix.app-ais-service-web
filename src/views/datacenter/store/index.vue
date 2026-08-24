@@ -273,7 +273,7 @@ export default {
       storeLevelOptions: [],
       orgProps: {
         checkStrictly: true,
-        emitPath: true,
+        emitPath: false,
         label: 'name',
         value: 'code',
         children: 'child'
@@ -459,23 +459,8 @@ export default {
       if (code) return getEnum(code);
       return [];
     },
-    handleChangeArea (val, row) {
-      console.log(val, row);
-      let length = val.length;
-      switch (length) {
-        case 0:
-          this.form.areaCode = null;
-          break;
-        case 1:
-          this.form.areaCode = val[0];
-          break;
-        case 2:
-          this.form.areaCode = val[1];
-          break;
-        case 3:
-          this.form.areaCode = val[2];
-          break;
-      }
+    handleChangeArea (val) {
+      this.form.areaCode = val || null;
     },
     handleCascaderChange (value) {
       console.log('handleCascaderChange', value);
