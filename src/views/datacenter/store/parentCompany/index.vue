@@ -120,7 +120,7 @@ export default {
       show: false,
       orgProps: {
         checkStrictly: true,
-        emitPath: true,
+        emitPath: false,
         label: 'name',
         value: 'code',
         children: 'child'
@@ -266,11 +266,7 @@ export default {
       return getRegion({ orgName: params });
     },
     handleChangeArea (val) {
-      if (!val || !val.length) {
-        this.form.areaCode = null;
-      } else {
-        this.form.areaCode = val[val.length - 1];
-      }
+      this.form.areaCode = val || null;
     }
   }
 };
