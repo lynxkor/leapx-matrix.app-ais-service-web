@@ -28,7 +28,7 @@
             style="flex: 1; min-width: 0;"
           />
           <el-button
-            v-if="canReset"
+            v-if="canResetVehicle"
             size="small"
             type="success"
             :loading="resettingVehicle"
@@ -42,7 +42,7 @@
     <next-table
       :id="vehicleProfileId"
       :vin="vin"
-      :canReset="canReset"
+      :canResetPart="canResetPart"
       :isEdit="true"
       @update="$emit('update')"
     />
@@ -78,10 +78,14 @@ export default {
       type: String,
       default: '',
     },
-    canReset: {
+    canResetVehicle: {
       type: Boolean,
       default: false,
     },
+    canResetPart: {
+      type: Boolean,
+      default: false,
+    }
   },
   data () {
     const validateMileage = (rule, value, callback) => {
