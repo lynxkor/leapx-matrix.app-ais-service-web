@@ -52,8 +52,7 @@
                 </el-form-item>
                 <el-form-item label="订单类型：" prop="orderType">
                   <fetch-select
-                    :request="fetchOptions"
-                    enumCode="PurchaseOrderTypeEnum"
+                    :options="orderTypeOptions"
                     v-model="form.orderType"
                     placeholder="请选择"
                     clearable
@@ -114,7 +113,7 @@
                   {{ form.orderTypeLabel }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                  <el-link type="primary" :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`" target="_blank">
                     {{ form.dealerCode }}
                   </el-link>
                 </el-form-item>
@@ -243,7 +242,8 @@ const defaultForm = {
   name: '',
   dealerCode: '',
   dealerName: '',
-  orderType: '',
+  // 订单类型下拉框已写死只允许"紧急订单"（枚举值 '1'），创建时默认带出该值
+  orderType: '1',
   percent: '',
   originalPriceCoupon: '',
   status: '',
@@ -251,6 +251,11 @@ const defaultForm = {
   couponIssueTime: '',
   remark: '',
 };
+
+// 订单类型：写死只保留紧急订单，枚举值 '1'
+const orderTypeOptions = [
+  { code: '1', message: '紧急订单' }
+];
 
 export default {
   name: 'purchasePriceEdit',

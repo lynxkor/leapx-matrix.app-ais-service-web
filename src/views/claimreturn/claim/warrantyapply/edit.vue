@@ -164,7 +164,7 @@
               <el-link
                 v-if="form.dealerCode"
                 type="primary"
-                :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                 target="_blank"
               >{{ form.dealerCode }}</el-link>
               <span v-else>{{ form.dealerCode }}</span>
@@ -518,8 +518,13 @@
                 :disabled="!isFormEditing"
               >
                 <template #option="{ item }">
-                  <span v-if="item.disabled">{{ item.placeholder }}</span>
-                  <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
+                  <template v-if="item.supplierCode">
+                    <span v-if="item.disabled">{{ item.placeholder }}</span>
+                    <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
+                  </template>
+                  <template v-else>
+                    <span></span>
+                  </template>
                 </template>
               </fetch-select>
             </el-form-item>

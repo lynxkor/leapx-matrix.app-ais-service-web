@@ -16,12 +16,12 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="公司名称">
+      <el-form-item label="公司">
         <fetch-select
             :remote-method="getParentCompany"
             remote
             v-model="form.companyCodeList"
-            placeholder="请选择"
+            placeholder="请输入公司编码或名称"
             labelKey="companyName"
             valueKey="companyCode"
             subLabelKey="companyCode"
@@ -31,10 +31,10 @@
             filterable
               />
       </el-form-item>
-      <el-form-item label="创建时间" v-show="this.visibleCount === 3 || show">
+      <el-form-item label="入账时间" v-show="this.visibleCount === 3 || show">
         <el-date-picker
           :default-time="['00:00:00', '23:59:59']"
-          v-model="form.createTime"
+          v-model="form.postingTime"
           type="daterange"
           unlink-panels
           :picker-options="pickerOptions"
@@ -45,46 +45,77 @@
         />
       </el-form-item>
       <template v-if="show">
-        <el-form-item label="修改时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.updateTime"
-            type="daterange"
-            unlink-panels
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="公司编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <el-input placeholder="请输入" v-model="form.companyCode" clearable />
-        </el-form-item>
-        <el-form-item label="账户创建时间" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <el-input placeholder="请选择" v-model="form.createAccountTime" clearable />
-        </el-form-item>
-        <el-form-item label="账户修改时间" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <el-input placeholder="请选择" v-model="form.updateAccountTime" clearable />
-        </el-form-item>
-        <el-form-item label="交易流水号" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <el-input placeholder="请输入" v-model="form.transactionNoList" clearable />
-        </el-form-item>
-        <el-form-item label="交易类型" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <el-input placeholder="请选择" v-model="form.transactionTypeList" clearable />
-        </el-form-item>
-        <el-form-item label="门店编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <el-input placeholder="请选择" v-model="form.dealerCodeList" clearable />
-        </el-form-item>
-        <el-form-item label="门店名称" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <el-input placeholder="请选择" v-model="form.dealerNameList" clearable />
-        </el-form-item>
-        <el-form-item label="业务类型" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <el-input placeholder="请选择" v-model="form.businessTypeList" clearable />
-        </el-form-item>
-        <el-form-item label="业务单号" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
-          <el-input placeholder="请输入" v-model="form.businessNoList" clearable />
-        </el-form-item>
+        <template v-if="activeName === 'allSpareParts'">
+          <el-form-item label="账户创建时间">
+            <el-date-picker
+              :default-time="['00:00:00', '23:59:59']"
+              v-model="form.createAccountTime"
+              type="daterange"
+              unlink-panels
+              :picker-options="pickerOptions"
+              range-separator="至"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </el-form-item>
+          <el-form-item label="账户修改时间">
+            <el-date-picker
+              :default-time="['00:00:00', '23:59:59']"
+              v-model="form.updateAccountTime"
+              type="daterange"
+              unlink-panels
+              :picker-options="pickerOptions"
+              range-separator="至"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </el-form-item>
+          <el-form-item label="交易流水号">
+            <tag-input v-model="form.transactionNoList" placeholder="请输入" />
+          </el-form-item>
+          <el-form-item label="交易类型">
+            <fetch-select
+              :request="fetchOptions"
+              enumCode="AccountTransactionTypeEnum"
+              v-model="form.transactionTypeList"
+              placeholder="请选择"
+              clearable
+              multiple
+              filterable
+            />
+          </el-form-item>
+          <el-form-item label="门店">
+            <fetch-select
+              :remote-method="getDealerList"
+              remote
+              v-model="form.dealerCodeList"
+              placeholder="请输入门店编码或名称"
+              labelKey="orgName"
+              valueKey="orgCode"
+              subLabelKey="orgCode"
+              clearable
+              multiple
+              collapseTags
+              filterable
+            />
+          </el-form-item>
+          <el-form-item label="业务类型">
+            <fetch-select
+              :request="fetchOptions"
+              enumCode="AccountBusinessTypeEnum"
+              v-model="form.businessTypeList"
+              placeholder="请选择"
+              clearable
+              multiple
+              filterable
+            />
+          </el-form-item>
+          <el-form-item label="业务单号">
+            <tag-input v-model="form.businessNoList" placeholder="请输入" />
+          </el-form-item>
+        </template>
       </template>
       <page-search-action
         v-if="canList"
@@ -105,8 +136,8 @@
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
-      <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
+      <el-tab-pane label="返利账户" name="homePage"></el-tab-pane>
+      <el-tab-pane label="账户流水" name="allSpareParts"></el-tab-pane>
     </el-tabs>
     <div
       class="ais-table-c"
@@ -164,8 +195,9 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, detailPage, deleteItem, enableItem } from '@/api/sparepart/fund/account/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getSparePartCompany, getSparePartOrderIdByCode } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getSparePartCompany, listOrgStoreInfoByParam, getSparePartOrderIdByCode } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
+import TagInput from '@/libs/components/TagInput';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -178,22 +210,19 @@ const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
   accountType: 'REBATE',
-  companyCodeList: '',
-  companyNameList: '',
+  companyCodeList: [],
   createTime: '',
   updateTime: '',
+  postingTime: null,
 
   // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
-  companyCode: null,
   createAccountTime: null,
   updateAccountTime: null,
-  transactionNoList: null,
-  transactionTypeList: null,
-  dealerCodeList: null,
-  dealerNameList: null,
-  businessTypeList: null,
-  businessNoList: null,
-  flowRecordTime: null
+  transactionNoList: [],
+  transactionTypeList: [],
+  dealerCodeList: [],
+  businessTypeList: [],
+  businessNoList: []
 };
 
 const pageSize = 20;
@@ -207,6 +236,7 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
+    TagInput,
     EditPage,
     Upload
   },
@@ -326,7 +356,7 @@ export default {
           { props: 'accountUpdateTime', label: '账户修改时间', visible: true, width: 200 },
 
           /* ========== 流水维度 ========== */
-          { props: 'code', label: '交易流水号', visible: true, width: 200 },
+          { props: 'detailCode', label: '交易流水号', visible: true, width: 200 },
           { props: 'transactionAmount', label: '交易金额', visible: true, width: 140, align: 'right' },
           { props: 'transactionTypeLabel', label: '交易类型', visible: true, width: 120 },
           { props: 'accountBalance', label: '账户余额', visible: true, width: 140, align: 'right' },
@@ -357,6 +387,14 @@ export default {
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
+      }
+    },
+    async getDealerList (query) {
+      try {
+        const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching dealer list:', error);
       }
     },
 
@@ -398,11 +436,13 @@ export default {
       this.getData();
     },
     onReset () {
-      // 全部备件 tab：默认流水创建时间 = 最近一个月
+      // 全部备件 tab：默认入账时间 = 最近一个月
       const extraDefaults = this.activeName === 'allSpareParts'
-        ? { createTime: this.getLastMonthRange() }
+        ? { postingTime: this.getLastMonthRange() }
         : {};
-      this.form = { ...defaultForm, ...extraDefaults };
+      // 注意：不要整体替换 this.form —— 会丢失 Vue 2 响应性，导致子组件 watch 失效。
+      // 必须用 Object.assign 原地写入响应式对象，触发 setter 让 watcher 重新执行。
+      Object.assign(this.form, defaultForm, extraDefaults);
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       optionObj.form.size = pageSize;
@@ -537,15 +577,6 @@ export default {
         }
       });
 
-      if (this.form.createTime) {
-        delete data.createTime;
-        if (this.form.createTime.length > 1) {
-          const [start, end] = this.form.createTime;
-          // 全部备件 tab 默认查询流水创建时间 (AccountFlow.create_time)，映射为 createTimeStart/End
-          data.createTimeStart = start;
-          data.createTimeEnd = getEndOfDayString(end);
-        }
-      }
       if (this.form.updateTime) {
         delete data.updateTime;
         if (this.form.updateTime.length > 1) {
@@ -557,46 +588,51 @@ export default {
       // ===== 全部备件 tab：字段映射到 AccountFlowPageParam =====
       if (this.activeName === 'allSpareParts') {
         data.accountType = 'REBATE';
-        // accountNo -> accountCode（账户编号精确）
-        if (data.accountNo) {
-          data.accountCode = data.accountNo;
-          delete data.accountNo;
+        // 账户编号 form.code -> data.accountCode（homePage API 用 code，detailPage 用 accountCode）
+        if (data.code) {
+          data.accountCode = data.code;
+          delete data.code;
         }
-        // companyCode 单值 -> companyCodeList 数组
-        if (data.companyCode) {
-          data.companyCodeList = [data.companyCode];
-          delete data.companyCode;
-        }
-        // transactionNoList -> codeList（交易流水号批量）
+        // 交易流水号批量 form.transactionNoList -> data.detailCodeList
         if (data.transactionNoList) {
-          data.codeList = data.transactionNoList;
+          data.detailCodeList = data.transactionNoList;
           delete data.transactionNoList;
         }
-        // invoiceNoList -> accountingVoucherList（税务发票号批量）
-        if (data.invoiceNoList) {
-          data.accountingVoucherList = data.invoiceNoList;
-          delete data.invoiceNoList;
+        // 入账时间区间 -> postingTimeStart/End（返利账户默认查询条件）
+        if (data.postingTime && Array.isArray(data.postingTime) && data.postingTime.length > 1) {
+          data.postingTimeStart = data.postingTime[0];
+          data.postingTimeEnd = getEndOfDayString(data.postingTime[1]);
+          delete data.postingTime;
+        } else if (data.postingTime !== undefined) {
+          delete data.postingTime;
         }
-        // invoiceDate 区间 -> voucherYearStart/End（开票日期区间）
-        if (data.invoiceDate) {
-          delete data.invoiceDate;
-          if (Array.isArray(data.invoiceDate) && data.invoiceDate.length > 1) {
-            data.voucherYearStart = data.invoiceDate[0];
-            data.voucherYearEnd = getEndOfDayString(data.invoiceDate[1]);
-          }
+        // 账户创建时间/修改时间区间
+        if (data.createAccountTime && Array.isArray(data.createAccountTime) && data.createAccountTime.length > 1) {
+          data.accountCreateTimeStart = data.createAccountTime[0];
+          data.accountCreateTimeEnd = getEndOfDayString(data.createAccountTime[1]);
+          delete data.createAccountTime;
+        } else if (data.createAccountTime !== undefined) {
+          delete data.createAccountTime;
+        }
+        if (data.updateAccountTime && Array.isArray(data.updateAccountTime) && data.updateAccountTime.length > 1) {
+          data.accountUpdateTimeStart = data.updateAccountTime[0];
+          data.accountUpdateTimeEnd = getEndOfDayString(data.updateAccountTime[1]);
+          delete data.updateAccountTime;
+        } else if (data.updateAccountTime !== undefined) {
+          delete data.updateAccountTime;
         }
       }
 
       // ===== 全部备件 tab 默认条件校验 =====
-      // 【公司名称】【账户编号】【流水创建时间】【业务单号】不允许全部为空
-      // 全部备件 tab 默认查询 AccountFlow.create_time（getFormData 已映射为 createTimeStart/End）
+      // 【公司】【账户编号】【入账时间】【业务单号】不允许全部为空
+      // 注意：账户编号 form.code 已经映射为 data.accountCode，校验检查 data.accountCode。
       if (this.activeName === 'allSpareParts') {
-        const hasCompany = !!(data.companyNameList && data.companyNameList.length);
-        const hasAccountNo = !!(data.accountNo && data.accountNo.trim());
-        const hasFlowCreateTime = !!(data.createTimeStart && data.createTimeEnd);
+        const hasCompany = !!(data.companyCodeList && data.companyCodeList.length);
+        const hasAccountNo = !!(data.accountCode && data.accountCode.trim());
+        const hasPostingTime = !!(data.postingTimeStart && data.postingTimeEnd);
         const hasBusinessNo = !!(data.businessNoList && data.businessNoList.length);
-        if (!hasCompany && !hasAccountNo && !hasFlowCreateTime && !hasBusinessNo) {
-          this.$message.warning('请至少填写【公司名称】【账户编号】【流水创建时间】【业务单号】中的任意一个');
+        if (!hasCompany && !hasAccountNo && !hasPostingTime && !hasBusinessNo) {
+          this.$message.warning('请至少填写【公司】【账户编号】【入账时间】【业务单号】中的任意一个');
           return null;
         }
       }

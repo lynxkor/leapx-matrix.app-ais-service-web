@@ -57,7 +57,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="创建时间">
+        <el-form-item label="订单创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
@@ -70,7 +70,7 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="修改时间">
+        <el-form-item label="订单修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
@@ -188,16 +188,18 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 
 const defaultForm = {
-  codeList: null,
+  // 注意：被 <tag-input> 绑定的字段必须用 [] 而非 null，否则 reset 时
+  // TagInput 内部 tagList = null 会导致 slice()/length 抛错，UI 无法清空。
+  codeList: [],
   outboundDealerCodeList: null,
   createTime: '',
   updateTime: '',
 
-  transferOutboundCodeList: null,
+  transferOutboundCodeList: [],
   inboundDealerCodeList: null,
   signStatusList: null,
 
-  sparePartCodeList: null,
+  sparePartCodeList: [],
   sparePartName: '',
   locationNameLike: '',
 };
@@ -277,10 +279,10 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180 },
+          { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.inboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
           { props: 'inboundWarehouseName', label: '入库仓库', visible: true, width: 200 },
-          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180 },
+          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.outboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'outboundDealerName', label: '出库门店名称', visible: true, width: 200 },
           { props: 'signStatusLabel', label: '签收状态', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
@@ -381,7 +383,7 @@ export default {
           { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.inboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
           { props: 'inboundWarehouseName', label: '入库仓库', visible: true, width: 200 },
-          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180 },
+          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.outboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'outboundDealerName', label: '出库门店名称', visible: true, width: 200 },
           { props: 'signStatusLabel', label: '签收状态', visible: true, width: 120 },
           { props: 'remark', label: '订单备注', visible: true, width: 200 },
@@ -517,7 +519,9 @@ export default {
       const extraDefaults = this.activeName === 'allSpareParts'
         ? { createTime: this.getLastMonthRange() }
         : {};
-      this.form = { ...defaultForm, ...extraDefaults };
+      // 注意：不要整体替换 this.form —— 会丢失 Vue 2 响应性，导致子组件 watch 失效。
+      // 必须用 Object.assign 原地写入响应式对象，触发 setter 让 watcher 重新执行。
+      Object.assign(this.form, defaultForm, extraDefaults);
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       optionObj.form.size = pageSize;
@@ -665,6 +669,13 @@ export default {
           this.$message.warning('请至少填写【调拨入库单号】【订单创建时间】【调拨出库单号】中的任意一个');
           return null;
         }
+      }
+
+      // 全部订单 tab：后端 Param 字段名是 sharedTransferOutboundCodeList，
+      // 与前端字段 transferOutboundCodeList 不一致，需要重命名
+      if (this.activeName === 'homePage' && data.transferOutboundCodeList) {
+        data.sharedTransferOutboundCodeList = data.transferOutboundCodeList;
+        delete data.transferOutboundCodeList;
       }
 
       return data;

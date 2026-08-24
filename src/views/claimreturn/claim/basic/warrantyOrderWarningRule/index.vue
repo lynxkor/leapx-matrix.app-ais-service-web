@@ -172,13 +172,10 @@ export default {
             }]
           },
           { props: 'ruleName', label: '名称', visible: true, width: 200 },
-          { props: 'judgeTimes', label: '判定次数', visible: true, width: 120, align: 'right' },
-          { props: 'judgeDays', label: '判定天数', visible: true, width: 120, align: 'right' },
           { props: 'remindContent', label: '提醒内容', visible: true, width: 200 },
           { props: 'statusLabel', label: '是否启用', visible: true, width: 100 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
-          { props: 'statusDesc', label: '说明', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',

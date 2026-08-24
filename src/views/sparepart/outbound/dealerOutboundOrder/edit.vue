@@ -88,7 +88,7 @@
                   {{ form.orderStatusLabel }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                  <el-link type="primary" :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`" target="_blank">
                     {{ form.dealerCode }}
                   </el-link>
                 </el-form-item>
@@ -430,7 +430,7 @@ export default {
     },
     // 订单状态 领料同意 / 出库状态 未出库
     isOrderType () {
-      return (this.form.orderStatus === '10' || this.form.orderStatus === '40') && this.form.outboundStatus === '0';
+      return (this.form.orderStatus === '10' || this.form.orderStatus === '30' || this.form.orderStatus === '40') && this.form.outboundStatus === '0';
     },
     // 按钮配置
     extraButtons () {
@@ -663,6 +663,7 @@ export default {
         dealerOutboundOrderCode: this.form.code,
         sparePartId: val.id,
         qty: val.qty,
+        remark: val.remark,
       };
       this.handleAddOrUpdate(params, 'update');
     },

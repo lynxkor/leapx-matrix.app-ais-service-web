@@ -156,7 +156,7 @@
                   <el-link
                     v-if="form.salesDealerCode"
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.salesDealerCode}`"
+                    :href="`/service/datacenter/store/store/detail?storeCode=${form.salesDealerCode}`"
                     target="_blank"
                   >{{ form.salesDealerName }}</el-link>
                   <span v-else>{{ form.salesDealerName }}</span>
@@ -168,7 +168,7 @@
                   <el-link
                     v-if="form.deliveryDealerCode"
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.deliveryDealerCode}`"
+                    :href="`/service/datacenter/store/store/detail?storeCode=${form.deliveryDealerCode}`"
                     target="_blank"
                   >{{ form.deliveryDealerName }}</el-link>
                   <span v-else>{{ form.deliveryDealerName }}</span>
@@ -180,7 +180,7 @@
                   <el-link
                     v-if="form.serviceDealerCode"
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.serviceDealerCode}`"
+                    :href="`/service/datacenter/store/store/detail?storeCode=${form.serviceDealerCode}`"
                     target="_blank"
                   >{{ form.serviceDealerName }}</el-link>
                   <span v-else>{{ form.serviceDealerName }}</span>
@@ -273,6 +273,8 @@
                   <next-table
                     v-if="!(isEditing || !_id)"
                     ref="nextTable"
+                    :can-reset-part="canResetPart"
+                    :can-reset-vehicle="canResetVehicle"
                     :id="form.id"
                   />
                 </el-form-item>
@@ -818,6 +820,10 @@
           :visible.sync="infoDialogVisible"
           :vehicleProfileId="form.id"
           :data="infoDialogData"
+          :vin="form.vin"
+          :canResetVehicle="canResetVehicle"
+          :canResetPart="canResetPart"
+          @vehicle-reset="onVehicleReset"
           @update="onInfoSuccess"
         />
       </edit-base-container>
@@ -846,6 +852,7 @@
 
 <script>
 import { getDetail, getDetailDecryptField, syncMaintenance, updateFlat, warrantyForecast, realnameRecordPage } from '@/api/datacenter/vehicle/vehicleProfile/index';
+import moment from 'moment';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -1077,6 +1084,8 @@ export default {
       infoDialogData: {},
       // 权限
       canReturn: false,
+      canResetPart: false,
+      canResetVehicle: false,
       canViewLifetimeBenefits: false,
       syncPad: false,
       modifyMaintenanceRecord: false,
@@ -1092,6 +1101,8 @@ export default {
   },
   created () {
     this.canReturn = this.permissions.has(`${this.moduleKey}-return`);
+    this.canResetPart = this.permissions.has(`${this.moduleKey}-resetPart`);
+    this.canResetVehicle = this.permissions.has(`${this.moduleKey}-resetVehicle`);
     this.canViewLifetimeBenefits = this.permissions.has(`${this.moduleKey}-viewLifetimeBenefits`);
     this.syncPad = this.permissions.has(`${this.moduleKey}-syncPad`);
     this.modifyMaintenanceRecord = this.permissions.has(`${this.moduleKey}-modifyMaintenanceRecord`);
@@ -1160,9 +1171,9 @@ export default {
         if (Array.isArray(data[key]) && !data[key].length) {
           delete data[key];
         }
-        if (data[key] === '' || data[key] === null) {
-          delete data[key];
-        }
+        // if (data[key] === '' || data[key] === null) {
+        //   delete data[key];
+        // }
       });
 
       return data;
@@ -1198,6 +1209,14 @@ export default {
     onInfoSuccess () {
       this.$refs?.nextTable?.getDetailPageApi();
       this.$refs?.containerRef?.loadDetail();
+    },
+    onVehicleReset (res) {
+      if (!res) return;
+      // 后端字段:nextMaintenanceDate / nextMaintenanceMileage(注意"tion"和单数)
+      this.form.nextMaintainDate = res.nextMaintenanceDate && moment(res.nextMaintenanceDate).isValid()
+        ? moment(res.nextMaintenanceDate).format('YYYY-MM-DD HH:mm:ss')
+        : null;
+      this.form.nextMaintainMileages = res.nextMaintenanceMileage ?? '';
     },
     onReturnSuccess () {
       this.$refs.containerRef.loadDetail();

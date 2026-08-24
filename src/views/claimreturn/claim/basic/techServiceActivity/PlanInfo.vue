@@ -11,6 +11,7 @@
           v-model="schemeId"
           :load-params="loadParams"
           :load-data="loadData"
+          :disabled="!canAddOrUpdate || !isEditing"
           :item-config="{
             valueKey: 'id',
             labelKey: 'name',
@@ -21,7 +22,7 @@
           closeText="删除"
           @remove="onRemove"
           @add="onTabAdd"
-          :menus="menus"
+          :menus="tabMenus"
           @command="command"
           />
         </section>
@@ -32,7 +33,7 @@
             基础信息
           </div>
           <el-form
-            v-if="isEditing"
+            v-if="isEditing && canAddOrUpdate"
             :inline="true"
             :model="form"
             :rules="rules"
@@ -281,16 +282,6 @@ export default {
       },
       supplierOptions: [],
       vfgOptions: [],
-      menus: [
-        {
-          label: '复制',
-          value: 'copy',
-        },
-        {
-          label: '删除',
-          value: 'delete',
-        },
-      ]
     };
   },
   computed: {
@@ -301,7 +292,18 @@ export default {
       return {
         activityId: this.id,
       };
-    }
+    },
+    // 方案 tab 操作菜单：按权限动态生成
+    tabMenus () {
+      const menus = [];
+      if (this.canAddOrUpdate) {
+        menus.push({ label: '复制', value: 'copy' });
+      }
+      if (this.canDelete) {
+        menus.push({ label: '删除', value: 'delete' });
+      }
+      return menus;
+    },
   },
   watch: {
     schemeId: {
