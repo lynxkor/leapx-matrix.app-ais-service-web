@@ -69,7 +69,21 @@
                       />
                       <span> 天，且 VIN 不等于当前车辆，同时保修状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，当前保修单相关附件在上述保修单中已使用，则提醒：</span>
                     </template>
-                    <!-- 模板提示: BXYJ006 支持 ${name} 和 ${names} 两个占位符 -->
+                    <!-- BXYJ008 不同店重复附件预警: 复用 withinDays 输入控件, 文案改为跨店 -->
+                    <template v-else-if="form.ruleCode === 'WWR-BXYJ008'">
+                      <span>创建日期大于等于当前日期- </span>
+                      <el-input-number
+                        placeholder="请输入天数"
+                        v-model="form.withinDays"
+                        :controls="false"
+                        :max="999999999"
+                        :min="0"
+                        clearable
+                        style="width: 150px;"
+                      />
+                      <span> 天，且不是当前保修单所属门店，同时保修状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，当前保修单相关附件在上述保修单中已使用，则提醒：</span>
+                    </template>
+                    <!-- 模板提示: BXYJ006 / BXYJ008 支持 ${name} 和 ${names} 两个占位符 -->
                     <!-- ${name}: 第一个命中文件名 (向后兼容); ${names}: 所有命中文件名 (逗号分隔, 推荐使用) -->
                     <!-- BXYJ001 重复维修预警等: 原有描述 -->
                     <template v-else>
@@ -154,6 +168,18 @@
                     />
                     <span> 天，且 VIN 不等于当前车辆，同时保修状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，当前保修单相关附件在上述保修单中已使用，则提醒：</span>
                   </template>
+                  <!-- BXYJ008 不同店重复附件预警: 只读天数 -->
+                  <template v-else-if="form.ruleCode === 'WWR-BXYJ008'">
+                    <span>创建日期大于等于当前日期- </span>
+                    <el-input
+                      placeholder="天数"
+                      v-model="form.withinDays"
+                      clearable
+                      style="width: 150px;"
+                      disabled
+                    />
+                    <span> 天，且不是当前保修单所属门店，同时保修状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，当前保修单相关附件在上述保修单中已使用，则提醒：</span>
+                  </template>
                   <!-- BXYJ001 重复维修预警等: 原有描述 -->
                   <template v-else>
                     <span>除当前保修申请单外，创建日期大于等于当前日期- </span>
@@ -215,7 +241,7 @@ const defaultForm = {
   judgeTimes: '',
   remindContent: '',
   diffCharCount: '',  // BXYJ005 车牌号预警不匹配位数(独立字段,提交时合并到 extConfig JSON)
-  withinDays: ''      // BXYJ006 不同车重复附件预警时间窗口(独立字段,提交时合并到 extConfig JSON)
+  withinDays: ''      // BXYJ006 不同车 / BXYJ008 不同店 重复附件预警时间窗口(独立字段,提交时合并到 extConfig JSON)
 };
 
 export default {
@@ -304,10 +330,11 @@ export default {
     },
     submitRequest () {
       // OCR 类规则（BXYJ002/003/004/005）不需要 judgeDays/judgeTimes，仅校验提醒内容
-      // BXYJ006 也不需要 judgeDays/judgeTimes, 它使用 withinDays
+      // BXYJ006 / BXYJ008 也不需要 judgeDays/judgeTimes, 它们使用 withinDays
       const isOcr = this.isOcrRule(this.form.ruleCode);
       const isBxyj006 = this.form.ruleCode === 'WWR-BXYJ006';
-      if (!isOcr && !isBxyj006) {
+      const isBxyj008 = this.form.ruleCode === 'WWR-BXYJ008';
+      if (!isOcr && !isBxyj006 && !isBxyj008) {
         if (this.form.judgeDays === '' || this.form.judgeDays === null || this.form.judgeDays === undefined) {
           this.$message.error('请输入判定天数');
           return;
@@ -346,6 +373,18 @@ export default {
         }
       }
 
+      // BXYJ008 不同店重复附件预警: 同样要求输入时间窗口(天数)
+      if (isBxyj008) {
+        if (this.form.withinDays === '' || this.form.withinDays === null || this.form.withinDays === undefined) {
+          this.$message.error('请输入时间窗口天数');
+          return;
+        }
+        if (Number(this.form.withinDays) < 0) {
+          this.$message.error('时间窗口不能小于 0');
+          return;
+        }
+      }
+
       // 把独立字段(diffCharCount / withinDays)合并到 extConfig JSON 字符串(后端 ext_config 是 JSON 字段)
       const submitForm = { ...this.form };
       let cfg = {};
@@ -362,7 +401,11 @@ export default {
         cfg.withinDays = Number(this.form.withinDays);
         delete submitForm.withinDays;
       }
-      if (this.form.ruleCode === 'WWR-BXYJ005' || isBxyj006) {
+      if (isBxyj008) {
+        cfg.withinDays = Number(this.form.withinDays);
+        delete submitForm.withinDays;
+      }
+      if (this.form.ruleCode === 'WWR-BXYJ005' || isBxyj006 || isBxyj008) {
         submitForm.extConfig = JSON.stringify(cfg);
       }
 
@@ -402,6 +445,7 @@ export default {
       if (!val) {
         if (ruleCode === 'WWR-BXYJ005') this.form.diffCharCount = '';
         if (ruleCode === 'WWR-BXYJ006') this.form.withinDays = '';
+        if (ruleCode === 'WWR-BXYJ008') this.form.withinDays = '';
         return;
       }
       try {
@@ -412,9 +456,13 @@ export default {
         if (ruleCode === 'WWR-BXYJ006') {
           this.form.withinDays = cfg && cfg.withinDays !== undefined ? cfg.withinDays : '';
         }
+        if (ruleCode === 'WWR-BXYJ008') {
+          this.form.withinDays = cfg && cfg.withinDays !== undefined ? cfg.withinDays : '';
+        }
       } catch (e) {
         if (ruleCode === 'WWR-BXYJ005') this.form.diffCharCount = '';
         if (ruleCode === 'WWR-BXYJ006') this.form.withinDays = '';
+        if (ruleCode === 'WWR-BXYJ008') this.form.withinDays = '';
       }
     },
     getDefautlForm () {
