@@ -2720,7 +2720,8 @@ const routes = [
         name: '新页面',
         keepAlive: true,
         notRefresh: true,
-        customViewBizKey: 'warrantyapply'
+        customViewBizKey: 'warrantyapply',
+        customViewResourceTag: 'AISCR-warrantyApply-customView'
       }
     }, {
       path: '/claimreturn/claim/warrantyApplyCustom',
