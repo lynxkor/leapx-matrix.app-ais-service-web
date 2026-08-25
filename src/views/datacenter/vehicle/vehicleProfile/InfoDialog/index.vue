@@ -3,7 +3,7 @@
     title="调整保养信息"
     :visible.sync="dialogVisible"
     width="900px"
-    :close-on-click-modal="false"
+    :before-close="beforeClose"
     @close="onClose"
   >
     <el-form :inline="true" :model="form" :rules="rules" ref="formRef" label-width="150px" class="info-form">
@@ -237,36 +237,24 @@ export default {
       this.dialogVisible = false;
       this.isEditing = false;
     },
-    onFieldChange () {
-      if (this.saving) {
-        this.pendingSave = true;
+    beforeClose (done) {
+      if (!this.isEditing) {
+        done();
         return;
       }
-      this.$refs.formRef.validate((valid) => {
-        if (!valid) return;
-        if (this.isNoChange()) return;
-
-        this.saving = true;
-        const sentDate = this.normalizeDate(this.form.nextMaintainDate);
-        const sentMileages = this.normalizeMileages(this.form.nextMaintainMileages);
-
-        updateFlat({
-          id: this.vehicleProfileId,
-          nextMaintainDate: sentDate,
-          nextMaintainDateSetNull: !sentDate,
-          nextMaintainMileages: sentMileages,
-          nextMaintainMileagesSetNull: !sentMileages,
-        }).then(() => {
-          this.$message.success('保存成功');
-          this.syncOriginalForm(sentDate, sentMileages);
-          this.$emit('update');
-        }).finally(() => {
-          this.saving = false;
-          if (this.pendingSave) {
-            this.pendingSave = false;
-            this.$nextTick(() => this.onFieldChange());
-          }
-        });
+      if (this.isNoChange()) {
+        // 编辑态但无修改:直接关闭,不打扰
+        done();
+        return;
+      }
+      this.$confirm('当前有未保存的修改,确定关闭吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        done();
+      }).catch(() => {
+        // 用户选「取消」,留在对话框
       });
     },
     isNoChange () {
