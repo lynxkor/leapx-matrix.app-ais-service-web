@@ -237,7 +237,10 @@ export default {
         }, []);
         const newFiles = this.attachFileList.map(p => p.addOrUpdateParams);
         const allFiles = [...existingFiles, ...newFiles];
-        if (allFiles.length === 0) {
+        // 追溯凭证是否必填以 mcs_claimtrack_form 后端配置为准:
+        // loadUploadConfig 在单条模式下将 cfg.required 同步到 uploadConfig.required,
+        // 后端置 '1' 才拦截;批量模式不加载配置,默认放行(批量场景不允许强制每条都传凭证)。
+        if (this.uploadConfig?.required === '1' && allFiles.length === 0) {
           this.$message.warning('请上传追溯凭证');
           this.submitLoading = false;
           return;
