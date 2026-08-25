@@ -25,7 +25,7 @@
     <vxe-column field="nextMaintenanceDate" title="下次保养日期" >
       <template #default="{ row, rowIndex }">
         <el-date-picker
-          v-if="isEdit && eidtRowIndex === rowIndex"
+          v-if="isEdit && eidtRowIndex === rowIndex && row.nextMaintenanceDate"
           v-model="row.nextMaintenanceDate"
           type="date"
           value-format="yyyy-MM-dd HH:mm:ss"
