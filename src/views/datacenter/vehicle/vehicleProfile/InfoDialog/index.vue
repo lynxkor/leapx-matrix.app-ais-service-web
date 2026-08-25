@@ -11,9 +11,9 @@
         <el-date-picker
           v-model="form.nextMaintainDate"
           type="datetime"
+          :disabled="!isEditing"
           format="yyyy-MM-dd HH:mm:ss"
           value-format="yyyy-MM-dd HH:mm:ss"
-          @change="onFieldChange"
           :clearable="false"
           placeholder="选择日期时间"
         />
@@ -23,15 +23,21 @@
           <el-input-number
             v-model="form.nextMaintainMileages"
             placeholder="请输入"
+            :disabled="!isEditing"
             maxlength="20"
             precision="2"
             min="0"
             :controls="false"
-            @change="onFieldChange"
             style="flex: 1; min-width: 0;"
           />
           <el-button
-            v-if="canResetVehicle"
+            v-if="!isEditing"
+            size="small"
+            style="margin-left: 10px; flex-shrink: 0;"
+            @click="enterEdit"
+          >编辑</el-button>
+          <el-button
+            v-if="!isEditing && canResetVehicle"
             size="small"
             type="success"
             :loading="resettingVehicle"
@@ -39,6 +45,20 @@
             style="margin-left: 10px; flex-shrink: 0;"
             @click="handleResetVehicle"
           >重置</el-button>
+          <el-button
+            v-if="isEditing"
+            size="small"
+            style="margin-left: 10px; flex-shrink: 0;"
+            @click="handleCancel"
+          >取消</el-button>
+          <el-button
+            v-if="isEditing"
+            size="small"
+            type="primary"
+            :loading="saving"
+            style="margin-left: 10px; flex-shrink: 0;"
+            @click="handleSave"
+          >保存</el-button>
         </div>
       </el-form-item>
     </el-form>
@@ -111,8 +131,8 @@ export default {
         nextMaintainMileages: [{ validator: validateMileage, trigger: 'blur' }],
       },
       saving: false,
-      pendingSave: false,
       resettingVehicle: false,
+      isEditing: false,
     };
   },
   computed: {
@@ -170,8 +190,52 @@ export default {
         this.resettingVehicle = false;
       }
     },
+    enterEdit () {
+      this.isEditing = true;
+    },
+    handleCancel () {
+      this.form = { ...this.originalForm };
+      this.isEditing = false;
+      this.$nextTick(() => {
+        if (this.$refs.formRef) this.$refs.formRef.clearValidate();
+      });
+    },
+    async handleSave () {
+      if (this.saving) return;
+      // 项目里 el-form.validate 使用 callback 风格,包一层 Promise 便于 async/await
+      const valid = await new Promise(resolve => {
+        this.$refs.formRef.validate((ok) => resolve(ok));
+      });
+      if (!valid) return;
+      if (this.isNoChange()) {
+        // 无变更:直接退出编辑态,不调接口
+        this.isEditing = false;
+        return;
+      }
+      this.saving = true;
+      try {
+        const sentDate = this.normalizeDate(this.form.nextMaintainDate);
+        const sentMileages = this.normalizeMileages(this.form.nextMaintainMileages);
+        await updateFlat({
+          id: this.vehicleProfileId,
+          nextMaintainDate: sentDate,
+          nextMaintainDateSetNull: !sentDate,
+          nextMaintainMileages: sentMileages,
+          nextMaintainMileagesSetNull: !sentMileages,
+        });
+        this.$message.success('保存成功');
+        this.syncOriginalForm(sentDate, sentMileages);
+        this.isEditing = false;
+        this.$emit('update');
+      } catch (e) {
+        // axios 拦截器已统一处理错误 toast;此处不需额外处理,保留编辑态供用户重试
+      } finally {
+        this.saving = false;
+      }
+    },
     onClose () {
       this.dialogVisible = false;
+      this.isEditing = false;
     },
     onFieldChange () {
       if (this.saving) {
