@@ -14,16 +14,19 @@
           format="yyyy-MM-dd HH:mm:ss"
           value-format="yyyy-MM-dd HH:mm:ss"
           @change="onFieldChange"
+          :clearable="false"
           placeholder="选择日期时间"
         />
       </el-form-item>
       <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
         <div style="display: flex; align-items: center; width: 100%;">
-          <el-input
-            clearable
+          <el-input-number
             v-model="form.nextMaintainMileages"
             placeholder="请输入"
             maxlength="20"
+            precision="2"
+            min="0"
+            :controls="false"
             @change="onFieldChange"
             style="flex: 1; min-width: 0;"
           />
