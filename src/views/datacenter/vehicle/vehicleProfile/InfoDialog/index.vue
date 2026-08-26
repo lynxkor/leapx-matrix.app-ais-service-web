@@ -313,6 +313,8 @@ export default {
   width: 50%;
 }
 .dialog-title-text {
+  font-size: 16px;
+  line-height: 24px;
   font-weight: 600;
   margin-right: 8px;
 }
