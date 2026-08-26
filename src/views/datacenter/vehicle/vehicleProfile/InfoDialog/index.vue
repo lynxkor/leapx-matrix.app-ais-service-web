@@ -6,28 +6,30 @@
     @close="onClose"
   >
     <template slot="title">
-      <span class="dialog-title-text">调整保养信息</span>
-      <el-tooltip
-        placement="top"
-        effect="light"
-        popper-class="reset-formula-tooltip"
-      >
-        <i class="el-icon-info dialog-title-icon" />
-        <template slot="content">
-          <div class="reset-formula">
-            <div class="reset-formula-section">
-              <div class="reset-formula-title">车辆的保养重置:</div>
-              <div>下次保养时间 = 重置触发的时间 + 下次保养计算时间(月)</div>
-              <div>下次保养里程 = 重置时的车联网里程 + 下次保养计算里程(km)</div>
+      <div class="dialog-title-wrapper">
+        <span class="dialog-title-text">调整保养信息</span>
+        <el-tooltip
+          placement="top"
+          effect="light"
+          popper-class="reset-formula-tooltip"
+        >
+          <i class="el-icon-info dialog-title-icon" />
+          <template slot="content">
+            <div class="reset-formula">
+              <div class="reset-formula-section">
+                <div class="reset-formula-title">车辆的保养重置:</div>
+                <div>下次保养时间 = 重置触发的时间 + 下次保养计算时间(月)</div>
+                <div>下次保养里程 = 重置时的车联网里程 + 下次保养计算里程(km)</div>
+              </div>
+              <div class="reset-formula-section">
+                <div class="reset-formula-title">零部件的保养重置:</div>
+                <div>下次保养时间 = 重置触发的时间 + 定期保养时间间隔(月)</div>
+                <div>下次保养里程 = 重置时的车联网里程/车联网里程数(增) + 定期保养里程间隔(km)</div>
+              </div>
             </div>
-            <div class="reset-formula-section">
-              <div class="reset-formula-title">零部件的保养重置:</div>
-              <div>下次保养时间 = 重置触发的时间 + 定期保养时间间隔(月)</div>
-              <div>下次保养里程 = 重置时的车联网里程/车联网里程数(增) + 定期保养里程间隔(km)</div>
-            </div>
-          </div>
-        </template>
-      </el-tooltip>
+          </template>
+        </el-tooltip>
+      </div>
     </template>
     <el-form :inline="true" :model="form" :rules="rules" ref="formRef" label-width="150px" class="info-form">
       <el-form-item label="下次保养时间：" prop="nextMaintainDate">
@@ -318,11 +320,14 @@ export default {
   font-weight: 600;
   margin-right: 8px;
 }
+.dialog-title-wrapper {
+  display: inline-flex;
+  align-items: center;
+}
 .dialog-title-icon {
   cursor: help;
   color: #909399;
   font-size: 16px;
-  vertical-align: middle;
   &:hover {
     color: var(--leap-color-primary, #4C4CD6);
   }
