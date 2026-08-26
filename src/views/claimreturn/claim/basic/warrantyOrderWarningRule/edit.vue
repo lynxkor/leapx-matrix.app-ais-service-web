@@ -83,8 +83,13 @@
                       />
                       <span> 天，且不是当前保修单所属门店，同时保修状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，当前保修单相关附件在上述保修单中已使用，则提醒：</span>
                     </template>
+                    <!-- BXYJ009 事故维修预警: 配置固定（90 天 + 5 种保修类型白名单 + 工单状态 + 保险），不暴露输入框 -->
+                    <template v-else-if="form.ruleCode === 'WWR-BXYJ009'">
+                      <span>{{ accidentRuleDescription }}</span>
+                    </template>
                     <!-- 模板提示: BXYJ006 / BXYJ008 支持 ${name} 和 ${names} 两个占位符 -->
                     <!-- ${name}: 第一个命中文件名 (向后兼容); ${names}: 所有命中文件名 (逗号分隔, 推荐使用) -->
+                    <!-- BXYJ009 占位符: ${day} 时间窗口天数, ${workOrderNos} 命中的施工单号列表 (；分隔) -->
                     <!-- BXYJ001 重复维修预警等: 原有描述 -->
                     <template v-else>
                       <span>除当前保修申请单外，创建日期大于等于当前日期- </span>
@@ -180,6 +185,10 @@
                     />
                     <span> 天，且不是当前保修单所属门店，同时保修状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，当前保修单相关附件在上述保修单中已使用，则提醒：</span>
                   </template>
+                  <!-- BXYJ009 事故维修预警: 配置固定(只读展示) -->
+                  <template v-else-if="form.ruleCode === 'WWR-BXYJ009'">
+                    <span>{{ accidentRuleDescription }}</span>
+                  </template>
                   <!-- BXYJ001 重复维修预警等: 原有描述 -->
                   <template v-else>
                     <span>除当前保修申请单外，创建日期大于等于当前日期- </span>
@@ -264,6 +273,14 @@ export default {
     },
     title () {
       return this.form.ruleName || '保修单预警规则';
+    },
+    /**
+     * BXYJ009 事故维修预警的说明文案（前后端配置固定）
+     * 触发时机：保修单上传附件时
+     * 条件：保修类型在白名单 && VRT=全部 && 90天内有保险结算+待交车/已交车+工时/备件维修记录
+     */
+    accidentRuleDescription () {
+      return '当保修单上传附件时，若保修类型为【售前保修、一般整车保修、整车终身质保、三电终身质保、三电延长保修】，且 VRT 为【全部】，若存在施工单 vin 为当前 vin，且结算日期大于等于当前日期-【90】天，且工单状态为【待交车，已交车】，同时还存在结算类型为【保险】的维修记录（工时或备件一项即可），则提醒：';
     }
   },
   watch: {
@@ -331,10 +348,13 @@ export default {
     submitRequest () {
       // OCR 类规则（BXYJ002/003/004/005）不需要 judgeDays/judgeTimes，仅校验提醒内容
       // BXYJ006 / BXYJ008 也不需要 judgeDays/judgeTimes, 它们使用 withinDays
+      // BXYJ009 事故维修预警: 配置全部固定（90天 + 5 种保修类型白名单 + 工单状态 + 保险）,
+      //                   前端不暴露任何输入框, 也不需要 judgeDays/judgeTimes/withinDays 校验
       const isOcr = this.isOcrRule(this.form.ruleCode);
       const isBxyj006 = this.form.ruleCode === 'WWR-BXYJ006';
       const isBxyj008 = this.form.ruleCode === 'WWR-BXYJ008';
-      if (!isOcr && !isBxyj006 && !isBxyj008) {
+      const isBxyj009 = this.form.ruleCode === 'WWR-BXYJ009';
+      if (!isOcr && !isBxyj006 && !isBxyj008 && !isBxyj009) {
         if (this.form.judgeDays === '' || this.form.judgeDays === null || this.form.judgeDays === undefined) {
           this.$message.error('请输入判定天数');
           return;
@@ -385,6 +405,8 @@ export default {
         }
       }
 
+      // BXYJ009 事故维修预警: 所有参数后端固定, 前端不做额外校验, 提醒内容必填(上面已校验)
+
       // 把独立字段(diffCharCount / withinDays)合并到 extConfig JSON 字符串(后端 ext_config 是 JSON 字段)
       const submitForm = { ...this.form };
       let cfg = {};
@@ -405,6 +427,7 @@ export default {
         cfg.withinDays = Number(this.form.withinDays);
         delete submitForm.withinDays;
       }
+      // BXYJ009 不需要合并任何独立字段, 直接透传后端的 extConfig (90/白名单/工单状态/保险)
       if (this.form.ruleCode === 'WWR-BXYJ005' || isBxyj006 || isBxyj008) {
         submitForm.extConfig = JSON.stringify(cfg);
       }
@@ -438,7 +461,8 @@ export default {
       return map[ruleCode] || '';
     },
     /**
-     * 从 extConfig JSON 中解析 diffCharCount (BXYJ005) / withinDays (BXYJ006) 到独立字段
+     * 从 extConfig JSON 中解析 diffCharCount (BXYJ005) / withinDays (BXYJ006/008) 到独立字段
+     * BXYJ009 不需要独立字段(配置后端固定), 此方法对 BXYJ009 是 no-op
      */
     syncExtConfigFields (val) {
       const ruleCode = this.form.ruleCode;
@@ -459,6 +483,7 @@ export default {
         if (ruleCode === 'WWR-BXYJ008') {
           this.form.withinDays = cfg && cfg.withinDays !== undefined ? cfg.withinDays : '';
         }
+        // BXYJ009 不需要解析独立字段, 后端 extConfig 完全透传
       } catch (e) {
         if (ruleCode === 'WWR-BXYJ005') this.form.diffCharCount = '';
         if (ruleCode === 'WWR-BXYJ006') this.form.withinDays = '';
