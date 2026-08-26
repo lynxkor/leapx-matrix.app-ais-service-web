@@ -208,12 +208,6 @@ export default {
       const res = await getDetail({ storeCode: code });
       return res || { ...defaultForm };
     },
-    goParentCompany () {
-      this.$router.push({
-        path: '/datacenter/store/parentCompany/detail',
-        query: { companyCode: this.form.companyCode }
-      });
-    },
     joinArea (obj = {}) {
       const arr = [obj.provinceName, obj.cityName, obj.countyName].filter(Boolean);
       return arr.join('/') || '-';
