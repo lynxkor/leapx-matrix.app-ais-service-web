@@ -3,7 +3,7 @@
     title="调整保养信息"
     :visible.sync="dialogVisible"
     width="900px"
-    :close-on-click-modal="false"
+    :before-close="beforeClose"
     @close="onClose"
   >
     <el-form :inline="true" :model="form" :rules="rules" ref="formRef" label-width="150px" class="info-form">
@@ -11,31 +11,55 @@
         <el-date-picker
           v-model="form.nextMaintainDate"
           type="datetime"
+          :disabled="!isEditing"
           format="yyyy-MM-dd HH:mm:ss"
           value-format="yyyy-MM-dd HH:mm:ss"
-          @change="onFieldChange"
+          :clearable="false"
           placeholder="选择日期时间"
         />
       </el-form-item>
       <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
         <div style="display: flex; align-items: center; width: 100%;">
-          <el-input
-            clearable
+          <el-input-number
             v-model="form.nextMaintainMileages"
             placeholder="请输入"
+            :disabled="!isEditing"
             maxlength="20"
-            @change="onFieldChange"
+            precision="2"
+            min="0"
+            :controls="false"
             style="flex: 1; min-width: 0;"
           />
           <el-button
-            v-if="canResetVehicle"
+            v-if="!isEditing"
             size="small"
-            type="success"
+            type="primary"
+            style="margin-left: 10px; flex-shrink: 0;"
+            @click="enterEdit"
+          >编辑</el-button>
+          <el-button
+            v-if="!isEditing && canResetVehicle"
+            size="small"
             :loading="resettingVehicle"
             :disabled="saving"
             style="margin-left: 10px; flex-shrink: 0;"
             @click="handleResetVehicle"
           >重置</el-button>
+          <el-button
+            v-if="isEditing"
+            size="small"
+            type="primary"
+            :loading="saving"
+            style="margin-left: 10px; flex-shrink: 0;"
+            @click="handleSave"
+          >保存</el-button>
+          <el-button
+            v-if="isEditing"
+            size="small"
+            style="margin-left: 10px; flex-shrink: 0;"
+            @click="handleCancel"
+          >取消</el-button>
+
         </div>
       </el-form-item>
     </el-form>
@@ -108,8 +132,8 @@ export default {
         nextMaintainMileages: [{ validator: validateMileage, trigger: 'blur' }],
       },
       saving: false,
-      pendingSave: false,
       resettingVehicle: false,
+      isEditing: false,
     };
   },
   computed: {
@@ -167,39 +191,71 @@ export default {
         this.resettingVehicle = false;
       }
     },
-    onClose () {
-      this.dialogVisible = false;
+    enterEdit () {
+      this.isEditing = true;
     },
-    onFieldChange () {
-      if (this.saving) {
-        this.pendingSave = true;
+    handleCancel () {
+      this.form = { ...this.originalForm };
+      this.isEditing = false;
+      this.$nextTick(() => {
+        if (this.$refs.formRef) this.$refs.formRef.clearValidate();
+      });
+    },
+    async handleSave () {
+      if (this.saving) return;
+      // 项目里 el-form.validate 使用 callback 风格,包一层 Promise 便于 async/await
+      const valid = await new Promise(resolve => {
+        this.$refs.formRef.validate((ok) => resolve(ok));
+      });
+      if (!valid) return;
+      if (this.isNoChange()) {
+        // 无变更:直接退出编辑态,不调接口
+        this.isEditing = false;
         return;
       }
-      this.$refs.formRef.validate((valid) => {
-        if (!valid) return;
-        if (this.isNoChange()) return;
-
-        this.saving = true;
+      this.saving = true;
+      try {
         const sentDate = this.normalizeDate(this.form.nextMaintainDate);
         const sentMileages = this.normalizeMileages(this.form.nextMaintainMileages);
-
-        updateFlat({
+        await updateFlat({
           id: this.vehicleProfileId,
           nextMaintainDate: sentDate,
           nextMaintainDateSetNull: !sentDate,
           nextMaintainMileages: sentMileages,
           nextMaintainMileagesSetNull: !sentMileages,
-        }).then(() => {
-          this.$message.success('保存成功');
-          this.syncOriginalForm(sentDate, sentMileages);
-          this.$emit('update');
-        }).finally(() => {
-          this.saving = false;
-          if (this.pendingSave) {
-            this.pendingSave = false;
-            this.$nextTick(() => this.onFieldChange());
-          }
         });
+        this.$message.success('保存成功');
+        this.syncOriginalForm(sentDate, sentMileages);
+        this.isEditing = false;
+        this.$emit('update');
+      } catch (e) {
+        // axios 拦截器已统一处理错误 toast;此处不需额外处理,保留编辑态供用户重试
+      } finally {
+        this.saving = false;
+      }
+    },
+    onClose () {
+      this.dialogVisible = false;
+      this.isEditing = false;
+    },
+    beforeClose (done) {
+      if (!this.isEditing) {
+        done();
+        return;
+      }
+      if (this.isNoChange()) {
+        // 编辑态但无修改:直接关闭,不打扰
+        done();
+        return;
+      }
+      this.$confirm('当前有未保存的修改,确定关闭吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        done();
+      }).catch(() => {
+        // 用户选「取消」,留在对话框
       });
     },
     isNoChange () {
