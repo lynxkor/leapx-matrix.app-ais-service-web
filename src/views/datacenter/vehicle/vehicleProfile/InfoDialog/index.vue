@@ -33,13 +33,13 @@
           <el-button
             v-if="!isEditing"
             size="small"
+            type="primary"
             style="margin-left: 10px; flex-shrink: 0;"
             @click="enterEdit"
           >编辑</el-button>
           <el-button
             v-if="!isEditing && canResetVehicle"
             size="small"
-            type="success"
             :loading="resettingVehicle"
             :disabled="saving"
             style="margin-left: 10px; flex-shrink: 0;"
@@ -48,17 +48,18 @@
           <el-button
             v-if="isEditing"
             size="small"
-            style="margin-left: 10px; flex-shrink: 0;"
-            @click="handleCancel"
-          >取消</el-button>
-          <el-button
-            v-if="isEditing"
-            size="small"
             type="primary"
             :loading="saving"
             style="margin-left: 10px; flex-shrink: 0;"
             @click="handleSave"
           >保存</el-button>
+          <el-button
+            v-if="isEditing"
+            size="small"
+            style="margin-left: 10px; flex-shrink: 0;"
+            @click="handleCancel"
+          >取消</el-button>
+
         </div>
       </el-form-item>
     </el-form>
