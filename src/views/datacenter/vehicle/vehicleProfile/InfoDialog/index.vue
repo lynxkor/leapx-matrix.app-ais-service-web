@@ -137,12 +137,23 @@ export default {
     }
   },
   data () {
-    const validateMileage = (rule, value, callback) => {
-      if (value !== '' && value !== null && value !== undefined && isNaN(Number(value))) {
-        callback(new Error('必须为数字'));
+    const validateDate = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请选择下次保养时间'));
       } else {
         callback();
       }
+    };
+    const validateMileage = (rule, value, callback) => {
+      if (value === '' || value === null || value === undefined) {
+        callback(new Error('请输入下次保养里程'));
+        return;
+      }
+      if (isNaN(Number(value))) {
+        callback(new Error('必须为数字'));
+        return;
+      }
+      callback();
     };
     return {
       form: {
@@ -154,7 +165,8 @@ export default {
         nextMaintainMileages: '',
       },
       rules: {
-        nextMaintainMileages: [{ validator: validateMileage, trigger: 'blur' }],
+        nextMaintainDate: [{ required: true, validator: validateDate, trigger: ['blur', 'change'] }],
+        nextMaintainMileages: [{ required: true, validator: validateMileage, trigger: ['blur', 'change'] }],
       },
       saving: false,
       resettingVehicle: false,
