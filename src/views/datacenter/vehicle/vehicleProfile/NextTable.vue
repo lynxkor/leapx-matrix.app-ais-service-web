@@ -29,6 +29,7 @@
           v-model="row.nextMaintenanceDate"
           type="date"
           value-format="yyyy-MM-dd HH:mm:ss"
+          :clearable="false"
           placeholder="选择日期"
           size="small"
         />
@@ -41,6 +42,7 @@
           v-if="isEdit && eidtRowIndex === rowIndex"
           v-model="row.nextMileage"
           placeholder="请输入"
+          :clearable="!originTableData[rowIndex] || !originTableData[rowIndex].nextMileage"
           :controls="false"
           :precision="2"
           size="small"
