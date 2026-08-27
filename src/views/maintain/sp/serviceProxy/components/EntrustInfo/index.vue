@@ -764,7 +764,8 @@ export default {
         const oldVal = this.form._prevCurrentFault;
         const oldCustomerContent = this.form.customerContent;
         // 签字弹框确认：用户点击【准确】后，门店修改本次是否因故障进店，由是修改成否，不用清空【客户故障描述】字段内容
-        const newCustomerContent = this.form.confirmFault === ConfirmFaultEnum.ACCURATE ? oldCustomerContent : '本次进店车辆无故障'; // 1 为准确 2 为不准确
+        // 原描述为空/纯空格（含回显脏数据）时回落默认文案，避免提交并回写空值
+        const newCustomerContent = this.form.confirmFault === ConfirmFaultEnum.ACCURATE && (oldCustomerContent || '').trim() ? oldCustomerContent : '本次进店车辆无故障'; // 1 为准确 2 为不准确
         this.form._prevCurrentFault = val;
         if (oldVal === 1) {
           if (this._id) {
