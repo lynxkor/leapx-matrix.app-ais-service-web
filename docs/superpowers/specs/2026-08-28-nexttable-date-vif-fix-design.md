@@ -55,7 +55,7 @@
 **改为**:
 ```vue
 <el-date-picker
-  v-if="isEdit && eidtRowIndex === rowIndex"
+  v-if="isEdit && eidtRowIndex === rowIndex && originTableData[rowIndex] && originTableData[rowIndex].nextMaintenanceDate"
   v-model="row.nextMaintenanceDate"
   type="date"
   value-format="yyyy-MM-dd HH:mm:ss"
@@ -65,7 +65,7 @@
 />
 ```
 
-**关键**:仅移除 `&& row.nextMaintenanceDate` 一个条件。其他属性原样。
+**关键**:用 `originTableData[rowIndex].nextMaintenanceDate`(原始快照)替代之前的 `row.nextMaintenanceDate`(当前值)。原数据非空 → picker 始终可见,即使当前值被清空;原数据为空 → picker 不渲染(保持只读 span)。其他属性原样。
 
 ### 3.2 与其他防御层的关系
 
@@ -81,9 +81,11 @@
 
 **前序 spec `5447aefd`** 的设计意图:空日期行(`row.nextMaintenanceDate` 为 null)在编辑态下不显示 picker,只显示 span。
 
-**本 spec 改变**:空日期行进入编辑态后,picker 显示(空),用户可主动设置日期。
+**本 spec 保留该语义**:通过检查 `originTableData[rowIndex].nextMaintenanceDate`(原始快照)而非 `row.nextMaintenanceDate`(当前值),确保:
+- 原数据日期为空的行 → picker 不渲染(保持只读 span,与 spec A 一致)
+- 原数据日期非空的行 → picker 在编辑态始终可见,即使当前值被清空(修复 bug)
 
-**业务影响**:这是语义放宽而非严格。如果业务上确实不允许空日期行设置日期(例如必须由后端按规则计算),应另议。本 spec 优先解决 picker 消失导致用户卡死的 UX bug。
+**业务影响**:与 spec A 完全一致,仅修复 picker 消失导致用户卡死的 UX bug。
 
 ### 3.4 不动的部分
 
@@ -101,9 +103,8 @@
 |------|------|
 | 原 date 非空,清空 picker | picker 仍可见(空),可重新选日期 |
 | 原 date 非空,清空后点保存 | toast「下次保养日期不能为空」(校验器兜底) |
-| 原 date 为 null 的行,点击编辑 | picker 显示(空),用户可主动选日期 |
-| 原 date 为 null 的行,编辑后保持空,点保存 | 正常保存(原值本就允许为空) |
-| 原 date 为 null 的行,编辑后选了日期,点保存 | 正常保存,originTableData 同步更新 |
+| 原 date 为 null 的行,点击编辑 | picker 不渲染,显示只读 span(保留 spec A 语义) |
+| 原 date 为 null 的行,直接点保存 | 正常保存(原值本就允许为空,校验器不触发) |
 
 ## 5. 文件改动清单
 
