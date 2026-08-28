@@ -511,6 +511,8 @@ export default {
       itemSearchKey: '',
       partSearchKey: '',
       submitLoading: false,
+      // 保存路径下 check 事件延后到维修类型提醒确认框关闭后触发，避免与提醒信息弹窗同屏
+      needConfirmCheck: false,
       repairType: '',
       partRepairType: '',
       selectedRepairItem: null, // 选中的维修项目
@@ -686,6 +688,11 @@ export default {
     },
     close () {
       this.dialogVisible = false;
+      // 保存路径的 check 由 checkRepairTypeChange 的回调负责
+      if (this.needConfirmCheck) {
+        this.needConfirmCheck = false;
+        return;
+      }
       this.$emit('check');
     },
     closed () {
@@ -912,10 +919,13 @@ export default {
         this.submitLoading = false;
         this.$message.success('保存成功');
 
+        this.needConfirmCheck = true;
         this.$emit('update:visible', false);
         this.$emit('refresh');
-        // 检查维修类型变化
-        this.checkRepairTypeChange();
+        // 检查维修类型变化，check 事件在提醒确认框关闭后触发
+        this.checkRepairTypeChange(() => {
+          this.$emit('check');
+        });
       }).catch(e => {
         this.submitLoading = false;
       });
