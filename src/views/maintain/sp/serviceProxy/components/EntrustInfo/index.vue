@@ -13,7 +13,7 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="业务类型：" prop="businessType">
+        <el-form-item label="进店类型：" prop="businessType">
           <fetch-select
             :request="fetchOptions"
             :format="formatBusinessTypeOptions"

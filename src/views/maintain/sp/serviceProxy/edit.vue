@@ -13,6 +13,7 @@
                   </div>
                   <ButtonGroup maxWidth="50%" v-else>
                     <!-- 通用操作按钮 -->
+                    <el-button size="small" @click="handleStartRecording" v-if="canStartRecording && permissions.has('AISMC-serviceProxy-startRecording')" :loading="startRecordingLoading">开启录音</el-button>
                     <el-button size="small" @click="handlePrint" v-if="!isCanceled && permissions.has('AISMC-serviceProxy-printServiceProxy')">打印工单</el-button>
                     <el-button size="small" @click="couponsDialogVisible = true" v-if="!isCanceled && permissions.has('AISMC-serviceProxy-rightsList')">查询卡券&终身</el-button>
                     <el-button size="small" @click="handleResendSignSms" v-if="canResendSignSms && permissions.has('AISMC-serviceProxy-confirmToSign')">补推施工单短信签字</el-button>
@@ -185,6 +186,7 @@ import StartWorkDialog from './components/StartWorkDialog';
 import DispatchWorkDialog from './components/DispatchWorkDialog';
 import SettlementDialog from './components/SettlementDialog';
 import RemindInfoDialog from './components/RemindInfoDialog';
+import { startRecordingForProxy, getBlockReasonForProxy } from '@/api/maintain/basic/recordingTask/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -470,6 +472,8 @@ export default {
       couponsDialogVisible: false,
       settlementDialogVisible: false, // 结算弹窗
       settlementLoading: false,
+      canStartRecording: false,
+      startRecordingLoading: false,
       remindInfoDialogVisible: false,
       yes_no_enum: YES_NO_ENUM,
       RepairOrderStatusEnum,
@@ -527,6 +531,7 @@ export default {
         this.$store.commit('SET_ACTIVE_BREADCRUMB', ['接车施工单', `${id ? '详情' : '新建'}`]);
       }
       if (id) {
+        this.loadStartRecordingBlock();
         getDetail(id).then(res => {
           this.loading = false;
           if (!res) {
@@ -654,6 +659,45 @@ export default {
     },
     handleRefresh () {
       this.getDetailData();
+    },
+    // 查询手动开启录音的阻断原因：返回为空表示可开启
+    loadStartRecordingBlock () {
+      if (!this._id) {
+        this.canStartRecording = false;
+        return;
+      }
+      getBlockReasonForProxy(this._id).then(res => {
+        this.canStartRecording = !res;
+      }).catch(() => {
+        this.canStartRecording = false;
+      });
+    },
+    // 手动开启录音：二次确认后调用开启接口
+    handleStartRecording () {
+      const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将开启录音，是否继续？</div>';
+      this.$confirm(message, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        dangerouslyUseHTMLString: true,
+        customClass: 'ais-leave-tips',
+        showClose: false
+      }).then(() => {
+        this.doStartRecording();
+      }).catch(() => {});
+    },
+    async doStartRecording () {
+      if (this.startRecordingLoading) return;
+      try {
+        this.startRecordingLoading = true;
+        await startRecordingForProxy(this._id);
+        this.$message.success('开启录音成功');
+        this.canStartRecording = false;
+        this.handleRefresh();
+      } catch (error) {
+        console.error('开启录音失败:', error);
+      } finally {
+        this.startRecordingLoading = false;
+      }
     },
     // 附件上传成功后刷新
     handleAttachmentRefresh () {

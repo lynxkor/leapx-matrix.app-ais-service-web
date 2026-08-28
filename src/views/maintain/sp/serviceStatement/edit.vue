@@ -16,6 +16,7 @@
           <el-button size="small" @click="createWarrantyApply"
             v-if="canCreateWarrantyApply">创建保修申请单</el-button>
           <el-button size="small" @click="handlePrint" v-if="buttonPermissions.canPrint">打印结算单</el-button>
+          <el-button size="small" @click="handleStartRecording" v-if="canStartRecording && buttonPermissions.canStartRecording" :loading="startRecordingLoading">开启录音</el-button>
         </template>
         <div class="common-sub-title">
           <span>结算单号：{{ form.code || '-' }}</span>
@@ -334,6 +335,7 @@ import SelectRightsDialog from './components/SelectRightsDialog';
 import SubmitSettlemenDialog from './components/SubmitSettlemenDialog';
 import AddPayrecordDialog from './components/AddPayrecordDialog';
 import { checkCanCreate } from '@/api/claimreturn/claim/warrantyapply';
+import { startRecordingForStatement, getBlockReasonForStatement } from '@/api/maintain/basic/recordingTask/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -476,6 +478,7 @@ export default {
         canResendSignSms: signStatus === 10 && signGeneratedOn,
         // 打印结算单
         canPrint: this.permissions.has('AISMC-serviceStatement-print'),
+        canStartRecording: this.permissions.has('AISMC-serviceStatement-startRecording'),
       };
     },
 
@@ -489,6 +492,9 @@ export default {
       handler (val) {
         if (val && this.$refs.containerRef) {
           this.$refs.containerRef.loadDetail();
+        }
+        if (val) {
+          this.loadStartRecordingBlock();
         }
       },
       immediate: true
@@ -518,6 +524,8 @@ export default {
       refundLoading: false,
       rejectLoading: false,
       payLoading: false,
+      canStartRecording: false,
+      startRecordingLoading: false,
       tableData: [],
       form: { ...form },
       originalForm: { ...form },
@@ -763,6 +771,41 @@ export default {
     handleRefresh () {
       // this.checkCanCreate();
       this.$refs.containerRef.handleRefresh();
+      this.loadStartRecordingBlock();
+    },
+    // 查询手动开启录音的阻断原因：返回为空表示可开启
+    loadStartRecordingBlock () {
+      if (!this._id) {
+        this.canStartRecording = false;
+        return;
+      }
+      getBlockReasonForStatement(this._id).then(res => {
+        this.canStartRecording = !res;
+      }).catch(() => {
+        this.canStartRecording = false;
+      });
+    },
+    // 手动开启录音：二次确认后调用开启接口
+    handleStartRecording () {
+      this.showMsg('此操作将开启录音，是否继续？').then((result) => {
+        if (result) {
+          this.doStartRecording();
+        }
+      });
+    },
+    async doStartRecording () {
+      if (this.startRecordingLoading) return;
+      try {
+        this.startRecordingLoading = true;
+        await startRecordingForStatement(this._id);
+        this.$message.success('开启录音成功');
+        this.canStartRecording = false;
+        this.handleRefresh();
+      } catch (error) {
+        console.error('开启录音失败:', error);
+      } finally {
+        this.startRecordingLoading = false;
+      }
     },
     detailRequest () {
       const id = this._id;
