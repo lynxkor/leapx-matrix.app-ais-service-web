@@ -208,6 +208,17 @@ export default {
       }
     },
     saveRowEdit (row, rowIndex) {
+      const origin = this.originTableData.find(r => r.id === row.id);
+      // 若原数据日期非空,当前值不能为空
+      if (origin && origin.nextMaintenanceDate && !row.nextMaintenanceDate) {
+        this.$message.error('下次保养日期不能为空');
+        return;
+      }
+      // 若原数据里程非空,当前值不能为空
+      if (origin && origin.nextMileage && (row.nextMileage === '' || row.nextMileage === null || row.nextMileage === undefined)) {
+        this.$message.error('下次保养里程不能为空');
+        return;
+      }
       editMaintenanceRecord({
         id: row.id,
         nextMaintenanceDate: row.nextMaintenanceDate,
