@@ -431,10 +431,25 @@ export default {
     };
   },
   created () {
+    // 保修预警提醒弹窗跳转: 从 URL query 读取 partCodeList, 清空其他查询条件
+    this.applyWarningSearchParams();
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
   methods: {
+    /**
+     * 保修预警提醒弹窗跳转: 从 URL query 读取 partCodeList, 清空其他查询条件
+     */
+    applyWarningSearchParams () {
+      const query = this.$route.query || {};
+      const param = query.partCodeList;
+      if (!param) return;
+      const partCodeList = (typeof param === 'string' ? param.split(',') : param)
+        .filter(x => x && String(x).trim());
+      if (partCodeList.length === 0) return;
+      // 重置 form 为默认值, 仅保留 partCodeList
+      this.form = { ...this.$options.data().form, partCodeList };
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },

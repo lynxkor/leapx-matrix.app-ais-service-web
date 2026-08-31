@@ -87,6 +87,10 @@
                     <template v-else-if="form.ruleCode === 'WWR-BXYJ009'">
                       <span>{{ accidentRuleDescription }}</span>
                     </template>
+                    <!-- BXYJ007 不同周期重复附件预警: 配置固定（同车 + 维修周期区间不相交 + 6 状态匹配 + fileId 重复），不暴露输入框 -->
+                    <template v-else-if="form.ruleCode === 'WWR-BXYJ007'">
+                      <span>{{ cycleDuplicateRuleDescription }}</span>
+                    </template>
                     <!-- 模板提示: BXYJ006 / BXYJ008 支持 ${name} 和 ${names} 两个占位符 -->
                     <!-- ${name}: 第一个命中文件名 (向后兼容); ${names}: 所有命中文件名 (逗号分隔, 推荐使用) -->
                     <!-- BXYJ009 占位符: ${day} 时间窗口天数, ${workOrderNos} 命中的施工单号列表 (；分隔) -->
@@ -189,6 +193,10 @@
                   <template v-else-if="form.ruleCode === 'WWR-BXYJ009'">
                     <span>{{ accidentRuleDescription }}</span>
                   </template>
+                  <!-- BXYJ007 不同周期重复附件预警: 配置固定(只读展示) -->
+                  <template v-else-if="form.ruleCode === 'WWR-BXYJ007'">
+                    <span>{{ cycleDuplicateRuleDescription }}</span>
+                  </template>
                   <!-- BXYJ001 重复维修预警等: 原有描述 -->
                   <template v-else>
                     <span>除当前保修申请单外，创建日期大于等于当前日期- </span>
@@ -281,6 +289,14 @@ export default {
      */
     accidentRuleDescription () {
       return '当保修单上传附件时，若保修类型为【售前保修、一般整车保修、整车终身质保、三电终身质保、三电延长保修】，且 VRT 为【全部】，若存在施工单 vin 为当前 vin，且结算日期大于等于当前日期-【90】天，且工单状态为【待交车，已交车】，同时还存在结算类型为【保险】的维修记录（工时或备件一项即可），则提醒：';
+    },
+    /**
+     * BXYJ007 不同周期重复附件预警的说明文案（前后端配置固定）
+     * 触发时机：上传/删除附件（含行驶证）
+     * 条件：VIN 等于当前车辆 + 维修周期区间不相交（任一为 NULL 不命中）+ 6 种保修状态匹配 + fileId 已被历史单使用
+     */
+    cycleDuplicateRuleDescription () {
+      return '当保修单上传或删除附件时，若 VIN 等于当前车辆，且维修周期与当前保修单不相同（维修开始-结束日期只要有交集，就当做是相同周期，任一端为空时按周期信息不处理），同时保修状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，当前保修单相关附件在上述保修单中已使用，则提醒：';
     }
   },
   watch: {
@@ -350,11 +366,14 @@ export default {
       // BXYJ006 / BXYJ008 也不需要 judgeDays/judgeTimes, 它们使用 withinDays
       // BXYJ009 事故维修预警: 配置全部固定（90天 + 5 种保修类型白名单 + 工单状态 + 保险）,
       //                   前端不暴露任何输入框, 也不需要 judgeDays/judgeTimes/withinDays 校验
+      // BXYJ007 不同周期重复附件预警: 配置全部固定（同车 + 维修周期区间不相交 + 6 状态）,
+      //                   前端不暴露任何输入框, 也不需要 judgeDays/judgeTimes/withinDays 校验
       const isOcr = this.isOcrRule(this.form.ruleCode);
       const isBxyj006 = this.form.ruleCode === 'WWR-BXYJ006';
       const isBxyj008 = this.form.ruleCode === 'WWR-BXYJ008';
       const isBxyj009 = this.form.ruleCode === 'WWR-BXYJ009';
-      if (!isOcr && !isBxyj006 && !isBxyj008 && !isBxyj009) {
+      const isBxyj007 = this.form.ruleCode === 'WWR-BXYJ007';
+      if (!isOcr && !isBxyj006 && !isBxyj008 && !isBxyj009 && !isBxyj007) {
         if (this.form.judgeDays === '' || this.form.judgeDays === null || this.form.judgeDays === undefined) {
           this.$message.error('请输入判定天数');
           return;
@@ -428,6 +447,7 @@ export default {
         delete submitForm.withinDays;
       }
       // BXYJ009 不需要合并任何独立字段, 直接透传后端的 extConfig (90/白名单/工单状态/保险)
+      // BXYJ007 同样不需要合并任何独立字段, 配置全部后端固定
       if (this.form.ruleCode === 'WWR-BXYJ005' || isBxyj006 || isBxyj008) {
         submitForm.extConfig = JSON.stringify(cfg);
       }
@@ -463,6 +483,7 @@ export default {
     /**
      * 从 extConfig JSON 中解析 diffCharCount (BXYJ005) / withinDays (BXYJ006/008) 到独立字段
      * BXYJ009 不需要独立字段(配置后端固定), 此方法对 BXYJ009 是 no-op
+     * BXYJ007 同样不需要独立字段, 此方法对 BXYJ007 是 no-op
      */
     syncExtConfigFields (val) {
       const ruleCode = this.form.ruleCode;
@@ -484,6 +505,7 @@ export default {
           this.form.withinDays = cfg && cfg.withinDays !== undefined ? cfg.withinDays : '';
         }
         // BXYJ009 不需要解析独立字段, 后端 extConfig 完全透传
+        // BXYJ007 不需要解析独立字段, 后端 extConfig 完全透传
       } catch (e) {
         if (ruleCode === 'WWR-BXYJ005') this.form.diffCharCount = '';
         if (ruleCode === 'WWR-BXYJ006') this.form.withinDays = '';

@@ -508,10 +508,15 @@ function getDefaultCreateTime () {
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   applyNo: '',
+  // ⚠️ 多选字段必须显式声明 (空数组), 否则 Vue 2 响应式不会观测到后续赋值
+  applyNoList: [],
   vin: '',
+  vinList: [],
   alarmLevel: '',
   serviceProxyNo: '',
+  serviceProxyNoList: [],
   statementCode: '',
+  statementCodeList: [],
   applyStatus: '',
   repairItemTypeName: '',
   dealerCode: '',
@@ -1550,6 +1555,8 @@ export default {
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    // 保修预警提醒弹窗跳转: 从 URL query 读取 applyNoList, 清空其他查询条件
+    this.applyWarningSearchParams();
     this.getData();
     this.cancel = this.permissions.has(`${this.moduleKey}-cancel`);
     this.applyReject = this.permissions.has(`${this.moduleKey}-applyReject`);
@@ -1562,6 +1569,43 @@ export default {
     this.detail = this.permissions.has(`${this.moduleKey}-detail`);
   },
   methods: {
+    /**
+     * 保修预警提醒弹窗跳转: 从 URL query 读取 applyNoList/serviceProxyNoList/partCodeList,
+     * 清空其他查询条件, 重置分页
+     * <p>
+     * 由 edit.vue 跳来时携带 ?applyNoList=X1,X2,X3...&serviceProxyNoList=...&partCodeList=...
+     * 整体重置 form 为 defaultForm (避免 $options.data() 在 created 钩子时机的不确定性),
+     * 然后覆盖跳转携带的多选字段. Vue 2 响应式正确跟踪的前提是 defaultForm 中字段已显式声明.
+     * </p>
+     */
+    applyWarningSearchParams () {
+      const query = (this.$route && this.$route.query) || {};
+      // 1. 拆解 query 参数 (每个 *_List 都是逗号分隔或数组)
+      const parseListParam = (raw) => {
+        if (!raw) return null;
+        const arr = (typeof raw === 'string' ? raw.split(',') : raw)
+          .filter(x => x !== null && x !== undefined && String(x).trim() !== '');
+        return arr.length > 0 ? arr : null;
+      };
+      const applyNoList = parseListParam(query.applyNoList);
+      const serviceProxyNoList = parseListParam(query.serviceProxyNoList);
+      const partCodeList = parseListParam(query.partCodeList);
+      // 三个都没带 → 不是预警跳转, 不动 form
+      if (!applyNoList && !serviceProxyNoList && !partCodeList) return;
+      // 2. 整体重置 form 为 defaultForm (强制清空所有查询条件), 再覆盖多选字段
+      this.form = {
+        ...defaultForm,
+        createTime: getDefaultCreateTime(),
+        ...(applyNoList ? { applyNoList } : {}),
+        ...(serviceProxyNoList ? { serviceProxyNoList } : {}),
+        ...(partCodeList ? { partCodeList } : {})
+      };
+      // 3. 重置分页, 避免老分页状态干扰
+      if (this.tableForm) {
+        this.tableForm.page = 1;
+        this.tableForm.size = pageSize;
+      }
+    },
     isRowPendingCurrentUserReview (row) {
       if (!row.isInApproval) return false;
       const list = row.currentApproverIdList?.map(id => Number(id));

@@ -627,6 +627,114 @@
     :vehicleProfileId="form.vehicleProfileId"
     :id="_id"
   />
+
+  <!-- 保修预警提醒弹窗 (BXYJ006/007/008/009 命中时弹出) -->
+  <el-dialog
+    title="保修预警提醒"
+    :visible.sync="warningDialogVisibleBinding"
+    width="720px"
+    :close-on-click-modal="false"
+    @close="warningDetailList = []"
+  >
+  <div v-if="warningDetailList.length === 0 && form.warrantyWarningMsg" style="padding: 8px 0;">
+    {{ form.warrantyWarningMsg }}
+  </div>
+  <div
+    v-for="(item, idx) in warningDetailList"
+    :key="idx"
+    style="
+      border: 1px solid #ebeef5;
+      border-radius: 4px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      background: #fafbfc;
+    "
+  >
+    <!-- 标题: 规则名 (加粗 + 底部虚线分隔) -->
+    <div style="
+      font-weight: 600;
+      font-size: 15px;
+      color: #303133;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #e4e7ed;
+    ">
+      {{ item.ruleName || '预警' }}
+    </div>
+    <!-- 内容: 完整提醒文案 (缩进+灰色+行高) -->
+    <div v-if="item.content" style="
+      font-size: 13px;
+      color: #606266;
+      line-height: 1.8;
+      margin-bottom: 10px;
+      padding-left: 8px;
+      word-break: break-all;
+    ">
+      {{ item.content }}
+    </div>
+    <!-- 保修单号 / 施工单号 列表 (点击可跳转详情, 超过 3 条时折叠 + "查看更多"跳列表页)
+         content 文案里已经拼了完整单号序列, 这里只渲染链接块, 不再重复 "保修单号:" 之类的 label,
+         避免与 content 重复感. (2026-08-26 用户纠正: 这个列表块不能删, 有跳转 + 查看更多 业务诉求) -->
+    <div v-if="item.applyNos && item.applyNos.length" style="padding-left: 8px; margin-top: 8px;">
+      <el-link
+        v-for="(applyNo, i) in item.applyNos.slice(0, 3)"
+        :key="'a' + idx + '-' + i"
+        type="success"
+        :href="getApplyDetailHref(applyNo)"
+        target="_blank"
+        style="margin-right: 8px;"
+      >{{ applyNo }}</el-link>
+      <el-link
+        v-if="item.applyNos.length > 3"
+        type="primary"
+        :href="getApplyListHref(item.applyNos)"
+        target="_blank"
+        style="margin-left: 4px;"
+      >查看更多 ({{ item.applyNos.length }})</el-link>
+    </div>
+    <!-- 施工单号 (BXYJ009 使用) -->
+    <div v-if="item.proxyNos && item.proxyNos.length" style="padding-left: 8px; margin-top: 8px;">
+      <el-link
+        v-for="(proxyNo, i) in item.proxyNos.slice(0, 3)"
+        :key="'p' + idx + '-' + i"
+        type="success"
+        :href="getProxyDetailHref(proxyNo)"
+        target="_blank"
+        style="margin-right: 8px;"
+      >{{ proxyNo }}</el-link>
+      <el-link
+        v-if="item.proxyNos.length > 3"
+        type="primary"
+        :href="getProxyListHref(item.proxyNos)"
+        target="_blank"
+        style="margin-left: 4px;"
+      >查看更多 ({{ item.proxyNos.length }})</el-link>
+    </div>
+    <!-- 零件编码 (BXYJ010 预留) -->
+    <div v-if="item.partCodes && item.partCodes.length" style="padding-left: 8px; margin-top: 8px;">
+      <span style="color: #909399; font-size: 12px; margin-right: 6px;">零件编码：</span>
+      <el-link
+        v-for="(partCode, i) in item.partCodes.slice(0, 3)"
+        :key="'c' + idx + '-' + i"
+        type="success"
+        :href="getPartDetailHref(partCode)"
+        target="_blank"
+        style="margin-right: 8px;"
+      >{{ partCode }}</el-link>
+      <el-link
+        v-if="item.partCodes.length > 3"
+        type="primary"
+        :href="getPartListHref(item.partCodes)"
+        target="_blank"
+        style="margin-left: 4px;"
+      >查看更多 ({{ item.partCodes.length }})</el-link>
+    </div>
+  </div>
+  <div slot="footer">
+    <el-button @click="warningDetailList = []">关闭</el-button>
+  </div>
+</el-dialog>
+
 </div>
 </template>
 
@@ -639,7 +747,8 @@ import {
   approve,
   batchCancel,
   print,
-  getNextId
+  getNextId,
+  getList
 } from '@/api/claimreturn/claim/warrantyapply/index';
 import {
   APPLY_STATUS,
@@ -867,6 +976,22 @@ export default {
     },
     remindContent () {
       return this.form.spRemindInfo;
+    },
+    /**
+     * 保修预警弹窗 visible 完全由 warningDetailList 长度派生 (响应式)
+     * <p>
+     *   - detailList 有内容 → dialog 自动开
+     *   - detailList 为空 → dialog 自动关
+     *   - 用户手动点 X → set(false) 触发, 清空 list 防止下次又自动开
+     * </p>
+     */
+    warningDialogVisibleBinding: {
+      get () { return this.warningDetailList.length > 0; },
+      set (val) {
+        if (!val) {
+          this.warningDetailList = [];
+        }
+      }
     }
   },
   watch: {
@@ -886,6 +1011,17 @@ export default {
           }
         }
       }
+    },
+    /**
+     * 保修预警详情变化时, 自动同步弹窗状态
+     * <p>删除附件 / 重算预警 / 路由返回 等都会触发 form.warrantyWarningDetail 变化,
+     * 此时根据 detail 数组长度决定开关 dialog, 避免弹窗残留</p>
+     */
+    'form.warrantyWarningDetail': {
+      handler (newVal) {
+        this.syncWarningDialogByDetail(newVal);
+      },
+      immediate: false
     },
   },
   data () {
@@ -931,7 +1067,10 @@ export default {
       cancelIds: [],
       withdrawDialogVisible: false,
       withdrawIds: [],
-      rightsDialogVisible: false
+      rightsDialogVisible: false,
+      // 保修预警提醒弹窗 (visible 由 warningDialogVisibleBinding computed 自动响应)
+      warningDetailList: [],
+      applyNoToIdMap: {}
     };
   },
   created () {
@@ -993,21 +1132,120 @@ export default {
       return getDetail(id).then(res => ({
         ...res,
         partAndSupplierId: res.mainPartId ? res.mainPartId + res.mainPartSupplierId : '',
-      }));
+      })).then(res => {
+        // 同步保修预警弹窗状态 (detail 变化触发)
+        this.syncWarningDialogByDetail(res.warrantyWarningDetail);
+        return res;
+      });
+    },
+    /**
+     * 根据 detail JSON 同步弹窗状态
+     * <p>任何路径 (首次加载 / 删除附件 / 重新拉数据) 调此方法统一更新,
+     * dialog visible 由 warningDetailList.length 派生 (computed), 不需要手动控制</p>
+     */
+    syncWarningDialogByDetail (detailJson) {
+      let list = [];
+      if (detailJson) {
+        try {
+          list = JSON.parse(detailJson);
+        } catch (e) {
+          console.error('[保修预警] 解析 warrantyWarningDetail 失败', e);
+          list = [];
+        }
+      }
+      this.warningDetailList = Array.isArray(list) ? list : [];
     },
     detailRequest () {
       return this.fetchDetail().then(res => {
-        const warningMsg = res?.warrantyWarningMsg;
-        if (warningMsg) {
-          this.$nextTick(() => {
-            this.$alert(warningMsg, '保修预警提醒', {
-              closeOnClickModal: false,
-              type: 'warning',
-            });
-          });
-        }
+        this.parseAndShowWarning(res);
         return res;
       });
+    },
+    /**
+     * 解析 warranty_warning_detail JSON, 显示保修预警提醒弹窗
+     * <p>
+     * 规则: 即使 detail 字段为空 (老数据 / 还没触发预警), 只要 warranty_warning_msg 非空, 也展示简单提示。
+     * </p>
+     */
+    parseAndShowWarning (res) {
+      const msg = res?.warrantyWarningMsg;
+      let list = [];
+      if (res?.warrantyWarningDetail) {
+        try {
+          list = JSON.parse(res.warrantyWarningDetail);
+        } catch (e) {
+          console.error('[保修预警] 解析 warrantyWarningDetail 失败', e);
+          list = [];
+        }
+      }
+      this.warningDetailList = Array.isArray(list) ? list : [];
+      // dialog visible 由 warningDialogVisibleBinding (computed) 自动响应 detailList 长度变化
+      if (this.warningDetailList.length > 0) {
+        this.$nextTick(() => {
+          this.loadApplyNoIdMappings();
+        });
+      }
+    },
+    /**
+     * 加载 applyNo → id 的映射, 用于点击单号跳详情
+     */
+    async loadApplyNoIdMappings () {
+      // 收集所有 applyNos
+      const applyNos = new Set();
+      this.warningDetailList.forEach(item => {
+        if (item && Array.isArray(item.applyNos)) {
+          item.applyNos.forEach(no => { if (no) applyNos.add(no); });
+        }
+      });
+      if (applyNos.size === 0) return;
+      try {
+        const res = await getList({
+          pageNum: 1,
+          pageSize: applyNos.size,
+          applyNoList: Array.from(applyNos)
+        });
+        const map = {};
+        const records = res?.data?.records || res?.records || [];
+        records.forEach(r => { if (r.applyNo) map[r.applyNo] = r.id; });
+        this.applyNoToIdMap = map;
+      } catch (e) {
+        console.error('[保修预警] 批量查 applyNo→id 失败', e);
+      }
+    },
+    /**
+     * 保修单详情链接: 优先用 id (详情页 ?id= 入参), 降级到 applyNo 跳列表
+     */
+    getApplyDetailHref (applyNo) {
+      const id = this.applyNoToIdMap[applyNo];
+      return id
+        ? `/claimreturn/claim/warrantyApply/edit?id=${id}`
+        : `/claimreturn/claim/warrantyApply?applyNo=${encodeURIComponent(applyNo)}`;
+    },
+    /**
+     * 保修单列表链接: 批量带入 applyNoList 过滤
+     */
+    getApplyListHref (applyNos) {
+      return `/claimreturn/claim/warrantyApply?applyNoList=${applyNos.map(encodeURIComponent).join(',')}`;
+    },
+    /**
+     * 施工单详情链接: 同样优先 id 降级 proxyNo
+     * <p>注: 施工单详情在另一个微服务, 没有现成 list 接口; 这里用 proxyNo 直接跳详情 (详情页通常按编号查)</p>
+     */
+    getProxyDetailHref (proxyNo) {
+      // 暂时统一跳详情 (applyNo 作为入参), 后端详情接口支持按编号查
+      return `/service/maintain/sp/serviceProxy/edit?serviceProxyNo=${encodeURIComponent(proxyNo)}`;
+    },
+    getProxyListHref (proxyNos) {
+      return `/service/maintain/sp/serviceProxy?serviceProxyNoList=${proxyNos.map(encodeURIComponent).join(',')}`;
+    },
+    /**
+     * 备件主数据详情链接 (sparePart 备件主数据模块)
+     */
+    getPartDetailHref (partCode) {
+      return `/service/sparepart/basic/sparePart?partCode=${encodeURIComponent(partCode)}`;
+    },
+    getPartListHref (partCodes) {
+      return `/service/sparepart/basic/sparePart?partCodeList=${partCodes.map(encodeURIComponent).join(',')}`;
     },
     async submitRequest () {
       const res = await addOrUpdate({ ...this.form });
@@ -1148,9 +1386,11 @@ export default {
       const editedEntries = Object.keys(this.form)
         .filter(k => JSON.stringify(this.form[k]) !== JSON.stringify(this.originalForm[k]))
         .map(k => [k, this.form[k]]);
-      // 2. 拉取服务端最新数据（不重复弹保修预警）
+      // 2. 拉取服务端最新数据
       const res = await this.fetchDetail();
       if (!res) return;
+      // 2.1 同步预警弹窗状态 (删除附件等场景下 detail 清空 → 自动关闭 dialog)
+      this.parseAndShowWarning(res);
       // 3. 以服务端数据为基础，叠加用户未提交的修改
       const merged = { ...res };
       editedEntries.forEach(([k, v]) => { merged[k] = v; });

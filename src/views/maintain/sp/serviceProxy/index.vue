@@ -492,10 +492,25 @@ export default {
     };
   },
   created () {
+    // 保修预警提醒弹窗跳转: 从 URL query 读取 serviceProxyNoList, 清空其他查询条件
+    this.applyWarningSearchParams();
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
   methods: {
+    /**
+     * 保修预警提醒弹窗跳转: 从 URL query 读取 serviceProxyNoList, 清空其他查询条件
+     */
+    applyWarningSearchParams () {
+      const query = this.$route.query || {};
+      const param = query.serviceProxyNoList;
+      if (!param) return;
+      const serviceProxyNoList = (typeof param === 'string' ? param.split(',') : param)
+        .filter(x => x && String(x).trim());
+      if (serviceProxyNoList.length === 0) return;
+      // 重置 form 为默认值, 仅保留 serviceProxyNoList
+      this.form = { ...this.$options.data().form, serviceProxyNoList };
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
