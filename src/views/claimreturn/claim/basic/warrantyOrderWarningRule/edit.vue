@@ -1,5 +1,5 @@
 <template>
-  <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
+  <edit-page-layout ref="editLayout" :title="pannelTitle" :width="40">
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
       <edit-base-container
@@ -232,12 +232,31 @@
               </el-form>
             </div>
           </section>
+
+          <!-- BXYJ010 过度更换零件预警: 备件白名单 section（独立于基础信息表单，配置固定） -->
+          <section v-if="form.ruleCode === 'WWR-BXYJ010'" class="common-section">
+            <div class="common-section-header">
+              <h2>备件白名单</h2>
+            </div>
+            <div class="common-section-body">
+              <whitelist-table
+                :id="_id"
+                :rule-code="form.ruleCode"
+                :module-key="moduleKey"
+                @open-replace="handleOpenReplace"
+              />
+            </div>
+          </section>
         </el-main>
       </edit-base-container>
     </template>
     <template #right>
       <div class="page-common-edit">
-        <!-- 右侧栏组件，自行开发 -->
+        <replace-drawer
+          :replace-part="currentReplacePart"
+          :module-key="moduleKey"
+          @close="handleCloseReplace"
+        />
       </div>
     </template>
   </edit-page-layout>
@@ -251,14 +270,16 @@ import { getEnum } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import WhitelistTable from './WhitelistTable.vue';
+import ReplaceDrawer from './ReplaceDrawer.vue';
 
 const defaultForm = {
   judgeDays: '',
   statusList: [],
   judgeTimes: '',
   remindContent: '',
-  diffCharCount: '',  // BXYJ005 车牌号预警不匹配位数(独立字段,提交时合并到 extConfig JSON)
-  withinDays: ''      // BXYJ006 不同车 / BXYJ008 不同店 重复附件预警时间窗口(独立字段,提交时合并到 extConfig JSON)
+  diffCharCount: '', // BXYJ005 车牌号预警不匹配位数(独立字段,提交时合并到 extConfig JSON)
+  withinDays: '' // BXYJ006 不同车 / BXYJ008 不同店 重复附件预警时间窗口(独立字段,提交时合并到 extConfig JSON)
 };
 
 export default {
@@ -273,7 +294,9 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
-    EditBaseContainer
+    EditBaseContainer,
+    WhitelistTable,
+    ReplaceDrawer
   },
   computed: {
     _id () {
@@ -332,10 +355,15 @@ export default {
       pageType: 'edit',
       // TIPS: 权限前缀 AISMC，根据实际情况修改
       moduleKey: 'AISCR-warrantyOrderWarningRule',
+      // 右抽屉标题（参考 freeMaintenancePolicy 的 pannelTitle 模式）
+      pannelTitle: '',
       loading: false,
       submitLoading: false,
       form: { ...form },
       originalForm: { ...form },
+      // 替换件抽屉（BXYJ010）
+      replaceDrawerVisible: false,
+      currentReplacePart: {},
       rules: {
         judgeDays: [
           { required: true, message: '请输入判定天数', trigger: 'change' }
@@ -359,6 +387,27 @@ export default {
       const id = this._id;
       if (id) {
         return getDetail(id);
+      }
+    },
+    /**
+     * BXYJ010 备件白名单：点击"替换件"按钮 → 触发 EditPageLayout 右抽屉 + 设置替换件数据
+     * 参考 freeMaintenancePolicy/edit.vue 的 onReplace：openPane() + replacePart
+     */
+    handleOpenReplace (row) {
+      this.currentReplacePart = row;
+      // 参考 freeMaintenancePolicy/edit.vue onReplace：动态设置标题 + 打开右抽屉
+      this.pannelTitle = `零件编码：${row.partCode}`;
+      if (this.$refs.editLayout && typeof this.$refs.editLayout.openPane === 'function') {
+        this.$refs.editLayout.openPane();
+      }
+    },
+    /**
+     * 关闭右抽屉（替换件面板的 X 按钮触发）
+     */
+    handleCloseReplace () {
+      this.currentReplacePart = {};
+      if (this.$refs.editLayout && typeof this.$refs.editLayout.closePane === 'function') {
+        this.$refs.editLayout.closePane();
       }
     },
     submitRequest () {
