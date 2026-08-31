@@ -33,6 +33,21 @@
 
       <!-- 第一页签「保修结算通知书」扩展查询条件 -->
       <template v-if="show && activeTab === 'list'">
+        <el-form-item label="公司">
+          <fetch-select
+            :remote-method="getParentCompany"
+            remote
+            v-model="form.parentOrgCodeList"
+            placeholder="请选择"
+            labelKey="companyName"
+            valueKey="companyCode"
+            subLabelKey="companyCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+          />
+        </el-form-item>
         <el-form-item label="月度">
           <el-input v-model="form.month" placeholder="请输入" clearable/>
         </el-form-item>
@@ -105,6 +120,21 @@
 
       <!-- 第二页签「通知书明细」扩展查询条件 -->
       <template v-if="show && activeTab === 'detail'">
+        <el-form-item label="公司">
+          <fetch-select
+            :remote-method="getParentCompany"
+            remote
+            v-model="form.parentOrgCodeList"
+            placeholder="请选择"
+            labelKey="companyName"
+            valueKey="companyCode"
+            subLabelKey="companyCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+          />
+        </el-form-item>
         <el-form-item label="月度">
           <el-input v-model="form.month" placeholder="请输入" clearable/>
         </el-form-item>
@@ -204,6 +234,21 @@
 
       <!-- 第三页签「追溯明细」扩展查询条件 -->
       <template v-if="show && activeTab === 'trace'">
+        <el-form-item label="公司">
+          <fetch-select
+            :remote-method="getParentCompany"
+            remote
+            v-model="form.parentOrgCodeList"
+            placeholder="请选择"
+            labelKey="companyName"
+            valueKey="companyCode"
+            subLabelKey="companyCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+          />
+        </el-form-item>
         <el-form-item label="月度">
           <el-input v-model="form.month" placeholder="请输入" clearable/>
         </el-form-item>
@@ -306,6 +351,21 @@
 
       <!-- 第四页签「开票明细」扩展查询条件 -->
       <template v-if="show && activeTab === 'invoice'">
+        <el-form-item label="公司">
+          <fetch-select
+            :remote-method="getParentCompany"
+            remote
+            v-model="form.parentOrgCodeList"
+            placeholder="请选择"
+            labelKey="companyName"
+            valueKey="companyCode"
+            subLabelKey="companyCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+          />
+        </el-form-item>
         <el-form-item label="月度">
           <el-input v-model="form.month" placeholder="请输入" clearable/>
         </el-form-item>
@@ -485,7 +545,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, getDetailList, getTraceList, getInvoiceList, confirm, exportInvoiceZip } from '@/api/claimreturn/claim/warrantysettle/index';
-import { getTableConfig, tableAddOrUpdate, getEnum, exportTable } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, getEnum, exportTable, getSparePartCompany } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import TagInput from '@/libs/components/TagInput';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -523,6 +583,8 @@ const defaultForm = {
   applyNoList: [],
   vinList: [],
   repairItemTypeIdList: [],
+  // 4 个页签共用：公司（多选，扩展条件下展示，共享同一个 form 字段）
+  parentOrgCodeList: [],
   // 追溯明细页签专属
   traceDetailCodeList: [],
   traceTypeList: [],
@@ -649,6 +711,23 @@ export default {
           { props: 'storeStatusLabel', label: '门店状态', visible: true, width: 120 },
           { props: 'settleStatusLabel', label: '通知书状态', visible: true, width: 120 },
           { props: 'invoiceAccountName', label: '银行户主', visible: true, width: 150 },
+          {
+            props: 'parentOrgCode',
+            label: '公司编码',
+            visible: true,
+            width: 140,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                if (!row.parentOrgCode) {
+                  this.$message.warning('该记录暂无公司编码，无法跳转');
+                  return;
+                }
+                window.open(`/datacenter/store/parentCompany/detail?companyCode=${row.parentOrgCode}`, '_blank');
+              }
+            }]
+          },
+          { props: 'parentOrgName', label: '公司名称', visible: true, width: 180 },
           {
             props: 'workHourTotal',
             label: '工时总额',
@@ -800,6 +879,23 @@ export default {
           { props: 'storeStatusLabel', label: '门店状态', visible: true, width: 120 },
           { props: 'settleStatusLabel', label: '通知书状态', visible: true, width: 120 },
           { props: 'invoiceAccountName', label: '银行户主', visible: true, width: 150 },
+          {
+            props: 'parentOrgCode',
+            label: '公司编码',
+            visible: true,
+            width: 140,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                if (!row.parentOrgCode) {
+                  this.$message.warning('该记录暂无公司编码，无法跳转');
+                  return;
+                }
+                window.open(`/datacenter/store/parentCompany/detail?companyCode=${row.parentOrgCode}`, '_blank');
+              }
+            }]
+          },
+          { props: 'parentOrgName', label: '公司名称', visible: true, width: 180 },
           {
             props: 'workHourTotal',
             label: '结算工时总额',
@@ -987,6 +1083,23 @@ export default {
           { props: 'settleStatusLabel', label: '通知书状态', visible: true, width: 120 },
           { props: 'invoiceAccountName', label: '银行户主', visible: true, width: 150 },
           {
+            props: 'parentOrgCode',
+            label: '公司编码',
+            visible: true,
+            width: 140,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                if (!row.parentOrgCode) {
+                  this.$message.warning('该记录暂无公司编码，无法跳转');
+                  return;
+                }
+                window.open(`/datacenter/store/parentCompany/detail?companyCode=${row.parentOrgCode}`, '_blank');
+              }
+            }]
+          },
+          { props: 'parentOrgName', label: '公司名称', visible: true, width: 180 },
+          {
             props: 'workHourTotal',
             label: '结算工时总额',
             visible: true,
@@ -1166,6 +1279,23 @@ export default {
           { props: 'storeStatusLabel', label: '门店状态', visible: true, width: 120 },
           { props: 'settleStatusLabel', label: '通知书状态', visible: true, width: 120 },
           { props: 'invoiceAccountName', label: '银行户主', visible: true, width: 150 },
+          {
+            props: 'parentOrgCode',
+            label: '公司编码',
+            visible: true,
+            width: 140,
+            buttons: [{
+              type: 'primary',
+              click: (rowIndex, row) => {
+                if (!row.parentOrgCode) {
+                  this.$message.warning('该记录暂无公司编码，无法跳转');
+                  return;
+                }
+                window.open(`/datacenter/store/parentCompany/detail?companyCode=${row.parentOrgCode}`, '_blank');
+              }
+            }]
+          },
+          { props: 'parentOrgName', label: '公司名称', visible: true, width: 180 },
           {
             props: 'workHourTotal',
             label: '结算工时总额',
@@ -1583,6 +1713,19 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    // 公司（母公司）远程搜索（与 warrantySettleSummary/index.vue 一致）
+    async getParentCompany (query) {
+      try {
+        const res = await getSparePartCompany({ codeOrNameLike: query });
+        res.records = res.records?.map(item => ({
+          ...item,
+          displayName: item.companyName + `(${item.companyCode})`
+        }));
+        return res;
+      } catch (error) {
+        console.error('Error fetching company list:', error);
+      }
     },
     // 保修类型远程搜索（与 warrantyapply/index.vue 一致）
     repairItemTypeRemote (query) {
