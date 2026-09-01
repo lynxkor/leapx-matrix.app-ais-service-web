@@ -2286,7 +2286,7 @@ const routes = [
       component: () => import('@/views/sparepart/sale/retailOrder/index.vue'),
 
       meta: {
-        name: '备附件销售',
+        name: '备附件零售',
         keepAlive: true
       }
     }, {
@@ -2295,7 +2295,7 @@ const routes = [
       component: () => import('@/views/sparepart/sale/retailOrderOut/index.vue'),
 
       meta: {
-        name: '备附件销售出库',
+        name: '备附件零售出库',
         keepAlive: true
       }
     }, {

@@ -90,3 +90,19 @@ export function settingUpdate (data) {
 export function outboundPrint (data) {
   return api.jsonPost(prefix + 'print', data);
 }
+
+/**
+ * 维修出库 - 明细分页查询（按明细维度返回行）
+ * @param {Object} data
+ */
+export function detailPage (data) {
+  return api.jsonPost(prefix + 'detailPage', data);
+}
+
+/**
+ * 修改备注（出库状态为待出库/部分出库时可编辑）
+ * @param {Object} data { id, remark, outboundStatus }
+ */
+export function updateRemark (data) {
+  return api.jsonPost(prefix + 'updateRemark', data);
+}

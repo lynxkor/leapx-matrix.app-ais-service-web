@@ -9,13 +9,13 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="备附件销售单号">
+      <el-form-item label="备附件零售单号">
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="VIN">
         <el-input
           placeholder="请输入"
-          v-model="form.vinLike"
+          v-model="form.vin"
           clearable
         />
       </el-form-item>
@@ -33,6 +33,19 @@
           collapseTags
           filterable
             />
+      </el-form-item>
+      <el-form-item label="订单创建时间">
+        <el-date-picker
+         :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="门店合作类型">
@@ -61,14 +74,14 @@
         <el-form-item label="客户编码">
           <el-input
             placeholder="请输入"
-            v-model="form.customerCodeLike"
+            v-model="form.customerCode"
             clearable
           />
         </el-form-item>
         <el-form-item label="客户名称">
           <el-input
             placeholder="请输入"
-            v-model="form.customerNameLike"
+            v-model="form.customerName"
             clearable
           />
         </el-form-item>
@@ -90,10 +103,10 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="创建时间">
+        <el-form-item label="订单修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
+            v-model="form.updateTime"
             type="daterange"
             unlink-panels
             :picker-options="pickerOptions"
@@ -103,10 +116,83 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="修改时间">
+        <!-- ===== 全部备件 tab 专用 ===== -->
+        <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="备件名称" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
+        </el-form-item>
+        <el-form-item label="库位" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.locationNameLike" clearable />
+        </el-form-item>
+        <el-form-item label="价格类型" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="RetailOrderPriceTypeEnum"
+            v-model="form.priceTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="是否出库" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.outboundIsList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="出库操作人" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :remote-method="getUser"
+            remote
+            v-model="form.outboundOperatorList"
+            placeholder="请输入名称"
+            labelKey="username"
+            valueKey="userId"
+            clearable
+            collapseTags
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="入库操作人" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :remote-method="getUser"
+            remote
+            v-model="form.inboundOperatorList"
+            placeholder="请输入名称"
+            labelKey="username"
+            valueKey="userId"
+            clearable
+            collapseTags
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="出库操作时间" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
           <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.updateTime"
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.outboundTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="入库操作时间" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.inboundTime"
             type="daterange"
             unlink-panels
             :picker-options="pickerOptions"
@@ -136,8 +222,13 @@
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
+      <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
+    </el-tabs>
     <div
       class="ais-table-c"
+      v-if="activeName === 'homePage'"
     >
       <LPVxeTable
         ref="tableRef"
@@ -153,6 +244,27 @@
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
         @sortChange="handleSortChange"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
+    </div>
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'allSpareParts'"
+    >
+      <LPVxeTable
+        :key="2"
+        ref="tableRefAll"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        :option-obj="optionObjAll"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
       >
         <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
       </LPVxeTable>
@@ -204,7 +316,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, confirmOrder, cancelOrder, signOrder, cancelSignOrder, settleOrder, cancelSettleOrder, reverseSettleOrder, refundOrder } from '@/api/sparepart/sale/retailOrder/index';
+import { getList, detailPage, deleteItem, enableItem, confirmOrder, cancelOrder, signOrder, cancelSignOrder, settleOrder, cancelSettleOrder, reverseSettleOrder, refundOrder } from '@/api/sparepart/sale/retailOrder/index';
 import {
   getTableConfig, tableAddOrUpdate, exportTable, getEnum,
   getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany,
@@ -233,13 +345,30 @@ const defaultForm = {
   cooperationTypeList: [],
   warehouseId: '',
   customerTypeList: [],
-  vinLike: '',
-  customerCodeLike: '',
-  customerNameLike: '',
+  vin: '',
+  customerCode: '',
+  customerName: '',
   orderStatusList: [],
   customerContactInfo: '',
   remark: '',
   updateTime: '',
+
+  // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
+  // 注意：被 <tag-input> 绑定的字段必须用 [] 而非 null，否则 reset 时
+  // TagInput 内部 tagList = null 会导致 slice()/length 抛错，UI 无法清空。
+  sparePartCodeList: [],
+  sparePartName: '',
+  deliveryNoList: null,
+  saleVoucherList: null,
+  inboundNoList: null,
+  purchaseOrderNoList: null,
+  locationNameLike: '',
+  priceTypeList: [],
+  outboundIsList: [],
+  outboundOperatorList: [],
+  inboundOperatorList: [],
+  outboundTime: '',
+  inboundTime: '',
 };
 
 const pageSize = 20;
@@ -265,7 +394,7 @@ export default {
     return {
       isPartOrder: false,
       cooperationType: null,
-      pageTitle: '备附件销售',
+      pageTitle: '备附件零售',
       pageType: 'list',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-retailOrder',
@@ -287,6 +416,7 @@ export default {
       harvestDialogVisible: false, // 收款
       harvestForm: {}, // 收款表单
       clickItemId: '',
+      activeName: 'homePage',
       optionObj: {
         id: 'retailOrderTable',
         dataList: [],
@@ -608,6 +738,141 @@ export default {
         ],
         total: 0
       },
+      optionObjAll: {
+        id: 'retailOrderTableAll',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
+          /* ========== 订单维度 ========== */
+          {
+            props: 'code',
+            label: '备附件销售单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/sale/retailOrder/edit', query: { id: row.retailOrderId || row.id } }); }, type: 'primary' }]
+          },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'cooperationTypeLabel', label: '门店合作类型', visible: true, width: 120 },
+          { props: 'warehouseName', label: '仓库名称', visible: true, width: 200 },
+          { props: 'customerTypeLabel', label: '客户类型', visible: true, width: 120 },
+          { props: 'vin', label: 'VIN', visible: true, width: 200 },
+          { props: 'customerCode', label: '客户编码', visible: true, width: 180 },
+          {
+            props: 'customerName',
+            label: '客户名称',
+            visible: true,
+            width: 200,
+            mask: true,
+            getValue: (row) => getDesensitize(row.retailOrderId, 'retailOrder', 'customerName')
+          },
+          {
+            props: 'customerContactInfo',
+            label: '客户联系方式',
+            visible: true,
+            width: 160,
+            mask: true,
+            getValue: (row) => getDesensitize(row.retailOrderId, 'retailOrder', 'customerContactInfo')
+          },
+          { props: 'customerRemark', label: '客户备注', visible: true, width: 200 },
+          { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
+          {
+            props: 'totalAmount',
+            label: '订单总金额',
+            visible: true,
+            width: 140,
+            align: 'right'
+          },
+          {
+            props: 'discountAmount',
+            label: '优惠总金额',
+            visible: true,
+            width: 140,
+            align: 'right'
+          },
+          {
+            props: 'payableAmount',
+            label: '应付总金额',
+            visible: true,
+            width: 140,
+            align: 'right'
+          },
+          {
+            props: 'remainingPayableAmount',
+            label: '剩余应付金额',
+            visible: true,
+            width: 140,
+            align: 'right'
+          },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+
+          /* ========== 明细维度 ========== */
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/basic/sparePart/detail', query: { id: row.sparePartId } }); }, type: 'primary' }] },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'locationName', label: '库位', visible: true, width: 120 },
+          {
+            props: 'availableQty',
+            label: '可用库存',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          { props: 'priceTypeLabel', label: '价格类型', visible: true, width: 120 },
+          {
+            props: 'unitPrice',
+            label: '单价',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'discountAmountDetail',
+            label: '优惠金额',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'payableAmountDetail',
+            label: '应付金额',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          {
+            props: 'qty',
+            label: '数量',
+            visible: true,
+            width: 120,
+            align: 'right'
+          },
+          { props: 'outboundIsLabel', label: '是否出库', visible: true, width: 120 },
+          {
+            props: 'outboundOperatorName',
+            label: '出库操作人',
+            visible: true,
+            width: 120,
+            mask: true,
+            getValue: (row) => getDesensitize(row.retailOrderId, 'retailOrder', 'outboundOperatorName')
+          },
+          { props: 'outboundTime', label: '出库操作时间', visible: true, width: 200 },
+          {
+            props: 'inboundOperatorName',
+            label: '入库操作人',
+            visible: true,
+            width: 120,
+            mask: true,
+            getValue: (row) => getDesensitize(row.retailOrderId, 'retailOrder', 'inboundOperatorName')
+          },
+          { props: 'inboundTime', label: '入库操作时间', visible: true, width: 200 },
+        ],
+        total: 0
+      },
       sortColumns: [
         // {
         // column: 'create_time',
@@ -687,6 +952,24 @@ export default {
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
+    getOptionObj () {
+      if (this.activeName === 'homePage') {
+        return this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        return this.optionObjAll;
+      }
+      return this.optionObj;
+    },
+    handleClick (item) {
+      this.activeName = item.name;
+      this.show = false;
+      // 跨 tab 切换时，把所有 tab 的分页状态都重置为 page 1 + 默认 size
+      this.optionObj.form.page = 1;
+      this.optionObj.form.size = pageSize;
+      this.optionObjAll.form.page = 1;
+      this.optionObjAll.form.size = pageSize;
+      this.onReset();
+    },
     handleImport () {
       this.uploadDialogVisible = true;
     },
@@ -702,32 +985,64 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      // 全部备件 tab：默认创建时间 = 最近一个月（end 用 23:59:59）
+      const extraDefaults = this.activeName === 'allSpareParts'
+        ? { createTime: this.getLastMonthRange() }
+        : {};
+      // 注意：不要整体替换 this.form —— 会丢失 Vue 2 响应性，导致子组件 watch 失效。
+      // 必须用 Object.assign 原地写入响应式对象，触发 setter 让 watcher 重新执行。
+      Object.assign(this.form, defaultForm, extraDefaults);
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
+      optionObj.form.size = pageSize;
       this.getData();
+    },
+    getLastMonthRange () {
+      const end = new Date();
+      const start = new Date();
+      start.setMonth(start.getMonth() - 1);
+      const fmt = (d, isEnd) => {
+        const pad = (n) => (n < 10 ? `0${n}` : n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${isEnd ? '23:59:59' : '00:00:00'}`;
+      };
+      return [fmt(start, false), fmt(end, true)];
     },
     exportExcel () {
       this.exportLoading = true;
-      const reqParams = this.getFormData() || {};
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.exportLoading = false;
+        return;
+      }
+      const reqParams = formData || {};
+      let fetchPath = 'sp/web/dealer/retailOrder/page';
+      let tableRef = this.$refs.tableRef;
+      if (this.activeName === 'homePage') {
+        tableRef = this.$refs.tableRef;
+        fetchPath = 'sp/web/dealer/retailOrder/page';
+      } else {
+        tableRef = this.$refs.tableRefAll;
+        fetchPath = 'sp/web/dealer/retailOrder/detailPage';
+      }
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
       exportTable({
-        businessType: '备附件销售',
-        dataFetchPath: 'sp/web/dealer/retailOrder/page',
+        businessType: '备附件零售',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: tableRef && tableRef.getVisibleCols ? Object.fromEntries(tableRef.getVisibleCols()) : {},
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '备附件销售.xlsx');
+            await downloadExcel(res.excelUrl, '备附件零售.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
@@ -747,17 +1062,24 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
+      const optionObj = this.getOptionObj();
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      const fetchApi = this.activeName === 'allSpareParts' ? detailPage : getList;
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.loading = false;
+        return;
+      }
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = (res?.records || []).map(item => {
+          optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res?.total || 0;
+          optionObj.total = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });
@@ -767,8 +1089,9 @@ export default {
       this.getData();
     }, 300),
     getConfig () {
+      const optionObj = this.getOptionObj();
       return new Promise((resolve, reject) => {
-        getTableConfig(this.optionObj.id).then(data => {
+        getTableConfig(optionObj.id).then(data => {
           resolve({ data });
         }).catch(err => {
           // 容错：此处如果接口挂了，也不应该影响正常使用
@@ -781,10 +1104,11 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
+      const optionObj = this.getOptionObj();
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        optionObj.form.page = num;
       } else {
-        this.optionObj.form.size = num;
+        optionObj.form.size = num;
       }
       this.debouncedGetData();
     },
@@ -830,6 +1154,31 @@ export default {
         if (this.form.updateTime.length > 1) {
           data.updateTimeStart = this.form.updateTime[0];
           data.updateTimeEnd = this.form.updateTime[1];
+        }
+      }
+      if (this.form.outboundTime) {
+        delete data.outboundTime;
+        if (this.form.outboundTime.length > 1) {
+          data.outboundTimeStart = this.form.outboundTime[0];
+          data.outboundTimeEnd = this.form.outboundTime[1];
+        }
+      }
+      if (this.form.inboundTime) {
+        delete data.inboundTime;
+        if (this.form.inboundTime.length > 1) {
+          data.inboundTimeStart = this.form.inboundTime[0];
+          data.inboundTimeEnd = this.form.inboundTime[1];
+        }
+      }
+      // ===== 全部备件 tab：订单创建时间跨度校验（不超过半年） =====
+      if (this.activeName === 'allSpareParts' && data.createTimeStart && data.createTimeEnd) {
+        const start = new Date(data.createTimeStart);
+        const end = new Date(data.createTimeEnd);
+        const sixMonthsLater = new Date(start);
+        sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+        if (end > sixMonthsLater) {
+          this.$message.warning('【订单创建时间】跨度不能超过半年');
+          return null;
         }
       }
       // 排序字段

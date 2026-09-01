@@ -15,20 +15,15 @@
       <el-form-item label="采购申请单">
         <tag-input v-model="form.purchaseApplyCodeList" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="备件" v-if="activeName === 'allSpareParts'||activeName === 'proxySign'" v-show="this.visibleCount === 3 || show">
-        <fetch-select
-            :remote-method="getSparePart"
-            remote
-            v-model="form.sparePartIdList"
-            placeholder="请输入编码或名称"
-            labelKey="name"
-            valueKey="id"
-            subLabelKey="code"
-            clearable
-            multiple
-            collapseTags
-            filterable
-              />
+      <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'||activeName === 'proxySign'" v-show="this.visibleCount === 3 || show">
+        <tag-input v-model="form.partCodeList" placeholder="请输入" />
+      </el-form-item>
+      <el-form-item label="备件名称" v-if="activeName === 'allSpareParts'||activeName === 'proxySign'" v-show="this.visibleCount === 3 || show">
+        <el-input
+          placeholder="请输入"
+          v-model="form.partName"
+          clearable
+        />
       </el-form-item>
       <el-form-item label="缺货单号"  v-show="this.visibleCount === 3 || show" v-if="activeName === 'homePage'">
         <tag-input v-model="form.backOrderCodeList" placeholder="请输入" />
@@ -132,7 +127,7 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="创建时间">
+        <el-form-item label="订单创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.createTime"
@@ -145,7 +140,7 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="修改时间">
+        <el-form-item label="订单修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
@@ -292,7 +287,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, pageAll, pageWaitSign } from '@/api/sparepart/purchase/purchaseOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listOemWarehouse, sparePartListShort } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listOemWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -310,20 +305,36 @@ import LogisticsDrawer from '@/libs/components/LogisticsDrawer';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   code: '',
+  // 注意：被 <tag-input> 绑定的字段必须用 [] 而非 null，否则 reset 时
+  // TagInput 内部 tagList = null 会导致 slice()/length 抛错，UI 无法清空。
+  codeList: [],
   purchaseApplyCode: '',
+  purchaseApplyCodeList: [],
   backOrderCode: '',
+  backOrderCodeList: [],
+  remarkLike: '',         // 备注（homePage）
   remark: '',
   deliveryWarehouse: '',
+  dealerCodeList: [],     // 门店（fetch-select multiple）
   dealerCode: '',
   dealerName: '',
   receiveWarehouseId: '',
+  purchaseOrderTypeList: [],  // 订单类型（homePage/allSpareParts，multiple）
   purchaseOrderType: '',
+  orderStatusList: [],    // 订单状态（homePage/allSpareParts，multiple）
   orderStatus: '',
+  shippingOrderLike: '',  // 发运单（homePage）
+  cancelOperatorLike: '', // 取消人（allSpareParts）
+  cancelTime: '',         // 取消时间（allSpareParts，daterange）
+  shippingTime: '',       // 发货时间（daterange）
   purchaseAmount: '',
   cashAmount: '',
   rebateAmount: '',
   createTime: '',
   updateTime: '',
+  // ===== 全部备件 / 待签收备件 tab 专用（与 purchaseApply 保持一致） =====
+  partCodeList: [],
+  partName: '',
 };
 
 const pageSize = 20;
@@ -751,7 +762,9 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
+      // 注意：不要整体替换 this.form —— 会丢失 Vue 2 响应性，导致子组件 watch 失效。
+      // 必须用 Object.assign 原地写入响应式对象，触发 setter 让 watcher 重新执行。
+      Object.assign(this.form, defaultForm);
       let optionObj = this.optionObj;
       if (this.activeName === 'homePage') {
         optionObj = this.optionObj;
@@ -808,18 +821,6 @@ export default {
       }).finally(() => {
         this.exportLoading = false;
       });
-    },
-    async getSparePart (query) {
-      try {
-        const res = await sparePartListShort({ partCodeLikeOrList: query });
-        // res.records = res.records?.map(item => ({
-        //   ...item,
-        //   displayName: item.companyName + `(${item.companyCode})`
-        // }));
-        return res;
-      } catch (error) {
-        console.error('Error fetching series list:', error);
-      }
     },
     getData () {
       this.loading = true;

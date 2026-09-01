@@ -460,6 +460,8 @@ export default {
       if (this.isServiceCareActivity) {
         reqParams.isServiceCareActivity = true;
       }
+      // 标记全量导出：后端走无分页上限分支（绕过 SDK maxLimit=50000 与 _COUNT LIMIT 100001）
+      reqParams.exportAll = true;
       exportTable({
         businessType: '服务活动车辆',
         dataFetchPath: '/claimreturn/claim/web/basic/serviceActivityVehicle/page',

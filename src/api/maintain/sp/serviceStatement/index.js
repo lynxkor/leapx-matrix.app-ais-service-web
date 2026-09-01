@@ -125,6 +125,13 @@ export function rightsFreeze (data) {
   return api.jsonPost(prefix + 'rightsFreeze', data);
 }
 /**
+ * 权益核销-取消锁定
+ * @param {Array} data
+ */
+export function rightsUnlock (data) {
+  return api.jsonPost(prefix + 'rightsUnlock', data);
+}
+/**
  * 提交结算并确认
  * @param {Object} data
  */

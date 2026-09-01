@@ -60,3 +60,11 @@ export function accountFlowPage (data) {
 export function frozenPage (data) {
   return api.jsonPost(prefixDetail + 'frozenPage', data);
 }
+
+/**
+ * 备件账户流水 - 明细分页查询（按流水维度返回行，现金/返利账户共用）
+ * @param {Object} data
+ */
+export function detailPage (data) {
+  return api.jsonPost(prefix + 'detailPage', data);
+}

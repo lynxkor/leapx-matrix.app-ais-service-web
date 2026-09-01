@@ -9,7 +9,7 @@
       label-width="150px"
       class="ais-search-form"
     >
-      <el-form-item label="备附件销售出库单号">
+      <el-form-item label="备附件零售出库单号">
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="VIN">

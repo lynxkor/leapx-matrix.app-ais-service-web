@@ -24,17 +24,10 @@
       </el-form-item>
       <template v-if="show">
         <el-form-item label="库位">
-          <fetch-select
-            :remote-method="getLocaltion"
-            remote
-            v-model="form.locationIdList"
+          <el-input
+            v-model="form.locationNameLike"
             placeholder="请输入库位名称"
-            labelKey="name"
-            valueKey="id"
             clearable
-            multiple
-            collapseTags
-            filterable
           />
         </el-form-item>
         <el-form-item label="门店">
@@ -202,7 +195,6 @@ import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/inventory/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listDealerPartWithOem, listOrgStoreInfoByParam } from '@/api/common';
-import { locationList } from '@/api/sparepart/warehouse/warehouse/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -220,7 +212,7 @@ const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   sparePartIdList: null,
   codeList: [],
-  locationIdList: null,
+  locationNameLike: '',
   dealerCodeList: null,
   remarkLike: '',
   latestInboundTime: '',
@@ -410,14 +402,6 @@ export default {
       }
     },
 
-    async getLocaltion (query) {
-      try {
-        const res = await locationList({ codeOrName: query });
-        return res;
-      } catch (error) {
-        console.error('Error fetching series list:', error);
-      }
-    },
     async getDealerList (query) {
       try {
         const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });

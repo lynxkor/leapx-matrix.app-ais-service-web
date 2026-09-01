@@ -14,6 +14,14 @@ export function getList (data) {
   return api.jsonPost(prefix + 'page', data);
 };
 
+/**
+ * 明细分页查询（按明细维度返回行）
+ * @param {Object} data
+ */
+export function detailPage (data) {
+  return api.jsonPost(prefix + 'detailPage', data);
+}
+
 export function getListReturn (data) {
   return api.jsonPost(prefix + 'returnPage', data);
 };

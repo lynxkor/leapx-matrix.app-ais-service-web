@@ -396,6 +396,11 @@ export default {
         {
           field: 'sparePartName',
           title: '备件名称',
+          width: '20%',
+        },
+        {
+          field: 'locationName',
+          title: '仓库库位',
           width: '10%',
         },
         {
