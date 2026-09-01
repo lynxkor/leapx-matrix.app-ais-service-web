@@ -9,7 +9,7 @@
       label-width="100px"
       class="ais-search-form"
     >
-      <el-form-item label="备件">
+      <el-form-item label="备件编码（备件名称）" label-width="160px">
         <fetch-select
             :remote-method="getSparePart"
             remote

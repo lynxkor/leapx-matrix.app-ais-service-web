@@ -451,8 +451,10 @@
                     </template>
                   </vxe-column>
                   <vxe-column field="outboundIsLabel" title="是否出库" width="100" />
-                  <vxe-column field="operationOperatorName" title="出入库操作人" width="160" />
-                  <vxe-column field="operationTime" title="出入库操作时间" width="160" />
+                  <vxe-column field="operationOperatorName" title="出库操作人" width="160" />
+                  <vxe-column field="operationTime" title="出库操作时间" width="160" />
+                    <vxe-column field="inboundOperatorName" title="入库操作人" width="160" />
+                  <vxe-column field="inboundTime" title="入库操作时间" width="160" />
                   <vxe-column field="createTime" title="创建时间" width="160" />
                   <vxe-column title="操作" width="100" fixed="right" v-if="canDelete">
                     <template #default="{ row }">
@@ -800,7 +802,7 @@ export default {
   data () {
     const form = this.getDefautlForm();
     return {
-      pageTitle: '备附件销售',
+      pageTitle: '备附件零售',
       pageType: 'edit',
       // TIPS: 权限前缀 AISPART，根据实际情况修改
       moduleKey: 'AISPART-retailOrder',

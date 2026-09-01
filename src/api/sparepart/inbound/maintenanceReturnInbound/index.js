@@ -1,7 +1,8 @@
 import api from '@/axios';
-
+import { SPARE_PREFIX } from '../../spareurl';
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
-const prefix = 'sp/web/maintenance/maintenanceReturnInbound/';
+const prefix = SPARE_PREFIX + '/web/maintenance/maintenanceReturnInbound/';
+const prefix_detail = SPARE_PREFIX + '/web/maintenance/maintenanceOutboundReturnDetail/';
 
 /**
  * 查询列表
@@ -48,7 +49,7 @@ export function enableItem (data) {
  * @param {Object} data
  */
 export function inboundWarehousing (data) {
-  return api.jsonPost('sp/web/maintenance/maintenanceOutboundReturnDetail/inbound', data);
+  return api.jsonPost(prefix_detail + 'inbound', data);
 }
 
 /**
@@ -64,5 +65,13 @@ export function collarPage (data) {
  * @param {Object} data
  */
 export function goPage (data) {
-  return api.jsonPost('sp/web/maintenance/maintenanceOutboundReturnDetail/page', data);
+  return api.jsonPost(prefix_detail + 'page', data);
+}
+
+/**
+ * 维修退料入库 - 明细分页查询（按明细维度返回行）
+ * @param {Object} data
+ */
+export function detailPage (data) {
+  return api.jsonPost(prefix_detail + 'detailPage', data);
 }

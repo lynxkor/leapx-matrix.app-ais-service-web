@@ -27,21 +27,19 @@
             filterable
             />
       </el-form-item>
-      <el-form-item label="备件仓库">
-        <fetch-select
-          :remote-method="getWarehouse"
-          remote
-          v-model="form.warehouseIdList"
-          placeholder="请选择"
-          labelKey="name"
-          valueKey="id"
-          subLabelKey="code"
-          clearable
-          multiple
-          collapseTags
-          filterable
+      <el-form-item label="订单创建时间">
+        <el-date-picker
+         :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
         />
-    </el-form-item>
+      </el-form-item>
       <template v-if="show">
         <el-form-item label="退货原因" v-show="this.visibleCount === 3 || show">
           <fetch-select
@@ -78,20 +76,7 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            unlink-panels
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="修改时间">
+        <el-form-item label="订单修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
@@ -103,6 +88,39 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
+        </el-form-item>
+        <!-- ===== 全部备件 tab 专用查询 ===== -->
+        <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="备件仓库" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :remote-method="getWarehouse"
+            remote
+            v-model="form.warehouseId"
+            placeholder="请选择"
+            labelKey="name"
+            valueKey="id"
+            subLabelKey="code"
+            clearable
+            collapseTags
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="备件名称" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
+        </el-form-item>
+        <el-form-item label="交货单号" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.deliveryOrderNoList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="销售凭证" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.salesVoucherList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="入库单号" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.inboundOrderCodeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="采购订单号" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.purchaseOrderCodeList" placeholder="请输入" />
         </el-form-item>
       </template>
       <page-search-action
@@ -119,8 +137,13 @@
       <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
     </div>
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
+      <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
+    </el-tabs>
     <div
       class="ais-table-c"
+      v-if="activeName === 'homePage'"
     >
       <LPVxeTable
         ref="tableRef"
@@ -130,6 +153,27 @@
         checkboxFixed
         centralized
         :option-obj="optionObj"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
+    </div>
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'allSpareParts'"
+    >
+      <LPVxeTable
+        :key="2"
+        ref="tableRefAll"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        :option-obj="optionObjAll"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
@@ -159,8 +203,8 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderCommit, returnOrderReject } from '@/api/sparepart/return/returnOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse, getLoginUser } from '@/api/common';
+import { getList, detailPage, deleteItem, enableItem, returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderCommit, returnOrderReject } from '@/api/sparepart/return/returnOrder/index';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getLoginUser, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -173,16 +217,29 @@ import TagInput from '@/libs/components/TagInput';
 import ShipmentDialog from './ShipmentDialog.vue';
 
 const defaultForm = {
-  // TIPS:多选时字段名称会有变化，自行校对
+  // TIPS:多选时字段名称会有变化,自行校对
   code: '',
+  // 注意：被 <tag-input> 绑定的字段必须用 [] 而非 null，否则 reset 时
+  // TagInput 内部 tagList = null 会导致 slice()/length 抛错，UI 无法清空。
+  codeList: [],
   dealerCode: '',
-  warehouseId: '',
+  dealerCodeList: null,
   returnReason: '',
+  returnReasonList: null,
   returnStatus: '',
+  returnStatusList: null,
   deliveryTime: '',
   remark: '',
   createTime: '',
   updateTime: '',
+  // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
+  sparePartCodeList: [],
+  sparePartName: '',
+  warehouseId: '',
+  deliveryOrderNoList: [],
+  salesVoucherList: [],
+  inboundOrderCodeList: [],
+  purchaseOrderCodeList: [],
 };
 
 const pageSize = 20;
@@ -219,6 +276,7 @@ export default {
       shipmentDialogVisible: false, // 发运弹窗
       shipmentId: '', // 发运弹窗id
       clickItemId: '',
+      activeName: 'homePage',
       accountFlag: false, // 账号类型 true为门店 false为主机厂
       optionObj: {
         id: 'returnOrderTable',
@@ -428,6 +486,72 @@ export default {
           }
         ],
         total: 0
+      },
+      optionObjAll: {
+        id: 'returnOrderTableAll',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
+          /* ========== 订单维度 ========== */
+          {
+            props: 'code',
+            label: '备件退货单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({ path: '/sparepart/return/returnOrder/edit', query: { id: row.returnOrderId || row.id } });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank'); }, type: 'primary' }] },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
+          { props: 'returnReasonLabel', label: '退货原因', visible: true, width: 120 },
+          { props: 'returnStatusLabel', label: '退货状态', visible: true, width: 120 },
+          { props: 'logisticsOrderNo', label: '物流单号', visible: true, width: 200 },
+          { props: 'logisticsProvider', label: '物流商', visible: true, width: 200 },
+          { props: 'deliveryTime', label: '发货时间', visible: true, width: 200 },
+          { props: 'remark', label: '订单备注', visible: true, width: 200 },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+
+          /* ========== 明细维度 ========== */
+          {
+            props: 'sparePartCode',
+            label: '备件编码',
+            visible: true,
+            width: 180,
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({ path: '/sparepart/basic/sparePart/detail', query: { id: row.sparePartId } });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'returnQty', label: '退货数量', visible: true, align: 'right', width: 120 },
+          { props: 'qualifiedQty', label: '合格数量', visible: true, align: 'right', width: 120 },
+          { props: 'deliveryOrderNo', label: '交货单号', visible: true, width: 200 },
+          { props: 'salesVoucher', label: '销售凭证', visible: true, width: 200 },
+          { props: 'inboundOrderCode', label: '入库单号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/inbound/inboundOrder/edit', query: { id: row.inboundOrderId } }); }, type: 'primary' }] },
+          { props: 'purchaseOrderCode', label: '采购订单号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/purchase/purchaseOrder/edit', query: { id: row.purchaseOrderId } }); }, type: 'primary' }] },
+          { props: 'purchaseCashUnitPrice', label: '采购现金单价', visible: true, align: 'right', width: 140 },
+          { props: 'purchaseRebateUnitPrice', label: '采购返利单价', visible: true, align: 'right', width: 140 },
+          { props: 'returnCashUnitPrice', label: '退货现金单价', visible: true, align: 'right', width: 140 },
+          { props: 'estimatedReturnCashAmount', label: '预计退货现金金额', visible: true, align: 'right', width: 160 },
+          { props: 'actualReturnCashAmount', label: '实际退货现金金额', visible: true, align: 'right', width: 160 },
+          { props: 'returnRebateUnitPrice', label: '退货返利单价', visible: true, align: 'right', width: 140 },
+          { props: 'estimatedReturnRebateAmount', label: '预计退货返利金额', visible: true, align: 'right', width: 160 },
+          { props: 'actualReturnRebateAmount', label: '实际退货返利金额', visible: true, align: 'right', width: 160 },
+          { props: 'detailRemark', label: '明细备注', visible: true, width: 200 }
+        ],
+        total: 0
       }
     };
   },
@@ -459,8 +583,27 @@ export default {
         console.error('Error fetching series list:', error);
       }
     },
+
     handleListSelect (row) {
       this.clickItemId = row.id;
+    },
+    getOptionObj () {
+      if (this.activeName === 'homePage') {
+        return this.optionObj;
+      } else if (this.activeName === 'allSpareParts') {
+        return this.optionObjAll;
+      }
+      return this.optionObj;
+    },
+    handleClick (item) {
+      this.activeName = item.name;
+      this.show = false;
+      // 跨 tab 切换时，把所有 tab 的分页状态都重置为 page 1 + 默认 size
+      this.optionObj.form.page = 1;
+      this.optionObj.form.size = pageSize;
+      this.optionObjAll.form.page = 1;
+      this.optionObjAll.form.size = pageSize;
+      this.onReset();
     },
     handleImport () {
       this.uploadDialogVisible = true;
@@ -474,28 +617,59 @@ export default {
       });
     },
     onSubmit () {
-      this.optionObj.form.page = 1;
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      // 全部备件 tab：默认创建时间 = 最近一个月
+      const extraDefaults = this.activeName === 'allSpareParts'
+        ? { createTime: this.getLastMonthRange() }
+        : {};
+      // 注意：不要整体替换 this.form —— 会丢失 Vue 2 响应性，导致子组件 watch 失效。
+      // 必须用 Object.assign 原地写入响应式对象，触发 setter 让 watcher 重新执行。
+      Object.assign(this.form, defaultForm, extraDefaults);
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
+      optionObj.form.size = pageSize;
       this.getData();
+    },
+    getLastMonthRange () {
+      const end = new Date();
+      const start = new Date();
+      start.setMonth(start.getMonth() - 1);
+      const fmt = (d, isEnd) => {
+        const pad = (n) => (n < 10 ? `0${n}` : n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${isEnd ? '23:59:59' : '00:00:00'}`;
+      };
+      return [fmt(start, false), fmt(end, true)];
     },
     exportExcel () {
       this.exportLoading = true;
-      const reqParams = this.getFormData() || {};
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.exportLoading = false;
+        return;
+      }
+      const reqParams = formData || {};
+      let fetchPath = 'sp/web/purchase/returnOrder/page';
+      let tableRef = this.$refs.tableRef;
+      if (this.activeName === 'homePage') {
+        tableRef = this.$refs.tableRef;
+        fetchPath = 'sp/web/purchase/returnOrder/page';
+      } else {
+        tableRef = this.$refs.tableRefAll;
+        fetchPath = 'sp/web/purchase/returnOrder/detailPage';
+      }
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
-      };
-      reqParams.exceptionDetail = true;
+      }
       exportTable({
         businessType: '备件退货单',
-        dataFetchPath: 'sp/web/purchase/returnOrder/page',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: tableRef && tableRef.getVisibleCols ? Object.fromEntries(tableRef.getVisibleCols()) : {},
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -520,17 +694,30 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
+      const optionObj = this.getOptionObj();
+      const fetchApi = this.activeName === 'allSpareParts' ? detailPage : getList;
 
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      const formData = this.getFormData();
+      if (formData === null) {
+        this.loading = false;
+        return;
+      }
+
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          const records = res?.records || [];
+          optionObj.dataList = records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          optionObj.total = res?.total || 0;
+        }).catch(err => {
+          console.error('备件退货单列表加载失败:', err);
+          optionObj.dataList = [];
+          optionObj.total = 0;
         }).finally(() => {
           this.loading = false;
         });
@@ -540,8 +727,9 @@ export default {
       this.getData();
     }, 300),
     getConfig () {
+      const optionObj = this.getOptionObj();
       return new Promise((resolve, reject) => {
-        getTableConfig(this.optionObj.id).then(data => {
+        getTableConfig(optionObj.id).then(data => {
           resolve({ data });
         }).catch(err => {
           // 容错：此处如果接口挂了，也不应该影响正常使用
@@ -554,10 +742,11 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
+      const optionObj = this.getOptionObj();
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        optionObj.form.page = num;
       } else {
-        this.optionObj.form.size = num;
+        optionObj.form.size = num;
       }
       this.debouncedGetData();
     },
@@ -593,6 +782,32 @@ export default {
         if (this.form.deliveryTime.length > 1) {
           data.deliveryTimeStart = this.form.deliveryTime[0];
           data.deliveryTimeEnd = this.form.deliveryTime[1];
+        }
+      }
+
+      // ===== 全部备件 tab 默认条件校验 =====
+      // 【退货单号】【订单创建时间】【交货单号】【销售凭证】【入库单号】【采购订单号】不允许全部为空
+      if (this.activeName === 'allSpareParts') {
+        const hasCode = !!(data.codeList && data.codeList.length);
+        const hasCreateTime = !!(data.createTimeStart && data.createTimeEnd);
+        const hasDeliveryNo = !!(data.deliveryOrderNoList && data.deliveryOrderNoList.length);
+        const hasSaleVoucher = !!(data.salesVoucherList && data.salesVoucherList.length);
+        const hasInboundNo = !!(data.inboundOrderCodeList && data.inboundOrderCodeList.length);
+        const hasPurchaseOrderNo = !!(data.purchaseOrderCodeList && data.purchaseOrderCodeList.length);
+        if (!hasCode && !hasCreateTime && !hasDeliveryNo && !hasSaleVoucher && !hasInboundNo && !hasPurchaseOrderNo) {
+          this.$message.warning('请至少填写【退货单号】【订单创建时间】【交货单号】【销售凭证】【入库单号】【采购订单号】中的任意一个');
+          return null;
+        }
+        // ===== 全部备件 tab：订单创建时间跨度校验（不超过半年） =====
+        if (data.createTimeStart && data.createTimeEnd) {
+          const start = new Date(data.createTimeStart);
+          const end = new Date(data.createTimeEnd);
+          const sixMonthsLater = new Date(start);
+          sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+          if (end > sixMonthsLater) {
+            this.$message.warning('【订单创建时间】跨度不能超过半年');
+            return null;
+          }
         }
       }
 

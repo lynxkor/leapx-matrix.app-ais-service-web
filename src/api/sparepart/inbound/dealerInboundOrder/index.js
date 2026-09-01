@@ -13,6 +13,14 @@ export function getList (data) {
 };
 
 /**
+ * 明细分页查询（按明细维度返回行）
+ * @param {Object} data
+ */
+export function detailPage (data) {
+  return api.jsonPost(prefix + 'detailPage', data);
+}
+
+/**
  * 新增或修改
  * @param {Object} data
  */
