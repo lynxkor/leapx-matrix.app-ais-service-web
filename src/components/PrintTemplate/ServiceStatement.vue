@@ -243,7 +243,7 @@
                     <td style="width:120px;"></td>
                     <td style="width:120px;">客户签字</td>
                     <td style="width:120px;">
-                      <img v-if="signUrl" :src="signUrl"  style="width: 120px; height: 32px" />
+                      <img v-if="signUrl" :src="signUrl"  style="width: 120px; height: 32px; object-fit: contain;" />
                     </td>
                   </tr>
                   <tr>

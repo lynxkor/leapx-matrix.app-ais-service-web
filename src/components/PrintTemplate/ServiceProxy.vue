@@ -389,7 +389,7 @@
                     <td colspan="2"></td>
                     <td>客户签字</td>
                     <td colspan="2" id="mcs_snap_ticket">
-                      <img v-if="signUrl" :src="signUrl"  style="width: 120px; height: 32px" />
+                      <img v-if="signUrl" :src="signUrl"  style="width: 120px; height: 32px; object-fit: contain;" />
                     </td>
                   </tr>
                   <tr>
