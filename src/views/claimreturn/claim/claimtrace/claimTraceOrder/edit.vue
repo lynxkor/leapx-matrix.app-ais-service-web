@@ -99,7 +99,7 @@
                   <el-link
                     v-if="form.dealerCode"
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                     target="_blank"
                   >{{ form.dealerCode }}</el-link>
                   <span v-else>{{ form.dealerCode }}</span>

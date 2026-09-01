@@ -534,7 +534,7 @@ export default {
             buttons: [{
               type: 'primary',
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.dealerCode}`, '_blank');
               }
             }]
           },
