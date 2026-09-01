@@ -128,6 +128,17 @@
             label-key="name"
           />
         </el-form-item>
+        <el-form-item label="旧件返还类型">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="OldReturnTypeEnum"
+            v-model="form.oldReturnTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -229,6 +240,7 @@ const defaultForm = {
   remark: '',
   createTime: '',
   updateTime: '',
+  oldReturnTypeList: [],
   statusIncludeList: ['1']
 };
 
