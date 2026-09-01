@@ -891,7 +891,7 @@ export default {
                   this.$message.warning('该记录暂无公司编码，无法跳转');
                   return;
                 }
-                window.open(`/datacenter/store/parentCompany/detail?companyCode=${row.parentOrgCode}`, '_blank');
+                window.open(`/service/datacenter/store/parentCompany/detail?companyCode=${row.parentOrgCode}`, '_blank');
               }
             }]
           },
@@ -1094,7 +1094,7 @@ export default {
                   this.$message.warning('该记录暂无公司编码，无法跳转');
                   return;
                 }
-                window.open(`/datacenter/store/parentCompany/detail?companyCode=${row.parentOrgCode}`, '_blank');
+                window.open(`/service/datacenter/store/parentCompany/detail?companyCode=${row.parentOrgCode}`, '_blank');
               }
             }]
           },
@@ -1291,7 +1291,7 @@ export default {
                   this.$message.warning('该记录暂无公司编码，无法跳转');
                   return;
                 }
-                window.open(`/datacenter/store/parentCompany/detail?companyCode=${row.parentOrgCode}`, '_blank');
+                window.open(`/service/datacenter/store/parentCompany/detail?companyCode=${row.parentOrgCode}`, '_blank');
               }
             }]
           },
