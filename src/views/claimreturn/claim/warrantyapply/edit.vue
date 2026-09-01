@@ -543,6 +543,7 @@
             ref="partTableRef"
             :id="_id"
             :canAddOrUpdate="canEdit"
+            :disableOldPartEdit="disableOldPartEdit"
             @update="handleTableUpdate"
             @loading-change="handleTableLoadingChange"
           />
@@ -635,6 +636,7 @@ import {
   print,
   getNextId
 } from '@/api/claimreturn/claim/warrantyapply/index';
+import { serviceActivitySchemeGet } from '@/api/claimreturn/claim/basic/serviceActivity/index';
 import {
   APPLY_STATUS,
   EDITABLE_STATUSES,
@@ -854,6 +856,16 @@ export default {
     isGoodwillWarranty () {
       return this.form.repairItemTypeName === '善意保修';
     },
+    // 是否技术服务活动
+    isTechnicalServiceActivity () {
+      // 保修类型字典的 code 通过 WarrantyTypeEnum.TECHNICAL_SERVICE_ACTIVITY.getCode() 与 repairItemTypeId 比对
+      // 但前端拿不到枚举常量,这里采用与后端一致的判定:repairItemTypeName === '技术服务活动'
+      return this.form.repairItemTypeName === '技术服务活动';
+    },
+    // 是否禁用备件明细的旧件编码编辑:技术服务活动 + 方案不允许修改旧件
+    disableOldPartEdit () {
+      return this.isTechnicalServiceActivity && this.allowModifyOldPart === '0';
+    },
     remindContent () {
       return this.form.spRemindInfo;
     }
@@ -873,6 +885,14 @@ export default {
           if (this.$refs.mainPartSelectRef) {
             this.$refs.mainPartSelectRef.loadRemoteMethod(this.form.mainPartCode);
           }
+        }
+      }
+    },
+    // 加载保修单后,根据活动方案判断是否禁用备件明细的旧件编码编辑
+    'form.schemeId': {
+      handler (val, old) {
+        if (val && val !== old) {
+          this.loadAllowModifyOldPart(val);
         }
       }
     },
@@ -908,6 +928,8 @@ export default {
       canDeny: false,
       canCancel: false,
       printLoading: false,
+      // 当前活动方案的"是否允许修改旧件"(1=是,0=否),用于控制备件明细的旧件编码列是否禁用
+      allowModifyOldPart: '',
       // 对话框状态
       rejectDialogVisible: false,
       rejectIds: [],
@@ -953,6 +975,19 @@ export default {
         ...res,
         partAndSupplierId: res.mainPartId ? res.mainPartId + res.mainPartSupplierId : '',
       }));
+    },
+    // 加载活动方案的"是否允许修改旧件",用于控制备件明细编辑
+    loadAllowModifyOldPart (schemeId) {
+      if (!schemeId) {
+        this.allowModifyOldPart = '';
+        return;
+      }
+      // 后端接口签名 @RequestBody String id,要求请求体为纯字符串 ID,不能传对象
+      serviceActivitySchemeGet(schemeId).then(res => {
+        this.allowModifyOldPart = res?.allowModifyOldPart ?? '';
+      }).catch(() => {
+        this.allowModifyOldPart = '';
+      });
     },
     detailRequest () {
       return this.fetchDetail().then(res => {
