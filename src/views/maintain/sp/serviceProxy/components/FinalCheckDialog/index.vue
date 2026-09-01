@@ -704,7 +704,7 @@ export default {
           customClass: 'ais-leave-tips',
           showClose: false
         }).then(() => {
-          const newCustomerContent = this.vehicleInfo.confirmFault === ConfirmFaultEnum.ACCURATE ? this.vehicleInfo.customerContent : '本次进店车辆无故障'; // 1 为准确 2 为不准确
+          const newCustomerContent = this.vehicleInfo.confirmFault === ConfirmFaultEnum.ACCURATE && (this.vehicleInfo.customerContent || '').trim() ? this.vehicleInfo.customerContent : '本次进店车辆无故障';
           addFaultRecord({ id: this.vehicleInfo.id, currentFault: 0, customerContent: newCustomerContent }).then(() => {
             this.faultTableData = [];
             this.$message.success('故障模块信息已清空');
