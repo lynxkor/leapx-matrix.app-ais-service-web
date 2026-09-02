@@ -15,6 +15,13 @@
         sub-label-key="partCode"
         placeholder="请输入备件编码/名称"
       />
+      <el-button
+        v-if="canAddOrUpdate"
+        size="small"
+        @click="handleImport"
+      >
+        导入
+      </el-button>
     </div>
     <div class="common-section-body">
       <div class="common-section-table">
@@ -47,14 +54,28 @@
         </edit-table>
       </div>
     </div>
+    <!-- 备件白名单导入（参考 ClaimTraceOrder 的 Upload 用法） -->
+    <Upload
+      :visible="uploadDialogVisible"
+      id="warrantyWarningPartWhitelistImport"
+      title="导入备件白名单"
+      download-title="备件白名单导入模板"
+      @close="handleUploadDialogClose"
+      @getData="getDetailPageApi"
+    />
   </section>
 </template>
 
 <script>
-import { whitelistPage, whitelistAddOrUpdate, whitelistDelete } from '@/api/claimreturn/claim/basic/warrantyOrderWarningRule/whitelist';
+import {
+  whitelistPage,
+  whitelistAddOrUpdate,
+  whitelistDelete,
+} from '@/api/claimreturn/claim/basic/warrantyOrderWarningRule/whitelist';
 import { sparePartList } from '@/api/common';
 import EditTable from '@/libs/components/EditTable';
 import BaseSearch from '@/libs/components/BaseSearch';
+import Upload from '@/libs/components/UploadDialog';
 import permissions from '@/libs/mixins/permissions';
 
 export default {
@@ -68,7 +89,7 @@ export default {
       default: '',
     },
   },
-  components: { EditTable, BaseSearch },
+  components: { EditTable, BaseSearch, Upload },
   mixins: [permissions],
   data () {
     return {
@@ -86,8 +107,12 @@ export default {
       ],
       part: '',
       curPart: null,
+      // 导入对话框显隐
+      uploadDialogVisible: false,
     };
   },
+  // 白名单与替换件是 BXYJ010 详情页的子功能，导入按钮可见性直接沿用 mixin 的 canAddOrUpdate（详情页编辑权限）；
+  // 不单独注册 import 权限，避免权限 key 冗余。
   watch: {
     id: {
       handler () { this.current = 1; this.getDetailPageApi(); },
@@ -154,6 +179,13 @@ export default {
     onReplace (row) {
       this.$emit('open-replace', row);
     },
+    // 打开导入弹窗（参考 ClaimTraceOrder 的 handleImport）
+    handleImport () {
+      this.uploadDialogVisible = true;
+    },
+    handleUploadDialogClose () {
+      this.uploadDialogVisible = false;
+    },
   },
 };
 </script>
@@ -162,7 +194,15 @@ export default {
 .common-section {
   margin: 0;
   .common-section-body { padding: 0; }
-  .common-section-header { display: flex; align-items: center; margin-bottom: 8px; }
+  // 覆盖 pages.scss 中 .common-section-header 的 justify-content: space-between，
+  // 让【导入】按钮紧跟在输入框后面，而不是被推到行尾
+  .common-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
 }
 .action-button {
   margin: 0 5px;

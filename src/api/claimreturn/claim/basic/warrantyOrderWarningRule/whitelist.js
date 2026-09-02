@@ -24,6 +24,10 @@ export function whitelistEnableOrDisable (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
 
+export function whitelistImportDetail (data) {
+  return api.jsonPost(prefix + 'importDetail', data);
+}
+
 // 替换件
 export function whitelistReplacePage (data) {
   return api.jsonPost(prefixReplace + 'page', data);
