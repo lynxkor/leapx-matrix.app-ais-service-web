@@ -222,6 +222,7 @@ export default {
   mixins: [routeGuard, permissions, commonMixins],
   components: {
     EditPageLayout,
+    EditBaseContainer,
     EditTable,
     FetchSelect,
     warehousingDialog
