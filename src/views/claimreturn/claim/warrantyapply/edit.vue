@@ -388,10 +388,10 @@
               />
             </el-form-item>
             <el-form-item class="form-item-full" label="故障现象描述：" prop="faultPhenomenon">
-              <base-input type="textarea" v-model="form.faultPhenomenon" clearable maxlength="5000" />
+              <base-input type="textarea" v-model="form.faultPhenomenon" clearable maxlength="5000" @input="onFaultPhenomenonInput" />
             </el-form-item>
             <el-form-item class="form-item-full" label="故障排查流程：" prop="troubleshootingFlow">
-              <base-input type="textarea" v-model="form.troubleshootingFlow" clearable maxlength="5000" />
+              <base-input type="textarea" v-model="form.troubleshootingFlow" clearable maxlength="5000" @input="onTroubleshootingFlowInput" />
             </el-form-item>
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!isFormEditing">
@@ -1066,6 +1066,29 @@ export default {
         }
       });
       return res;
+    },
+    /**
+     * 去除字符串中的表情符号
+     */
+    removeEmoji (str) {
+      if (!str) return str;
+      return str
+        .replace(/\p{Extended_Pictographic}/gu, '')
+        .replace(/\p{Emoji_Modifier}/gu, '')
+        .replace(/[\u{FE00}\u{FE0F}\u{200D}]/gu, '')
+        .replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu, '');
+    },
+    onFaultPhenomenonInput (val) {
+      const cleaned = this.removeEmoji(val);
+      if (cleaned !== val) {
+        this.form.faultPhenomenon = cleaned;
+      }
+    },
+    onTroubleshootingFlowInput (val) {
+      const cleaned = this.removeEmoji(val);
+      if (cleaned !== val) {
+        this.form.troubleshootingFlow = cleaned;
+      }
     },
     // 打开侧边栏
     openPane () {
