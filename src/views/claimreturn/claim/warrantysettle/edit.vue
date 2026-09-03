@@ -14,7 +14,7 @@
       <el-button v-if="canConfirm && form.settleStatus === '10'" type="primary" size="small" :loading="confirmLoading" @click="handleConfirm">确认</el-button>
       <el-button v-if="canComplete && (form.settleStatus === '60' || form.settleStatus === '110')" type="primary" size="small" @click="handleComplete">开票完成</el-button>
       <el-button v-if="canInvoiceAccept && form.settleStatus === '65'" type="primary" size="small" @click="handleInvoiceAccept">发票验收</el-button>
-      <el-button v-if="canInvoiceReturn && form.settleStatus === '65'" type="primary" size="small" @click="handleInvoiceReturn">发票退回</el-button>
+      <el-button v-if="canInvoiceReturn && (form.settleStatus === '65' || form.settleStatus === '90')" type="primary" size="small" @click="handleInvoiceReturn">发票退回</el-button>
       <el-button v-if="canPayConfirm && form.settleStatus === '90'" type="primary" size="small" @click="handlePayConfirm">确认付款</el-button>
     </template>
     <el-main>
