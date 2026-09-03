@@ -40,7 +40,7 @@
       <vxe-column title="旧件编码" width="200">
         <template #default="{ row, rowIndex }">
           <fetch-select
-            v-if="editRowIndex === rowIndex"
+            v-if="editRowIndex === rowIndex && !disableOldPartEdit"
             :remote-method="partRemote"
             remote
             v-model="row.partAndSupplierId"
@@ -164,6 +164,11 @@ export default {
       type: Boolean,
     },
     canAddOrUpdate: {
+      type: Boolean,
+      default: false,
+    },
+    // 是否禁用旧件编码编辑(技术服务活动方案不允许修改旧件时为 true)
+    disableOldPartEdit: {
       type: Boolean,
       default: false,
     },
