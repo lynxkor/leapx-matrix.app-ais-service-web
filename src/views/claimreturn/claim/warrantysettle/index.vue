@@ -652,7 +652,8 @@ export default {
       tableForm: { page: 1, size: pageSize },
       // 排序字段
       sortColumns: [
-        { column: 'create_time', sort: 'DESC' }
+        { column: 'create_time', sort: 'DESC' },
+        { column: 'id', sort: 'DESC' }
       ],
       // 操作按钮权限
       canConfirm: false,
