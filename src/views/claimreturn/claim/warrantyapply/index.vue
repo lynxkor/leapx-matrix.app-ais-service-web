@@ -616,6 +616,10 @@ export default {
         {
           column: 'create_time',
           sort: 'DESC'
+        },
+        {
+          column: 'id',
+          sort: 'DESC'
         }
       ],
       rejectDialogVisible: false,

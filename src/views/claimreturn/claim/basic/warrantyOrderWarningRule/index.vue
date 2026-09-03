@@ -218,6 +218,10 @@ export default {
           sort: (item.order || '').toUpperCase()
         };
       });
+      // 强制追加 id 兜底,防止单列排序翻页丢行/串行
+      if (!this.sortColumns.some(sc => sc.column === 'id')) {
+        this.sortColumns.push({ column: 'id', sort: 'DESC' });
+      }
       this.getData();
     },
     onSubmit () {

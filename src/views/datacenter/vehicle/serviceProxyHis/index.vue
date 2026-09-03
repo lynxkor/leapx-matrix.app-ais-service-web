@@ -227,10 +227,16 @@ export default {
         ],
         total: 0
       },
-      sortColumns: [{
-        column: 'create_time',
-        sort: 'DESC'
-      }]
+      sortColumns: [
+        {
+          column: 'create_time',
+          sort: 'DESC'
+        },
+        {
+          column: 'id',
+          sort: 'DESC'
+        }
+      ]
     };
   },
   created () {
