@@ -21,10 +21,10 @@
               <!-- TIPS: 自行调整 label-width="150px"，使得 label 不换行 -->
               <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="auto" class="form-edit" v-show="isEditing || !_id">
                 <!-- OCR 类预警规则（BXYJ002 车主信息不一致 / BXYJ003 系统车辆用途 / BXYJ004 行驶证车辆用途 / BXYJ005 车牌号）：触发时机均为上传行驶证，不需要 judgeDays/judgeTimes -->
-                <template v-if="isOcrRule(form.ruleCode)">
+                <template v-if="isOcrRule(form.ruleType)">
                   <el-form-item class="form-item-line">
                     <!-- BXYJ005 车牌号预警: 描述中嵌入可编辑的位数 (参照 BXYJ001 的 365/0 模式) -->
-                    <template v-if="form.ruleCode === 'WWR-BXYJ005'">
+                    <template v-if="form.ruleType === 'BXYJ005'">
                       <span>当保修单上传行驶证附件时，若 OCR 行驶证车牌号 与 系统车牌号 不匹配超过 </span>
                       <el-input-number
                         v-model="form.diffCharCount"
@@ -38,7 +38,7 @@
                     </template>
                     <!-- BXYJ002 / BXYJ003 / BXYJ004: 纯文本描述 -->
                     <template v-else>
-                      <span>{{ ocrRuleDescription(form.ruleCode) }}</span>
+                      <span>{{ ocrRuleDescription(form.ruleType) }}</span>
                     </template>
                     <el-input
                       type="textarea"
@@ -56,7 +56,7 @@
                 <template v-else>
                   <el-form-item class="form-item-line">
                     <!-- BXYJ006 不同车重复附件预警: 描述中嵌入可编辑的天数 (参照 BXYJ001 的 365/0 模式) -->
-                    <template v-if="form.ruleCode === 'WWR-BXYJ006'">
+                    <template v-if="form.ruleType === 'BXYJ006'">
                       <span>当前保修单所属门店中，创建日期大于等于当前日期- </span>
                       <el-input-number
                         placeholder="请输入天数"
@@ -70,7 +70,7 @@
                       <span> 天，且 VIN 不等于当前车辆，同时保修状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，当前保修单相关附件在上述保修单中已使用，则提醒：</span>
                     </template>
                     <!-- BXYJ008 不同店重复附件预警: 复用 withinDays 输入控件, 文案改为跨店 -->
-                    <template v-else-if="form.ruleCode === 'WWR-BXYJ008'">
+                    <template v-else-if="form.ruleType === 'BXYJ008'">
                       <span>创建日期大于等于当前日期- </span>
                       <el-input-number
                         placeholder="请输入天数"
@@ -84,11 +84,11 @@
                       <span> 天，且不是当前保修单所属门店，同时保修状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，当前保修单相关附件在上述保修单中已使用，则提醒：</span>
                     </template>
                     <!-- BXYJ009 事故维修预警: 配置固定（90 天 + 5 种保修类型白名单 + 工单状态 + 保险），不暴露输入框 -->
-                    <template v-else-if="form.ruleCode === 'WWR-BXYJ009'">
+                    <template v-else-if="form.ruleType === 'BXYJ009'">
                       <span>{{ accidentRuleDescription }}</span>
                     </template>
                     <!-- BXYJ007 不同周期重复附件预警: 配置固定（同车 + 维修周期区间不相交 + 6 状态匹配 + fileId 重复），不暴露输入框 -->
-                    <template v-else-if="form.ruleCode === 'WWR-BXYJ007'">
+                    <template v-else-if="form.ruleType === 'BXYJ007'">
                       <span>{{ cycleDuplicateRuleDescription }}</span>
                     </template>
                     <!-- 模板提示: BXYJ006 / BXYJ008 支持 ${name} 和 ${names} 两个占位符 -->
@@ -133,10 +133,10 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <!-- OCR 类预警规则详情 (BXYJ002/003/004/005) -->
-                <template v-if="isOcrRule(form.ruleCode)">
+                <template v-if="isOcrRule(form.ruleType)">
                   <el-form-item class="form-item-line">
                     <!-- BXYJ005 车牌号预警: 描述中嵌入只读位数 -->
-                    <template v-if="form.ruleCode === 'WWR-BXYJ005'">
+                    <template v-if="form.ruleType === 'BXYJ005'">
                       <span>当保修单上传行驶证附件时，若 OCR 行驶证车牌号 与 系统车牌号 不匹配超过 </span>
                       <el-input
                         v-model="form.diffCharCount"
@@ -148,7 +148,7 @@
                     </template>
                     <!-- BXYJ002 / BXYJ003 / BXYJ004: 纯文本描述 -->
                     <template v-else>
-                      <span>{{ ocrRuleDescription(form.ruleCode) }}</span>
+                      <span>{{ ocrRuleDescription(form.ruleType) }}</span>
                     </template>
                     <el-input
                       type="textarea"
@@ -166,7 +166,7 @@
                 <!-- 其他规则详情 (BXYJ001 / BXYJ006 等) -->
                 <el-form-item class="form-item-line" v-else prop="judgeDays">
                   <!-- BXYJ006 不同车重复附件预警: 只读天数 -->
-                  <template v-if="form.ruleCode === 'WWR-BXYJ006'">
+                  <template v-if="form.ruleType === 'BXYJ006'">
                     <span>当前保修单所属门店中，创建日期大于等于当前日期- </span>
                     <el-input
                       placeholder="天数"
@@ -178,7 +178,7 @@
                     <span> 天，且 VIN 不等于当前车辆，同时保修状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，当前保修单相关附件在上述保修单中已使用，则提醒：</span>
                   </template>
                   <!-- BXYJ008 不同店重复附件预警: 只读天数 -->
-                  <template v-else-if="form.ruleCode === 'WWR-BXYJ008'">
+                  <template v-else-if="form.ruleType === 'BXYJ008'">
                     <span>创建日期大于等于当前日期- </span>
                     <el-input
                       placeholder="天数"
@@ -190,11 +190,11 @@
                     <span> 天，且不是当前保修单所属门店，同时保修状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，当前保修单相关附件在上述保修单中已使用，则提醒：</span>
                   </template>
                   <!-- BXYJ009 事故维修预警: 配置固定(只读展示) -->
-                  <template v-else-if="form.ruleCode === 'WWR-BXYJ009'">
+                  <template v-else-if="form.ruleType === 'BXYJ009'">
                     <span>{{ accidentRuleDescription }}</span>
                   </template>
                   <!-- BXYJ007 不同周期重复附件预警: 配置固定(只读展示) -->
-                  <template v-else-if="form.ruleCode === 'WWR-BXYJ007'">
+                  <template v-else-if="form.ruleType === 'BXYJ007'">
                     <span>{{ cycleDuplicateRuleDescription }}</span>
                   </template>
                   <!-- BXYJ001 重复维修预警等: 原有描述 -->
@@ -234,14 +234,14 @@
           </section>
 
           <!-- BXYJ010 过度更换零件预警: 备件白名单 section（独立于基础信息表单，配置固定） -->
-          <section v-if="form.ruleCode === 'WWR-BXYJ010'" class="common-section">
+          <section v-if="form.ruleType === 'BXYJ010'" class="common-section">
             <div class="common-section-header">
               <h2>备件白名单</h2>
             </div>
             <div class="common-section-body">
               <whitelist-table
                 :id="_id"
-                :rule-code="form.ruleCode"
+                :rule-type="form.ruleType"
                 :module-key="moduleKey"
                 @open-replace="handleOpenReplace"
               />
@@ -339,7 +339,7 @@ export default {
       immediate: false
     },
     // 当切换规则 code 时, 也需要从 extConfig 加载对应字段
-    'form.ruleCode': {
+    'form.ruleType': {
       handler (val) {
         if (this.form.extConfig) {
           this.syncExtConfigFields(this.form.extConfig);
@@ -417,11 +417,11 @@ export default {
       //                   前端不暴露任何输入框, 也不需要 judgeDays/judgeTimes/withinDays 校验
       // BXYJ007 不同周期重复附件预警: 配置全部固定（同车 + 维修周期区间不相交 + 6 状态）,
       //                   前端不暴露任何输入框, 也不需要 judgeDays/judgeTimes/withinDays 校验
-      const isOcr = this.isOcrRule(this.form.ruleCode);
-      const isBxyj006 = this.form.ruleCode === 'WWR-BXYJ006';
-      const isBxyj008 = this.form.ruleCode === 'WWR-BXYJ008';
-      const isBxyj009 = this.form.ruleCode === 'WWR-BXYJ009';
-      const isBxyj007 = this.form.ruleCode === 'WWR-BXYJ007';
+      const isOcr = this.isOcrRule(this.form.ruleType);
+      const isBxyj006 = this.form.ruleType === 'BXYJ006';
+      const isBxyj008 = this.form.ruleType === 'BXYJ008';
+      const isBxyj009 = this.form.ruleType === 'BXYJ009';
+      const isBxyj007 = this.form.ruleType === 'BXYJ007';
       if (!isOcr && !isBxyj006 && !isBxyj008 && !isBxyj009 && !isBxyj007) {
         if (this.form.judgeDays === '' || this.form.judgeDays === null || this.form.judgeDays === undefined) {
           this.$message.error('请输入判定天数');
@@ -438,7 +438,7 @@ export default {
       }
 
       // BXYJ005 车牌号预警必须输入不匹配位数
-      if (this.form.ruleCode === 'WWR-BXYJ005') {
+      if (this.form.ruleType === 'BXYJ005') {
         if (this.form.diffCharCount === '' || this.form.diffCharCount === null || this.form.diffCharCount === undefined) {
           this.$message.error('请输入不匹配位数');
           return;
@@ -483,7 +483,7 @@ export default {
       } catch (e) {
         cfg = {};
       }
-      if (this.form.ruleCode === 'WWR-BXYJ005') {
+      if (this.form.ruleType === 'BXYJ005') {
         cfg.diffCharCount = Number(this.form.diffCharCount);
         delete submitForm.diffCharCount;
       }
@@ -497,7 +497,7 @@ export default {
       }
       // BXYJ009 不需要合并任何独立字段, 直接透传后端的 extConfig (90/白名单/工单状态/保险)
       // BXYJ007 同样不需要合并任何独立字段, 配置全部后端固定
-      if (this.form.ruleCode === 'WWR-BXYJ005' || isBxyj006 || isBxyj008) {
+      if (this.form.ruleType === 'BXYJ005' || isBxyj006 || isBxyj008) {
         submitForm.extConfig = JSON.stringify(cfg);
       }
 
@@ -510,24 +510,24 @@ export default {
     /**
      * 是否为 OCR 类预警规则（触发时机为上传行驶证，不需要 judgeDays/judgeTimes）
      */
-    isOcrRule (ruleCode) {
-      if (!ruleCode) return false;
-      return ['WWR-BXYJ002', 'WWR-BXYJ003', 'WWR-BXYJ004', 'WWR-BXYJ005'].includes(ruleCode);
+    isOcrRule (ruleType) {
+      if (!ruleType) return false;
+      return ['BXYJ002', 'BXYJ003', 'BXYJ004', 'BXYJ005'].includes(ruleType);
     },
     /**
      * OCR 类预警规则的描述文案（按规则 code 返回，严格按需求原文）
      * BXYJ005 因为需要在描述中嵌入可编辑位数输入框，文案已硬编码在模板中，本方法不返回 BXYJ005
      */
-    ocrRuleDescription (ruleCode) {
+    ocrRuleDescription (ruleType) {
       const map = {
         // BXYJ002: 需求原文 "OCR识别行驶证所有人与系统车主姓名不一致"
-        'WWR-BXYJ002': '当保修单上传行驶证附件时，若 OCR 行驶证所有人 与 系统车主姓名 不一致时，则提醒：',
+        BXYJ002: '当保修单上传行驶证附件时，若 OCR 行驶证所有人 与 系统车主姓名 不一致时，则提醒：',
         // BXYJ003: 需求原文 "OCR识别行驶证使用性质为"非营运"，系统里不是家用"
-        'WWR-BXYJ003': '当保修单上传行驶证附件时，若 OCR 行驶证使用性质 为"非营运"、且系统车辆用途 不是家用时，则提醒：',
+        BXYJ003: '当保修单上传行驶证附件时，若 OCR 行驶证使用性质 为"非营运"、且系统车辆用途 不是家用时，则提醒：',
         // BXYJ004: 需求原文 "OCR识别行驶证使用性质不为"非营运"，对应系统属性为家用"
-        'WWR-BXYJ004': '当保修单上传行驶证附件时，若 OCR 行驶证使用性质 不为"非营运"、且系统车辆用途 为家用时，则提醒：'
+        BXYJ004: '当保修单上传行驶证附件时，若 OCR 行驶证使用性质 不为"非营运"、且系统车辆用途 为家用时，则提醒：'
       };
-      return map[ruleCode] || '';
+      return map[ruleType] || '';
     },
     /**
      * 从 extConfig JSON 中解析 diffCharCount (BXYJ005) / withinDays (BXYJ006/008) 到独立字段
@@ -535,30 +535,30 @@ export default {
      * BXYJ007 同样不需要独立字段, 此方法对 BXYJ007 是 no-op
      */
     syncExtConfigFields (val) {
-      const ruleCode = this.form.ruleCode;
+      const ruleType = this.form.ruleType;
       if (!val) {
-        if (ruleCode === 'WWR-BXYJ005') this.form.diffCharCount = '';
-        if (ruleCode === 'WWR-BXYJ006') this.form.withinDays = '';
-        if (ruleCode === 'WWR-BXYJ008') this.form.withinDays = '';
+        if (ruleType === 'BXYJ005') this.form.diffCharCount = '';
+        if (ruleType === 'BXYJ006') this.form.withinDays = '';
+        if (ruleType === 'BXYJ008') this.form.withinDays = '';
         return;
       }
       try {
         const cfg = JSON.parse(val);
-        if (ruleCode === 'WWR-BXYJ005') {
+        if (ruleType === 'BXYJ005') {
           this.form.diffCharCount = cfg && cfg.diffCharCount !== undefined ? cfg.diffCharCount : '';
         }
-        if (ruleCode === 'WWR-BXYJ006') {
+        if (ruleType === 'BXYJ006') {
           this.form.withinDays = cfg && cfg.withinDays !== undefined ? cfg.withinDays : '';
         }
-        if (ruleCode === 'WWR-BXYJ008') {
+        if (ruleType === 'BXYJ008') {
           this.form.withinDays = cfg && cfg.withinDays !== undefined ? cfg.withinDays : '';
         }
         // BXYJ009 不需要解析独立字段, 后端 extConfig 完全透传
         // BXYJ007 不需要解析独立字段, 后端 extConfig 完全透传
       } catch (e) {
-        if (ruleCode === 'WWR-BXYJ005') this.form.diffCharCount = '';
-        if (ruleCode === 'WWR-BXYJ006') this.form.withinDays = '';
-        if (ruleCode === 'WWR-BXYJ008') this.form.withinDays = '';
+        if (ruleType === 'BXYJ005') this.form.diffCharCount = '';
+        if (ruleType === 'BXYJ006') this.form.withinDays = '';
+        if (ruleType === 'BXYJ008') this.form.withinDays = '';
       }
     },
     getDefautlForm () {
