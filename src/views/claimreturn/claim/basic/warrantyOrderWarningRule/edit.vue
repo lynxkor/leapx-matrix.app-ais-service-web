@@ -473,9 +473,31 @@ export default {
         }
       }
 
+      // BXYJ001 重复维修预警: judgeDays/judgeTimes 由后端 Builder 从 ext_config 读取,
+      //                     前端继续保留这两个输入框, 但提交时合并到 extConfig JSON,
+      //                     不再走主表字段(主表字段已删除, 单字段名会触发后端未知字段拒绝).
+      if (this.form.ruleType === 'BXYJ001') {
+        if (this.form.judgeDays === '' || this.form.judgeDays === null || this.form.judgeDays === undefined) {
+          this.$message.error('请输入判定天数');
+          return;
+        }
+        if (Number(this.form.judgeDays) < 0) {
+          this.$message.error('判定天数不能小于 0');
+          return;
+        }
+        if (this.form.judgeTimes === '' || this.form.judgeTimes === null || this.form.judgeTimes === undefined) {
+          this.$message.error('请输入判定次数');
+          return;
+        }
+        if (Number(this.form.judgeTimes) < 0) {
+          this.$message.error('判定次数不能小于 0');
+          return;
+        }
+      }
+
       // BXYJ009 事故维修预警: 所有参数后端固定, 前端不做额外校验, 提醒内容必填(上面已校验)
 
-      // 把独立字段(diffCharCount / withinDays)合并到 extConfig JSON 字符串(后端 ext_config 是 JSON 字段)
+      // 把独立字段(diffCharCount / withinDays / judgeDays / judgeTimes)合并到 extConfig JSON 字符串(后端 ext_config 是 JSON 字段)
       const submitForm = { ...this.form };
       let cfg = {};
       try {
@@ -495,9 +517,16 @@ export default {
         cfg.withinDays = Number(this.form.withinDays);
         delete submitForm.withinDays;
       }
+      // BXYJ001: judgeDays/judgeTimes 改由 ext_config 管理(主表字段已删除)
+      if (this.form.ruleType === 'BXYJ001') {
+        cfg.judgeDays = Number(this.form.judgeDays);
+        cfg.judgeTimes = Number(this.form.judgeTimes);
+        delete submitForm.judgeDays;
+        delete submitForm.judgeTimes;
+      }
       // BXYJ009 不需要合并任何独立字段, 直接透传后端的 extConfig (90/白名单/工单状态/保险)
       // BXYJ007 同样不需要合并任何独立字段, 配置全部后端固定
-      if (this.form.ruleType === 'BXYJ005' || isBxyj006 || isBxyj008) {
+      if (this.form.ruleType === 'BXYJ005' || isBxyj006 || isBxyj008 || this.form.ruleType === 'BXYJ001') {
         submitForm.extConfig = JSON.stringify(cfg);
       }
 
@@ -530,7 +559,8 @@ export default {
       return map[ruleType] || '';
     },
     /**
-     * 从 extConfig JSON 中解析 diffCharCount (BXYJ005) / withinDays (BXYJ006/008) 到独立字段
+     * 从 extConfig JSON 中解析 diffCharCount (BXYJ005) / withinDays (BXYJ006/008) /
+     * judgeDays (BXYJ001) / judgeTimes (BXYJ001) 到独立字段
      * BXYJ009 不需要独立字段(配置后端固定), 此方法对 BXYJ009 是 no-op
      * BXYJ007 同样不需要独立字段, 此方法对 BXYJ007 是 no-op
      */
@@ -540,6 +570,10 @@ export default {
         if (ruleType === 'BXYJ005') this.form.diffCharCount = '';
         if (ruleType === 'BXYJ006') this.form.withinDays = '';
         if (ruleType === 'BXYJ008') this.form.withinDays = '';
+        if (ruleType === 'BXYJ001') {
+          this.form.judgeDays = '';
+          this.form.judgeTimes = '';
+        }
         return;
       }
       try {
@@ -553,12 +587,21 @@ export default {
         if (ruleType === 'BXYJ008') {
           this.form.withinDays = cfg && cfg.withinDays !== undefined ? cfg.withinDays : '';
         }
+        if (ruleType === 'BXYJ001') {
+          // judgeDays/judgeTimes 改由 ext_config 管理,主表字段已删除
+          this.form.judgeDays = cfg && cfg.judgeDays !== undefined ? cfg.judgeDays : '';
+          this.form.judgeTimes = cfg && cfg.judgeTimes !== undefined ? cfg.judgeTimes : '';
+        }
         // BXYJ009 不需要解析独立字段, 后端 extConfig 完全透传
         // BXYJ007 不需要解析独立字段, 后端 extConfig 完全透传
       } catch (e) {
         if (ruleType === 'BXYJ005') this.form.diffCharCount = '';
         if (ruleType === 'BXYJ006') this.form.withinDays = '';
         if (ruleType === 'BXYJ008') this.form.withinDays = '';
+        if (ruleType === 'BXYJ001') {
+          this.form.judgeDays = '';
+          this.form.judgeTimes = '';
+        }
       }
     },
     getDefautlForm () {
