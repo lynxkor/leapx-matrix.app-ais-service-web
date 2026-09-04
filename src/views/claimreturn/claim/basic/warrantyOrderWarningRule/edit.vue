@@ -530,7 +530,23 @@ export default {
         submitForm.extConfig = JSON.stringify(cfg);
       }
 
-      return addOrUpdate(submitForm);
+      return addOrUpdate(submitForm).then(res => {
+        // 保存成功后立即同步 judgeDays/judgeTimes / diffCharCount / withinDays 到 form,
+        // 避免依赖 'form.extConfig' watch 时机失效(Vue 2 整体替换 form 对象时新对象未 reactive,
+        // EditBaseContainer.loadDetail() 触发的 update:form 会让 watch 失效,导致输入框回退到默认 0).
+        // 这一步是显式赋值,不依赖响应式追踪.
+        if (this.form.ruleType === 'BXYJ005') {
+          this.form.diffCharCount = cfg.diffCharCount;
+        }
+        if (isBxyj006 || isBxyj008) {
+          this.form.withinDays = cfg.withinDays;
+        }
+        if (this.form.ruleType === 'BXYJ001') {
+          this.form.judgeDays = cfg.judgeDays;
+          this.form.judgeTimes = cfg.judgeTimes;
+        }
+        return res;
+      });
     },
     // 打开侧边栏
     openPane () {
@@ -559,10 +575,12 @@ export default {
       return map[ruleType] || '';
     },
     /**
-     * 从 extConfig JSON 中解析 diffCharCount (BXYJ005) / withinDays (BXYJ006/008) /
+     * 从 extConfig 中解析 diffCharCount (BXYJ005) / withinDays (BXYJ006/008) /
      * judgeDays (BXYJ001) / judgeTimes (BXYJ001) 到独立字段
-     * BXYJ009 不需要独立字段(配置后端固定), 此方法对 BXYJ009 是 no-op
-     * BXYJ007 同样不需要独立字段, 此方法对 BXYJ007 是 no-op
+     * <p>
+     * 入参兼容两种类型: String (后端 Resp.extConfig 原始 JSON 字符串) / Object (已 JSON.parse 的对象).
+     * BXYJ009 / BXYJ007 配置后端固定,无独立字段需要解析.
+     * </p>
      */
     syncExtConfigFields (val) {
       const ruleType = this.form.ruleType;
@@ -576,33 +594,33 @@ export default {
         }
         return;
       }
-      try {
-        const cfg = JSON.parse(val);
-        if (ruleType === 'BXYJ005') {
-          this.form.diffCharCount = cfg && cfg.diffCharCount !== undefined ? cfg.diffCharCount : '';
+      // 容错: 入参可能是 string (JSON 字符串) 也可能是 object (已被 JSON.parse)
+      let cfg = {};
+      if (typeof val === 'string') {
+        try {
+          cfg = JSON.parse(val);
+        } catch (e) {
+          cfg = {};
         }
-        if (ruleType === 'BXYJ006') {
-          this.form.withinDays = cfg && cfg.withinDays !== undefined ? cfg.withinDays : '';
-        }
-        if (ruleType === 'BXYJ008') {
-          this.form.withinDays = cfg && cfg.withinDays !== undefined ? cfg.withinDays : '';
-        }
-        if (ruleType === 'BXYJ001') {
-          // judgeDays/judgeTimes 改由 ext_config 管理,主表字段已删除
-          this.form.judgeDays = cfg && cfg.judgeDays !== undefined ? cfg.judgeDays : '';
-          this.form.judgeTimes = cfg && cfg.judgeTimes !== undefined ? cfg.judgeTimes : '';
-        }
-        // BXYJ009 不需要解析独立字段, 后端 extConfig 完全透传
-        // BXYJ007 不需要解析独立字段, 后端 extConfig 完全透传
-      } catch (e) {
-        if (ruleType === 'BXYJ005') this.form.diffCharCount = '';
-        if (ruleType === 'BXYJ006') this.form.withinDays = '';
-        if (ruleType === 'BXYJ008') this.form.withinDays = '';
-        if (ruleType === 'BXYJ001') {
-          this.form.judgeDays = '';
-          this.form.judgeTimes = '';
-        }
+      } else if (typeof val === 'object') {
+        cfg = val;
       }
+      if (ruleType === 'BXYJ005') {
+        this.form.diffCharCount = cfg.diffCharCount !== undefined && cfg.diffCharCount !== null ? cfg.diffCharCount : '';
+      }
+      if (ruleType === 'BXYJ006') {
+        this.form.withinDays = cfg.withinDays !== undefined && cfg.withinDays !== null ? cfg.withinDays : '';
+      }
+      if (ruleType === 'BXYJ008') {
+        this.form.withinDays = cfg.withinDays !== undefined && cfg.withinDays !== null ? cfg.withinDays : '';
+      }
+      if (ruleType === 'BXYJ001') {
+        // judgeDays/judgeTimes 改由 ext_config 管理,主表字段已删除
+        this.form.judgeDays = cfg.judgeDays !== undefined && cfg.judgeDays !== null ? cfg.judgeDays : '';
+        this.form.judgeTimes = cfg.judgeTimes !== undefined && cfg.judgeTimes !== null ? cfg.judgeTimes : '';
+      }
+      // BXYJ009 不需要解析独立字段, 后端 extConfig 完全透传
+      // BXYJ007 不需要解析独立字段, 后端 extConfig 完全透传
     },
     getDefautlForm () {
       // TIPS: 此处可添加表单默认值，如当前用户信息等
