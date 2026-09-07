@@ -120,6 +120,7 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="canImport" size="small" @click="handleCouponImport">导入</el-button>
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
       <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
@@ -152,6 +153,12 @@
       :visible="uploadDialogVisible"
       :id="'1'"
       @close="handleUploadDialogClose"
+    />
+    <!-- 优惠券导入对话框 -->
+    <Upload
+      :visible="couponUploadDialogVisible"
+      :id="'sparePartPurchasePriceCouponImport'"
+      @close="handleCouponUploadDialogClose"
     />
   </div>
 </template>
@@ -216,6 +223,7 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      couponUploadDialogVisible: false,
       clickItemId: '',
       optionObj: {
         id: 'purchasePriceCouponTable',
@@ -250,7 +258,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.dealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -299,6 +307,12 @@ export default {
     },
     handleUploadDialogClose () {
       this.uploadDialogVisible = false;
+    },
+    handleCouponImport () {
+      this.couponUploadDialogVisible = true;
+    },
+    handleCouponUploadDialogClose () {
+      this.couponUploadDialogVisible = false;
     },
     handleAdd () {
       this.$router.push({

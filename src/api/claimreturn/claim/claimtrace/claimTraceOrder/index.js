@@ -43,9 +43,14 @@ export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
 
-// 提交审核
+// 审核下发（提交审核）
 export function submitAudit (data) {
   return api.jsonPost(prefix + 'submitForAudit', data);
+}
+
+// 批量审核下发
+export function batchSubmitForAudit (data) {
+  return api.jsonPost(prefix + 'batchSubmitForAudit', data);
 }
 
 // 作废
@@ -53,17 +58,28 @@ export function cancelOrder (data) {
   return api.jsonPost(prefix + 'cancel', data);
 }
 
+// 批量作废
+export function batchCancel (data) {
+  return api.jsonPost(prefix + 'batchCancel', data);
+}
+
 // 调整追溯金额
 export function adjustTraceAmount (data) {
   return api.jsonPost(prefix + 'adjustTraceAmount', data);
 }
 
-// 同意下发
+/**
+ * 同意下发
+ * @deprecated 【已废弃-2026-07-24】【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。保留方法以备查询参考。
+ */
 export function agreeIssue (data) {
   return api.jsonPost(prefix + 'agreeIssue', data);
 }
 
-// 驳回修改
+/**
+ * 驳回修改
+ * @deprecated 【已废弃-2026-07-24】【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。保留方法以备查询参考。
+ */
 export function rejectModify (data) {
   return api.jsonPost(prefix + 'rejectForModify', data);
 }

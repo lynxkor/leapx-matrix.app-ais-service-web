@@ -10,14 +10,16 @@
         <template #extraButtons>
           <el-button v-if="permissions.has(`${moduleKey}-cancel`) && detailButtons.includes('作废')" size="small" @click="handleCancelOrder">作废</el-button>
           <el-button v-if="permissions.has(`${moduleKey}-adjustAmount`) && detailButtons.includes('调整追溯金额')" size="small" @click="handleAdjustAmount">调整追溯金额</el-button>
-          <el-button v-if="permissions.has(`${moduleKey}-rejectModify`) && detailButtons.includes('驳回修改')" size="small" @click="handleRejectModify">驳回修改</el-button>
+          <!-- 【已废弃-2026-07-24】rejectForModify 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。 -->
+          <!-- <el-button v-if="permissions.has(`${moduleKey}-rejectModify`) && detailButtons.includes('驳回修改')" size="small" @click="handleRejectModify">驳回修改</el-button> -->
           <el-button v-if="permissions.has(`${moduleKey}-appeal`) && detailButtons.includes('申诉')" size="small" @click="handleAppeal">申诉</el-button>
           <el-button v-if="permissions.has(`${moduleKey}-rejectAppeal`) && detailButtons.includes('驳回申诉')" size="small" @click="handleRejectAppeal">驳回申诉</el-button>
           <el-button v-if="permissions.has(`${moduleKey}-rejectForAppeal`) && detailButtons.includes('拒绝申诉')" size="small" @click="handleRefuseAppeal">拒绝申诉</el-button>
-          <el-button v-if="permissions.has(`${moduleKey}-submitForAudit`) && detailButtons.includes('提交审核')" size="small" type="primary"
-            @click="handleSubmitAudit">提交审核</el-button>
-          <el-button v-if="permissions.has(`${moduleKey}-agreeIssue`) && detailButtons.includes('同意下发')" size="small" type="primary"
-            :loading="agreeIssueLoading" @click="handleAgreeIssue">同意下发</el-button>
+          <el-button v-if="permissions.has(`${moduleKey}-submitForAudit`) && detailButtons.includes('审核下发')" size="small" type="primary"
+            @click="handleSubmitAudit">审核下发</el-button>
+          <!-- 【已废弃-2026-07-24】agreeIssue 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。 -->
+          <!-- <el-button v-if="permissions.has(`${moduleKey}-agreeIssue`) && detailButtons.includes('同意下发')" size="small" type="primary"
+            @click="handleAgreeIssue">同意下发</el-button> -->
           <el-button v-if="permissions.has(`${moduleKey}-agreeTrace`) && detailButtons.includes('同意追溯')" size="small" type="primary"
             :loading="agreeTraceLoading" @click="handleAgreeTrace">同意追溯</el-button>
           <el-button v-if="permissions.has(`${moduleKey}-agreeAppeal`) && detailButtons.includes('同意申诉')" size="small" type="primary"
@@ -57,6 +59,9 @@
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   <dealer-select v-model="form.dealerName" disabled />
+                </el-form-item>
+                <el-form-item label="门店所属区域：" prop="dealerRegionName">
+                  <el-input v-model="form.dealerRegionName" clearable disabled />
                 </el-form-item>
                 <el-form-item label="首次下发时间：">
                   <el-input v-model="form.firstIssueTime" disabled />
@@ -99,7 +104,7 @@
                   <el-link
                     v-if="form.dealerCode"
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                     target="_blank"
                   >{{ form.dealerCode }}</el-link>
                   <span v-else>{{ form.dealerCode }}</span>
@@ -116,6 +121,9 @@
                 </el-form-item>
                 <el-form-item label="门店名称：">
                   {{ form.dealerName }}
+                </el-form-item>
+                <el-form-item label="门店所属区域：">
+                  {{ form.dealerRegionName }}
                 </el-form-item>
                 <el-form-item label="首次下发时间：">{{ form.firstIssueTime }}</el-form-item>
                 <el-form-item label="追溯说明：">{{ form.traceDesc }}</el-form-item>
@@ -206,12 +214,13 @@
               <h2>追溯凭证</h2>
             </div>
             <div class="common-section-body">
+              <!-- 追溯凭证：仅主机厂账号在【草稿/已驳回/申诉中】状态下可上传/删除/编辑 -->
               <AisAttachment
                 :business-id="_id"
                 attachType="不合格凭证"
                 configCode="mcs_claimtrack_form"
                 emptyText="暂无不合格凭证"
-                :readonly="!detailButtons.includes('提交审核')"
+                :readonly="!traceCertEditable"
               />
             </div>
           </section>
@@ -262,7 +271,8 @@
           <CancelOrderDialog :visible.sync="cancelOrderDialogVisible" :traceOrderId="_id" @success="refreshDetail" />
           <AdjustAmountDialog :visible.sync="adjustAmountDialogVisible" :traceOrderId="_id" :formData="form"
             @success="refreshDetail" />
-          <RejectModifyDialog :visible.sync="rejectModifyDialogVisible" :traceOrderId="_id" @success="refreshDetail" />
+          <!-- 【已废弃-2026-07-24】rejectForModify 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。 -->
+          <!-- <RejectModifyDialog :visible.sync="rejectModifyDialogVisible" :traceOrderId="_id" @success="refreshDetail" /> -->
           <AppealDialog :visible.sync="appealDialogVisible" :traceOrderId="_id" @success="refreshDetail" />
           <AgreeAppealDialog :visible.sync="agreeAppealDialogVisible" :traceOrderId="_id" @success="refreshDetail" />
           <RejectAppealDialog :visible.sync="rejectAppealDialogVisible" :traceOrderId="_id" :formData="form"
@@ -280,7 +290,7 @@
 </template>
 
 <script>
-import { getDetail, addOrUpdate, agreeIssue, agreeTrace } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
+import { getDetail, addOrUpdate, agreeTrace } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
 import { claimTraceOrderDetailList } from '@/api/claimreturn/claim/claimtrace/claimTraceOrderDetail/index';
 import { getList } from '@/api/claimreturn/claim/warrantyapply/index';
 import EditPageLayout from '@/libs/components/EditPageLayout';
@@ -295,13 +305,13 @@ import { getDetailVisibleButtons, TRACE_STATUS, TRACE_TYPE } from './constant';
 import SubmitAuditDialog from './components/SubmitAuditDialog';
 import CancelOrderDialog from './components/CancelOrderDialog';
 import AdjustAmountDialog from './components/AdjustAmountDialog';
-import RejectModifyDialog from './components/RejectModifyDialog';
 import AppealDialog from './components/AppealDialog';
 import AgreeAppealDialog from './components/AgreeAppealDialog';
 import RejectAppealDialog from './components/RejectAppealDialog';
 import RefuseAppealDialog from './components/RefuseAppealDialog';
 import AisAttachment from '@/libs/components/AisAttachment';
 import ListSelect from '@/libs/components/list-select';
+import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   claimTraceCode: '',
@@ -310,6 +320,8 @@ const defaultForm = {
   warrantyId: '',
   warrantyCode: '',
   dealerName: '',
+  dealerRegionCode: '',
+  dealerRegionName: '',
   traceDesc: '',
   vin: '',
   remark: '',
@@ -360,7 +372,6 @@ export default {
     SubmitAuditDialog,
     CancelOrderDialog,
     AdjustAmountDialog,
-    RejectModifyDialog,
     AppealDialog,
     AgreeAppealDialog,
     RejectAppealDialog,
@@ -378,6 +389,11 @@ export default {
     detailButtons () {
       if (this.isEditing) return [];
       return getDetailVisibleButtons(this.form.traceStatus);
+    },
+    // 追溯凭证是否可编辑：仅主机厂账号在【草稿/已驳回/申诉中】状态下可上传/删除/编辑
+    traceCertEditable () {
+      const editableStatuses = [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED, TRACE_STATUS.APPEALING];
+      return this.isOem && editableStatuses.includes(this.form.traceStatus);
     },
   },
   watch: {
@@ -422,12 +438,19 @@ export default {
       traceCurrent: 1,
       tracePageSize: 10,
       traceTotal: 0,
+      // 是否主机厂账号（accountFlag=false 为主机厂，true 为门店）
+      isOem: false,
     };
   },
   mounted () {
     if (this._id) {
       this.getTraceTableData();
     }
+    // 获取当前登录账号类型，用于控制追溯凭证的编辑权限
+    // 参考 sparePart/edit.vue、returnorder/edit.vue 现有写法：accountFlag 为真=门店，取反即主机厂
+    loginUserGet().then(data => {
+      this.isOem = !data.accountFlag;
+    });
   },
   methods: {
     queryListData (query) {
@@ -458,11 +481,15 @@ export default {
         this.form.vin = record.vin;
         this.form.dealerCode = record.dealerCode;
         this.form.dealerName = record.dealerName;
+        this.form.dealerRegionCode = record.dealerRegionCode || '';
+        this.form.dealerRegionName = record.dealerRegionName || '';
       } else {
         this.form.warrantyId = '';
         this.form.vin = '';
         this.form.dealerCode = '';
         this.form.dealerName = '';
+        this.form.dealerRegionCode = '';
+        this.form.dealerRegionName = '';
       }
     },
     submitRequest () {
@@ -495,9 +522,14 @@ export default {
     handleAdjustAmount () {
       this.adjustAmountDialogVisible = true;
     },
+    /*
+     * 【已废弃-2026-07-24】rejectForModify 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。
     handleRejectModify () {
       this.rejectModifyDialogVisible = true;
     },
+    */
+    /*
+     * 【已废弃-2026-07-24】agreeIssue 接口废弃：【审核中】状态在新流程中永远不会出现，请使用 submitForAudit 替代。
     handleAgreeIssue () {
       this.$confirm('确定同意下发？', '提示', {
         confirmButtonText: '确定',
@@ -513,6 +545,7 @@ export default {
         });
       }).catch(() => { });
     },
+    */
     handleAgreeTrace () {
       this.$confirm('确定同意追溯？', '提示', {
         confirmButtonText: '确定',

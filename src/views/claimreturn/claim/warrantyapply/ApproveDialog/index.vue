@@ -35,6 +35,7 @@
 <script>
 import { approve } from '@/api/claimreturn/claim/warrantyapply';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
+import { notifyBatchResult } from '../BatchResultHelper';
 
 const defaultForm = {
   approvalRemark: '',
@@ -87,11 +88,7 @@ export default {
           approvalRemark: this.form.approvalRemark,
         }).then(res => {
           this.close();
-          if (res.failedCount > 0) {
-            this.$message.warning(res.failedCount + '条数据同意失败！');
-          } else {
-            this.$message.success('同意成功！');
-          }
+          notifyBatchResult(this, res, '同意');
           this.$emit('success');
         }).finally(() => {
           this.submitLoading = false;
