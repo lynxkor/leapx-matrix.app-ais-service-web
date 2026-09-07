@@ -50,7 +50,7 @@
             placeholder="请输入"
             :disabled="!isEditing"
             maxlength="20"
-            precision="2"
+            precision="0"
             min="0"
             :controls="false"
             style="flex: 1; min-width: 0;"

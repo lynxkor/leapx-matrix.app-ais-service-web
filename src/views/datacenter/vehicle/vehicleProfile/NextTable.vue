@@ -44,7 +44,7 @@
           placeholder="请输入"
           :clearable="!originTableData[rowIndex] || !originTableData[rowIndex].nextMileage"
           :controls="false"
-          :precision="2"
+          :precision="0"
           size="small"
           style="width: 100%;"
         />
