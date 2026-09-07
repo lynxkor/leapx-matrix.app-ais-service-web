@@ -50,6 +50,18 @@
              <el-form-item label="结果备注：" prop="importRemark">
               {{ info.importRemark  }}
             </el-form-item>
+            <el-form-item label="行数：" prop="exportedRows">
+              {{ info.exportedRows ?? '-' }}
+            </el-form-item>
+            <el-form-item label="重试次数：" prop="retryCount">
+              {{ info.retryCount ?? '-' }}
+            </el-form-item>
+            <el-form-item label="最近重试时间：" prop="lastRetryTime">
+              {{ info.lastRetryTime ?? '-' }}
+            </el-form-item>
+            <el-form-item label="最近重试人：" prop="lastRetryByName">
+              {{ info.lastRetryByName || info.lastRetryBy || '-' }}
+            </el-form-item>
             <el-form-item label="需要转发的请求头：" prop="headerMap" class="header-map-item" style="width: 100%;">
               {{ info.headerMap }}
             </el-form-item>

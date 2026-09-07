@@ -50,3 +50,11 @@ export function enableItem (data) {
 export function retryItem (id) {
   return api.jsonPost('/data/ExcelManage/retryImportTask?id=' + id);
 }
+
+/**
+ * 重试导出任务
+ * @param {Object} data - { taskId }
+ */
+export function commonExportRetry (data) {
+  return api.jsonPost('/data/excelOperate/commonExportRetry', data);
+}
