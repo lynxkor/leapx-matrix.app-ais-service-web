@@ -782,6 +782,8 @@ import WithdrawDialog from './WithdrawDialog/index.vue';
 import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
 import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
 import { getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity';
+// 接车施工单 (BXYJ009 跳转需要按 proxyNo 批量查 id, 详情页只接受 id 入参)
+import { getList as getServiceProxyList } from '@/api/maintain/sp/serviceProxy/index';
 
 const SEARCH_PARAMS_KEY = 'WARRANTY_APPLY_SEARCH_PARAMS';
 const NO_OLD_PART = '10'; // 无旧件
@@ -1070,7 +1072,9 @@ export default {
       rightsDialogVisible: false,
       // 保修预警提醒弹窗 (visible 由 warningDialogVisibleBinding computed 自动响应)
       warningDetailList: [],
-      applyNoToIdMap: {}
+      applyNoToIdMap: {},
+      // BXYJ009: 施工单号 → id 映射 (详情页只接受 id 入参, 需要先批量查询)
+      proxyNoToIdMap: {}
     };
   },
   created () {
@@ -1183,6 +1187,8 @@ export default {
       if (this.warningDetailList.length > 0) {
         this.$nextTick(() => {
           this.loadApplyNoIdMappings();
+          // BXYJ009: 同步加载施工单号 → id 映射, 用于点击单号跳详情
+          this.loadProxyNoIdMappings();
         });
       }
     },
@@ -1213,6 +1219,33 @@ export default {
       }
     },
     /**
+     * 加载 proxyNo → id 的映射 (BXYJ009)
+     */
+    async loadProxyNoIdMappings () {
+      const proxyNos = new Set();
+      this.warningDetailList.forEach(item => {
+        if (item && Array.isArray(item.proxyNos)) {
+          item.proxyNos.forEach(no => { if (no) proxyNos.add(no); });
+        }
+      });
+      if (proxyNos.size === 0) return;
+      try {
+        // codes: 接车施工单管理列表页的"单据编号"查询字段, 数组形式代表多值 IN 查询
+        // serviceProxy/page 直接返回 { records: [...], total: N } 结构, 没有 res.data 包装
+        const res = await getServiceProxyList({
+          pageNum: 1,
+          pageSize: proxyNos.size,
+          codes: Array.from(proxyNos)
+        });
+        const map = {};
+        const records = res?.data?.records || res?.records || [];
+        records.forEach(r => { if (r.code) map[r.code] = r.id; });
+        this.proxyNoToIdMap = map;
+      } catch (e) {
+        console.error('[保修预警] 批量查 proxyNo→id 失败', e);
+      }
+    },
+    /**
      * 保修单详情链接: 优先用 id (详情页 ?id= 入参), 降级到 applyNo 跳列表
      */
     getApplyDetailHref (applyNo) {
@@ -1228,15 +1261,30 @@ export default {
       return `/claimreturn/claim/warrantyApply?applyNoList=${applyNos.map(encodeURIComponent).join(',')}`;
     },
     /**
-     * 施工单详情链接: 同样优先 id 降级 proxyNo
-     * <p>注: 施工单详情在另一个微服务, 没有现成 list 接口; 这里用 proxyNo 直接跳详情 (详情页通常按编号查)</p>
+     * 施工单详情链接: 优先用 id, 降级到 proxyNo 跳列表页查询 (参考 BXYJ006-008 applyNos 实现)
+     * <p>
+     *   接车施工单详情页 {@code /maintain/sp/serviceProxy/edit} 的 {@code _id} 只接受
+     *   {@code ?id=} 入参, 不支持按 serviceProxyNo 查询, 所以需要先通过
+     *   {@link #loadProxyNoIdMappings} 把 proxyNo → id 映射加载好。
+     * </p>
      */
     getProxyDetailHref (proxyNo) {
-      // 暂时统一跳详情 (applyNo 作为入参), 后端详情接口支持按编号查
-      return `/service/maintain/sp/serviceProxy/edit?serviceProxyNo=${encodeURIComponent(proxyNo)}`;
+      const id = this.proxyNoToIdMap[proxyNo];
+      if (id) {
+        return `/maintain/sp/serviceProxy/edit?id=${id}`;
+      }
+      // 映射加载失败 / 找不到 → 降级跳列表 (带 codes 让用户在列表里筛选)
+      return `/maintain/sp/serviceProxy?codes=${encodeURIComponent(proxyNo)}`;
     },
+    /**
+     * 施工单列表链接: 跳转到接车施工单管理列表页, 通过 {@code codes} 多值过滤。
+     * <p>
+     *   serviceProxy 列表页已实现 {@code applyWarningSearchParams},
+     *   会读取该参数重置 form.codes 并触发查询。
+     * </p>
+     */
     getProxyListHref (proxyNos) {
-      return `/service/maintain/sp/serviceProxy?serviceProxyNoList=${proxyNos.map(encodeURIComponent).join(',')}`;
+      return `/maintain/sp/serviceProxy?codes=${proxyNos.map(encodeURIComponent).join(',')}`;
     },
     /**
      * 备件主数据详情链接 (sparePart 备件主数据模块)

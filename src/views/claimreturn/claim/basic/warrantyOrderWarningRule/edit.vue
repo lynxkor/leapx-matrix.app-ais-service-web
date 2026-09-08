@@ -83,9 +83,65 @@
                       />
                       <span> 天，且不是当前保修单所属门店，同时保修状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，当前保修单相关附件在上述保修单中已使用，则提醒：</span>
                     </template>
-                    <!-- BXYJ009 事故维修预警: 配置固定（90 天 + 5 种保修类型白名单 + 工单状态 + 保险），不暴露输入框 -->
+                    <!-- BXYJ009 事故维修预警-->
                     <template v-else-if="form.ruleType === 'BXYJ009'">
-                      <span>{{ accidentRuleDescription }}</span>
+                      <span>当保修单上传附件时,若保修类型为 </span>
+                      <fetch-select
+                        filterable
+                        clearable
+                        multiple
+                        v-model="form.warrantyTypes"
+                        :options="bxyj009WarrantyTypeOptions"
+                        value-key="id"
+                        label-key="name"
+                        sub-label-key="code"
+                        style="display: inline-block; width: 260px; vertical-align: middle;"
+                      />
+                      <span> ,且 VRT 为 </span>
+                      <fetch-select
+                        filterable
+                        clearable
+                        multiple
+                        v-model="form.vrtIds"
+                        :options="bxyj009VrtOptions"
+                        value-key="id"
+                        label-key="name"
+                        sub-label-key="code"
+                        style="display: inline-block; width: 260px; vertical-align: middle;"
+                      />
+                      <span> ,若存在施工单 vin 为当前 vin,且结算日期大于等于当前日期- </span>
+                      <el-input-number
+                        placeholder="请输入天数"
+                        v-model="form.withinDays"
+                        :controls="false"
+                        :max="999999999"
+                        :min="0"
+                        clearable
+                        style="display: inline-block; width: 130px; vertical-align: middle;"
+                      />
+                      <span> 天,且工单状态为 </span>
+                      <fetch-select
+                        :request="fetchOptions"
+                        enumCode="OrderStatusEnum"
+                        v-model="form.workOrderStatuses"
+                        placeholder="请选择"
+                        clearable
+                        multiple
+                        filterable
+                        style="display: inline-block; width: 260px; vertical-align: middle;"
+                      />
+                      <span> ,同时还存在结算类型为 </span>
+                      <fetch-select
+                        filterable
+                        clearable
+                        multiple
+                        v-model="form.checkoutTypeIds"
+                        :options="bxyj009StatementTypeOptions"
+                        value-key="code"
+                        label-key="message"
+                        style="display: inline-block; width: 260px; vertical-align: middle;"
+                      />
+                      <span> 的维修记录(工时或备件一项即可),则提醒:</span>
                     </template>
                     <!-- BXYJ007 不同周期重复附件预警: 配置固定（同车 + 维修周期区间不相交 + 6 状态匹配 + fileId 重复），不暴露输入框 -->
                     <template v-else-if="form.ruleType === 'BXYJ007'">
@@ -93,7 +149,7 @@
                     </template>
                     <!-- 模板提示: BXYJ006 / BXYJ008 支持 ${name} 和 ${names} 两个占位符 -->
                     <!-- ${name}: 第一个命中文件名 (向后兼容); ${names}: 所有命中文件名 (逗号分隔, 推荐使用) -->
-                    <!-- BXYJ009 占位符: ${day} 时间窗口天数, ${workOrderNos} 命中的施工单号列表 (；分隔) -->
+                    <!-- BXYJ009 占位符: ${day} 时间窗口天数; 施工单号由前端从 detail.proxyNos 单独渲染为可跳转链接, 不嵌入文案避免重复 -->
                     <!-- BXYJ001 重复维修预警等: 原有描述 -->
                     <template v-else>
                       <span>除当前保修申请单外，创建日期大于等于当前日期- </span>
@@ -189,9 +245,64 @@
                     />
                     <span> 天，且不是当前保修单所属门店，同时保修状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，当前保修单相关附件在上述保修单中已使用，则提醒：</span>
                   </template>
-                  <!-- BXYJ009 事故维修预警: 配置固定(只读展示) -->
+                  <!-- BXYJ009 事故维修预警: 详情模式(只读, disabled fetch-select 展示实际配置的中文名) -->
                   <template v-else-if="form.ruleType === 'BXYJ009'">
-                    <span>{{ accidentRuleDescription }}</span>
+                    <span>当保修单上传附件时,若保修类型为 </span>
+                    <fetch-select
+                      filterable
+                      multiple
+                      v-model="form.warrantyTypes"
+                      :options="bxyj009WarrantyTypeOptions"
+                      value-key="id"
+                      label-key="name"
+                      sub-label-key="code"
+                      disabled
+                      style="display: inline-block; width: 260px; vertical-align: middle;"
+                    />
+                    <span> ,且 VRT 为 </span>
+                    <fetch-select
+                      filterable
+                      multiple
+                      v-model="form.vrtIds"
+                      :options="bxyj009VrtOptions"
+                      value-key="id"
+                      label-key="name"
+                      sub-label-key="code"
+                      disabled
+                      style="display: inline-block; width: 260px; vertical-align: middle;"
+                    />
+                    <span> ,若存在施工单 vin 为当前 vin,且结算日期大于等于当前日期- </span>
+                    <el-input
+                      placeholder="天数"
+                      v-model="form.withinDays"
+                      clearable
+                      disabled
+                      style="display: inline-block; width: 130px; vertical-align: middle;"
+                    />
+                    <span> 天,且工单状态为 </span>
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="OrderStatusEnum"
+                      v-model="form.workOrderStatuses"
+                      placeholder="请选择"
+                      clearable
+                      multiple
+                      filterable
+                      disabled
+                      style="display: inline-block; width: 260px; vertical-align: middle;"
+                    />
+                    <span> ,同时还存在结算类型为 </span>
+                    <fetch-select
+                      filterable
+                      multiple
+                      v-model="form.checkoutTypeIds"
+                      :options="bxyj009StatementTypeOptions"
+                      value-key="code"
+                      label-key="message"
+                      disabled
+                      style="display: inline-block; width: 260px; vertical-align: middle;"
+                    />
+                    <span> 的维修记录(工时或备件一项即可),则提醒:</span>
                   </template>
                   <!-- BXYJ007 不同周期重复附件预警: 配置固定(只读展示) -->
                   <template v-else-if="form.ruleType === 'BXYJ007'">
@@ -264,8 +375,11 @@
 
 <script>
 import { getDetail, addOrUpdate } from '@/api/claimreturn/claim/basic/warrantyOrderWarningRule/index';
+import { getList as repairGetList } from '@/api/maintain/basic/repairItemType';
+import { vrtlist } from '@/api/claimreturn/claim/basic/vrt';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
+import FetchSelect from '@/libs/components/FetchSelect';
 import { getEnum } from '@/api/common';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -273,14 +387,45 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import WhitelistTable from './WhitelistTable.vue';
 import ReplaceDrawer from './ReplaceDrawer.vue';
 
+// BXYJ009 事故维修预警 - 保修类型白名单默认值(与后端 v3.sql / bxyj009_ext_config_v2.sql 对齐)
+// UUID 来源: WarrantyTypeEnum.getCode() / warranty_apply.repair_item_type_id
+// 仅作"新增"模式初始默认值, 已存量的规则从 ext_config 解析回填
+const DEFAULT_BXYJ009_WARRANTY_TYPES = [
+  'ED68D3F0-C1FB-E911-B0BB-FC82BA5F9EDF',  // 售前保修 PRE_SALE_WARRANTY
+  '5EA3066F-82AC-E911-B0BB-FC82BA5F9EDF',  // 一般整车保修 GENERAL_VEHICLE_WARRANTY
+  '5180E2BE-04AE-EE11-B156-E3C14957A562',  // 整车终身质保 LIFETIME_VEHICLE_WARRANTY
+  '2D87DFC4-04AE-EE11-B156-E3C14957A562',  // 三电终身质保 LIFETIME_BATTERY_MOTOR_ELECTRONICS_WARRANTY
+  'B96ED1D0-04AE-EE11-B156-E3C14957A562'   // 三电延长质保 EXTENDED_BATTERY_MOTOR_ELECTRONICS_WARRANTY
+];
+
 const defaultForm = {
   judgeDays: '',
   statusList: [],
   judgeTimes: '',
   remindContent: '',
   diffCharCount: '', // BXYJ005 车牌号预警不匹配位数(独立字段,提交时合并到 extConfig JSON)
-  withinDays: '' // BXYJ006 不同车 / BXYJ008 不同店 重复附件预警时间窗口(独立字段,提交时合并到 extConfig JSON)
+  withinDays: '', // BXYJ006 不同车 / BXYJ008 不同店 / BXYJ009 事故维修 时间窗口(独立字段,提交时合并到 extConfig JSON)
+  warrantyTypes: [], // BXYJ009 事故维修预警 保修类型白名单(独立字段, 提交时合并到 extConfig JSON, 新增模式用 DEFAULT_BXYJ009_WARRANTY_TYPES 回填)
+  vrtIds: [], // BXYJ009 事故维修预警 VRT 白名单(独立字段, 提交时合并到 extConfig JSON, 空数组=不校验VRT, 新增模式默认=全部启用的VRT id)
+  workOrderStatuses: [], // BXYJ009 事故维修预警 工单状态白名单(独立字段, 提交时合并到 extConfig JSON, 新增模式用 DEFAULT_BXYJ009_WORK_ORDER_STATUSES 回填; form 上是字符串数组, 提交时 map(Number) 转数字)
+  checkoutTypeIds: [] // BXYJ009 事故维修预警 结算类型白名单 UUID 列表(独立字段, 提交时合并到 extConfig JSON; 数组, 多选; 默认值=保险 UUID)
 };
+
+// BXYJ009 工单状态白名单默认值(与后端 v3.sql 对齐: 160=待交车, 180=已交车)
+// form 上是字符串(对应 OrderStatusEnum.code), 提交时转数字
+const DEFAULT_BXYJ009_WORK_ORDER_STATUSES = ['160', '180'];
+
+// BXYJ009 结算类型白名单默认值(对齐后端 Java StatementTypeEnum.INSURANCE.getCode() = 保险 UUID)
+const DEFAULT_BXYJ009_CHECKOUT_TYPE_IDS = ['372BB70C-82AC-E911-B0BB-FC82BA5F9EDF'];
+
+// BXYJ009 结算类型选项(对应后端 Java StatementTypeEnum 枚举, 下拉框直接使用, 不依赖数据中心字典)
+const BXYJ009_STATEMENT_TYPE_OPTIONS = [
+  { code: '352BB70C-82AC-E911-B0BB-FC82BA5F9EDF', message: '自费' },
+  { code: '372BB70C-82AC-E911-B0BB-FC82BA5F9EDF', message: '保险' },
+  { code: '392BB70C-82AC-E911-B0BB-FC82BA5F9EDF', message: '保修' },
+  { code: '3B2BB70C-82AC-E911-B0BB-FC82BA5F9EDF', message: '合同' },
+  { code: '3D2BB70C-82AC-E911-B0BB-FC82BA5F9EDF', message: '内部结算' }
+];
 
 export default {
   name: 'warrantyOrderWarningRuleEdit',
@@ -295,6 +440,7 @@ export default {
   components: {
     EditPageLayout,
     EditBaseContainer,
+    FetchSelect,
     WhitelistTable,
     ReplaceDrawer
   },
@@ -304,14 +450,6 @@ export default {
     },
     title () {
       return this.form.ruleName || '保修单预警规则';
-    },
-    /**
-     * BXYJ009 事故维修预警的说明文案（前后端配置固定）
-     * 触发时机：保修单上传附件时
-     * 条件：保修类型在白名单 && VRT=全部 && 90天内有保险结算+待交车/已交车+工时/备件维修记录
-     */
-    accidentRuleDescription () {
-      return '当保修单上传附件时，若保修类型为【售前保修、一般整车保修、整车终身质保、三电终身质保、三电延长保修】，且 VRT 为【全部】，若存在施工单 vin 为当前 vin，且结算日期大于等于当前日期-【90】天，且工单状态为【待交车，已交车】，同时还存在结算类型为【保险】的维修记录（工时或备件一项即可），则提醒：';
     },
     /**
      * BXYJ007 不同周期重复附件预警的说明文案（前后端配置固定）
@@ -344,6 +482,11 @@ export default {
         if (this.form.extConfig) {
           this.syncExtConfigFields(this.form.extConfig);
         }
+        // BXYJ009 切换进来时, 加载保修类型白名单 + VRT 白名单选项(供 fetch-select :options 使用)
+        if (val === 'BXYJ009') {
+          this.loadBxyj009WarrantyTypeOptions();
+          this.loadBxyj009VrtOptions();
+        }
       },
       immediate: false
     }
@@ -364,6 +507,12 @@ export default {
       // 替换件抽屉（BXYJ010）
       replaceDrawerVisible: false,
       currentReplacePart: {},
+      // BXYJ009 保修类型白名单选项缓存(由 loadBxyj009WarrantyTypeOptions 加载)
+      bxyj009WarrantyTypeOptions: [],
+      // BXYJ009 VRT 白名单选项缓存(由 loadBxyj009VrtOptions 加载)
+      bxyj009VrtOptions: [],
+      // BXYJ009 结算类型选项(静态常量, 对应后端 Java StatementTypeEnum 枚举)
+      bxyj009StatementTypeOptions: BXYJ009_STATEMENT_TYPE_OPTIONS,
       rules: {
         judgeDays: [
           { required: true, message: '请输入判定天数', trigger: 'change' }
@@ -413,8 +562,8 @@ export default {
     submitRequest () {
       // OCR 类规则（BXYJ002/003/004/005）不需要 judgeDays/judgeTimes，仅校验提醒内容
       // BXYJ006 / BXYJ008 也不需要 judgeDays/judgeTimes, 它们使用 withinDays
-      // BXYJ009 事故维修预警: 配置全部固定（90天 + 5 种保修类型白名单 + 工单状态 + 保险）,
-      //                   前端不暴露任何输入框, 也不需要 judgeDays/judgeTimes/withinDays 校验
+      // BXYJ009 事故维修预警: 保修类型白名单前端可配(校验 warrantyTypes 至少 1 个),
+      //                   其他条件后端固定, 不需要 judgeDays/judgeTimes 校验
       // BXYJ007 不同周期重复附件预警: 配置全部固定（同车 + 维修周期区间不相交 + 6 状态）,
       //                   前端不暴露任何输入框, 也不需要 judgeDays/judgeTimes/withinDays 校验
       const isOcr = this.isOcrRule(this.form.ruleType);
@@ -473,6 +622,26 @@ export default {
         }
       }
 
+      // BXYJ009 事故维修预警: 保修类型白名单至少选 1 个 + 工单状态至少选 1 个 + 时间窗口天数必填且 ≥ 0
+      if (isBxyj009) {
+        if (!Array.isArray(this.form.warrantyTypes) || this.form.warrantyTypes.length === 0) {
+          this.$message.error('请至少选择一种保修类型');
+          return;
+        }
+        if (!Array.isArray(this.form.workOrderStatuses) || this.form.workOrderStatuses.length === 0) {
+          this.$message.error('请至少选择一个工单状态');
+          return;
+        }
+        if (this.form.withinDays === '' || this.form.withinDays === null || this.form.withinDays === undefined) {
+          this.$message.error('请输入结算日期时间窗口天数');
+          return;
+        }
+        if (Number(this.form.withinDays) < 0) {
+          this.$message.error('结算日期时间窗口不能小于 0 天');
+          return;
+        }
+      }
+
       // BXYJ001 重复维修预警: judgeDays/judgeTimes 由后端 Builder 从 ext_config 读取,
       //                     前端继续保留这两个输入框, 但提交时合并到 extConfig JSON,
       //                     不再走主表字段(主表字段已删除, 单字段名会触发后端未知字段拒绝).
@@ -495,7 +664,8 @@ export default {
         }
       }
 
-      // BXYJ009 事故维修预警: 所有参数后端固定, 前端不做额外校验, 提醒内容必填(上面已校验)
+      // BXYJ009 事故维修预警: 保修类型白名单已校验(至少 1 个, 见上方 if(isBxyj009)),
+      //                   其他条件后端固定, 提醒内容必填(见上方校验)
 
       // 把独立字段(diffCharCount / withinDays / judgeDays / judgeTimes)合并到 extConfig JSON 字符串(后端 ext_config 是 JSON 字段)
       const submitForm = { ...this.form };
@@ -524,14 +694,29 @@ export default {
         delete submitForm.judgeDays;
         delete submitForm.judgeTimes;
       }
-      // BXYJ009 不需要合并任何独立字段, 直接透传后端的 extConfig (90/白名单/工单状态/保险)
+      // BXYJ009: warrantyTypes + vrtIds + withinDays + workOrderStatuses + checkoutTypeIds 合并到 extConfig JSON
+      // vrtIds 允许空数组(表示不校验VRT), 不强制至少 1 个
+      // workOrderStatuses: form 上是字符串数组(对应 enum code), 提交时 map(Number) 转数字(对齐后端 Builder)
+      // checkoutTypeIds: form 是 UUID 字符串数组, 多选; 提交时透传(后端 Builder + Gateway + maintain SQL 都需要数组)
+      if (isBxyj009) {
+        cfg.warrantyTypes = [...(this.form.warrantyTypes || [])];
+        cfg.vrtIds = [...(this.form.vrtIds || [])];
+        cfg.withinDays = Number(this.form.withinDays);
+        cfg.workOrderStatuses = (this.form.workOrderStatuses || []).map(Number);
+        cfg.checkoutTypeIds = [...(this.form.checkoutTypeIds || [])];
+        delete submitForm.warrantyTypes;
+        delete submitForm.vrtIds;
+        delete submitForm.withinDays;
+        delete submitForm.workOrderStatuses;
+        delete submitForm.checkoutTypeIds;
+      }
       // BXYJ007 同样不需要合并任何独立字段, 配置全部后端固定
-      if (this.form.ruleType === 'BXYJ005' || isBxyj006 || isBxyj008 || this.form.ruleType === 'BXYJ001') {
+      if (this.form.ruleType === 'BXYJ005' || isBxyj006 || isBxyj008 || this.form.ruleType === 'BXYJ001' || isBxyj009) {
         submitForm.extConfig = JSON.stringify(cfg);
       }
 
       return addOrUpdate(submitForm).then(res => {
-        // 保存成功后立即同步 judgeDays/judgeTimes / diffCharCount / withinDays 到 form,
+        // 保存成功后立即同步 judgeDays/judgeTimes / diffCharCount / withinDays / warrantyTypes / vrtIds 到 form,
         // 避免依赖 'form.extConfig' watch 时机失效(Vue 2 整体替换 form 对象时新对象未 reactive,
         // EditBaseContainer.loadDetail() 触发的 update:form 会让 watch 失效,导致输入框回退到默认 0).
         // 这一步是显式赋值,不依赖响应式追踪.
@@ -544,6 +729,15 @@ export default {
         if (this.form.ruleType === 'BXYJ001') {
           this.form.judgeDays = cfg.judgeDays;
           this.form.judgeTimes = cfg.judgeTimes;
+        }
+        if (isBxyj009) {
+          this.form.warrantyTypes = cfg.warrantyTypes;
+          this.form.vrtIds = cfg.vrtIds;
+          this.form.withinDays = cfg.withinDays;
+          // 后端存的是数字数组, 前端 v-model 是字符串, 回填时转字符串给 fetch-select 选中
+          this.form.workOrderStatuses = (cfg.workOrderStatuses || []).map(String);
+          // checkoutTypeIds 后端存 UUID 数组, 前端 v-model 直接是 UUID 字符串数组, 透传即可
+          this.form.checkoutTypeIds = [...(cfg.checkoutTypeIds || [])];
         }
         return res;
       });
@@ -592,6 +786,10 @@ export default {
           this.form.judgeDays = '';
           this.form.judgeTimes = '';
         }
+        if (ruleType === 'BXYJ009') {
+          // extConfig 为空时, 重置为默认值(与后端 v3.sql 对齐, 5 种保修类型)
+          this.form.warrantyTypes = [...DEFAULT_BXYJ009_WARRANTY_TYPES];
+        }
         return;
       }
       // 容错: 入参可能是 string (JSON 字符串) 也可能是 object (已被 JSON.parse)
@@ -619,7 +817,26 @@ export default {
         this.form.judgeDays = cfg.judgeDays !== undefined && cfg.judgeDays !== null ? cfg.judgeDays : '';
         this.form.judgeTimes = cfg.judgeTimes !== undefined && cfg.judgeTimes !== null ? cfg.judgeTimes : '';
       }
-      // BXYJ009 不需要解析独立字段, 后端 extConfig 完全透传
+      if (ruleType === 'BXYJ009') {
+        // warrantyTypes 由 ext_config 管理(主表字段已删除); 缺失则用默认值兜底(新增模式 / 历史脏数据)
+        this.form.warrantyTypes = Array.isArray(cfg.warrantyTypes) && cfg.warrantyTypes.length > 0
+          ? [...cfg.warrantyTypes]
+          : [...DEFAULT_BXYJ009_WARRANTY_TYPES];
+        // vrtIds 由 ext_config 管理; 允许空数组(语义:不校验VRT), 不主动赋默认值
+        this.form.vrtIds = Array.isArray(cfg.vrtIds) ? [...cfg.vrtIds] : [];
+        // withinDays 由 ext_config 管理; 缺失则默认 90(对齐后端 v3.sql 默认值)
+        this.form.withinDays = (cfg.withinDays !== undefined && cfg.withinDays !== null && cfg.withinDays !== '')
+          ? cfg.withinDays
+          : 90;
+        // workOrderStatuses 由 ext_config 管理; 后端存数字数组, 前端 v-model 是字符串数组, 解析时 map(String)
+        this.form.workOrderStatuses = Array.isArray(cfg.workOrderStatuses) && cfg.workOrderStatuses.length > 0
+          ? cfg.workOrderStatuses.map(String)
+          : [...DEFAULT_BXYJ009_WORK_ORDER_STATUSES];
+        // checkoutTypeIds 由 ext_config 管理; 默认 [保险 UUID](对齐后端 v3.sql 默认值 + 后端 Builder 硬编码)
+        this.form.checkoutTypeIds = Array.isArray(cfg.checkoutTypeIds) && cfg.checkoutTypeIds.length > 0
+          ? [...cfg.checkoutTypeIds]
+          : [...DEFAULT_BXYJ009_CHECKOUT_TYPE_IDS];
+      }
       // BXYJ007 不需要解析独立字段, 后端 extConfig 完全透传
     },
     getDefautlForm () {
@@ -634,6 +851,46 @@ export default {
         return getEnum(code);
       }
       return [];
+    },
+    /**
+     * BXYJ009 事故维修预警: 加载保修类型白名单选项到 bxyj009WarrantyTypeOptions
+     * <p>供 fetch-select :options 使用, 调用方在 form.ruleType === 'BXYJ009' 时触发</p>
+     */
+    async loadBxyj009WarrantyTypeOptions () {
+      try {
+        const res = await repairGetList({ nameLike: '', pageSize: 99, pageNum: 1 });
+        this.bxyj009WarrantyTypeOptions = (res && res.records) || [];
+      } catch (err) {
+        console.error('BXYJ009 保修类型加载失败:', err);
+        this.bxyj009WarrantyTypeOptions = [];
+      }
+    },
+    /**
+     * BXYJ009 事故维修预警: 加载全部启用的 VRT 选项到 bxyj009VrtOptions
+     * <p>供 fetch-select :options 使用, 调用方在 form.ruleType === 'BXYJ009' 时触发</p>
+     * <p>传 statusIncludeList=[1] 只取启用的 VRT</p>
+     */
+    async loadBxyj009VrtOptions () {
+      try {
+        const res = await vrtlist({ statusIncludeList: [1], pageSize: 99, pageNum: 1 });
+        const list = (res && (res.data || res.records || res)) || [];
+        // vrtlist 可能返回 { value, label } 或 { id, name }, 统一映射成 { id, name } 给 fetch-select 用
+        const options = (Array.isArray(list) ? list : []).map(item => ({
+          id: item.id !== undefined ? item.id : item.value,
+          name: item.name !== undefined ? item.name : item.label,
+          code: item.code || ''
+        }));
+        this.bxyj009VrtOptions = options;
+        // 默认行为: 加载完成后, 如果 form.vrtIds 是空数组(新增模式 / 后端默认空数组=不校验),
+        //           自动填上所有启用的 VRT id, 实现"默认选中全部启用配置"
+        // 注意: 只在空数组时填, 避免覆盖用户主动配置的非空数组(包括明确选择"不校验")
+        if (Array.isArray(this.form.vrtIds) && this.form.vrtIds.length === 0 && options.length > 0) {
+          this.form.vrtIds = options.map(o => o.id);
+        }
+      } catch (err) {
+        console.error('BXYJ009 VRT 加载失败:', err);
+        this.bxyj009VrtOptions = [];
+      }
     }
   }
 };

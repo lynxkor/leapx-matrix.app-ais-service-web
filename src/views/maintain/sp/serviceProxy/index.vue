@@ -492,24 +492,21 @@ export default {
     };
   },
   created () {
-    // 保修预警提醒弹窗跳转: 从 URL query 读取 serviceProxyNoList, 清空其他查询条件
+    // 保修预警提醒弹窗跳转: 从 URL query 读取 codes, 清空其他查询条件
     this.applyWarningSearchParams();
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
   methods: {
-    /**
-     * 保修预警提醒弹窗跳转: 从 URL query 读取 serviceProxyNoList, 清空其他查询条件
-     */
     applyWarningSearchParams () {
       const query = this.$route.query || {};
-      const param = query.serviceProxyNoList;
+      const param = query.codes;
       if (!param) return;
-      const serviceProxyNoList = (typeof param === 'string' ? param.split(',') : param)
+      const codes = (typeof param === 'string' ? param.split(',') : param)
         .filter(x => x && String(x).trim());
-      if (serviceProxyNoList.length === 0) return;
-      // 重置 form 为默认值, 仅保留 serviceProxyNoList
-      this.form = { ...this.$options.data().form, serviceProxyNoList };
+      if (codes.length === 0) return;
+      // 覆盖 codes 字段, 并显式清空 createTime 时间窗口.
+      this.form = { ...defaultForm, codes, createTime: [] };
     },
     handleListSelect (row) {
       this.clickItemId = row.id;
