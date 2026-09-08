@@ -113,6 +113,14 @@ export function orderDetailPage (data) {
 }
 
 /**
+ * 内部领料申请 - 明细分页查询（按明细维度返回行）
+ * @param {Object} data
+ */
+export function detailPage (data) {
+  return api.jsonPost(prefix + 'detailPage', data);
+}
+
+/**
  * 内部领料申请明细表删除
  * @param {Object} data
  */

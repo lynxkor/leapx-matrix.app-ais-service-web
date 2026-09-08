@@ -12,6 +12,38 @@ export function getList (data) {
 };
 
 /**
+ * 备件清单分页查询（用于"备件清单"页签）
+ * @param {Object} data
+ */
+export function getPartList (data) {
+  return api.jsonPost(prefix + 'partsPage', data);
+};
+
+/**
+ * 工时清单分页查询（用于"工时清单"页签）
+ * @param {Object} data
+ */
+export function getWorkhourList (data) {
+  return api.jsonPost(prefix + 'workhourPage', data);
+};
+
+/**
+ * 其他清单分页查询（用于"其他清单"页签）
+ * @param {Object} data
+ */
+export function getOtherList (data) {
+  return api.jsonPost(prefix + 'otherPage', data);
+};
+
+/**
+ * 审批记录分页查询（用于"审批记录"页签）
+ * @param {Object} data
+ */
+export function getApprovalList (data) {
+  return api.jsonPost(prefix + 'approvalPage', data);
+};
+
+/**
  * 新增或修改
  * @param {Object} data
  */

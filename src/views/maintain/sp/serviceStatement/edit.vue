@@ -7,6 +7,7 @@
         :title="`单据编号：${form.code}`">
         <template #extraButtons>
           <el-button size="small" @click="rightsList" v-if="buttonPermissions.rights">权益核销</el-button>
+          <el-button size="small" @click="cancelRightsLock" v-if="buttonPermissions.cancelRightsLock">取消权益锁定</el-button>
           <el-button size="small" @click="handleResendSignSms" v-if="buttonPermissions.canResendSignSms">补推结算单短信签字</el-button>
           <el-button size="small" @click="submitAndSing" v-if="buttonPermissions.sign">提交结算并签字</el-button>
           <el-button size="small" @click="reject" v-if="buttonPermissions.reject" :loading="rejectLoading">驳回</el-button>
@@ -296,6 +297,7 @@
         </el-main>
       </edit-base-container>
       <SelectRightsDialog :visible.sync="rightsDialogVisible" :statementId="_id" @refresh="handleRefresh" :formData="form"/>
+      <CancelRightsLockDialog :visible.sync="cancelRightsLockDialogVisible" :formData="form" @refresh="handleRefresh" />
       <SubmitSettlemenDialog ref="settlemenDialogRef" :visible.sync="submitSettlemenDialogVisible" :serviceProxyId="_id"
         :info="form" @refresh="handleRefresh" />
       <AddPayrecordDialog :visible.sync="addPayrecordDialogVisible" :serviceProxyId="_id" :info="form"
@@ -331,6 +333,7 @@ import MaintenanceRecord from '@/views/maintain/sp/serviceStatement/components/P
 import PartsRecodr from '@/views/maintain/sp/serviceStatement/components/PartsRecord/index.vue';
 import PayRecord from '@/views/maintain/sp/serviceStatement/components/PayRecord/index.vue';
 import SelectRightsDialog from './components/SelectRightsDialog';
+import CancelRightsLockDialog from './components/CancelRightsLockDialog';
 import SubmitSettlemenDialog from './components/SubmitSettlemenDialog';
 import AddPayrecordDialog from './components/AddPayrecordDialog';
 import { checkCanCreate } from '@/api/claimreturn/claim/warrantyapply';
@@ -426,6 +429,7 @@ export default {
     PartsRecodr,
     PayRecord,
     SelectRightsDialog,
+    CancelRightsLockDialog,
     SubmitSettlemenDialog,
     AddPayrecordDialog,
     CreateWarrantyApplyDialog,
@@ -457,6 +461,9 @@ export default {
       return {
         // 权益核销：结算类型为自费/保险/内部结算，状态为待结算，商城订单不显示
         rights: baseType.includes(statementType) && statementStatus === 10 && !this.isStoreOrder && this.permissions.has('AISMC-serviceStatement-execEquityWriteOff'),
+
+        // 取消权益锁定：待结算且已锁定权益券
+        cancelRightsLock: statementStatus === 10 && (this.form.rightsUsageRecordResps || []).length > 0 && this.permissions.has('AISMC-serviceStatement-rightsUnlock'),
 
         // 提交结算并签字：签字状态为未签字，且结算状态为待结算
         sign: statementStatus === 10 && !isCheck && this.permissions.has('AISMC-serviceStatement-submitSettlementAndSign'),
@@ -513,6 +520,7 @@ export default {
       loading: false,
       submitLoading: false,
       rightsDialogVisible: false,
+      cancelRightsLockDialogVisible: false,
       submitSettlemenDialogVisible: false,
       addPayrecordDialogVisible: false,
       refundLoading: false,
@@ -590,11 +598,15 @@ export default {
 
     // 跳转到门店详情
     goToDealer (dealerId) {
-      window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${this.form.dealerCode}`, '_blank');
+      window.open(`/service/datacenter/store/store/detail?storeCode=${this.form.dealerCode}`, '_blank');
     },
 
     rightsList () {
       this.rightsDialogVisible = true;
+    },
+
+    cancelRightsLock () {
+      this.cancelRightsLockDialogVisible = true;
     },
 
     submitAndSing () {

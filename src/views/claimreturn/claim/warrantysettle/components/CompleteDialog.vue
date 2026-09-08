@@ -78,6 +78,7 @@
             size="medium"
             max-height="250px"
           >
+            <vxe-column field="projectName" title="项目名称"></vxe-column>
             <vxe-column field="invoiceNo" title="发票号"></vxe-column>
             <vxe-column field="invoiceCompanyName" title="开票公司名称"></vxe-column>
             <vxe-column field="invoiceDate" title="发票开具日期"></vxe-column>

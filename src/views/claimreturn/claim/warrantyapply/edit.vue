@@ -16,7 +16,7 @@
       <el-button size="small" @click="handleViewRights">查看权益</el-button>
       <el-button v-if="canApplyReject && (isPendingCurrentUserReview || form.applyStatus === APPLY_STATUS.APPROVED)" size="small" @click="handleReject(true)">申请驳回</el-button>
       <el-button v-if="canWithdraw && WITHDRAWABLE_STATUSES.includes(form.applyStatus)" size="small" @click="handleWithdraw">撤回</el-button>
-      <el-button v-if="canDeny && isPendingCurrentUserReview" plain size="small" @click="handleDeny">拒赔</el-button>
+      <el-button v-if="canDeny && (isPendingCurrentUserReview || form.applyStatus === APPLY_STATUS.APPROVED)" plain size="small" @click="handleDeny">拒赔</el-button>
       <el-button v-if="canReject && isPendingCurrentUserReview" size="small" @click="handleReject(false)">驳回</el-button>
       <el-button v-if="canCancel && (EDITABLE_STATUSES.includes(form.applyStatus))" plain size="small" @click="handleCancel">作废</el-button>
       <el-button v-if="canApprove && isPendingCurrentUserReview" type="primary" size="small" @click="handleApprove">同意</el-button>
@@ -164,7 +164,7 @@
               <el-link
                 v-if="form.dealerCode"
                 type="primary"
-                :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                 target="_blank"
               >{{ form.dealerCode }}</el-link>
               <span v-else>{{ form.dealerCode }}</span>
@@ -185,7 +185,8 @@
               {{ form.approvalRemark }}
             </el-form-item>
             <el-form-item label="活动编码：" prop="serviceActivityCode">
-              {{ form.serviceActivityCode }}
+              <el-link v-if="form.serviceActivityId" type="primary" @click="openActivityDetail">{{ form.serviceActivityCode }}</el-link>
+              <span v-else>{{ form.serviceActivityCode }}</span>
             </el-form-item>
             <el-form-item label="维修结束时间：" prop="repairEndTime">
               {{ form.repairEndTime }}
@@ -229,6 +230,12 @@
             </el-form-item>
             <el-form-item label="车型：" prop="vehicleModelName">
               <el-input placeholder="" v-model="form.vehicleModelName" clearable disabled />
+            </el-form-item>
+            <el-form-item label="车系：" prop="vehicleSeriesName">
+              <el-input placeholder="" v-model="form.vehicleSeriesName" clearable disabled />
+            </el-form-item>
+            <el-form-item label="年款：" prop="vehicleYearName">
+              <el-input placeholder="" v-model="form.vehicleYearName" clearable disabled />
             </el-form-item>
             <el-form-item label="保修开始日期：" prop="warrantyStartdate">
               <el-date-picker
@@ -299,6 +306,12 @@
             </el-form-item>
             <el-form-item label="车型：" prop="vehicleModelName">
               {{ form.vehicleModelName }}
+            </el-form-item>
+            <el-form-item label="车系：" prop="vehicleSeriesName">
+              {{ form.vehicleSeriesName }}
+            </el-form-item>
+            <el-form-item label="年款：" prop="vehicleYearName">
+              {{ form.vehicleYearName }}
             </el-form-item>
             <el-form-item label="保修开始日期：" prop="warrantyStartdate">
               {{ form.warrantyStartdate }}
@@ -375,10 +388,10 @@
               />
             </el-form-item>
             <el-form-item class="form-item-full" label="故障现象描述：" prop="faultPhenomenon">
-              <base-input type="textarea" v-model="form.faultPhenomenon" clearable maxlength="5000" />
+              <base-input type="textarea" v-model="form.faultPhenomenon" clearable maxlength="5000" @input="onFaultPhenomenonInput" />
             </el-form-item>
             <el-form-item class="form-item-full" label="故障排查流程：" prop="troubleshootingFlow">
-              <base-input type="textarea" v-model="form.troubleshootingFlow" clearable maxlength="5000" />
+              <base-input type="textarea" v-model="form.troubleshootingFlow" clearable maxlength="5000" @input="onTroubleshootingFlowInput" />
             </el-form-item>
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!isFormEditing">
@@ -505,8 +518,13 @@
                 :disabled="!isFormEditing"
               >
                 <template #option="{ item }">
-                  <span v-if="item.disabled">{{ item.placeholder }}</span>
-                  <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
+                  <template v-if="item.supplierCode">
+                    <span v-if="item.disabled">{{ item.placeholder }}</span>
+                    <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
+                  </template>
+                  <template v-else>
+                    <span></span>
+                  </template>
                 </template>
               </fetch-select>
             </el-form-item>
@@ -538,6 +556,7 @@
             ref="partTableRef"
             :id="_id"
             :canAddOrUpdate="canEdit"
+            :disableOldPartEdit="disableOldPartEdit"
             @update="handleTableUpdate"
             @loading-change="handleTableLoadingChange"
           />
@@ -630,6 +649,7 @@ import {
   print,
   getNextId
 } from '@/api/claimreturn/claim/warrantyapply/index';
+import { serviceActivitySchemeGet } from '@/api/claimreturn/claim/basic/serviceActivity/index';
 import {
   APPLY_STATUS,
   EDITABLE_STATUSES,
@@ -661,6 +681,7 @@ import WithdrawDialog from './WithdrawDialog/index.vue';
 // 旧件供应商
 import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
 import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
+import { getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity';
 
 const SEARCH_PARAMS_KEY = 'WARRANTY_APPLY_SEARCH_PARAMS';
 const NO_OLD_PART = '10'; // 无旧件
@@ -725,6 +746,10 @@ const defaultForm = {
   vehicleProperty: '',
   vehicleModelId: '',
   vehicleModelName: '',
+  vehicleSeriesId: '',
+  vehicleSeriesName: '',
+  vehicleYearId: '',
+  vehicleYearName: '',
   warrantyStartdate: '',
   serviceMonth: '',
   alarmLevel: '',
@@ -849,6 +874,16 @@ export default {
     isGoodwillWarranty () {
       return this.form.repairItemTypeName === '善意保修';
     },
+    // 是否技术服务活动
+    isTechnicalServiceActivity () {
+      // 保修类型字典的 code 通过 WarrantyTypeEnum.TECHNICAL_SERVICE_ACTIVITY.getCode() 与 repairItemTypeId 比对
+      // 但前端拿不到枚举常量,这里采用与后端一致的判定:repairItemTypeName === '技术服务活动'
+      return this.form.repairItemTypeName === '技术服务活动';
+    },
+    // 是否禁用备件明细的旧件编码编辑:技术服务活动 + 方案不允许修改旧件
+    disableOldPartEdit () {
+      return this.isTechnicalServiceActivity && this.allowModifyOldPart === '0';
+    },
     remindContent () {
       return this.form.spRemindInfo;
     }
@@ -868,6 +903,14 @@ export default {
           if (this.$refs.mainPartSelectRef) {
             this.$refs.mainPartSelectRef.loadRemoteMethod(this.form.mainPartCode);
           }
+        }
+      }
+    },
+    // 加载保修单后,根据活动方案判断是否禁用备件明细的旧件编码编辑
+    'form.schemeId': {
+      handler (val, old) {
+        if (val && val !== old) {
+          this.loadAllowModifyOldPart(val);
         }
       }
     },
@@ -903,6 +946,8 @@ export default {
       canDeny: false,
       canCancel: false,
       printLoading: false,
+      // 当前活动方案的"是否允许修改旧件"(1=是,0=否),用于控制备件明细的旧件编码列是否禁用
+      allowModifyOldPart: '',
       // 对话框状态
       rejectDialogVisible: false,
       rejectIds: [],
@@ -931,6 +976,42 @@ export default {
     console.log('[DEBUG] warrantyAuditList mounted', this.permissions);
   },
   methods: {
+    // 参考 techServiceActivity/index.vue 的 getPath 实现
+    getActivityPath (activityType) {
+      return activityType === '4'
+        ? '/claimreturn/claim/basic/serviceCareActivity/edit'
+        : '/claimreturn/claim/basic/techServiceActivity/edit';
+    },
+    async openActivityDetail () {
+      const activityId = this.form?.serviceActivityId;
+      if (!activityId) {
+        this.$message.warning('该保修申请单未关联活动');
+        return;
+      }
+      try {
+        const activity = await getServiceActivityDetail(activityId);
+        if (!activity) {
+          this.$message.error('活动不存在或已被删除');
+          return;
+        }
+        const activityType = String(activity.activityType || '').trim();
+        if (!activityType) {
+          this.$message.error('活动类型信息缺失，暂无法打开详情');
+          return;
+        }
+        // 保修申请页面仅查看活动，isEditing=false 进入查看模式
+        this.$router.push({
+          path: this.getActivityPath(activityType),
+          query: {
+            id: String(activityId),
+            isEditing: false,
+          }
+        });
+      } catch (error) {
+        console.error('获取活动详情失败:', error);
+        this.$message.error('活动详情查询失败，请稍后重试');
+      }
+    },
     handleTableUpdate () {
       this.refreshAll();
     },
@@ -948,6 +1029,19 @@ export default {
         ...res,
         partAndSupplierId: res.mainPartId ? res.mainPartId + res.mainPartSupplierId : '',
       }));
+    },
+    // 加载活动方案的"是否允许修改旧件",用于控制备件明细编辑
+    loadAllowModifyOldPart (schemeId) {
+      if (!schemeId) {
+        this.allowModifyOldPart = '';
+        return;
+      }
+      // 后端接口签名 @RequestBody String id,要求请求体为纯字符串 ID,不能传对象
+      serviceActivitySchemeGet(schemeId).then(res => {
+        this.allowModifyOldPart = res?.allowModifyOldPart ?? '';
+      }).catch(() => {
+        this.allowModifyOldPart = '';
+      });
     },
     detailRequest () {
       return this.fetchDetail().then(res => {
@@ -972,6 +1066,29 @@ export default {
         }
       });
       return res;
+    },
+    /**
+     * 去除字符串中的表情符号
+     */
+    removeEmoji (str) {
+      if (!str) return str;
+      return str
+        .replace(/\p{Extended_Pictographic}/gu, '')
+        .replace(/\p{Emoji_Modifier}/gu, '')
+        .replace(/[\u{FE00}\u{FE0F}\u{200D}]/gu, '')
+        .replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu, '');
+    },
+    onFaultPhenomenonInput (val) {
+      const cleaned = this.removeEmoji(val);
+      if (cleaned !== val) {
+        this.form.faultPhenomenon = cleaned;
+      }
+    },
+    onTroubleshootingFlowInput (val) {
+      const cleaned = this.removeEmoji(val);
+      if (cleaned !== val) {
+        this.form.troubleshootingFlow = cleaned;
+      }
     },
     // 打开侧边栏
     openPane () {

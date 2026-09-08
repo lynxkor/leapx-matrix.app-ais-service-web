@@ -14,6 +14,14 @@ export function getList (data) {
 };
 
 /**
+ * 查询明细列表
+ * @param {Object} data
+ */
+export function detailPage (data) {
+  return api.jsonPost(prefix + 'detailPage', data);
+};
+
+/**
  * 新增或修改
  * @param {Object} data
  */

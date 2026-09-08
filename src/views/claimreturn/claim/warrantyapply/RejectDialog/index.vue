@@ -58,6 +58,7 @@ import { getList } from '@/api/claimreturn/claim/basic/approvalRejectSetting/ind
 import { reject, applyReject } from '@/api/claimreturn/claim/warrantyapply';
 import BaseInput from '@/libs/components/BaseInput/index.vue';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
+import { notifyBatchResult } from '../BatchResultHelper';
 
 const defaultForm = {
   approvalRemark: '', // 驳回原因
@@ -96,9 +97,6 @@ export default {
       dialogVisible: this.visible,
       submitLoading: false,
       rules: {
-        approvalRemark: [
-          { required: true, message: '请输入审批说明', trigger: 'change' }
-        ],
         errorCodeId: [
           { required: true, message: '请选择错误代码', trigger: 'change' }
         ],
@@ -126,13 +124,14 @@ export default {
         }
         this.submitLoading = true;
         const rejectFunction = this.isApplyReject ? applyReject : reject;
+        const actionLabel = this.isApplyReject ? '申请驳回' : '驳回';
         rejectFunction({
           ids: this.rejectIds,
           [this.isApplyReject ? 'applyRemark' : 'approvalRemark']: this.form.approvalRemark,
           errorCodeId: this.form.errorCodeId,
         }).then(res => {
           this.close();
-          this.$message.success('驳回成功！');
+          notifyBatchResult(this, res, actionLabel);
           this.$emit('success');
         }).finally(() => {
           this.submitLoading = false;

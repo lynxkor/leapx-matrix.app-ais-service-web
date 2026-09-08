@@ -1513,6 +1513,42 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/datacenter/store/store',
+      name: 'store',
+      component: () => import('@/views/datacenter/store/index.vue'),
+
+      meta: {
+        name: '门店管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/datacenter/store/store/detail',
+      name: 'storeDetail',
+      component: () => import('@/views/datacenter/store/detail.vue'),
+
+      meta: {
+        name: '门店详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/datacenter/store/parentCompany',
+      name: 'parentCompany',
+      component: () => import('@/views/datacenter/store/parentCompany/index.vue'),
+
+      meta: {
+        name: '母公司管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/datacenter/store/parentCompany/detail',
+      name: 'parentCompanyDetail',
+      component: () => import('@/views/datacenter/store/parentCompany/detail.vue'),
+
+      meta: {
+        name: '母公司详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/basic/purchasePartSaleable',
       name: 'purchasePartSaleable',
       component: () => import('@/views/sparepart/basic/purchasePartSaleable/index.vue'),
@@ -2250,7 +2286,7 @@ const routes = [
       component: () => import('@/views/sparepart/sale/retailOrder/index.vue'),
 
       meta: {
-        name: '备附件销售',
+        name: '备附件零售',
         keepAlive: true
       }
     }, {
@@ -2259,7 +2295,7 @@ const routes = [
       component: () => import('@/views/sparepart/sale/retailOrderOut/index.vue'),
 
       meta: {
-        name: '备附件销售出库',
+        name: '备附件零售出库',
         keepAlive: true
       }
     }, {

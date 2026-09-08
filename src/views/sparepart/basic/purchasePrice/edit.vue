@@ -53,7 +53,7 @@
                 <el-form-item label="订单类型：" prop="orderType">
                   <fetch-select
                     :request="fetchOptions"
-                    enumCode="PurchaseOrderTypeEnum"
+                    enumCode="PurchaseOrderTypeDistributionEnum"
                     v-model="form.orderType"
                     placeholder="请选择"
                     clearable
@@ -114,7 +114,7 @@
                   {{ form.orderTypeLabel }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                  <el-link type="primary" :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`" target="_blank">
                     {{ form.dealerCode }}
                   </el-link>
                 </el-form-item>
@@ -243,7 +243,8 @@ const defaultForm = {
   name: '',
   dealerCode: '',
   dealerName: '',
-  orderType: '',
+  // 订单类型下拉框已写死只允许"紧急订单"（枚举值 '1'），创建时默认带出该值
+  orderType: '1',
   percent: '',
   originalPriceCoupon: '',
   status: '',
@@ -251,6 +252,10 @@ const defaultForm = {
   couponIssueTime: '',
   remark: '',
 };
+
+// 订单类型：使用 PurchaseOrderTypeEnum 枚举（与同文件优惠券字段保持一致），
+// 列表中只显示"紧急订单"由后端 enum 注册时通过 BizEnumScope 控制，或业务层在保存时校验。
+// 这里只保证 select 的 label 正确反显。
 
 export default {
   name: 'purchasePriceEdit',
