@@ -22,13 +22,14 @@
       </template>
     </vxe-column>
     <vxe-column field="mileageTypeLabel" title="里程类型" ></vxe-column>
-    <vxe-column field="nextMaintenanceDate" title="下次保养日期" >
+    <vxe-column field="nextMaintenanceDate" title="下次保养日期" width="180">
       <template #default="{ row, rowIndex }">
         <el-date-picker
-          v-if="isEdit && eidtRowIndex === rowIndex"
+          v-if="isEdit && eidtRowIndex === rowIndex && originTableData[rowIndex] && originTableData[rowIndex].nextMaintenanceDate"
           v-model="row.nextMaintenanceDate"
           type="date"
           value-format="yyyy-MM-dd HH:mm:ss"
+          :clearable="false"
           placeholder="选择日期"
           size="small"
         />
@@ -41,8 +42,9 @@
           v-if="isEdit && eidtRowIndex === rowIndex"
           v-model="row.nextMileage"
           placeholder="请输入"
+          :clearable="!originTableData[rowIndex] || !originTableData[rowIndex].nextMileage"
           :controls="false"
-          :precision="2"
+          :precision="0"
           size="small"
           style="width: 100%;"
         />
@@ -72,6 +74,13 @@
           >
             编辑
           </span>
+          <span
+            v-if="canResetPart && row.maintenancePartCode "
+            :class="['action-button', resettingRowId === row.id ? 'btn-reset-loading' : 'btn-reset']"
+            @click="resettingRowId === row.id ? null : handleResetPart(row)"
+          >
+            重置
+          </span>
         </template>
       </template>
     </vxe-column>
@@ -98,6 +107,8 @@
 </template>
 <script>
 import { vehicleProfileMaintenanceRecordPage, editMaintenanceRecord } from '@/api/datacenter/vehicle/vehicleProfile';
+import { resetPart } from '@/api/maintain/basic/maintenanceRemind';
+import { getCarInfo } from '@/api/maintain/sp/serviceProxy';
 import permissions from '@/libs/mixins/permissions';
 import { cloneDeep } from 'lodash';
 
@@ -110,6 +121,14 @@ export default {
       type: Boolean,
     },
     isEdit: {
+      type: Boolean,
+      default: false,
+    },
+    vin: {
+      type: String,
+      default: '',
+    },
+    canResetPart: {
       type: Boolean,
       default: false,
     }
@@ -133,6 +152,7 @@ export default {
       total: 0,
       tableData: [],
       loading: false,
+      resettingRowId: null,
     };
   },
   watch: {
@@ -188,6 +208,17 @@ export default {
       }
     },
     saveRowEdit (row, rowIndex) {
+      const origin = this.originTableData.find(r => r.id === row.id);
+      // 若原数据日期非空,当前值不能为空
+      if (origin && origin.nextMaintenanceDate && !row.nextMaintenanceDate) {
+        this.$message.error('下次保养日期不能为空');
+        return;
+      }
+      // 若原数据里程非空,当前值不能为空
+      if (origin && origin.nextMileage && (row.nextMileage === '' || row.nextMileage === null || row.nextMileage === undefined)) {
+        this.$message.error('下次保养里程不能为空');
+        return;
+      }
       editMaintenanceRecord({
         id: row.id,
         nextMaintenanceDate: row.nextMaintenanceDate,
@@ -198,6 +229,67 @@ export default {
         this.eidtRowIndex = -1;
         this.$emit('update');
       });
+    },
+    async handleResetPart (row) {
+      if (this.resettingRowId || this.eidtRowIndex !== -1) return;
+      if (!this.vin || !row.maintenancePartCode) {
+        this.$message.warning('缺少 VIN 或零件代码,无法重置');
+        return;
+      }
+      // mileageTypeLabel 为后端返回的中文里程类型标签: 总里程 / 增程里程
+      const mileageType = row.mileageTypeLabel;
+      this.resettingRowId = row.id;
+      try {
+        const carInfo = await getCarInfo(this.vin);
+        let mileageValue;
+        let mileageLabel;
+        if (mileageType === '增程里程') {
+          mileageValue = carInfo && carInfo.oilMileage;
+          mileageLabel = '增';
+          if (mileageValue === null || mileageValue === undefined || mileageValue === '') {
+            this.$message.warning('该车辆暂无增程里程数据');
+            return;
+          }
+        } else if (mileageType === '总里程') {
+          mileageValue = carInfo && carInfo.mileage;
+          mileageLabel = '总';
+          if (mileageValue === null || mileageValue === undefined || mileageValue === '') {
+            this.$message.warning('未获取到车联网里程,无法重置');
+            return;
+          }
+        } else {
+          this.$message.error('零件里程类型异常,无法重置');
+          return;
+        }
+        const h = this.$createElement;
+        await this.$confirm(
+          h('div', null, [
+            `当前车联网里程数(${mileageLabel})为 ${mileageValue} km,是否确定重置?`,
+            h('br'),
+            '只有时间/里程超期的零件才允许重置，重置成功后的下次保养时间及里程数据将自动同步至零跑App及车机。'
+          ]),
+          '重置确认',
+          { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+        );
+        const res = await resetPart({
+          vin: this.vin,
+          maintenancePartCode: row.maintenancePartCode,
+        });
+        const idx = this.tableData.findIndex(r => r.id === row.id);
+        if (idx !== -1) {
+          this.tableData[idx].nextMaintenanceDate = res.nextMaintenanceDate;
+          // 后端字段:nextMaintenanceMileage(注意"Maintenance"全词)
+          this.tableData[idx].nextMileage = res.nextMaintenanceMileage;
+          const oIdx = this.originTableData.findIndex(r => r.id === row.id);
+          if (oIdx !== -1) {
+            this.originTableData[oIdx] = cloneDeep(this.tableData[idx]);
+          }
+        }
+        this.$message.success('重置成功');
+        this.$emit('update');
+      } finally {
+        this.resettingRowId = null;
+      }
     },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;
@@ -227,6 +319,13 @@ export default {
   }
   &.btn-delete {
     color: #b91919;
+  }
+  &.btn-reset {
+    color: #67c23a;
+  }
+  &.btn-reset-loading {
+    color: #999;
+    cursor: not-allowed;
   }
 }
 </style>
