@@ -39,10 +39,10 @@
           />
         </el-form-item>
         <template v-if="show">
-          <el-form-item label="关联施工单号">
+          <el-form-item label="关联结算单">
             <el-input
-              placeholder="请输入"
-              v-model="form.serviceProxyCodeLike"
+              placeholder="请输入结算单号"
+              v-model="form.batchDocCodesLike"
               clearable
             />
           </el-form-item>
@@ -67,31 +67,32 @@
             />
           </el-form-item>
           <el-form-item label="开单人">
-            <el-input
+            <fetch-select
+              :remote-method="getUserList"
+              remote
+              v-model="form.openerList"
               placeholder="请输入"
-              v-model="form.openerLike"
+              labelKey="username"
+              valueKey="userId"
               clearable
+              multiple
+              filterable
             />
           </el-form-item>
           <el-form-item label="开单门店">
-            <el-select
-              v-model="form.openDealerCodes"
-              multiple
-              filterable
-              clearable
+            <fetch-select
+              :remote-method="getDealerList"
               remote
-              collapse-tags
-              placeholder="请选择"
-              :remote-method="storeSearch"
-              :loading="storeLoading"
-            >
-              <el-option
-                v-for="item in storeOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
+              v-model="form.openDealerCodes"
+              placeholder="请输入门店编码或名称"
+              labelKey="orgName"
+              valueKey="orgCode"
+              subLabelKey="orgCode"
+              clearable
+              multiple
+              collapseTags
+              filterable
+            />
           </el-form-item>
           <el-form-item label="关闭原因">
             <fetch-select
@@ -114,9 +115,42 @@
               end-placeholder="结束日期"
             />
           </el-form-item>
+          <el-form-item label="开启成功时间">
+            <el-date-picker
+              v-model="form.openSuccessTime"
+              type="daterange"
+              unlink-panels
+              range-separator="至"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </el-form-item>
+          <el-form-item label="开启失败时间">
+            <el-date-picker
+              v-model="form.openFailTime"
+              type="daterange"
+              unlink-panels
+              range-separator="至"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </el-form-item>
           <el-form-item label="计划关闭时间">
             <el-date-picker
               v-model="form.planCloseTime"
+              type="daterange"
+              unlink-panels
+              range-separator="至"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </el-form-item>
+          <el-form-item label="关闭失败时间">
+            <el-date-picker
+              v-model="form.closeFailTime"
               type="daterange"
               unlink-panels
               range-separator="至"
@@ -164,6 +198,27 @@
         @paginationChange="paginationChange"
       />
     </div>
+    <el-dialog
+      title="关联结算单号"
+      :visible.sync="statementDialogVisible"
+      width="480px"
+      append-to-body
+    >
+      <div class="statement-dialog-list">
+        <div
+          v-for="item in statementDialogList"
+          :key="item.code"
+          class="statement-dialog-item"
+        >
+          <el-button
+            type="text"
+            :disabled="!item.id"
+            @click="goStatementDetail(item)"
+          >{{ item.code }}</el-button>
+        </div>
+        <div v-if="statementDialogList.length === 0" class="statement-dialog-empty">暂无关联结算单</div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -172,27 +227,28 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList } from '@/api/maintain/basic/recordingTask/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfo } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getUserByNameOrNo } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import { getEndOfDayString, downloadExcel } from '@/libs/utils';
 
-const DOC_TYPE_CONSTRUCTION = 1;
-
 const defaultForm = {
   createTime: '',
   docTypes: [],
   docCodeLike: '',
-  serviceProxyCodeLike: '',
+  batchDocCodesLike: '',
   taskStatuses: [],
   openTypes: [],
-  openerLike: '',
+  openerList: [],
   openDealerCodes: [],
   closeReasons: [],
   openTime: '',
+  openSuccessTime: '',
+  openFailTime: '',
   planCloseTime: '',
+  closeFailTime: '',
   closeSuccessTime: ''
 };
 
@@ -217,9 +273,8 @@ export default {
       show: false,
       loading: false,
       exportLoading: false,
-      storeOptions: [],
-      storeLoading: false,
-      searchTimer: null,
+      statementDialogVisible: false,
+      statementDialogList: [],
       optionObj: {
         id: 'recordingTaskTable',
         dataList: [],
@@ -235,17 +290,17 @@ export default {
             visible: true,
             width: 200,
             buttons: [{
-              click: (rowIndex, row) => this.goDocDetail(row),
+              click: (rowIndex, row) => this.goServiceProxy(row),
               type: 'primary'
             }]
           },
           {
-            props: 'serviceProxyCode',
-            label: '关联施工单号',
+            props: 'batchDocCodes',
+            label: '关联结算单号',
             visible: true,
             width: 200,
             buttons: [{
-              click: (rowIndex, row) => this.goServiceProxy(row),
+              click: (rowIndex, row) => this.openStatementDialog(row),
               type: 'primary'
             }]
           },
@@ -318,11 +373,6 @@ export default {
       this.form = { ...defaultForm };
       this.getData();
     },
-    goDocDetail (row) {
-      if (row.docType === DOC_TYPE_CONSTRUCTION) {
-        this.goServiceProxy(row);
-      }
-    },
     goServiceProxy (row) {
       if (!row.serviceProxyId) return;
       this.$router.push({
@@ -330,28 +380,33 @@ export default {
         query: { id: row.serviceProxyId, isEditing: false }
       });
     },
-    async storeSearch (query) {
-      if (query !== '' && query.length < 2) {
-        this.storeOptions = [];
-        return;
+    openStatementDialog (row) {
+      this.statementDialogList = row.statementResps || [];
+      this.statementDialogVisible = true;
+    },
+    goStatementDetail (item) {
+      if (!item || !item.id) return;
+      this.statementDialogVisible = false;
+      this.$router.push({
+        path: '/maintain/sp/serviceStatement/edit',
+        query: { id: item.id }
+      });
+    },
+    async getUserList (query) {
+      try {
+        return await getUserByNameOrNo({ name: query });
+      } catch (error) {
+        console.error(error);
+        return [];
       }
-      if (this.searchTimer) {
-        clearTimeout(this.searchTimer);
+    },
+    async getDealerList (query) {
+      try {
+        return await listOrgStoreInfoByParam({ orgCodeOrName: query });
+      } catch (error) {
+        console.error(error);
+        return [];
       }
-      this.searchTimer = setTimeout(async () => {
-        this.storeLoading = true;
-        try {
-          const res = await listOrgStoreInfo({ name: query });
-          this.storeOptions = (res || []).map(item => ({
-            value: item.orgCode,
-            label: item.orgName
-          }));
-        } catch (e) {
-          this.storeOptions = [];
-        } finally {
-          this.storeLoading = false;
-        }
-      }, 300);
     },
     getData () {
       this.loading = true;
@@ -407,7 +462,10 @@ export default {
         data.createTimeEnd = getEndOfDayString(this.form.createTime[1]);
       }
       this.assignDateRange(data, 'openTime', 'openTimeStart', 'openTimeEnd');
+      this.assignDateRange(data, 'openSuccessTime', 'openSuccessTimeStart', 'openSuccessTimeEnd');
+      this.assignDateRange(data, 'openFailTime', 'openFailTimeStart', 'openFailTimeEnd');
       this.assignDateRange(data, 'planCloseTime', 'planCloseTimeStart', 'planCloseTimeEnd');
+      this.assignDateRange(data, 'closeFailTime', 'closeFailTimeStart', 'closeFailTimeEnd');
       this.assignDateRange(data, 'closeSuccessTime', 'closeSuccessTimeStart', 'closeSuccessTimeEnd');
 
       return data;
@@ -457,5 +515,13 @@ export default {
 
 <style lang="scss" scoped>
 .m-recording-task-list {
+}
+.statement-dialog-item {
+  line-height: 28px;
+}
+.statement-dialog-empty {
+  color: #909399;
+  text-align: center;
+  padding: 8px 0;
 }
 </style>
