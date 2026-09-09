@@ -23,6 +23,7 @@
                     clearable
                     maxLength="36"
                     show-word-limit
+                    :disabled="isEdit"
                   />
                 </el-form-item>
                 <el-form-item label="excel导入模板下载地址" prop="excelModelUrl">
@@ -104,6 +105,37 @@
                     clearable
                   />
                 </el-form-item>
+                <el-form-item label="导入业务" prop="importBusiness">
+                  <el-input
+                    placeholder="请输入"
+                    v-model="form.importBusiness"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="导入策略" prop="importStrategy">
+                  <el-select v-model="form.importStrategy" placeholder="请选择">
+                    <el-option label="跳过错误行" value="SKIP_ERROR_ROWS" />
+                    <el-option label="全有全无" value="ALL_OR_NOTHING" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="文件大小限制MB" prop="fileSizeLimitMb">
+                  <el-input
+                    type="number"
+                    min="1"
+                    placeholder="请输入"
+                    v-model="form.fileSizeLimitMb"
+                    clearable
+                  />
+                </el-form-item>
+                <el-form-item label="最大行数" prop="maxRows">
+                  <el-input
+                    type="number"
+                    min="1"
+                    placeholder="请输入"
+                    v-model="form.maxRows"
+                    clearable
+                  />
+                </el-form-item>
               </el-form>
             </div>
           </section>
@@ -118,7 +150,7 @@
   </template>
 
 <script>
-import { getDetail, addOrUpdate } from '@/api/excelManagement/commonDataProcessExcelModelMap/index';
+import { getDetail, addOrUpdate, checkCodeUnique } from '@/api/excelManagement/commonDataProcessExcelModelMap/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { uploadFile } from '@/libs/api/attachment';
 import { getEnum } from '@/api/common';
@@ -135,7 +167,11 @@ const defaultForm = {
   postParamDto: '',
   batchSize: '',
   titleStartRow: '',
-  dataStartRow: ''
+  dataStartRow: '',
+  importBusiness: '',
+  importStrategy: 'SKIP_ERROR_ROWS',
+  fileSizeLimitMb: '',
+  maxRows: ''
 };
 
 export default {
@@ -184,6 +220,12 @@ export default {
         batchSize: [
           { required: true, message: '请输入每批n条数据', trigger: 'blur' }
         ],
+        fileSizeLimitMb: [
+          { validator: this.validatePositiveInteger, trigger: 'blur' }
+        ],
+        maxRows: [
+          { validator: this.validatePositiveInteger, trigger: 'blur' }
+        ],
       },
       pickerOptions: {
         shortcuts: [{
@@ -218,6 +260,10 @@ export default {
   // 使用计算属性动态获取上传地址
     uploadAction () {
       return window.APP_AIS_WEB_CONFIG.VUE_APP_WORK_ORDER_URL + '/file/fileService/uploadMultipartFile';
+    },
+    // 编辑态：模板编码是唯一标识，禁止修改（checkCodeUnique 编辑态也按排除自身校验）
+    isEdit () {
+      return !!(this.id || this.$route.query.id);
     }
   },
   mounted () {
@@ -226,6 +272,18 @@ export default {
   methods: {
     handleBack () {
       this.$router.back();
+    },
+    // 文件大小限制MB/最大行数：可空，填值须为正整数
+    validatePositiveInteger (rule, value, callback) {
+      if (value === '' || value === null || value === undefined) {
+        callback();
+        return;
+      }
+      if (!Number.isInteger(Number(value)) || Number(value) <= 0) {
+        callback(new Error('请输入正整数'));
+        return;
+      }
+      callback();
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
@@ -239,10 +297,30 @@ export default {
       }
     },
     submitForm (formName, rest = false) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(async (valid) => {
         if (valid) {
           this.submitLoading = true;
-          addOrUpdate({ ...this.form }).then(res => {
+          try {
+            // 保存前模板编码唯一性校验（编辑态排除自身；后端应用层校验 + DB uk_code 兜底）
+            const checkRes = await checkCodeUnique({ code: this.form.code, id: (this.id || this.$route.query.id) || undefined });
+            // 后端契约：Boolean 或 { unique: Boolean }（t3 定稿），前端两形态兼容，异常形态按重码阻断
+            const unique = checkRes === true || (checkRes && checkRes.unique === true);
+            if (!unique) {
+              this.$message({
+                message: '模板编码已存在',
+                type: 'error'
+              });
+              return;
+            }
+            const payload = { ...this.form };
+            // 数值可空字段空串不下发，避免后端 Integer 反序列化失败
+            if (payload.fileSizeLimitMb === '') {
+              delete payload.fileSizeLimitMb;
+            }
+            if (payload.maxRows === '') {
+              delete payload.maxRows;
+            }
+            await addOrUpdate(payload);
             this.$message({
               message: '保存成功',
               type: 'success'
@@ -253,9 +331,11 @@ export default {
             } else {
               this.getDetailData();
             }
-          }).finally(() => {
+          } catch (error) {
+            // 报错已由全局拦截器 toast（唯一性校验/保存失败），此处静默
+          } finally {
             this.submitLoading = false;
-          });
+          }
         }
       });
     },

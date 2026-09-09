@@ -21,6 +21,18 @@
               <el-form-item label="业务标识：" prop="businessType">
                 {{ info.businessType  }}
               </el-form-item>
+              <el-form-item label="导入业务：" prop="importBusiness">
+                {{ info.importBusiness  }}
+              </el-form-item>
+              <el-form-item label="导入策略：" prop="importStrategy">
+                {{ importStrategyLabel }}
+              </el-form-item>
+              <el-form-item label="文件大小限制MB：" prop="fileSizeLimitMb">
+                {{ info.fileSizeLimitMb  }}
+              </el-form-item>
+              <el-form-item label="最大行数：" prop="maxRows">
+                {{ info.maxRows  }}
+              </el-form-item>
               <el-form-item label="导入参数DTO：" prop="postParamDto">
                 {{ info.postParamDto  }}
               </el-form-item>
@@ -66,6 +78,15 @@ export default {
       info: {},
       yes_no_enum_map: YES_NO_ENUM_MAP
     };
+  },
+  computed: {
+    // 导入策略两值字典映射：SKIP_ERROR_ROWS=跳过错误行（默认）/ ALL_OR_NOTHING=全有全无
+    importStrategyLabel () {
+      if (this.info.importStrategy === 'ALL_OR_NOTHING') {
+        return '全有全无';
+      }
+      return this.info.importStrategy ? '跳过错误行' : '';
+    }
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导入', '详情']);
