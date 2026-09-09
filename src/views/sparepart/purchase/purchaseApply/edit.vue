@@ -823,7 +823,9 @@ export default {
     },
     async submitRequest () {
       const result = await addOrUpdate({ ...this.form });
-      await this.getDetailData();
+      if (this._id) {
+        await this.getDetailData();
+      }
       return result;
     },
     async getDealerList (query) {
