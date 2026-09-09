@@ -1257,9 +1257,13 @@ export default {
       const searchParams = JSON.parse(sessionStorage.getItem(SEARCH_PARAMS_KEY) || '{}');
       // 增加预防，无id不跳
       if (!this._id) return;
+      const bucket = this.$store.state.customView?.cache?.warrantyapply;
+      const viewId = bucket ? bucket.activePresetId : null;
+
       getNextId({
         ...searchParams,
-        maxId: this._id
+        maxId: this._id,
+        viewId
       }).then(nextId => {
         if (nextId) {
           if (nextId !== this._id) {
