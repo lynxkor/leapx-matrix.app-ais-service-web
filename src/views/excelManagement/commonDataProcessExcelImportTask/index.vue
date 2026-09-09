@@ -15,6 +15,13 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="文件名称：">
+        <el-input
+          placeholder="请输入"
+          v-model="form.fileNameLike"
+          clearable
+        />
+      </el-form-item>
       <el-form-item label="任务状态" prop="taskStatus">
         <fetch-select
           :options="taskStatusOptions"
@@ -22,6 +29,13 @@
           placeholder="请选择"
           clearable
           multiple
+        />
+      </el-form-item>
+      <el-form-item label="创建人：">
+        <el-input
+          placeholder="请输入"
+          v-model="form.creatorNameLike"
+          clearable
         />
       </el-form-item>
       <el-form-item label="创建时间">
@@ -82,6 +96,7 @@ import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/co
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import commonMixins from '@/libs/mixins/commonMixins';
+import permissions from '@/libs/mixins/permissions';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { downloadExcel } from '@/utils/index.js';
 import { refreshFileAuthUrl } from '@/api/file/fileDetail';
@@ -91,7 +106,9 @@ const defaultForm = {
   taskType: 1,
   taskStatus: '',
   creator: '',
-  businessType: ''
+  businessType: '',
+  fileNameLike: '',
+  creatorNameLike: ''
 };
 
 const pageSize = 20;
@@ -100,7 +117,7 @@ const mockConfig = {
 };
 
 export default {
-  mixins: [commonMixins],
+  mixins: [permissions, commonMixins],
 
   components: {
     FetchSelect,
@@ -112,15 +129,18 @@ export default {
     return {
       pageTitle: 'Excel导入任务',
       pageType: 'list',
+      moduleKey: 'AISMC-commonDataProcessExcelImportTask',
       form: {
         ...defaultForm
       },
       selectionList: [],
+      // 状态筛选按原始枚举展示（11 等待导入/12 导入中/13 导入完成/14 导入失败 + 本期新增 15 部分失败），选中什么提交什么
       taskStatusOptions: [
         { code: 11, message: '等待导入' },
         { code: 12, message: '导入中' },
         { code: 13, message: '导入完成' },
-        { code: 14, message: '导入失败' }
+        { code: 14, message: '导入失败' },
+        { code: 15, message: '部分失败' }
       ],
       yes_no_enum: YES_NO_ENUM,
       show: false,
@@ -156,6 +176,25 @@ export default {
           { props: 'taskTypeLabel', label: '任务类型', visible: true, width: 200 },
           { props: 'businessType', label: '业务标识', visible: true, width: 200 },
           {
+            props: 'importExcelFileName',
+            label: '文件名称',
+            visible: true,
+            width: 200,
+            buttons: [{
+              name: '点击下载',
+              // 展示条件：任务存有原始文件 OSS 地址（存量任务 URL 空不显示）+ 权限码 -downloadOriginalFile，全状态可下载
+              show: (row) => !!row.importOriginalUrl && this.permissions.has(`${this.moduleKey}-downloadOriginalFile`),
+              click: (rowIndex, row) => {
+                this.handleDownloadOriginal(row);
+              },
+              type: 'primary'
+            }]
+          },
+          // 行数三列空值展示 '-'：LPVxeTable 不支持 dataProp.formatter，由 getData 数据侧映射
+          { props: 'totalNum', label: '总数据行数', visible: true, width: 200 },
+          { props: 'successNum', label: '成功行数', visible: true, width: 200 },
+          { props: 'failNum', label: '失败行数', visible: true, width: 200 },
+          {
             props: 'importFailUrl',
             label: '导入失败数据下载地址',
             visible: true,
@@ -169,9 +208,11 @@ export default {
               type: 'primary'
             }]
           },
+          // 处理中（等待导入 11/导入中 12）行内展示发送进度 sendNum/totalNum，由 getData 数据侧拼入状态文案，随列表刷新更新（无轮询）
           { props: 'taskStatusLabel', label: '任务状态', visible: true, width: 200 },
           { props: 'importRemark', label: '描述', visible: true, width: 200 },
           { props: 'creatorName', label: '创建者', visible: true, width: 200 },
+          { props: 'modifierName', label: '修改人', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 }
         ],
@@ -266,6 +307,10 @@ export default {
           this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,
+              // LPVxeTable 不支持 dataProp.formatter，行数列空值 '-' 在数据侧映射
+              totalNum: item.totalNum ?? '-',
+              successNum: item.successNum ?? '-',
+              failNum: item.failNum ?? '-',
               deleteLoading: false
             };
           });
@@ -376,7 +421,8 @@ export default {
         });
       });
     },
-    // 重试导入任务
+    // 重试导入任务（存量未接线方法，按精准修改原则保留现状死代码不删；
+    // 防重留痕行(dedup_hit=1)的拒绝重试防线由后端 retryImportTask 入口负责，前端无改动）
     handleRetry (row) {
       this.$confirm('确定要重新执行该导入任务吗?', '提示', {
         confirmButtonText: '确定',
@@ -408,6 +454,31 @@ export default {
         if (res) {
           // console.log(res);
           downloadExcel(res.authFileUrl, res.originalFilename || '导入失败数据.xlsx');
+        } else {
+          this.$message({
+            type: 'warning',
+            message: '下载地址为空'
+          });
+        }
+      });
+    },
+    // 下载原始文件：与下载失败文件同形式，行内 importOriginalUrl 走 refreshFileAuthUrl 换签后下载
+    handleDownloadOriginal (row) {
+      const url = row?.importOriginalUrl || this.info?.importOriginalUrl;
+      if (!url) {
+        this.$message({
+          type: 'warning',
+          message: '下载地址为空'
+        });
+        return;
+      }
+      const originalUrl = url.split('?')[0];
+      refreshFileAuthUrl({
+        url: originalUrl,
+        expireMinutes: 1440
+      }).then(res => {
+        if (res) {
+          downloadExcel(res.authFileUrl, res.originalFilename || row?.importExcelFileName || '原始导入文件.xlsx');
         } else {
           this.$message({
             type: 'warning',

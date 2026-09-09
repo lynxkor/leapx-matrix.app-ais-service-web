@@ -23,6 +23,21 @@
             <el-form-item label="业务标识：" prop="businessType">
               {{ info.businessType  }}
             </el-form-item>
+            <el-form-item label="文件名称：" prop="importExcelFileName">
+              {{ info.importExcelFileName  }}
+            </el-form-item>
+            <el-form-item label="总数据行数：" prop="totalNum">
+              {{ formatNum(info.totalNum) }}
+            </el-form-item>
+            <el-form-item label="成功行数：" prop="successNum">
+              {{ formatNum(info.successNum) }}
+            </el-form-item>
+            <el-form-item label="失败行数：" prop="failNum">
+              {{ formatNum(info.failNum) }}
+            </el-form-item>
+            <el-form-item v-if="info.taskStatus === 11 || info.taskStatus === 12" label="发送进度：">
+              {{ formatProgress(info) }}
+            </el-form-item>
             <el-form-item label="任务状态：" prop="taskStatus">
               {{ info.taskStatusLabel  }}
             </el-form-item>
@@ -57,6 +72,11 @@
               <span v-if="!info.fileId"></span>
               <span v-else class="url-link" @click="handleDownload"> 点击下载 </span>
             </el-form-item>
+            <el-form-item label="原始文件：" prop="importOriginalUrl" class="header-map-item" style="width: 100%;">
+              <span v-if="!info.importOriginalUrl"></span>
+              <span v-else-if="canDownloadOriginal" class="url-link" @click="handleDownloadOriginal"> 点击下载 </span>
+              <span v-else></span>
+            </el-form-item>
           </el-form>
         </div>
       </section>
@@ -69,22 +89,40 @@ import { getDetail } from '@/api/excelManagement/commonDataProcessExcelTask/inde
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
 import { downloadExcel } from '@/utils/index.js';
 import { refreshFileAuthUrl } from '@/api/file/fileDetail';
+import permissions from '@/libs/mixins/permissions';
+
 export default {
   name: 'commonDataProcessExcelTaskDetail',
+  mixins: [permissions],
   components: {
   },
   data () {
     return {
       loading: true,
       info: {},
+      moduleKey: 'AISMC-commonDataProcessExcelImportTask',
       yes_no_enum_map: YES_NO_ENUM_MAP
     };
+  },
+  computed: {
+    // 下载原始文件权限码（moduleKey + '-downloadOriginalFile'）
+    canDownloadOriginal () {
+      return this.permissions.has(`${this.moduleKey}-downloadOriginalFile`);
+    }
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导入', '详情']);
     this.getData();
   },
   methods: {
+    // 行数类字段空值展示 '-'
+    formatNum (value) {
+      return (value ?? '-');
+    },
+    // 处理中任务发送进度（sendNum/totalNum，随详情刷新更新，无轮询）
+    formatProgress (info) {
+      return `${info.sendNum ?? 0}/${info.totalNum ?? '-'}`;
+    },
     handleEdit () {
       this.$router.push({
         path: '/excelManagement/commonDataProcessExcelTask/edit',
@@ -111,6 +149,31 @@ export default {
         if (res) {
           // console.log(res);
           downloadExcel(res.authFileUrl, res.originalFilename || '导入失败数据.xlsx');
+        } else {
+          this.$message({
+            type: 'warning',
+            message: '下载地址为空'
+          });
+        }
+      });
+    },
+    // 下载原始文件：与下载失败文件同形式，详情数据 importOriginalUrl 走 refreshFileAuthUrl 换签后下载
+    handleDownloadOriginal () {
+      const url = this.info?.importOriginalUrl;
+      if (!url) {
+        this.$message({
+          type: 'warning',
+          message: '下载地址为空'
+        });
+        return;
+      }
+      const originalUrl = url.split('?')[0];
+      refreshFileAuthUrl({
+        url: originalUrl,
+        expireMinutes: 1440
+      }).then(res => {
+        if (res) {
+          downloadExcel(res.authFileUrl, res.originalFilename || this.info?.importExcelFileName || '原始导入文件.xlsx');
         } else {
           this.$message({
             type: 'warning',
