@@ -551,6 +551,9 @@ export default {
     };
   },
   mounted () {
+    if (this._id) {
+      this.loadStartRecordingBlock();
+    }
   },
   methods: {
     checkCanCreate () {

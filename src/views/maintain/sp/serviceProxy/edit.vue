@@ -149,9 +149,10 @@
     <template #right>
       <!-- 右侧栏组件，自行开发 -->
     </template>
-    <!-- 结算故障解决情况弹窗 -->
+    <!-- 结算弹窗：选择离店类型（有故障时还需填写故障解决情况） -->
     <SettlementDialog
       :visible.sync="settlementDialogVisible"
+      :has-fault="form.currentFault === 1"
       @confirm="handleSettlementConfirm"
     />
   </edit-page-layout>
@@ -791,14 +792,8 @@ export default {
     // 结算与取消结算
     handleSettlement (v) {
       if (v) {
-        // 判断是否存在故障
-        if (this.form.currentFault === 1) {
-          // 存在故障，需要填写故障解决情况
-          this.settlementDialogVisible = true;
-        } else {
-          // 不存在故障，直接确认
-          this.handleSettlementConfirm({ faultSolve: true, reason: '' });
-        }
+        // 结算统一弹窗：选择离店类型（有故障时还需填写故障解决情况）
+        this.settlementDialogVisible = true;
       } else {
         if (this.settlementLoading) return;
         const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>您确定要取消结算吗？</div>';
