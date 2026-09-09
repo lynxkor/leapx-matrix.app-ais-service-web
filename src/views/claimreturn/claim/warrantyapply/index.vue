@@ -2138,6 +2138,8 @@ export default {
       // 自动拆箱抛出 NPE → 500。这里主动补 pageNum=1, pageSize=99999。
       reqParams.pageNum = reqParams.pageNum || 1;
       reqParams.pageSize = reqParams.pageSize || 99999;
+      reqParams.viewId = this.activePresetId || null;
+
       const tab = this.activeTab;
       const isParts = tab === 'parts';
       const isWorkhours = tab === 'workhours';
