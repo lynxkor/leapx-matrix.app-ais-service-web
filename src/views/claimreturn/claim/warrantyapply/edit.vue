@@ -661,8 +661,41 @@
     ">
       {{ item.ruleName || '预警' }}
     </div>
-    <!-- 内容: 完整提醒文案 (缩进+灰色+行高) -->
-    <div v-if="item.content" style="
+    <!-- 内容: 完整提醒文案 (缩进+灰色+行高)
+         BXYJ010 (过度更换零件预警) 单独渲染:
+           格式 "此门店零件名称:{name1[link]}、{name2[link]}、{name3[link]}, 查看更多(N)更换数据异常"
+           零件名点击跳 sparePart 详情, "查看更多" 跳备件主数据列表(批量 partCodeList 查询) -->
+    <div v-if="item.ruleType === 'BXYJ010' && item.partCodes && item.partCodes.length"
+         style="
+           font-size: 13px;
+           color: #606266;
+           line-height: 1.8;
+           margin-bottom: 10px;
+           padding-left: 8px;
+           word-break: break-all;
+         ">
+      <span style="color: #606266;">此门店零件名称：</span>
+      <span v-for="(tok, ti) in buildBxyj010Tokens(item)" :key="'t' + idx + '-' + ti" style="display: inline;">
+        <el-link
+          v-if="tok.type === 'name'"
+          type="success"
+          :href="getPartDetailHref(tok.code)"
+          target="_blank"
+          style="margin-right: 4px; vertical-align: baseline;"
+        >{{ tok.name }}</el-link>
+        <span v-else-if="tok.type === 'sep'" style="color: #606266;">、</span>
+        <span v-else-if="tok.type === 'comma'" style="color: #606266; margin: 0 4px;">，</span>
+        <el-link
+          v-else-if="tok.type === 'more'"
+          type="primary"
+          :href="getPartListHref(item.partCodes)"
+          target="_blank"
+          style="vertical-align: baseline;"
+        >查看更多（{{ tok.count }}）</el-link>
+      </span>
+      <span style="color: #606266;">更换数据异常</span>
+    </div>
+    <div v-else-if="item.content" style="
       font-size: 13px;
       color: #606266;
       line-height: 1.8;
@@ -710,25 +743,9 @@
         style="margin-left: 4px;"
       >查看更多 ({{ item.proxyNos.length }})</el-link>
     </div>
-    <!-- 零件编码 (BXYJ010 预留) -->
-    <div v-if="item.partCodes && item.partCodes.length" style="padding-left: 8px; margin-top: 8px;">
-      <span style="color: #909399; font-size: 12px; margin-right: 6px;">零件编码：</span>
-      <el-link
-        v-for="(partCode, i) in item.partCodes.slice(0, 3)"
-        :key="'c' + idx + '-' + i"
-        type="success"
-        :href="getPartDetailHref(partCode)"
-        target="_blank"
-        style="margin-right: 8px;"
-      >{{ partCode }}</el-link>
-      <el-link
-        v-if="item.partCodes.length > 3"
-        type="primary"
-        :href="getPartListHref(item.partCodes)"
-        target="_blank"
-        style="margin-left: 4px;"
-      >查看更多 ({{ item.partCodes.length }})</el-link>
-    </div>
+    <!-- 零件编码块已废弃: BXYJ010 在上方特殊渲染中已展示零件名链接+查看更多,
+         此处保留空 div 仅作为兼容性占位 (避免未来新增预警误判). -->
+    <!-- (空, BXYJ010 走专属区块, 其他规则暂未用到 partCodes) -->
   </div>
   <div slot="footer">
     <el-button @click="warningDetailList = []">关闭</el-button>
@@ -743,9 +760,6 @@ import {
   getDetail,
   addOrUpdate,
   submit,
-  withdraw,
-  approve,
-  batchCancel,
   print,
   getNextId,
   getList
@@ -780,10 +794,11 @@ import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 // 旧件供应商
 import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
-import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
 import { getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity';
 // 接车施工单 (BXYJ009 跳转需要按 proxyNo 批量查 id, 详情页只接受 id 入参)
 import { getList as getServiceProxyList } from '@/api/maintain/sp/serviceProxy/index';
+// 备件主数据 (BXYJ010 跳转需要按 partCode 批量查 sparePartId, 详情页只接受 id 入参)
+import { getList as getSparePartList } from '@/api/sparepart/basic/sparePart';
 
 const SEARCH_PARAMS_KEY = 'WARRANTY_APPLY_SEARCH_PARAMS';
 const NO_OLD_PART = '10'; // 无旧件
@@ -1074,7 +1089,9 @@ export default {
       warningDetailList: [],
       applyNoToIdMap: {},
       // BXYJ009: 施工单号 → id 映射 (详情页只接受 id 入参, 需要先批量查询)
-      proxyNoToIdMap: {}
+      proxyNoToIdMap: {},
+      // BXYJ010: 零件编码 → sparePartId 映射 (备件主数据详情页只接受 id 入参, 需要先批量查询)
+      partCodeToIdMap: {}
     };
   },
   created () {
@@ -1172,7 +1189,6 @@ export default {
      * </p>
      */
     parseAndShowWarning (res) {
-      const msg = res?.warrantyWarningMsg;
       let list = [];
       if (res?.warrantyWarningDetail) {
         try {
@@ -1189,6 +1205,8 @@ export default {
           this.loadApplyNoIdMappings();
           // BXYJ009: 同步加载施工单号 → id 映射, 用于点击单号跳详情
           this.loadProxyNoIdMappings();
+          // BXYJ010: 同步加载零件编码 → sparePartId 映射, 用于点击零件名跳详情
+          this.loadPartCodeIdMappings();
         });
       }
     },
@@ -1246,6 +1264,38 @@ export default {
       }
     },
     /**
+     * 加载 partCode → sparePartId 的映射 (BXYJ010)
+     * <p>
+     * 备件主数据详情页 {@code /service/sparepart/basic/sparePart/edit} 只接受
+     * {@code ?id=} 入参, 不支持按 partCode 查询, 所以需要先批量查询
+     * sparePart 列表拿到 partCode → sparePartId 映射。
+     * </p>
+     */
+    async loadPartCodeIdMappings () {
+      const partCodes = new Set();
+      this.warningDetailList.forEach(item => {
+        if (item && Array.isArray(item.partCodes)) {
+          item.partCodes.forEach(c => { if (c) partCodes.add(c); });
+        }
+      });
+      if (partCodes.size === 0) return;
+      try {
+        // partCodeList 是 sparePart 列表支持的批量 partCode IN 查询字段,
+        //   接口返回 records 中包含 id (sparePartId) 与 partCode, 用于构造映射
+        const res = await getSparePartList({
+          pageNum: 1,
+          pageSize: partCodes.size,
+          partCodeList: Array.from(partCodes)
+        });
+        const map = {};
+        const records = res?.data?.records || res?.records || [];
+        records.forEach(r => { if (r.partCode && r.id) map[r.partCode] = r.id; });
+        this.partCodeToIdMap = map;
+      } catch (e) {
+        console.error('[保修预警] 批量查 partCode→sparePartId 失败', e);
+      }
+    },
+    /**
      * 保修单详情链接: 优先用 id (详情页 ?id= 入参), 降级到 applyNo 跳列表
      */
     getApplyDetailHref (applyNo) {
@@ -1287,13 +1337,57 @@ export default {
       return `/maintain/sp/serviceProxy?codes=${proxyNos.map(encodeURIComponent).join(',')}`;
     },
     /**
-     * 备件主数据详情链接 (sparePart 备件主数据模块)
+     * 备件主数据详情链接 (BXYJ010 跳转)
+     * <p>
+     * sparePart 详情页只接受 {@code ?id=} (sparePartId) 入参, 所以优先用映射加载到的 id;
+     * 映射加载失败时降级到列表页查询 (按 partCode)。
+     * </p>
      */
     getPartDetailHref (partCode) {
-      return `/service/sparepart/basic/sparePart?partCode=${encodeURIComponent(partCode)}`;
+      const id = this.partCodeToIdMap[partCode];
+      return id
+        ? `/service/sparepart/basic/sparePart/edit?id=${id}&isEditing=false`
+        : `/service/sparepart/basic/sparePart?partCode=${encodeURIComponent(partCode)}`;
     },
+    /**
+     * 备件主数据列表链接 (BXYJ010 "查看更多" 跳转)
+     * <p>
+     * 列表页已实现 {@code applyWarningSearchParams} 读取 URL 中的
+     * {@code partCodeList} 参数, 自动重置其他查询条件后只按这些 partCode 查询。
+     * </p>
+     */
     getPartListHref (partCodes) {
       return `/service/sparepart/basic/sparePart?partCodeList=${partCodes.map(encodeURIComponent).join(',')}`;
+    },
+    /**
+     * 构建 BXYJ010 预警的展示 token 列表
+     * <p>
+     * 按展示顺序扁平化为: name(零件链接)、sep("、")、comma("，")、more("查看更多"链接) 四种类型。
+     * 前 3 个零件名称用 name 类型渲染可点击链接; 超过 3 个时插入 more 类型"查看更多"。
+     * 用 token 数组而非 v-for 嵌套,避免 Vue 2 中 v-for 内部 scope 引用 i 的陷阱,渲染顺序确定。
+     * 容错: 若后端未下发 partNames (旧 detail JSON), 降级用 partCode 作为展示文本, 保证 "查看更多" 链接仍可显示.
+     * </p>
+     */
+    buildBxyj010Tokens (item) {
+      const tokens = [];
+      if (!item || !item.partCodes || !item.partCodes.length) return tokens;
+      const partCodes = item.partCodes;
+      // 兼容后端未下发 partNames 字段的旧 detail JSON
+      const partNames = Array.isArray(item.partNames) && item.partNames.length === partCodes.length
+        ? item.partNames
+        : partCodes;
+      const limit = Math.min(3, partCodes.length);
+      for (let i = 0; i < limit; i++) {
+        tokens.push({ type: 'name', code: partCodes[i], name: partNames[i] });
+        if (i < limit - 1) {
+          tokens.push({ type: 'sep' });
+        }
+      }
+      if (partCodes.length > 3) {
+        tokens.push({ type: 'comma' });
+        tokens.push({ type: 'more', count: partCodes.length });
+      }
+      return tokens;
     },
     async submitRequest () {
       const res = await addOrUpdate({ ...this.form });

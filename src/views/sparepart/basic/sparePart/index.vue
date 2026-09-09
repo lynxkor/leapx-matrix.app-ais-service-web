@@ -447,8 +447,9 @@ export default {
       const partCodeList = (typeof param === 'string' ? param.split(',') : param)
         .filter(x => x && String(x).trim());
       if (partCodeList.length === 0) return;
-      // 重置 form 为默认值, 仅保留 partCodeList
-      this.form = { ...this.$options.data().form, partCodeList };
+      // 重置 form 为 defaultForm（模块级常量，不受 mixin data 合并影响）
+      // 然后仅保留 partCodeList，其他字段用默认值
+      this.form = { ...defaultForm, partCodeList };
     },
     handleListSelect (row) {
       this.clickItemId = row.id;
@@ -700,6 +701,7 @@ export default {
         this.$message.success(`${actionName}成功!`);
         this.getData(); // 刷新列表
       } catch (error) {
+        this.$message.error(`${actionName}失败: ${error?.message || '请稍后重试'}`);
       }
     },
 

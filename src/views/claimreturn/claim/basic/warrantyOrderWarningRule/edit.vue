@@ -143,6 +143,50 @@
                       />
                       <span> 的维修记录(工时或备件一项即可),则提醒:</span>
                     </template>
+                    <!-- BXYJ010 过度更换零件预警: 编辑模式 -->
+                    <template v-else-if="form.ruleType === 'BXYJ010'">
+                      <span>当前保修单中申请的零件价格大于 </span>
+                      <el-input-number
+                        placeholder="价格"
+                        v-model="form.partUnitPriceMin"
+                        :controls="false"
+                        :max="999999999"
+                        :min="0"
+                        clearable
+                        style="width: 130px;"
+                      />
+                      <span> 元的零件，在对应同年款，同车系且当前提交时间大于等于当前时间- </span>
+                      <el-input-number
+                        placeholder="天数"
+                        v-model="form.withinDays"
+                        :controls="false"
+                        :max="999999999"
+                        :min="0"
+                        clearable
+                        style="width: 130px;"
+                      />
+                      <span> 天的其他保修单状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，更换了白名单内的零件（替换件视同相同零件）；若当店当前保修单对应零件在周期内更换数量大于等于 </span>
+                      <el-input-number
+                        placeholder="次数"
+                        v-model="form.changeCountThreshold"
+                        :controls="false"
+                        :max="999999999"
+                        :min="0"
+                        clearable
+                        style="width: 130px;"
+                      />
+                      <span> ，且当店更换比例大于全国更换比例的 </span>
+                      <el-input-number
+                        placeholder="倍数"
+                        v-model="form.ratioThreshold"
+                        :controls="false"
+                        :max="999999999"
+                        :min="0"
+                        clearable
+                        style="width: 130px;"
+                      />
+                      <span> 倍，则提醒=</span>
+                    </template>
                     <!-- BXYJ007 不同周期重复附件预警: 配置固定（同车 + 维修周期区间不相交 + 6 状态匹配 + fileId 重复），不暴露输入框 -->
                     <template v-else-if="form.ruleType === 'BXYJ007'">
                       <span>{{ cycleDuplicateRuleDescription }}</span>
@@ -304,6 +348,38 @@
                     />
                     <span> 的维修记录(工时或备件一项即可),则提醒:</span>
                   </template>
+                  <!-- BXYJ010 过度更换零件预警: 详情模式(只读) -->
+                  <template v-else-if="form.ruleType === 'BXYJ010'">
+                    <span>当前保修单中申请的零件价格大于 </span>
+                    <el-input
+                      v-model="form.partUnitPriceMin"
+                      clearable
+                      disabled
+                      style="width: 130px;"
+                    />
+                    <span> 元的零件，在对应同年款，同车系且当前提交时间大于等于当前时间- </span>
+                    <el-input
+                      v-model="form.withinDays"
+                      clearable
+                      disabled
+                      style="width: 130px;"
+                    />
+                    <span> 天的其他保修单状态为审核中、待保修经理审核、待总经理审核、审核通过、已结算、已付款，更换了白名单内的零件（替换件视同相同零件）；若当店当前保修单对应零件在周期内更换数量大于等于 </span>
+                    <el-input
+                      v-model="form.changeCountThreshold"
+                      clearable
+                      disabled
+                      style="width: 130px;"
+                    />
+                    <span> ，且当店更换比例大于全国更换比例的 </span>
+                    <el-input
+                      v-model="form.ratioThreshold"
+                      clearable
+                      disabled
+                      style="width: 130px;"
+                    />
+                    <span> 倍，则提醒=</span>
+                  </template>
                   <!-- BXYJ007 不同周期重复附件预警: 配置固定(只读展示) -->
                   <template v-else-if="form.ruleType === 'BXYJ007'">
                     <span>{{ cycleDuplicateRuleDescription }}</span>
@@ -391,11 +467,11 @@ import ReplaceDrawer from './ReplaceDrawer.vue';
 // UUID 来源: WarrantyTypeEnum.getCode() / warranty_apply.repair_item_type_id
 // 仅作"新增"模式初始默认值, 已存量的规则从 ext_config 解析回填
 const DEFAULT_BXYJ009_WARRANTY_TYPES = [
-  'ED68D3F0-C1FB-E911-B0BB-FC82BA5F9EDF',  // 售前保修 PRE_SALE_WARRANTY
-  '5EA3066F-82AC-E911-B0BB-FC82BA5F9EDF',  // 一般整车保修 GENERAL_VEHICLE_WARRANTY
-  '5180E2BE-04AE-EE11-B156-E3C14957A562',  // 整车终身质保 LIFETIME_VEHICLE_WARRANTY
-  '2D87DFC4-04AE-EE11-B156-E3C14957A562',  // 三电终身质保 LIFETIME_BATTERY_MOTOR_ELECTRONICS_WARRANTY
-  'B96ED1D0-04AE-EE11-B156-E3C14957A562'   // 三电延长质保 EXTENDED_BATTERY_MOTOR_ELECTRONICS_WARRANTY
+  'ED68D3F0-C1FB-E911-B0BB-FC82BA5F9EDF', // 售前保修 PRE_SALE_WARRANTY
+  '5EA3066F-82AC-E911-B0BB-FC82BA5F9EDF', // 一般整车保修 GENERAL_VEHICLE_WARRANTY
+  '5180E2BE-04AE-EE11-B156-E3C14957A562', // 整车终身质保 LIFETIME_VEHICLE_WARRANTY
+  '2D87DFC4-04AE-EE11-B156-E3C14957A562', // 三电终身质保 LIFETIME_BATTERY_MOTOR_ELECTRONICS_WARRANTY
+  'B96ED1D0-04AE-EE11-B156-E3C14957A562' // 三电延长质保 EXTENDED_BATTERY_MOTOR_ELECTRONICS_WARRANTY
 ];
 
 const defaultForm = {
@@ -408,7 +484,10 @@ const defaultForm = {
   warrantyTypes: [], // BXYJ009 事故维修预警 保修类型白名单(独立字段, 提交时合并到 extConfig JSON, 新增模式用 DEFAULT_BXYJ009_WARRANTY_TYPES 回填)
   vrtIds: [], // BXYJ009 事故维修预警 VRT 白名单(独立字段, 提交时合并到 extConfig JSON, 空数组=不校验VRT, 新增模式默认=全部启用的VRT id)
   workOrderStatuses: [], // BXYJ009 事故维修预警 工单状态白名单(独立字段, 提交时合并到 extConfig JSON, 新增模式用 DEFAULT_BXYJ009_WORK_ORDER_STATUSES 回填; form 上是字符串数组, 提交时 map(Number) 转数字)
-  checkoutTypeIds: [] // BXYJ009 事故维修预警 结算类型白名单 UUID 列表(独立字段, 提交时合并到 extConfig JSON; 数组, 多选; 默认值=保险 UUID)
+  checkoutTypeIds: [], // BXYJ009 事故维修预警 结算类型白名单 UUID 列表(独立字段, 提交时合并到 extConfig JSON; 数组, 多选; 默认值=保险 UUID)
+  partUnitPriceMin: '', // BXYJ010 过度更换零件预警 零件单价门槛(独立字段, 提交时合并到 extConfig JSON)
+  changeCountThreshold: '', // BXYJ010 过度更换零件预警 更换数量阈值(独立字段, 提交时合并到 extConfig JSON)
+  ratioThreshold: '' // BXYJ010 过度更换零件预警 比例倍数(独立字段, 提交时合并到 extConfig JSON)
 };
 
 // BXYJ009 工单状态白名单默认值(与后端 v3.sql 对齐: 160=待交车, 180=已交车)
@@ -489,6 +568,16 @@ export default {
         }
       },
       immediate: false
+    },
+    // 整体 form 被替换时(如保存后 EditBaseContainer loadDetail 触发 update:form),
+    // 重新解析 extConfig 填充独立字段。当 extConfig 值不变时 form.extConfig watch 不会触发,
+    // 但 form 对象引用变化会触发此 watch，确保 syncExtConfigFields 在新 form 对象上执行。
+    form: {
+      handler (newForm) {
+        if (newForm && newForm.extConfig) {
+          this.syncExtConfigFields(newForm.extConfig);
+        }
+      }
     }
   },
   data () {
@@ -571,7 +660,8 @@ export default {
       const isBxyj008 = this.form.ruleType === 'BXYJ008';
       const isBxyj009 = this.form.ruleType === 'BXYJ009';
       const isBxyj007 = this.form.ruleType === 'BXYJ007';
-      if (!isOcr && !isBxyj006 && !isBxyj008 && !isBxyj009 && !isBxyj007) {
+      const isBxyj010 = this.form.ruleType === 'BXYJ010';
+      if (!isOcr && !isBxyj006 && !isBxyj008 && !isBxyj009 && !isBxyj007 && !isBxyj010) {
         if (this.form.judgeDays === '' || this.form.judgeDays === null || this.form.judgeDays === undefined) {
           this.$message.error('请输入判定天数');
           return;
@@ -664,6 +754,42 @@ export default {
         }
       }
 
+      // BXYJ010 过度更换零件预警: withinDays + partUnitPriceMin + changeCountThreshold + ratioThreshold 必填且 ≥ 0
+      if (isBxyj010) {
+        if (this.form.withinDays === '' || this.form.withinDays === null || this.form.withinDays === undefined) {
+          this.$message.error('请输入时间窗口天数');
+          return;
+        }
+        if (Number(this.form.withinDays) < 0) {
+          this.$message.error('时间窗口天数不能小于 0');
+          return;
+        }
+        if (this.form.partUnitPriceMin === '' || this.form.partUnitPriceMin === null || this.form.partUnitPriceMin === undefined) {
+          this.$message.error('请输入零件单价门槛');
+          return;
+        }
+        if (Number(this.form.partUnitPriceMin) < 0) {
+          this.$message.error('零件单价门槛不能小于 0');
+          return;
+        }
+        if (this.form.changeCountThreshold === '' || this.form.changeCountThreshold === null || this.form.changeCountThreshold === undefined) {
+          this.$message.error('请输入更换数量阈值');
+          return;
+        }
+        if (Number(this.form.changeCountThreshold) < 0) {
+          this.$message.error('更换数量阈值不能小于 0');
+          return;
+        }
+        if (this.form.ratioThreshold === '' || this.form.ratioThreshold === null || this.form.ratioThreshold === undefined) {
+          this.$message.error('请输入比例倍数');
+          return;
+        }
+        if (Number(this.form.ratioThreshold) < 0) {
+          this.$message.error('比例倍数不能小于 0');
+          return;
+        }
+      }
+
       // BXYJ009 事故维修预警: 保修类型白名单已校验(至少 1 个, 见上方 if(isBxyj009)),
       //                   其他条件后端固定, 提醒内容必填(见上方校验)
 
@@ -710,34 +836,49 @@ export default {
         delete submitForm.workOrderStatuses;
         delete submitForm.checkoutTypeIds;
       }
+      // BXYJ010: withinDays + partUnitPriceMin + changeCountThreshold + ratioThreshold 合并到 extConfig JSON
+      if (isBxyj010) {
+        cfg.withinDays = Number(this.form.withinDays);
+        cfg.partUnitPriceMin = Number(this.form.partUnitPriceMin);
+        cfg.changeCountThreshold = Number(this.form.changeCountThreshold);
+        cfg.ratioThreshold = Number(this.form.ratioThreshold);
+        delete submitForm.withinDays;
+        delete submitForm.partUnitPriceMin;
+        delete submitForm.changeCountThreshold;
+        delete submitForm.ratioThreshold;
+      }
       // BXYJ007 同样不需要合并任何独立字段, 配置全部后端固定
-      if (this.form.ruleType === 'BXYJ005' || isBxyj006 || isBxyj008 || this.form.ruleType === 'BXYJ001' || isBxyj009) {
+      if (this.form.ruleType === 'BXYJ005' || isBxyj006 || isBxyj008 || this.form.ruleType === 'BXYJ001' || isBxyj009 || isBxyj010) {
         submitForm.extConfig = JSON.stringify(cfg);
       }
 
       return addOrUpdate(submitForm).then(res => {
-        // 保存成功后立即同步 judgeDays/judgeTimes / diffCharCount / withinDays / warrantyTypes / vrtIds 到 form,
-        // 避免依赖 'form.extConfig' watch 时机失效(Vue 2 整体替换 form 对象时新对象未 reactive,
-        // EditBaseContainer.loadDetail() 触发的 update:form 会让 watch 失效,导致输入框回退到默认 0).
-        // 这一步是显式赋值,不依赖响应式追踪.
+        // 保存成功后立即同步独立字段到 form（双保险: form watch + 此处显式赋值,
+        // 避免依赖 'form.extConfig' watch 在 extConfig 值不变时不触发的缺陷）
         if (this.form.ruleType === 'BXYJ005') {
-          this.form.diffCharCount = cfg.diffCharCount;
+          this.$set(this.form, 'diffCharCount', cfg.diffCharCount);
         }
         if (isBxyj006 || isBxyj008) {
-          this.form.withinDays = cfg.withinDays;
+          this.$set(this.form, 'withinDays', cfg.withinDays);
         }
         if (this.form.ruleType === 'BXYJ001') {
-          this.form.judgeDays = cfg.judgeDays;
-          this.form.judgeTimes = cfg.judgeTimes;
+          this.$set(this.form, 'judgeDays', cfg.judgeDays);
+          this.$set(this.form, 'judgeTimes', cfg.judgeTimes);
         }
         if (isBxyj009) {
-          this.form.warrantyTypes = cfg.warrantyTypes;
-          this.form.vrtIds = cfg.vrtIds;
-          this.form.withinDays = cfg.withinDays;
+          this.$set(this.form, 'warrantyTypes', cfg.warrantyTypes);
+          this.$set(this.form, 'vrtIds', cfg.vrtIds);
+          this.$set(this.form, 'withinDays', cfg.withinDays);
           // 后端存的是数字数组, 前端 v-model 是字符串, 回填时转字符串给 fetch-select 选中
-          this.form.workOrderStatuses = (cfg.workOrderStatuses || []).map(String);
+          this.$set(this.form, 'workOrderStatuses', (cfg.workOrderStatuses || []).map(String));
           // checkoutTypeIds 后端存 UUID 数组, 前端 v-model 直接是 UUID 字符串数组, 透传即可
-          this.form.checkoutTypeIds = [...(cfg.checkoutTypeIds || [])];
+          this.$set(this.form, 'checkoutTypeIds', [...(cfg.checkoutTypeIds || [])]);
+        }
+        if (isBxyj010) {
+          this.$set(this.form, 'withinDays', cfg.withinDays);
+          this.$set(this.form, 'partUnitPriceMin', cfg.partUnitPriceMin);
+          this.$set(this.form, 'changeCountThreshold', cfg.changeCountThreshold);
+          this.$set(this.form, 'ratioThreshold', cfg.ratioThreshold);
         }
         return res;
       });
@@ -790,6 +931,12 @@ export default {
           // extConfig 为空时, 重置为默认值(与后端 v3.sql 对齐, 5 种保修类型)
           this.form.warrantyTypes = [...DEFAULT_BXYJ009_WARRANTY_TYPES];
         }
+        if (ruleType === 'BXYJ010') {
+          this.form.withinDays = '';
+          this.form.partUnitPriceMin = '';
+          this.form.changeCountThreshold = '';
+          this.form.ratioThreshold = '';
+        }
         return;
       }
       // 容错: 入参可能是 string (JSON 字符串) 也可能是 object (已被 JSON.parse)
@@ -804,38 +951,54 @@ export default {
         cfg = val;
       }
       if (ruleType === 'BXYJ005') {
-        this.form.diffCharCount = cfg.diffCharCount !== undefined && cfg.diffCharCount !== null ? cfg.diffCharCount : '';
+        this.$set(this.form, 'diffCharCount', cfg.diffCharCount !== undefined && cfg.diffCharCount !== null ? cfg.diffCharCount : '');
       }
       if (ruleType === 'BXYJ006') {
-        this.form.withinDays = cfg.withinDays !== undefined && cfg.withinDays !== null ? cfg.withinDays : '';
+        this.$set(this.form, 'withinDays', cfg.withinDays !== undefined && cfg.withinDays !== null ? cfg.withinDays : '');
       }
       if (ruleType === 'BXYJ008') {
-        this.form.withinDays = cfg.withinDays !== undefined && cfg.withinDays !== null ? cfg.withinDays : '';
+        this.$set(this.form, 'withinDays', cfg.withinDays !== undefined && cfg.withinDays !== null ? cfg.withinDays : '');
       }
       if (ruleType === 'BXYJ001') {
         // judgeDays/judgeTimes 改由 ext_config 管理,主表字段已删除
-        this.form.judgeDays = cfg.judgeDays !== undefined && cfg.judgeDays !== null ? cfg.judgeDays : '';
-        this.form.judgeTimes = cfg.judgeTimes !== undefined && cfg.judgeTimes !== null ? cfg.judgeTimes : '';
+        this.$set(this.form, 'judgeDays', cfg.judgeDays !== undefined && cfg.judgeDays !== null ? cfg.judgeDays : '');
+        this.$set(this.form, 'judgeTimes', cfg.judgeTimes !== undefined && cfg.judgeTimes !== null ? cfg.judgeTimes : '');
       }
       if (ruleType === 'BXYJ009') {
         // warrantyTypes 由 ext_config 管理(主表字段已删除); 缺失则用默认值兜底(新增模式 / 历史脏数据)
-        this.form.warrantyTypes = Array.isArray(cfg.warrantyTypes) && cfg.warrantyTypes.length > 0
+        this.$set(this.form, 'warrantyTypes', Array.isArray(cfg.warrantyTypes) && cfg.warrantyTypes.length > 0
           ? [...cfg.warrantyTypes]
-          : [...DEFAULT_BXYJ009_WARRANTY_TYPES];
+          : [...DEFAULT_BXYJ009_WARRANTY_TYPES]);
         // vrtIds 由 ext_config 管理; 允许空数组(语义:不校验VRT), 不主动赋默认值
-        this.form.vrtIds = Array.isArray(cfg.vrtIds) ? [...cfg.vrtIds] : [];
+        this.$set(this.form, 'vrtIds', Array.isArray(cfg.vrtIds) ? [...cfg.vrtIds] : []);
         // withinDays 由 ext_config 管理; 缺失则默认 90(对齐后端 v3.sql 默认值)
-        this.form.withinDays = (cfg.withinDays !== undefined && cfg.withinDays !== null && cfg.withinDays !== '')
+        this.$set(this.form, 'withinDays', (cfg.withinDays !== undefined && cfg.withinDays !== null && cfg.withinDays !== '')
           ? cfg.withinDays
-          : 90;
+          : 90);
         // workOrderStatuses 由 ext_config 管理; 后端存数字数组, 前端 v-model 是字符串数组, 解析时 map(String)
-        this.form.workOrderStatuses = Array.isArray(cfg.workOrderStatuses) && cfg.workOrderStatuses.length > 0
+        this.$set(this.form, 'workOrderStatuses', Array.isArray(cfg.workOrderStatuses) && cfg.workOrderStatuses.length > 0
           ? cfg.workOrderStatuses.map(String)
-          : [...DEFAULT_BXYJ009_WORK_ORDER_STATUSES];
+          : [...DEFAULT_BXYJ009_WORK_ORDER_STATUSES]);
         // checkoutTypeIds 由 ext_config 管理; 默认 [保险 UUID](对齐后端 v3.sql 默认值 + 后端 Builder 硬编码)
-        this.form.checkoutTypeIds = Array.isArray(cfg.checkoutTypeIds) && cfg.checkoutTypeIds.length > 0
+        this.$set(this.form, 'checkoutTypeIds', Array.isArray(cfg.checkoutTypeIds) && cfg.checkoutTypeIds.length > 0
           ? [...cfg.checkoutTypeIds]
-          : [...DEFAULT_BXYJ009_CHECKOUT_TYPE_IDS];
+          : [...DEFAULT_BXYJ009_CHECKOUT_TYPE_IDS]);
+      }
+      // BXYJ010: partUnitPriceMin / withinDays / changeCountThreshold / ratioThreshold 由 ext_config 管理
+      // 使用 this.$set 确保保存后 form 被替换为新对象时仍能触发响应式更新(见上方 syncExtConfigFields 注释)
+      if (ruleType === 'BXYJ010') {
+        this.$set(this.form, 'partUnitPriceMin', (cfg.partUnitPriceMin !== undefined && cfg.partUnitPriceMin !== null && cfg.partUnitPriceMin !== '')
+          ? cfg.partUnitPriceMin
+          : 50);
+        this.$set(this.form, 'withinDays', (cfg.withinDays !== undefined && cfg.withinDays !== null && cfg.withinDays !== '')
+          ? cfg.withinDays
+          : 90);
+        this.$set(this.form, 'changeCountThreshold', (cfg.changeCountThreshold !== undefined && cfg.changeCountThreshold !== null && cfg.changeCountThreshold !== '')
+          ? cfg.changeCountThreshold
+          : 15);
+        this.$set(this.form, 'ratioThreshold', (cfg.ratioThreshold !== undefined && cfg.ratioThreshold !== null && cfg.ratioThreshold !== '')
+          ? cfg.ratioThreshold
+          : 3);
       }
       // BXYJ007 不需要解析独立字段, 后端 extConfig 完全透传
     },
