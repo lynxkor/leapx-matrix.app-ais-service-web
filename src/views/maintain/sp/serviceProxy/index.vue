@@ -244,14 +244,29 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="车系">
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleSeries/list"
+            placeholder="请选择"
+            v-model="form.vehSeriesIdList"
+            query-key="seriesNameLike"
+            clearable
+            collapseTags
+            auto-load-options
+            no-param-load
+            multiple
+            filterable
+            :params="{}"
+          />
+        </el-form-item>
         <el-form-item label="车型">
           <fetch-select
             :remote-method="getVehicleModelList"
             remote
-            v-model="form.vehModelNameList"
+            v-model="form.vehModelIdList"
             placeholder="请输入"
             labelKey="name"
-            valueKey="name"
+            valueKey="id"
             clearable
             multiple
             filterable
@@ -325,6 +340,7 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import FetchSelect from '@/libs/components/FetchSelect';
+import ListSelect from '@/libs/components/list-select';
 import TagInput from '@/libs/components/TagInput';
 import EditPage from './edit.vue';
 import moment from 'moment';
@@ -358,7 +374,8 @@ const defaultForm = {
   createTime: [],
   repairItemTypeCollectList: [],
   createNameList: [],
-  vehModelNameList: [],
+  vehSeriesIdList: [],
+  vehModelIdList: [],
 };
 
 const pageSize = 20;
@@ -374,6 +391,7 @@ export default {
     EditPage,
     Upload,
     FetchSelect,
+    ListSelect,
     TagInput
   },
   data () {
@@ -445,6 +463,18 @@ export default {
           { props: 'shuttleName', label: '送修人姓名', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'shuttleName') },
           { props: 'shuttlePhone', label: '送修人电话', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'shuttlePhone') },
           { props: 'custTypeLabel', label: '客户类型', visible: true, width: 200 },
+          {
+            props: 'vehSeriesName',
+            label: '车系',
+            visible: true,
+            width: 200,
+            buttons: [{
+              click: (rowIndex, row) => {
+                window.open(`/sales/datacenter/materials/vehicleseries/edit?id=${row.vehSeriesId}`, '_blank');
+              },
+              type: 'primary'
+            }]
+          },
           {
             props: 'vehModelName',
             label: '车型',
