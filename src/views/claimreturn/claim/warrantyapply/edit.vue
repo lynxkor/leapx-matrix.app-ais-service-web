@@ -14,6 +14,7 @@
     <template #extraButtons>
       <el-button :loading="printLoading" size="small" @click="handlePrint">打印标签</el-button>
       <el-button size="small" @click="handleViewRights">查看权益</el-button>
+      <el-button size="small" @click="handleViewWarrantyWarning">保修预警信息</el-button>
       <el-button v-if="canApplyReject && (isPendingCurrentUserReview || form.applyStatus === APPLY_STATUS.APPROVED)" size="small" @click="handleReject(true)">申请驳回</el-button>
       <el-button v-if="canWithdraw && WITHDRAWABLE_STATUSES.includes(form.applyStatus)" size="small" @click="handleWithdraw">撤回</el-button>
       <el-button v-if="canDeny && (isPendingCurrentUserReview || form.applyStatus === APPLY_STATUS.APPROVED)" plain size="small" @click="handleDeny">拒赔</el-button>
@@ -631,13 +632,15 @@
   <!-- 保修预警提醒弹窗 (BXYJ006/007/008/009 命中时弹出) -->
   <el-dialog
     title="保修预警提醒"
-    :visible.sync="warningDialogVisibleBinding"
+    :visible.sync="warningDialogVisible"
     width="720px"
     :close-on-click-modal="false"
-    @close="warningDetailList = []"
   >
   <div v-if="warningDetailList.length === 0 && form.warrantyWarningMsg" style="padding: 8px 0;">
     {{ form.warrantyWarningMsg }}
+  </div>
+  <div v-if="warningDetailList.length === 0 && !form.warrantyWarningMsg" style="padding: 32px 0; text-align: center; color: #909399;">
+    暂无保修预警信息
   </div>
   <div
     v-for="(item, idx) in warningDetailList"
@@ -748,7 +751,7 @@
     <!-- (空, BXYJ010 走专属区块, 其他规则暂未用到 partCodes) -->
   </div>
   <div slot="footer">
-    <el-button @click="warningDetailList = []">关闭</el-button>
+    <el-button @click="warningDialogVisible = false">关闭</el-button>
   </div>
 </el-dialog>
 
@@ -994,22 +997,6 @@ export default {
     remindContent () {
       return this.form.spRemindInfo;
     },
-    /**
-     * 保修预警弹窗 visible 完全由 warningDetailList 长度派生 (响应式)
-     * <p>
-     *   - detailList 有内容 → dialog 自动开
-     *   - detailList 为空 → dialog 自动关
-     *   - 用户手动点 X → set(false) 触发, 清空 list 防止下次又自动开
-     * </p>
-     */
-    warningDialogVisibleBinding: {
-      get () { return this.warningDetailList.length > 0; },
-      set (val) {
-        if (!val) {
-          this.warningDetailList = [];
-        }
-      }
-    }
   },
   watch: {
     id: {
@@ -1028,17 +1015,6 @@ export default {
           }
         }
       }
-    },
-    /**
-     * 保修预警详情变化时, 自动同步弹窗状态
-     * <p>删除附件 / 重算预警 / 路由返回 等都会触发 form.warrantyWarningDetail 变化,
-     * 此时根据 detail 数组长度决定开关 dialog, 避免弹窗残留</p>
-     */
-    'form.warrantyWarningDetail': {
-      handler (newVal) {
-        this.syncWarningDialogByDetail(newVal);
-      },
-      immediate: false
     },
   },
   data () {
@@ -1085,7 +1061,8 @@ export default {
       withdrawDialogVisible: false,
       withdrawIds: [],
       rightsDialogVisible: false,
-      // 保修预警提醒弹窗 (visible 由 warningDialogVisibleBinding computed 自动响应)
+      // 保修预警信息弹窗 (点击【保修预警信息】按钮触发)
+      warningDialogVisible: false,
       warningDetailList: [],
       applyNoToIdMap: {},
       // BXYJ009: 施工单号 → id 映射 (详情页只接受 id 入参, 需要先批量查询)
@@ -1146,47 +1123,21 @@ export default {
     handleTableUpdate () {
       this.refreshAll();
     },
-    // 取详情并补齐 partAndSupplierId（不含弹窗副作用）
+    // 取详情并补齐 partAndSupplierId
     fetchDetail () {
       const id = this._id;
       if (!id) return Promise.resolve();
       return getDetail(id).then(res => ({
         ...res,
         partAndSupplierId: res.mainPartId ? res.mainPartId + res.mainPartSupplierId : '',
-      })).then(res => {
-        // 同步保修预警弹窗状态 (detail 变化触发)
-        this.syncWarningDialogByDetail(res.warrantyWarningDetail);
-        return res;
-      });
-    },
-    /**
-     * 根据 detail JSON 同步弹窗状态
-     * <p>任何路径 (首次加载 / 删除附件 / 重新拉数据) 调此方法统一更新,
-     * dialog visible 由 warningDetailList.length 派生 (computed), 不需要手动控制</p>
-     */
-    syncWarningDialogByDetail (detailJson) {
-      let list = [];
-      if (detailJson) {
-        try {
-          list = JSON.parse(detailJson);
-        } catch (e) {
-          console.error('[保修预警] 解析 warrantyWarningDetail 失败', e);
-          list = [];
-        }
-      }
-      this.warningDetailList = Array.isArray(list) ? list : [];
+      }));
     },
     detailRequest () {
-      return this.fetchDetail().then(res => {
-        this.parseAndShowWarning(res);
-        return res;
-      });
+      return this.fetchDetail();
     },
     /**
-     * 解析 warranty_warning_detail JSON, 显示保修预警提醒弹窗
-     * <p>
-     * 规则: 即使 detail 字段为空 (老数据 / 还没触发预警), 只要 warranty_warning_msg 非空, 也展示简单提示。
-     * </p>
+     * 解析 warrantyWarningDetail JSON, 初始化预警列表数据并加载映射关系
+     * <p>由 handleViewWarrantyWarning 手动触发, 不再自动弹窗</p>
      */
     parseAndShowWarning (res) {
       let list = [];
@@ -1199,7 +1150,6 @@ export default {
         }
       }
       this.warningDetailList = Array.isArray(list) ? list : [];
-      // dialog visible 由 warningDialogVisibleBinding (computed) 自动响应 detailList 长度变化
       if (this.warningDetailList.length > 0) {
         this.$nextTick(() => {
           this.loadApplyNoIdMappings();
@@ -1531,8 +1481,6 @@ export default {
       // 2. 拉取服务端最新数据
       const res = await this.fetchDetail();
       if (!res) return;
-      // 2.1 同步预警弹窗状态 (删除附件等场景下 detail 清空 → 自动关闭 dialog)
-      this.parseAndShowWarning(res);
       // 3. 以服务端数据为基础，叠加用户未提交的修改
       const merged = { ...res };
       editedEntries.forEach(([k, v]) => { merged[k] = v; });
@@ -1613,6 +1561,11 @@ export default {
     // 查看权益
     handleViewRights () {
       this.rightsDialogVisible = true;
+    },
+    // 保修预警信息
+    handleViewWarrantyWarning () {
+      this.parseAndShowWarning(this.form);
+      this.warningDialogVisible = true;
     },
     // 对话框成功回调
     handleDialogSuccess () {
