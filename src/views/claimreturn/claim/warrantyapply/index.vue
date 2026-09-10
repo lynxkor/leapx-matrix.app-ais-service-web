@@ -43,6 +43,29 @@
           filterable
         />
       </el-form-item>
+      <!-- 保修预警信息（多选，BXYJ001-BXYJ010 预警规则编码；与后端 wa.warranty_warning_msg 过滤配套） -->
+      <el-form-item label="保修预警信息：">
+        <el-select
+          v-model="form.warningCodeList"
+          placeholder="请选择保修预警信息"
+          clearable
+          multiple
+          filterable
+          collapse-tags
+          style="width: 100%"
+        >
+          <el-option label="重复维修预警" value="BXYJ001" />
+          <el-option label="车主信息不一致预警" value="BXYJ002" />
+          <el-option label="系统车辆用途预警" value="BXYJ003" />
+          <el-option label="行驶证车辆用途预警" value="BXYJ004" />
+          <el-option label="车牌号预警" value="BXYJ005" />
+          <el-option label="不同车重复附件预警" value="BXYJ006" />
+          <el-option label="不同周期重复附件预警" value="BXYJ007" />
+          <el-option label="不同店重复附件预警" value="BXYJ008" />
+          <el-option label="事故维修预警" value="BXYJ009" />
+          <el-option label="过度更换零件预警" value="BXYJ010" />
+        </el-select>
+      </el-form-item>
       <el-form-item label="施工单号：">
         <tag-input v-model="form.serviceProxyNoList" placeholder="请输入施工单号" />
       </el-form-item>
@@ -513,6 +536,8 @@ const defaultForm = {
   vin: '',
   vinList: [],
   alarmLevel: '',
+  // 保修预警信息多选（BXYJ001-BXYJ010 预警规则编码；与后端 warningCodeList 配套）
+  warningCodeList: [],
   serviceProxyNo: '',
   serviceProxyNoList: [],
   statementCode: '',
@@ -672,6 +697,13 @@ export default {
             visible: true,
             width: 200,
             // buttons: [{ type: 'primary' }],
+          },
+          {
+            props: 'warrantyWarningMsg',
+            label: '保修预警信息',
+            visible: true,
+            width: 220,
+            showOverflowTooltip: true
           },
           {
             props: 'applyNo',
@@ -963,6 +995,7 @@ export default {
         form: this.tableForm,
         dataProp: [
           { props: 'alarmLevelLabel', label: '三包预警', visible: true, width: 120 },
+          { props: 'warrantyWarningMsg', label: '保修预警信息', visible: true, width: 220, showOverflowTooltip: true },
           {
             props: 'applyNo',
             label: '保修申请单',
@@ -1143,6 +1176,7 @@ export default {
         form: this.tableForm,
         dataProp: [
           { props: 'alarmLevelLabel', label: '三包预警', visible: true, width: 120 },
+          { props: 'warrantyWarningMsg', label: '保修预警信息', visible: true, width: 220, showOverflowTooltip: true },
           {
             props: 'applyNo',
             label: '保修申请单',
@@ -1291,6 +1325,7 @@ export default {
         form: this.tableForm,
         dataProp: [
           { props: 'alarmLevelLabel', label: '三包预警', visible: true, width: 120 },
+          { props: 'warrantyWarningMsg', label: '保修预警信息', visible: true, width: 220, showOverflowTooltip: true },
           {
             props: 'applyNo',
             label: '保修申请单',
@@ -1424,6 +1459,7 @@ export default {
         form: this.tableForm,
         dataProp: [
           { props: 'alarmLevelLabel', label: '三包预警', visible: true, width: 120 },
+          { props: 'warrantyWarningMsg', label: '保修预警信息', visible: true, width: 220, showOverflowTooltip: true },
           {
             props: 'applyNo',
             label: '保修申请单',
@@ -1892,40 +1928,10 @@ export default {
       this.getData();
     }, 300),
     getConfig () {
-      // 后端 user_define_table 表中可能存了 warrantyApplyTable 的旧配置，
-      // 会覆盖前端 optionObj.dataProp 的列顺序。这里主动用前端硬编码的
-      // columnConfig 同步到后端。
-      // 注意：visible 始终以前端硬编码为准（避免远端缓存 visible:false 覆盖新列）
-      // 宽度保留用户自定义（remote.width 优先于 item.width）
       return new Promise((resolve) => {
         getTableConfig(this.optionObj.id).then(data => {
-          const remoteData = data?.data || {};
-          const remoteColumnConfig = remoteData?.config?.columnConfig || [];
-
-          const mergedColumnConfig = this.optionObj.dataProp.map((item) => {
-            const existing = remoteColumnConfig.find(c => c.props === item.props);
-            return {
-              ...item,
-              props: item.props,
-              visible: item.visible !== false,
-              width: existing?.width || item.width,
-            };
-          });
-
-          const mergedConfig = {
-            ...(remoteData.config || {}),
-            columnConfig: mergedColumnConfig
-          };
-
-          // 异步覆盖后端旧配置，不阻塞页面渲染
-          tableAddOrUpdate({
-            tableCode: this.optionObj.id,
-            config: mergedConfig
-          }).catch(err => console.error('同步表格列配置失败:', err));
-
-          resolve({ data: { ...remoteData, config: mergedConfig } });
+          resolve({ data });
         }).catch(err => {
-          // 容错：接口挂了也不影响使用，回落到前端硬编码
           console.error(err);
           resolve(mockConfig);
         });
