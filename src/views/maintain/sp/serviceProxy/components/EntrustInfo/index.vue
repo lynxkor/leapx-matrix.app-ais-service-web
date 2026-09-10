@@ -25,6 +25,14 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="离店类型：" prop="departureTypeLabel">
+          <el-input
+            placeholder="请输入"
+            v-model="form.departureTypeLabel"
+            clearable
+            disabled
+          />
+        </el-form-item>
         <el-form-item label="三包预警：" prop="alarmLevel">
           <el-input
             placeholder="请输入"
