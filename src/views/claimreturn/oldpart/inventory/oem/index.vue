@@ -445,9 +445,9 @@ export default {
             buttons: [{
               click: (rowIndex, row) => {
                 this.navigateToRoute({
-                  path: '/partner/channelManagement/shopDetail',
+                  path: '/datacenter/store/store/detail',
                   query: {
-                    dealerCode: row.dealerCode,
+                    storeCode: row.dealerCode,
                   },
                 });
               },

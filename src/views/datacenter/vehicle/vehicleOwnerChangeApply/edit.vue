@@ -132,7 +132,7 @@
             <el-form-item label="门店编码：" prop="dealerCode">
               <el-link
                 type="primary"
-                :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                 target="_blank"
               >{{ form.dealerCode }}</el-link>
             </el-form-item>

@@ -180,7 +180,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.dealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -227,10 +227,16 @@ export default {
         ],
         total: 0
       },
-      sortColumns: [{
-        column: 'create_time',
-        sort: 'DESC'
-      }]
+      sortColumns: [
+        {
+          column: 'create_time',
+          sort: 'DESC'
+        },
+        {
+          column: 'id',
+          sort: 'DESC'
+        }
+      ]
     };
   },
   created () {

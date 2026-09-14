@@ -60,6 +60,9 @@
                 <el-form-item label="门店名称：" prop="dealerName">
                   <dealer-select v-model="form.dealerName" disabled />
                 </el-form-item>
+                <el-form-item label="门店所属区域：" prop="dealerRegionName">
+                  <el-input v-model="form.dealerRegionName" clearable disabled />
+                </el-form-item>
                 <el-form-item label="首次下发时间：">
                   <el-input v-model="form.firstIssueTime" disabled />
                 </el-form-item>
@@ -101,7 +104,7 @@
                   <el-link
                     v-if="form.dealerCode"
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                     target="_blank"
                   >{{ form.dealerCode }}</el-link>
                   <span v-else>{{ form.dealerCode }}</span>
@@ -118,6 +121,9 @@
                 </el-form-item>
                 <el-form-item label="门店名称：">
                   {{ form.dealerName }}
+                </el-form-item>
+                <el-form-item label="门店所属区域：">
+                  {{ form.dealerRegionName }}
                 </el-form-item>
                 <el-form-item label="首次下发时间：">{{ form.firstIssueTime }}</el-form-item>
                 <el-form-item label="追溯说明：">{{ form.traceDesc }}</el-form-item>
@@ -314,6 +320,8 @@ const defaultForm = {
   warrantyId: '',
   warrantyCode: '',
   dealerName: '',
+  dealerRegionCode: '',
+  dealerRegionName: '',
   traceDesc: '',
   vin: '',
   remark: '',
@@ -473,11 +481,15 @@ export default {
         this.form.vin = record.vin;
         this.form.dealerCode = record.dealerCode;
         this.form.dealerName = record.dealerName;
+        this.form.dealerRegionCode = record.dealerRegionCode || '';
+        this.form.dealerRegionName = record.dealerRegionName || '';
       } else {
         this.form.warrantyId = '';
         this.form.vin = '';
         this.form.dealerCode = '';
         this.form.dealerName = '';
+        this.form.dealerRegionCode = '';
+        this.form.dealerRegionName = '';
       }
     },
     submitRequest () {

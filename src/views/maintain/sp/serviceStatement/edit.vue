@@ -598,7 +598,7 @@ export default {
 
     // 跳转到门店详情
     goToDealer (dealerId) {
-      window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${this.form.dealerCode}`, '_blank');
+      window.open(`/service/datacenter/store/store/detail?storeCode=${this.form.dealerCode}`, '_blank');
     },
 
     rightsList () {

@@ -246,7 +246,7 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                  <el-link type="primary" :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`" target="_blank">
                     {{ form.dealerCode }}
                   </el-link>
                 </el-form-item>
@@ -572,7 +572,7 @@ export default {
           width: '7%',
         },
         {
-          field: 'detailRemark',
+          field: 'remark',
           title: '备注',
           width: '7%',
         }

@@ -245,7 +245,10 @@ export default {
         oemOutboundOrderId: this._id, // 主机厂出库单ID
         pageSize: this.pageSize,
         pageNum: this.current,
-        sortColumns: [{ column: 'update_time', sort: 'DESC' }]
+        sortColumns: [
+          { column: 'update_time', sort: 'DESC' },
+          { column: 'id', sort: 'DESC' }
+        ]
       }).then((res) => {
         const records = res.records || [];
         this.tableData = records.map((item, idx) => ({
