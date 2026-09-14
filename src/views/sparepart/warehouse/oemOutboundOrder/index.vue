@@ -300,7 +300,7 @@
           <tag-input v-model="sparePartForm.invoiceNoList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="税务发票号">
-          <tag-input v-model="form.taxInvoiceNoList" placeholder="请输入" />
+          <tag-input v-model="sparePartForm.taxInvoiceNoList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="开票日期">
           <el-date-picker

@@ -114,6 +114,14 @@ export function getEnum (code) {
 }
 
 /**
+ * 根据字典类型查询字典项
+ * @param {Object} data - { dictType, status }
+ */
+export function findByDictType (data) {
+  return api.get('/dic/findByDictType', data);
+}
+
+/**
  * 根据名称或工号查询用户
  * @param {*} data
  */
@@ -128,6 +136,30 @@ export function getUserByNameOrNo (data) {
  */
 export function userQuery (data) {
   return api.jsonPost('/datacenter/web/common/user/query', data);
+}
+
+/**
+ * 通行证用户查询（脱敏按用户配置等场景使用）
+ * 入参 ZoneManagementUserQueryDto：
+ *   param - 用户名称或手机号模糊查询关键字
+ *   enabledList - 启用状态多选过滤（List<String>，如 ['0', '3']）；与单个 enabled 字段互斥
+ *   page / size - 继承自 PageRequest，分页字段（注意：字段名是 page 和 size，不是 pageNum/pageSize；size 默认 10）
+ * 出参 PaginationModel&lt;UserDTO&gt;：records 列表、total 总数
+ * @param {Object} data - { param, enabledList, page, size }
+ */
+export function findUserListWithStatus (data) {
+  return api.jsonPost('accountService/zoneManagement/findUserListWithStatus', data);
+}
+
+/**
+ * 通行证岗位分页查询（脱敏按岗位配置等场景使用）
+ * 接入路径：GET /passport/postInfo/page，分页参数走 query（page / size）
+ * 入参 PostInfoDTO：postId、zhName、enCode、enabled、postLevel 等
+ * 出参 PaginationModel&lt;PostInfoDTO&gt;：records 列表、total 总数
+ * @param {Object} data - { page, size }
+ */
+export function getPostPage (data) {
+  return api.get('passport/postInfo/page', data);
 }
 
 /**

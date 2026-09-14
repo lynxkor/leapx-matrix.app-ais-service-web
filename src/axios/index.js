@@ -9,6 +9,7 @@ const leapx = window.APP_AIS_WEB_CONFIG.VUE_APP_LEAPX_URL;
 const ais = window.APP_AIS_WEB_CONFIG.VUE_APP_AIS_URL;
 
 // 路由到 ais 后端的 URL 前缀列表，新增前缀只需在此添加一行
+// 注意：/desensitize/ 与 /dbMetadata/ 已脱离 ais 后端，走 VUE_APP_WORK_ORDER_URL（零小跑 app-portal）
 const AIS_PREFIXES = [
   '/vehstock/', '/maintain/', '/claimreturn/', '/datacenter/',
   '/sp/', '/sp-local/', '/data/', '/vr/', '/vw/', '/datareport/', '/file/'
