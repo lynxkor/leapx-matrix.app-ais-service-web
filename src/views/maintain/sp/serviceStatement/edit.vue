@@ -818,6 +818,7 @@ export default {
         this.handleRefresh();
       } catch (error) {
         console.error('开启录音失败:', error);
+        this.handleRefresh();
       } finally {
         this.startRecordingLoading = false;
       }
