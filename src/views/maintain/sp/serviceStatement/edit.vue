@@ -17,7 +17,7 @@
           <el-button size="small" @click="createWarrantyApply"
             v-if="canCreateWarrantyApply">创建保修申请单</el-button>
           <el-button size="small" @click="handlePrint" v-if="buttonPermissions.canPrint">打印结算单</el-button>
-          <el-button size="small" @click="handleStartRecording" v-if="canStartRecording && buttonPermissions.canStartRecording" :loading="startRecordingLoading">开启录音</el-button>
+          <el-button size="small" @click="handleStartRecording" v-if="canStartRecording" :loading="startRecordingLoading">开启录音</el-button>
         </template>
         <div class="common-sub-title">
           <span>结算单号：{{ form.code || '-' }}</span>
@@ -484,8 +484,7 @@ export default {
         // 重推签字短信
         canResendSignSms: signStatus === 10 && signGeneratedOn,
         // 打印结算单
-        canPrint: this.permissions.has('AISMC-serviceStatement-print'),
-        canStartRecording: this.permissions.has('AISMC-serviceStatement-startRecording'),
+        canPrint: this.permissions.has('AISMC-serviceStatement-print')
       };
     },
 

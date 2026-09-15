@@ -13,7 +13,7 @@
                   </div>
                   <ButtonGroup maxWidth="50%" v-else>
                     <!-- 通用操作按钮 -->
-                    <el-button size="small" @click="handleStartRecording" v-if="canStartRecording && permissions.has('AISMC-serviceProxy-startRecording')" :loading="startRecordingLoading">开启录音</el-button>
+                    <el-button size="small" @click="handleStartRecording" v-if="canStartRecording" :loading="startRecordingLoading">开启录音</el-button>
                     <el-button size="small" @click="handlePrint" v-if="!isCanceled && permissions.has('AISMC-serviceProxy-printServiceProxy')">打印工单</el-button>
                     <el-button size="small" @click="couponsDialogVisible = true" v-if="!isCanceled && permissions.has('AISMC-serviceProxy-rightsList')">查询卡券&终身</el-button>
                     <el-button size="small" @click="handleResendSignSms" v-if="canResendSignSms && permissions.has('AISMC-serviceProxy-confirmToSign')">补推施工单短信签字</el-button>
