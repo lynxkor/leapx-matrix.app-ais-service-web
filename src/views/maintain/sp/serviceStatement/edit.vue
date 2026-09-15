@@ -790,6 +790,11 @@ export default {
     },
     // 查询手动开启录音的阻断原因：返回为空表示可开启
     loadStartRecordingBlock () {
+      // 无开启录音权限时不查询阻断原因，按钮直接隐藏
+      if (!this.permissions.has('AISMC-serviceStatement-startRecording')) {
+        this.canStartRecording = false;
+        return;
+      }
       if (!this._id) {
         this.canStartRecording = false;
         return;
