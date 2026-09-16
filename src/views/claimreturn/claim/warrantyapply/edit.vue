@@ -649,7 +649,7 @@ import {
   print,
   getNextId
 } from '@/api/claimreturn/claim/warrantyapply/index';
-import { serviceActivitySchemeGet } from '@/api/claimreturn/claim/basic/serviceActivity/index';
+import { serviceActivitySchemeGet, getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity/index';
 import {
   APPLY_STATUS,
   EDITABLE_STATUSES,
@@ -681,7 +681,6 @@ import WithdrawDialog from './WithdrawDialog/index.vue';
 // 旧件供应商
 import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
 import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
-import { getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity';
 
 const SEARCH_PARAMS_KEY = 'WARRANTY_APPLY_SEARCH_PARAMS';
 const NO_OLD_PART = '10'; // 无旧件
@@ -1320,9 +1319,13 @@ export default {
       const searchParams = JSON.parse(sessionStorage.getItem(SEARCH_PARAMS_KEY) || '{}');
       // 增加预防，无id不跳
       if (!this._id) return;
+      const bucket = this.$store.state.customView?.cache?.warrantyapply;
+      const viewId = bucket ? bucket.activePresetId : null;
+
       getNextId({
         ...searchParams,
-        maxId: this._id
+        maxId: this._id,
+        viewId
       }).then(nextId => {
         if (nextId) {
           if (nextId !== this._id) {

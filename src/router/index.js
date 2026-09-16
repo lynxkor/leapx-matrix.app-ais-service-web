@@ -652,6 +652,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/datareport/customView',
+      name: 'customView',
+      component: () => import('@/views/datareport/customView/index.vue'),
+
+      meta: {
+        name: '自定义视图元数据主表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/datareport/customView/edit',
+      name: 'customView',
+      component: () => import('@/views/datareport/customView/edit.vue'),
+
+      meta: {
+        name: '自定义视图元数据主表详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/claimreturn/claim/basic/partWarrantyPolicy',
       name: 'partWarrantyPolicy',
       component: () => import('@/views/claimreturn/claim/basic/partWarrantyPolicy/index.vue'),
@@ -2702,6 +2720,8 @@ const routes = [
         name: '新页面',
         keepAlive: true,
         notRefresh: true,
+        customViewBizKey: 'warrantyapply',
+        customViewResourceTag: 'AISCR-warrantyApply-customView'
       }
     }, {
       path: '/claimreturn/claim/warrantyApply/edit',
