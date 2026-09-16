@@ -101,6 +101,40 @@
             clearable
           />
         </el-form-item>
+        <el-form-item label="审批人">
+          <fetch-select
+            :remote-method="getUser"
+            remote
+            v-model="form.approverList"
+            placeholder="请输入名称"
+            labelKey="username"
+            valueKey="userId"
+            clearable
+            multiple
+            collapseTags
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="审批时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.approvalTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="审批说明">
+          <el-input
+            placeholder="请输入"
+            v-model="form.approvalDescriptionLike"
+            clearable
+          />
+        </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -206,6 +240,9 @@ const defaultForm = {
   approvalProcessNo: '',
   submitter: '',
   submitTime: '',
+  approverList: [],
+  approvalTime: '',
+  approvalDescriptionLike: '',
   transactionAmount: '',
   rechargeDescription: '',
   createTime: '',
@@ -277,7 +314,7 @@ export default {
             width: 180,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.dealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -292,6 +329,9 @@ export default {
           { props: 'approvalProcessNo', label: '审批流程编号', visible: true, width: 200 },
           { props: 'submitterName', label: '提交人', visible: true, width: 120 },
           { props: 'submitTime', label: '提交时间', visible: true, width: 200 },
+          { props: 'approverName', label: '审批人', visible: true, width: 120 },
+          { props: 'approvalTime', label: '审批时间', visible: true, width: 200 },
+          { props: 'approvalDescription', label: '审批说明', visible: true, width: 200 },
           { props: 'transactionAmount', label: '交易金额', visible: true, align: 'right', width: 120 },
           { props: 'rechargeDescription', label: '充值说明', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -523,6 +563,13 @@ export default {
         if (this.form.submitTime.length > 1) {
           data.submitTimeStart = this.form.submitTime[0];
           data.submitTimeEnd = this.form.submitTime[1];
+        }
+      }
+      if (this.form.approvalTime) {
+        delete data.approvalTime;
+        if (this.form.approvalTime.length > 1) {
+          data.approvalTimeStart = this.form.approvalTime[0];
+          data.approvalTimeEnd = this.form.approvalTime[1];
         }
       }
       if (this.form.createTime) {

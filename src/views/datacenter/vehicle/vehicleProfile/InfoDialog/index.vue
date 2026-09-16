@@ -1,34 +1,97 @@
 <template>
   <el-dialog
-    title="调整保养信息"
     :visible.sync="dialogVisible"
     width="900px"
-    :close-on-click-modal="false"
+    :before-close="beforeClose"
     @close="onClose"
   >
+    <template slot="title">
+      <div class="dialog-title-wrapper">
+        <span class="dialog-title-text">调整保养信息</span>
+        <el-tooltip
+          placement="top"
+          effect="light"
+          popper-class="reset-formula-tooltip"
+        >
+          <i class="el-icon-info dialog-title-icon" />
+          <template slot="content">
+            <div class="reset-formula">
+              <div class="reset-formula-section">
+                <div class="reset-formula-title">车辆的保养重置:</div>
+                <div>下次保养时间 = 重置触发的时间 + 下次保养计算时间(月)</div>
+                <div>下次保养里程 = 重置时的车联网里程 + 下次保养计算里程(km)</div>
+              </div>
+              <div class="reset-formula-section">
+                <div class="reset-formula-title">零部件的保养重置:</div>
+                <div>下次保养时间 = 重置触发的时间 + 定期保养时间间隔(月)</div>
+                <div>下次保养里程 = 重置时的车联网里程/车联网里程数(增) + 定期保养里程间隔(km)</div>
+              </div>
+            </div>
+          </template>
+        </el-tooltip>
+      </div>
+    </template>
     <el-form :inline="true" :model="form" :rules="rules" ref="formRef" label-width="150px" class="info-form">
       <el-form-item label="下次保养时间：" prop="nextMaintainDate">
         <el-date-picker
           v-model="form.nextMaintainDate"
           type="datetime"
+          :disabled="!isEditing"
           format="yyyy-MM-dd HH:mm:ss"
           value-format="yyyy-MM-dd HH:mm:ss"
-          @change="onFieldChange"
+          :clearable="false"
           placeholder="选择日期时间"
         />
       </el-form-item>
       <el-form-item label="下次保养里程：" prop="nextMaintainMileages">
-        <el-input
-          clearable
-          v-model="form.nextMaintainMileages"
-          placeholder="请输入"
-          maxlength="20"
-          @change="onFieldChange"
-        />
+        <div style="display: flex; align-items: center; width: 100%;">
+          <el-input-number
+            v-model="form.nextMaintainMileages"
+            placeholder="请输入"
+            :disabled="!isEditing"
+            maxlength="20"
+            precision="0"
+            min="0"
+            :controls="false"
+            style="flex: 1; min-width: 0;"
+          />
+          <el-button
+            v-if="!isEditing"
+            size="small"
+            type="primary"
+            style="margin-left: 10px; flex-shrink: 0;"
+            @click="enterEdit"
+          >编辑</el-button>
+          <el-button
+            v-if="!isEditing && canResetVehicle"
+            size="small"
+            :loading="resettingVehicle"
+            :disabled="saving"
+            style="margin-left: 10px; flex-shrink: 0;"
+            @click="handleResetVehicle"
+          >重置</el-button>
+          <el-button
+            v-if="isEditing"
+            size="small"
+            type="primary"
+            :loading="saving"
+            style="margin-left: 10px; flex-shrink: 0;"
+            @click="handleSave"
+          >保存</el-button>
+          <el-button
+            v-if="isEditing"
+            size="small"
+            style="margin-left: 10px; flex-shrink: 0;"
+            @click="handleCancel"
+          >取消</el-button>
+
+        </div>
       </el-form-item>
     </el-form>
     <next-table
       :id="vehicleProfileId"
+      :vin="vin"
+      :canResetPart="canResetPart"
       :isEdit="true"
       @update="$emit('update')"
     />
@@ -39,6 +102,8 @@
 import moment from 'moment';
 import NextTable from '../NextTable.vue';
 import { updateFlat } from '@/api/datacenter/vehicle/vehicleProfile';
+import { resetVehicle } from '@/api/maintain/basic/maintenanceRemind';
+import { getCarInfo } from '@/api/maintain/sp/serviceProxy';
 
 export default {
   name: 'InfoDialog',
@@ -58,14 +123,37 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    vin: {
+      type: String,
+      default: '',
+    },
+    canResetVehicle: {
+      type: Boolean,
+      default: false,
+    },
+    canResetPart: {
+      type: Boolean,
+      default: false,
+    }
   },
   data () {
-    const validateMileage = (rule, value, callback) => {
-      if (value !== '' && value !== null && value !== undefined && isNaN(Number(value))) {
-        callback(new Error('必须为数字'));
+    const validateDate = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请选择下次保养时间'));
       } else {
         callback();
       }
+    };
+    const validateMileage = (rule, value, callback) => {
+      if (value === '' || value === null || value === undefined) {
+        callback(new Error('请输入下次保养里程'));
+        return;
+      }
+      if (isNaN(Number(value))) {
+        callback(new Error('必须为数字'));
+        return;
+      }
+      callback();
     };
     return {
       form: {
@@ -77,10 +165,12 @@ export default {
         nextMaintainMileages: '',
       },
       rules: {
-        nextMaintainMileages: [{ validator: validateMileage, trigger: 'blur' }],
+        nextMaintainDate: [{ required: true, validator: validateDate, trigger: ['blur', 'change'] }],
+        nextMaintainMileages: [{ required: true, validator: validateMileage, trigger: ['blur', 'change'] }],
       },
       saving: false,
-      pendingSave: false,
+      resettingVehicle: false,
+      isEditing: false,
     };
   },
   computed: {
@@ -105,39 +195,109 @@ export default {
     },
   },
   methods: {
-    onClose () {
-      this.dialogVisible = false;
-    },
-    onFieldChange () {
-      if (this.saving) {
-        this.pendingSave = true;
+    async handleResetVehicle () {
+      if (this.resettingVehicle || this.saving) return;
+      if (!this.vin) {
+        this.$message.warning('缺少车辆 VIN,无法重置');
         return;
       }
-      this.$refs.formRef.validate((valid) => {
-        if (!valid) return;
-        if (this.isNoChange()) return;
-
-        this.saving = true;
+      this.resettingVehicle = true;
+      try {
+        const carInfo = await getCarInfo(this.vin);
+        const totalMileage = carInfo && carInfo.mileage;
+        if (totalMileage === null || totalMileage === undefined || totalMileage === '') {
+          this.$message.warning('未获取到车联网里程,无法重置');
+          return;
+        }
+        const h = this.$createElement;
+        await this.$confirm(
+          h('div', null, [
+            `当前车联网里程(总)为 ${totalMileage} km,是否确定重置?`,
+            h('br'),
+            '只有时间/里程超期的车辆才允许重置，重置成功后的下次保养时间及里程数据将自动同步至零跑App及车机。'
+          ]),
+          '重置确认',
+          { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+        );
+        const res = await resetVehicle({ vin: this.vin });
+        // 后端字段:nextMaintenanceDate / nextMaintenanceMileage(注意"tion"和单数)
+        this.form.nextMaintainDate = res.nextMaintenanceDate && moment(res.nextMaintenanceDate).isValid()
+          ? moment(res.nextMaintenanceDate).format('YYYY-MM-DD HH:mm:ss')
+          : null;
+        this.form.nextMaintainMileages = res.nextMaintenanceMileage ?? '';
+        this.originalForm = { ...this.form };
+        this.$message.success('重置成功');
+        this.$emit('vehicle-reset', res);
+        this.$emit('update');
+      } finally {
+        this.resettingVehicle = false;
+      }
+    },
+    enterEdit () {
+      this.isEditing = true;
+    },
+    handleCancel () {
+      this.form = { ...this.originalForm };
+      this.isEditing = false;
+      this.$nextTick(() => {
+        if (this.$refs.formRef) this.$refs.formRef.clearValidate();
+      });
+    },
+    async handleSave () {
+      if (this.saving) return;
+      // 项目里 el-form.validate 使用 callback 风格,包一层 Promise 便于 async/await
+      const valid = await new Promise(resolve => {
+        this.$refs.formRef.validate((ok) => resolve(ok));
+      });
+      if (!valid) return;
+      if (this.isNoChange()) {
+        // 无变更:直接退出编辑态,不调接口
+        this.isEditing = false;
+        return;
+      }
+      this.saving = true;
+      try {
         const sentDate = this.normalizeDate(this.form.nextMaintainDate);
         const sentMileages = this.normalizeMileages(this.form.nextMaintainMileages);
-
-        updateFlat({
+        await updateFlat({
           id: this.vehicleProfileId,
           nextMaintainDate: sentDate,
           nextMaintainDateSetNull: !sentDate,
           nextMaintainMileages: sentMileages,
           nextMaintainMileagesSetNull: !sentMileages,
-        }).then(() => {
-          this.$message.success('保存成功');
-          this.syncOriginalForm(sentDate, sentMileages);
-          this.$emit('update');
-        }).finally(() => {
-          this.saving = false;
-          if (this.pendingSave) {
-            this.pendingSave = false;
-            this.$nextTick(() => this.onFieldChange());
-          }
         });
+        this.$message.success('保存成功');
+        this.syncOriginalForm(sentDate, sentMileages);
+        this.isEditing = false;
+        this.$emit('update');
+      } catch (e) {
+        // axios 拦截器已统一处理错误 toast;此处不需额外处理,保留编辑态供用户重试
+      } finally {
+        this.saving = false;
+      }
+    },
+    onClose () {
+      this.dialogVisible = false;
+      this.isEditing = false;
+    },
+    beforeClose (done) {
+      if (!this.isEditing) {
+        done();
+        return;
+      }
+      if (this.isNoChange()) {
+        // 编辑态但无修改:直接关闭,不打扰
+        done();
+        return;
+      }
+      this.$confirm('当前有未保存的修改,确定关闭吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        done();
+      }).catch(() => {
+        // 用户选「取消」,留在对话框
       });
     },
     isNoChange () {
@@ -170,5 +330,41 @@ export default {
 }
 .page-common-edit .el-form-item, .page-common-detail .el-form-item{
   width: 50%;
+}
+.dialog-title-text {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  margin-right: 8px;
+}
+.dialog-title-wrapper {
+  display: inline-flex;
+  align-items: center;
+}
+.dialog-title-icon {
+  cursor: help;
+  color: #909399;
+  font-size: 16px;
+  &:hover {
+    color: var(--leap-color-primary, #4C4CD6);
+  }
+}
+.reset-formula-tooltip {
+  max-width: 360px;
+  .reset-formula {
+    line-height: 1.6;
+    font-size: 12px;
+  }
+  .reset-formula-section {
+    & + .reset-formula-section {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #ebeef5;
+    }
+  }
+  .reset-formula-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
 }
 </style>

@@ -26,15 +26,15 @@
           }"
           close-tip="确定删除该项目零件吗？"
           closeText="删除"
-          :disabled="!isEditing"
+          :disabled="!canAddOrUpdate || !isEditing"
           @remove="onRemove"
           @add="onTabAdd"
-          :menus="menus"
+          :menus="tabMenus"
           />
         </section>
         <section class="common-section" v-if="partId && isShow">
           <el-form
-            v-if="isEditing"
+            v-if="isEditing && canAddOrUpdate"
             :inline="true"
             :model="form"
             :rules="rules"
@@ -272,16 +272,6 @@ export default {
         ]
       },
       supplierOptions: [],
-      menus: [
-        {
-          label: '复制',
-          value: 'copy',
-        },
-        {
-          label: '删除',
-          value: 'delete',
-        },
-      ],
       // ----
       currentVehicleId: '',
       part: '',
@@ -298,7 +288,18 @@ export default {
         pageNum: 1,
         pageSize: 999,
       };
-    }
+    },
+    // 项目零件 tab 操作菜单：按权限动态生成
+    tabMenus () {
+      const menus = [];
+      if (this.canAddOrUpdate) {
+        menus.push({ label: '复制', value: 'copy' });
+      }
+      if (this.canDelete) {
+        menus.push({ label: '删除', value: 'delete' });
+      }
+      return menus;
+    },
   },
   watch: {
     schemeId: {

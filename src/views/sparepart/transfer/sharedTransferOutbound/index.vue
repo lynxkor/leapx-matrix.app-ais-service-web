@@ -42,6 +42,19 @@
           filterable
             />
       </el-form-item>
+      <el-form-item label="订单创建时间">
+        <el-date-picker
+         :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
       <template v-if="show">
         <el-form-item label="入库方联系人">
           <el-input
@@ -68,20 +81,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            unlink-panels
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="修改时间">
+        <el-form-item label="订单修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
@@ -210,7 +210,9 @@ import EditPage from './edit.vue';
 import ShipmentDialog from './ShipmentDialog.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  codeList: null,
+  // 注意：被 <tag-input> 绑定的字段必须用 [] 而非 null，否则 reset 时
+  // TagInput 内部 tagList = null 会导致 slice()/length 抛错，UI 无法清空。
+  codeList: [],
   inboundDealerCodeList: null,
   createTime: '',
   updateTime: '',
@@ -222,7 +224,7 @@ const defaultForm = {
   outboundStatusList: null,
 
   // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
-  sparePartCodeList: null,
+  sparePartCodeList: [],
   sparePartName: '',
   locationNameLike: '',
 };
@@ -288,10 +290,10 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180 },
+          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.outboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'outboundDealerName', label: '出库门店名称', visible: true, width: 200 },
           { props: 'outboundWarehouseName', label: '出库方仓库', visible: true, width: 200 },
-          { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180 },
+          { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.inboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
           {
             props: 'inboundContactPerson',
@@ -309,7 +311,7 @@ export default {
             mask: true,
             getValue: (row) => getDesensitize(row.id, 'sharedTransferOutbound', 'inboundContactPhone')
           },
-          { props: 'outboundStatus', label: '出库状态', visible: true, width: 120 },
+          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -389,14 +391,28 @@ export default {
             fixed: 'left',
             buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/transfer/sharedTransferOutbound/edit', query: { id: row.sharedTransferOutboundId || row.id } }); }, type: 'primary' }]
           },
-          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180 },
+          { props: 'outboundDealerCode', label: '出库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.outboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'outboundDealerName', label: '出库门店名称', visible: true, width: 200 },
           { props: 'outboundWarehouseName', label: '出库方仓库', visible: true, width: 200 },
           { props: 'inboundDealerCode', label: '入库门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.inboundDealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'inboundDealerName', label: '入库门店名称', visible: true, width: 200 },
-          { props: 'inboundContactPerson', label: '入库方联系人', visible: true, width: 120 },
-          { props: 'inboundContactPhone', label: '入库方手机', visible: true, width: 140 },
-          { props: 'outboundStatus', label: '出库状态', visible: true, width: 120 },
+          {
+            props: 'inboundContactPerson',
+            label: '入库方联系人',
+            visible: true,
+            width: 160,
+            mask: true,
+            getValue: (row) => getDesensitize(row.sharedTransferOutboundId, 'sharedTransferOutbound', 'inboundContactPerson')
+          },
+          {
+            props: 'inboundContactPhone',
+            label: '入库方手机',
+            visible: true,
+            width: 180,
+            mask: true,
+            getValue: (row) => getDesensitize(row.sharedTransferOutboundId, 'sharedTransferOutbound', 'inboundContactPhone')
+          },
+          { props: 'outboundStatusLabel', label: '出库状态', visible: true, width: 120 },
           { props: 'remark', label: '订单备注', visible: true, width: 200 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
@@ -560,7 +576,9 @@ export default {
       const extraDefaults = this.activeName === 'allSpareParts'
         ? { createTime: this.getLastMonthRange() }
         : {};
-      this.form = { ...defaultForm, ...extraDefaults };
+      // 注意：不要整体替换 this.form —— 会丢失 Vue 2 响应性，导致子组件 watch 失效。
+      // 必须用 Object.assign 原地写入响应式对象，触发 setter 让 watcher 重新执行。
+      Object.assign(this.form, defaultForm, extraDefaults);
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       optionObj.form.size = pageSize;
@@ -708,6 +726,17 @@ export default {
         if (!hasCode && !hasCreateTime) {
           this.$message.warning('请至少填写【调拨出库单号】【订单创建时间】中的任意一个');
           return null;
+        }
+        // ===== 全部备件 tab：订单创建时间跨度校验（不超过半年） =====
+        if (data.createTimeStart && data.createTimeEnd) {
+          const start = new Date(data.createTimeStart);
+          const end = new Date(data.createTimeEnd);
+          const sixMonthsLater = new Date(start);
+          sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+          if (end > sixMonthsLater) {
+            this.$message.warning('【订单创建时间】跨度不能超过半年');
+            return null;
+          }
         }
       }
 

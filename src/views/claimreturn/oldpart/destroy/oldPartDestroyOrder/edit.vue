@@ -323,9 +323,9 @@ export default {
           width: '150',
           click: (row) => {
             this.navigateToRoute({
-              path: '/partner/channelManagement/shopDetail',
+              path: '/datacenter/store/store/detail',
               query: {
-                dealerCode: row.dealerCode,
+                storeCode: row.dealerCode,
               },
             });
           }
@@ -656,7 +656,10 @@ export default {
         oldPartDestroyOrderId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
-        sortColumns: [{ column: 'update_time', sort: 'DESC' }]
+        sortColumns: [
+          { column: 'update_time', sort: 'DESC' },
+          { column: 'id', sort: 'DESC' }
+        ]
       }).then((res) => {
         const records = res.records || [];
         this.tableData = records.map((item, idx) => ({

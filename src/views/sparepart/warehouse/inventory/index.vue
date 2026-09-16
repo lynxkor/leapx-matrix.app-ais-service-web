@@ -24,11 +24,7 @@
       </el-form-item>
       <template v-if="show">
         <el-form-item label="库位">
-          <el-input
-            v-model="form.locationNameLike"
-            placeholder="请输入库位名称"
-            clearable
-          />
+          <tag-input v-model="form.locationNameList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="门店">
           <fetch-select
@@ -317,7 +313,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.dealerCode}`, '_blank');
               },
               type: 'primary'
             }]

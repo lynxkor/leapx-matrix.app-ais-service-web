@@ -128,6 +128,17 @@
             label-key="name"
           />
         </el-form-item>
+        <el-form-item label="旧件返还类型">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="OldReturnTypeEnum"
+            v-model="form.oldReturnTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -147,6 +158,7 @@
         <el-button v-permission="moduleKey + '-purchaseImport'" size="small" @click="handleImport('sparePartPurchaseImport', '采购导入模板')">采购导入</el-button>
         <el-button v-permission="moduleKey + '-modelImport'" size="small" @click="handleImport('sparePartModelImport', '车型导入模板')">车型导入</el-button>
         <el-button v-permission="moduleKey + '-vfgImport'" size="small" @click="handleImport('sparePartVfgImport', 'VFG导入模板')">VFG导入</el-button>
+        <el-button v-permission="moduleKey + '-oldReturnTypeImport'" size="small" @click="handleImport('sparePartOldReturnType', '旧件返还类型导入模板')">旧件返还类型导入</el-button>
         <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
         <el-button v-permission="moduleKey + '-printImport'" size="small">打印报价单</el-button>
         <!-- <el-button v-permission="moduleKey + '-detail'" size="small">集中视图</el-button> -->
@@ -164,6 +176,7 @@
       class="ais-table-c"
     >
       <LPVxeTable
+        :key="tableKey"
         ref="tableRef"
         v-loading="loading"
         is-checkbox
@@ -197,7 +210,7 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, allowBoTransfer, forbidBoTransfer, allowPartsAttachmentSales, forbidPartsAttachmentSales } from '@/api/sparepart/basic/sparePart';
 import { vfglist } from '@/api/claimreturn/claim/basic/vfg';
 import { vrtlist } from '@/api/claimreturn/claim/basic/vrt';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getLoginUser } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -227,6 +240,7 @@ const defaultForm = {
   remark: '',
   createTime: '',
   updateTime: '',
+  oldReturnTypeList: [],
   statusIncludeList: ['1']
 };
 
@@ -264,6 +278,11 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      // 厂端账号 = true（显示 oem 备注）；门店账号 = false（隐藏 oem 备注）
+      oem: false,
+      // 拿到 loginUser 信息后，递增这个 key 强制 LPVxeTable 重挂载，
+      // 让它重新把 dataProp 的 visible 拷到内部的 config.columnConfig
+      tableKey: 0,
       optionObj: {
         id: 'sparePartTable',
         dataList: [],
@@ -296,7 +315,7 @@ export default {
           { props: 'salePrice', label: '销售价格', visible: true, align: 'right', width: 120 },
           { props: 'purchasePrice', label: '采购价格', visible: true, align: 'right', width: 120 },
           { props: 'oemPartLabel', label: '是否OEM件', visible: true, width: 130 },
-          { props: 'oemRemark', label: 'OEM备注', visible: true, width: 130 },
+          { props: 'oemRemark', label: 'OEM备注', visible: this.oem, width: 130, disabled: true },
           { props: 'saleableIsLabel', label: '是否可销售', visible: true, width: 130 },
           { props: 'standingInventoryIsLabel', label: '是否常备库存件', visible: true, width: 150 },
           { props: 'partsEngineer', label: '备件工程师', visible: true, width: 200 },
@@ -321,6 +340,7 @@ export default {
           { props: 'supplierMinOrderQuantity', label: '供应商起订量', visible: true, width: 200 },
           { props: 'supplierDeliveryPeriod', label: '供应商交货周期', visible: true, width: 200 },
           { props: 'purchaseTypeLabel', label: '采购状态', visible: true, width: 200 },
+          { props: 'oldReturnTypeLabel', label: '旧件返还类型', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {
@@ -332,7 +352,7 @@ export default {
             buttons: [{
               name: '编辑 ',
               disabled: () => {
-                const a = this.permissions.has('AISPART-sparePart-vfgImport') || this.permissions.has('AISPART-sparePart-modelImport') || this.permissions.has('AISPART-sparePart-purchaseImport') || this.permissions.has('AISPART-sparePart-transportImport') || this.permissions.has('AISPART-sparePart-salesImport');
+                const a = this.permissions.has('AISPART-sparePart-vfgImport') || this.permissions.has('AISPART-sparePart-modelImport') || this.permissions.has('AISPART-sparePart-purchaseImport') || this.permissions.has('AISPART-sparePart-transportImport') || this.permissions.has('AISPART-sparePart-salesImport') || this.permissions.has('AISPART-sparePart-oldReturnType');
                 return !a;
               },
               click: (rowIndex, row) => {
@@ -376,11 +396,11 @@ export default {
               },
               type: 'info'
             }, {
-              name: '允许备附件销售',
+              name: '允许备附件零售',
               show: (row) => {
                 return row.retailIs === '0' && row.oemPart === '1' && this.permissions.has('AISPART-sparePart-canCetail');
               },
-              popconfirmTitle: '此操作将允许备附件销售, 是否继续?',
+              popconfirmTitle: '此操作将允许备附件零售, 是否继续?',
               click: (rowIndex, row) => {
                 allowPartsAttachmentSales({
                   id: row.id
@@ -391,11 +411,11 @@ export default {
               },
               type: 'info'
             }, {
-              name: '禁止备附件销售',
+              name: '禁止备附件零售',
               show: (row) => {
                 return row.retailIs === '1' && row.oemPart === '1' && this.permissions.has('AISPART-sparePart-canCetail');
               },
-              popconfirmTitle: '此操作将禁止备附件销售, 是否继续?',
+              popconfirmTitle: '此操作将禁止备附件零售, 是否继续?',
               click: (rowIndex, row) => {
                 forbidPartsAttachmentSales({
                   id: row.id
@@ -441,6 +461,7 @@ export default {
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    this.getLoginUser();
     this.getData();
   },
   methods: {
@@ -450,6 +471,24 @@ export default {
 
     listVfg (query) {
       return vfglist({ vfgNameLike: query });
+    },
+
+    async getLoginUser () {
+      try {
+        const res = await getLoginUser();
+        // accountFlag=true 表示门店账号 → 隐藏 oem 备注；厂端账号才显示
+        const isOem = !res.accountFlag;
+        // 先把 dataProp 里 oemRemark 列的 visible 同步成最新的 oem
+        // LPVxeTable 初始化时会拷一次 dataProp -> 内部的 config.columnConfig，
+        // 所以拷贝完之后必须强制重挂载，下面通过 :key 触发
+        const col = this.optionObj.dataProp.find(c => c.props === 'oemRemark');
+        if (col) col.visible = isOem;
+        // 同步 this.oem + 递增 tableKey，触发 LPVxeTable 重新走一次 init
+        this.oem = isOem;
+        this.tableKey++;
+      } catch (error) {
+        console.error('Error fetching login user:', error);
+      }
     },
 
     listVrt (query) {

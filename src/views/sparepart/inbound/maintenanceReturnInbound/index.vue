@@ -30,6 +30,19 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="订单创建时间">
+          <el-date-picker
+           :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
         <template v-if="show">
           <el-form-item label="备件仓库">
             <fetch-select
@@ -70,20 +83,21 @@
               filterable
             />
           </el-form-item>
-          <el-form-item label="创建时间">
-            <el-date-picker
-             :default-time="['00:00:00', '23:59:59']"
-              v-model="form.createTime"
-              type="daterange"
-              unlink-panels
-              :picker-options="pickerOptions"
-              range-separator="至"
-              value-format="yyyy-MM-dd HH:mm:ss"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
+          <el-form-item label="客户经理" v-show="this.visibleCount === 3 || show">
+            <fetch-select
+              :remote-method="getUser"
+              remote
+              v-model="form.serviceProxyCreatorList"
+              placeholder="请输入名称"
+              labelKey="username"
+              valueKey="userId"
+              clearable
+              collapseTags
+              multiple
+              filterable
             />
           </el-form-item>
-          <el-form-item label="修改时间">
+          <el-form-item label="订单修改时间">
             <el-date-picker
              :default-time="['00:00:00', '23:59:59']"
               v-model="form.updateTime"
@@ -275,16 +289,19 @@ const defaultForm = {
   warehouseId: '',
   warehouseIdList: null,
   serviceProxyIdList: [],
-  serviceProxyCodeList: null,
+  // 注意：被 <tag-input> 绑定的字段必须用 [] 而非 null，否则 reset 时
+  // TagInput 内部 tagList = null 会导致 slice()/length 抛错，UI 无法清空。
+  serviceProxyCodeList: [],
   vehProfileVin: '',
   vehProfileVinLike: '',
   carPlate: '',
   carPlateLike: '',
   returnMaterialStatusList: [],
+  serviceProxyCreatorList: [],
   createTime: '',
   updateTime: '',
   // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
-  sparePartCodeList: null,
+  sparePartCodeList: [],
   sparePartName: '',
   locationNameLike: '',
   returnApplicationTime: null,
@@ -363,7 +380,7 @@ export default {
             width: 180,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.dealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -407,6 +424,7 @@ export default {
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'serviceProxyCreatorName', label: '客户经理', visible: true, width: 120 },
           {
             props: 'operate',
             label: '操作',
@@ -501,6 +519,7 @@ export default {
           { props: 'remark', label: '订单备注', visible: true, width: 200 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+          { props: 'serviceProxyCreatorName', label: '客户经理', visible: true, width: 120 },
 
           /* ========== 退料明细维度 ========== */
           {
@@ -581,7 +600,9 @@ export default {
       const extraDefaults = this.activeName === 'allSpareParts'
         ? { createTime: this.getLastMonthRange() }
         : {};
-      this.form = { ...defaultForm, ...extraDefaults };
+      // 注意：不要整体替换 this.form —— 会丢失 Vue 2 响应性，导致子组件 watch 失效。
+      // 必须用 Object.assign 原地写入响应式对象，触发 setter 让 watcher 重新执行。
+      Object.assign(this.form, defaultForm, extraDefaults);
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       optionObj.form.size = pageSize;
@@ -746,15 +767,6 @@ export default {
         }
       }
 
-      if (Array.isArray(this.form.codeList) && this.form.codeList.length <= 1) {
-        delete data.codeList;
-        data.code = this.form.codeList[0] || '';
-      }
-      if (Array.isArray(this.form.serviceProxyIdList) && this.form.serviceProxyIdList.length <= 1) {
-        delete data.serviceProxyIdList;
-        data.serviceProxyId = this.form.serviceProxyIdList[0] || '';
-      }
-
       // ===== 全部备件 tab 默认条件校验 =====
       // 出库单号（codeList）+ 接车施工单（serviceProxyCodeList）+ 订单创建时间 + VIN + 车牌号 不允许同时为空
       if (this.activeName === 'allSpareParts') {
@@ -766,6 +778,17 @@ export default {
         if (!hasCode && !hasProxy && !hasCreateTime && !hasVin && !hasPlate) {
           this.$message.warning('请至少填写【出库单号】【接车施工单】【订单创建时间】【VIN】【车牌号】中的任意一个');
           return null;
+        }
+        // ===== 全部备件 tab：订单创建时间跨度校验（不超过半年） =====
+        if (data.createTimeStart && data.createTimeEnd) {
+          const start = new Date(data.createTimeStart);
+          const end = new Date(data.createTimeEnd);
+          const sixMonthsLater = new Date(start);
+          sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+          if (end > sixMonthsLater) {
+            this.$message.warning('【订单创建时间】跨度不能超过半年');
+            return null;
+          }
         }
       }
 

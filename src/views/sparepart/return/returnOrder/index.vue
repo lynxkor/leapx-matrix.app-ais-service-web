@@ -27,6 +27,19 @@
             filterable
             />
       </el-form-item>
+      <el-form-item label="订单创建时间">
+        <el-date-picker
+         :default-time="['00:00:00', '23:59:59']"
+          v-model="form.createTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
       <template v-if="show">
         <el-form-item label="退货原因" v-show="this.visibleCount === 3 || show">
           <fetch-select
@@ -63,20 +76,7 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker
-           :default-time="['00:00:00', '23:59:59']"
-            v-model="form.createTime"
-            type="daterange"
-            unlink-panels
-            :picker-options="pickerOptions"
-            range-separator="至"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-form-item>
-        <el-form-item label="修改时间">
+        <el-form-item label="订单修改时间">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
             v-model="form.updateTime"
@@ -92,6 +92,20 @@
         <!-- ===== 全部备件 tab 专用查询 ===== -->
         <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
           <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="备件仓库" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <fetch-select
+            :remote-method="getWarehouse"
+            remote
+            v-model="form.warehouseId"
+            placeholder="请选择"
+            labelKey="name"
+            valueKey="id"
+            subLabelKey="code"
+            clearable
+            collapseTags
+            filterable
+          />
         </el-form-item>
         <el-form-item label="备件名称" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
           <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
@@ -190,7 +204,7 @@ import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, detailPage, deleteItem, enableItem, returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderCommit, returnOrderReject } from '@/api/sparepart/return/returnOrder/index';
-import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getLoginUser } from '@/api/common';
+import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, getLoginUser, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -205,7 +219,9 @@ import ShipmentDialog from './ShipmentDialog.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化,自行校对
   code: '',
-  codeList: null,
+  // 注意：被 <tag-input> 绑定的字段必须用 [] 而非 null，否则 reset 时
+  // TagInput 内部 tagList = null 会导致 slice()/length 抛错，UI 无法清空。
+  codeList: [],
   dealerCode: '',
   dealerCodeList: null,
   returnReason: '',
@@ -217,12 +233,13 @@ const defaultForm = {
   createTime: '',
   updateTime: '',
   // ===== 全部备件 tab 专用（仅 allSpareParts 用） =====
-  sparePartCodeList: null,
+  sparePartCodeList: [],
   sparePartName: '',
-  deliveryOrderNoList: null,
-  salesVoucherList: null,
-  inboundOrderCodeList: null,
-  purchaseOrderCodeList: null,
+  warehouseId: '',
+  deliveryOrderNoList: [],
+  salesVoucherList: [],
+  inboundOrderCodeList: [],
+  purchaseOrderCodeList: [],
 };
 
 const pageSize = 20;
@@ -294,15 +311,15 @@ export default {
             width: 180,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.dealerCode}`, '_blank');
               },
               type: 'primary'
             }]
           },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
-          { props: 'returnReason', label: '退货原因', visible: true, width: 200 },
-          { props: 'returnStatus', label: '退货状态', visible: true, width: 120 },
+          { props: 'returnReasonLabel', label: '退货原因', visible: true, width: 200 },
+          { props: 'returnStatusLabel', label: '退货状态', visible: true, width: 120 },
           { props: 'logisticsOrderNo', label: '物流单号', visible: true, width: 200 },
           { props: 'logisticsProvider', label: '物流商', visible: true, width: 120 },
           { props: 'deliveryTime', label: '发货时间', visible: true, width: 200 },
@@ -495,8 +512,8 @@ export default {
           { props: 'dealerCode', label: '门店编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank'); }, type: 'primary' }] },
           { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
           { props: 'warehouseName', label: '备件仓库', visible: true, width: 200 },
-          { props: 'returnReason', label: '退货原因', visible: true, width: 120 },
-          { props: 'returnStatus', label: '退货状态', visible: true, width: 120 },
+          { props: 'returnReasonLabel', label: '退货原因', visible: true, width: 120 },
+          { props: 'returnStatusLabel', label: '退货状态', visible: true, width: 120 },
           { props: 'logisticsOrderNo', label: '物流单号', visible: true, width: 200 },
           { props: 'logisticsProvider', label: '物流商', visible: true, width: 200 },
           { props: 'deliveryTime', label: '发货时间', visible: true, width: 200 },
@@ -522,7 +539,7 @@ export default {
           { props: 'qualifiedQty', label: '合格数量', visible: true, align: 'right', width: 120 },
           { props: 'deliveryOrderNo', label: '交货单号', visible: true, width: 200 },
           { props: 'salesVoucher', label: '销售凭证', visible: true, width: 200 },
-          { props: 'inboundOrderCode', label: '入库单号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/inbound/dealerInboundOrder/edit', query: { id: row.inboundOrderId } }); }, type: 'primary' }] },
+          { props: 'inboundOrderCode', label: '入库单号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/inbound/inboundOrder/edit', query: { id: row.inboundOrderId } }); }, type: 'primary' }] },
           { props: 'purchaseOrderCode', label: '采购订单号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/purchase/purchaseOrder/edit', query: { id: row.purchaseOrderId } }); }, type: 'primary' }] },
           { props: 'purchaseCashUnitPrice', label: '采购现金单价', visible: true, align: 'right', width: 140 },
           { props: 'purchaseRebateUnitPrice', label: '采购返利单价', visible: true, align: 'right', width: 140 },
@@ -552,6 +569,15 @@ export default {
     async getDealerList (query) {
       try {
         const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
+        return res;
+      } catch (error) {
+        console.error('Error fetching series list:', error);
+      }
+    },
+
+    async getWarehouse (query) {
+      try {
+        const res = await listWarehouse({ codeOrName: query });
         return res;
       } catch (error) {
         console.error('Error fetching series list:', error);
@@ -600,7 +626,9 @@ export default {
       const extraDefaults = this.activeName === 'allSpareParts'
         ? { createTime: this.getLastMonthRange() }
         : {};
-      this.form = { ...defaultForm, ...extraDefaults };
+      // 注意：不要整体替换 this.form —— 会丢失 Vue 2 响应性，导致子组件 watch 失效。
+      // 必须用 Object.assign 原地写入响应式对象，触发 setter 让 watcher 重新执行。
+      Object.assign(this.form, defaultForm, extraDefaults);
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       optionObj.form.size = pageSize;
@@ -769,6 +797,17 @@ export default {
         if (!hasCode && !hasCreateTime && !hasDeliveryNo && !hasSaleVoucher && !hasInboundNo && !hasPurchaseOrderNo) {
           this.$message.warning('请至少填写【退货单号】【订单创建时间】【交货单号】【销售凭证】【入库单号】【采购订单号】中的任意一个');
           return null;
+        }
+        // ===== 全部备件 tab：订单创建时间跨度校验（不超过半年） =====
+        if (data.createTimeStart && data.createTimeEnd) {
+          const start = new Date(data.createTimeStart);
+          const end = new Date(data.createTimeEnd);
+          const sixMonthsLater = new Date(start);
+          sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+          if (end > sixMonthsLater) {
+            this.$message.warning('【订单创建时间】跨度不能超过半年');
+            return null;
+          }
         }
       }
 
