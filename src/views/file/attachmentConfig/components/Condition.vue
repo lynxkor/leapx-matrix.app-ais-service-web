@@ -55,7 +55,7 @@
                   clearable
                 >
                   <el-option
-                    v-for="option in operatorOptions"
+                    v-for="option in getOperatorOptions(item.field)"
                     :key="option.value"
                     :label="option.label"
                     :value="option.value"
@@ -63,39 +63,57 @@
                 </el-select>
 
                 <!-- 条件值 - 根据 fieldType 动态展示 -->
-                <!-- 文本类型 -->
+                <!-- 文本类型 - 不返件规则下备件编码/供应商编码用内部 wrapper 渲染 TagInput，
+                     解决 TagInput watch lazy 导致的回显丢失问题（不修改 libs 公共组件） -->
+                <wrapper-tag-input
+                  v-if="item.fieldType === 'text' && isNoReturnRule && isBatchTextField(item.field)"
+                  :value="item.value"
+                  :key="`tag-${item.field}-${conditionIndex}-${itemIndex}`"
+                  placeholder="请输入编码"
+                  @input="(val) => handleTagChange(val, conditionIndex, itemIndex)"
+                  style="margin-right: 10px; width: 320px;"
+                />
                 <el-input
-                  v-if="item.fieldType === 'text'"
+                  v-else-if="item.fieldType === 'text'"
                   v-model="item.value"
                   :key="`text-${conditionIndex}-${itemIndex}`"
                   placeholder="请输入条件值"
                   clearable
                   style="margin-right: 10px; width: 200px;"
                 />
-                <!-- 枚举类型 - 使用 fetch-select 远程加载 -->
+                <!-- 枚举类型 - 使用 fetch-select 远程加载（不返件规则下启用 multiple） -->
                 <fetch-select
                   v-else-if="item.fieldType === 'dict'"
                   :request="fetchOptions"
                   :enumCode="item.valueSource"
                   v-model="item.value"
                   :key="`dict-${item.valueSource}-${conditionIndex}-${itemIndex}`"
+                  :default-options="item._selectedOptions || []"
                   placeholder="请选择条件值"
                   clearable
+                  :multiple="isNoReturnRule"
+                  collapse-tags
+                  @change="(val, opt) => handleDictChange(val, opt, conditionIndex, itemIndex)"
                   style="margin-right: 10px; width: 200px;"
                 />
-                <!-- URL 类型 - 远程搜索 -->
+                <!-- URL 类型 - 远程搜索（不返件规则下启用 multiple） -->
                 <fetch-select
                   v-else-if="item.fieldType === 'url'"
                   :remote-method="(keyword) => handleUrlRemoteMethod(keyword, item)"
-                  value-key="id"
-                  label-key="name"
+                  :value-key="getUrlFieldKey(item.field, 'value')"
+                  :label-key="getUrlFieldKey(item.field, 'label')"
+                  :sub-label-key="getUrlFieldKey(item.field, 'sub')"
                   v-model="item.value"
                   :key="`url-${item.valueSource}-${conditionIndex}-${itemIndex}`"
+                  :default-options="item._selectedOptions || []"
                   placeholder="请选择条件值"
                   filterable
                   clearable
                   remote
                   reserve-keyword
+                  :multiple="isNoReturnRule"
+                  collapse-tags
+                  @change="(val, opt) => handleUrlChange(val, opt, conditionIndex, itemIndex)"
                   style="margin-right: 10px; width: 200px;"
                 />
                 <!-- 默认展示输入框 -->
@@ -128,9 +146,80 @@
 
 <script>
 import FetchSelect from '@/libs/components/FetchSelect';
+import TagInput from '@/libs/components/TagInput';
 import { getEnum } from '@/api/common';
 import { attachmentConfigConditionPage } from '@/libs/api/attachment';
 import api from '@/axios';
+
+// 不返件规则 4 个必填字段的中文映射（提交校验用）
+const NO_RETURN_RULE_FIELD_LABELS = {
+  WARRANTY_TYPE: '保修类型',
+  PART_CODE: '备件编码',
+  SUPPLIER_CODE: '供应商编码',
+  PART_UNIT_PRICE: '零件单价'
+};
+
+// 内部 wrapper：解决 TagInput watch lazy 导致的回显丢失问题。
+// TagInput 内部的 watch.value 默认 lazy，回显场景下：
+//   setConditions 时 item.value 已是 ['B001']，TagInput 又是新建实例，
+//   prop value 在 created 之前就到位，watcher 注册后 oldVal === newVal，
+//   后续父组件 prop 不再变化 → watch 永远不触发 → tagList 永远是 []。
+// libs 是公共组件，不允许改动，所以这里在内部用 innerValue 中转：
+// mounted 之后再把真实 value 推下去，人为制造一次 prop value 变化触发子组件 watch。
+// 思路与 libs/components/CustomView/ValueTagInput.vue 一致。
+const WrapperTagInput = {
+  name: 'WrapperTagInput',
+  props: {
+    value: {
+      type: [Array, String],
+      default: () => []
+    },
+    placeholder: {
+      type: String,
+      default: ''
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data () {
+    return { innerValue: [] };
+  },
+  watch: {
+    value () {
+      this.syncDown();
+    }
+  },
+  mounted () {
+    this.syncDown();
+  },
+  methods: {
+    normalize (val) {
+      if (Array.isArray(val)) return val;
+      if (val === null || val === undefined || val === '') return [];
+      return [val];
+    },
+    syncDown () {
+      const next = this.normalize(this.value);
+      // 内容一致则跳过，避免 input 事件回流形成死循环
+      if (JSON.stringify(next) === JSON.stringify(this.innerValue)) return;
+      this.innerValue = next;
+    }
+  },
+  render (h) {
+    return h(TagInput, {
+      props: {
+        value: this.innerValue,
+        placeholder: this.placeholder,
+        disabled: this.disabled
+      },
+      on: {
+        input: (val) => this.$emit('input', val)
+      }
+    });
+  }
+};
 
 export default {
   name: 'Condition',
@@ -141,14 +230,25 @@ export default {
     }
   },
   components: {
-    FetchSelect
+    FetchSelect,
+    WrapperTagInput
   },
   data () {
     return {
       fieldOptions: [],
       // 存储每个字段的 fieldType 信息
       fieldTypeInfoMap: {},
-      operatorOptions: [
+      // 不返件规则专属字段（写死 4 个）
+      // 保修类型是 url 远程搜索下拉（与列表页保修类型筛选器行为一致）；
+      // 备件编码/供应商编码改为文本批量输入（TagInput），不再调远程搜索接口；
+      // 零件单价保持单值数值输入。
+      noReturnRuleFields: [
+        { label: '保修类型', value: 'WARRANTY_TYPE', fieldType: 'url', valueSource: '/maintain/web/basic/repairItemType/page' },
+        { label: '备件编码', value: 'PART_CODE', fieldType: 'text', valueSource: '' },
+        { label: '供应商编码', value: 'SUPPLIER_CODE', fieldType: 'text', valueSource: '' },
+        { label: '零件单价', value: 'PART_UNIT_PRICE', fieldType: 'text', valueSource: '' }
+      ],
+      allOperatorOptions: [
         { label: '等于', value: '=' },
         { label: '不等于', value: '!=' },
         { label: '大于', value: '>' },
@@ -161,39 +261,175 @@ export default {
         {
           logic: 'AND',
           dataList: [
-            { field: '', fieldType: '', operator: '=', value: '' }
+            { field: '', fieldType: '', operator: '=', value: '', isMultiValue: false }
           ]
         }
       ]
     };
   },
+  computed: {
+    isNoReturnRule () {
+      return this.configCode === 'warranty_no_return_rule';
+    }
+  },
   mounted () {
     this.loadFieldOptions();
   },
   methods: {
+    /**
+     * 根据字段返回对应操作符选项
+     * 不返件规则场景：保修类型/备件/供应商 → =/!=；零件单价 → >=/<=
+     * 其他场景：6 个全开
+     */
+    getOperatorOptions (field) {
+      if (!this.isNoReturnRule || !field) {
+        return this.allOperatorOptions;
+      }
+      if (['WARRANTY_TYPE', 'PART_CODE', 'SUPPLIER_CODE'].includes(field)) {
+        return [
+          { label: '等于', value: '=' },
+          { label: '不等于', value: '!=' }
+        ];
+      }
+      if (field === 'PART_UNIT_PRICE') {
+        return [
+          { label: '大于等于', value: '>=' },
+          { label: '小于等于', value: '<=' }
+        ];
+      }
+      return this.allOperatorOptions;
+    },
+    /**
+     * 根据字段返回默认操作符
+     * 不返件规则下：保修类型/备件/供应商 → '='；零件单价 → '>='
+     * 其他场景：'='
+     * 用于切换字段时把当前 operator 重置为合法默认值，
+     * 避免 el-select 的 v-model 值不在新选项列表里造成显示空白。
+     */
+    getDefaultOperator (field) {
+      if (this.isNoReturnRule && field === 'PART_UNIT_PRICE') {
+        return '>=';
+      }
+      return '=';
+    },
+    /**
+     * dict 类型多值变化处理（标记 isMultiValue）
+     * selectedOption 由 fetch-select 的 change 事件传入，含 value+label 完整对象，
+     * 持久化到 item._selectedOptions，下次打开弹窗时通过 :default-options 传给
+     * fetch-select，用于补全 options 中找不到的项（避免 el-select 在 multiple 模式下
+     * 因 selectedLabels 为空而显示空白）。
+     */
+    handleDictChange (val, selectedOption, conditionIndex, itemIndex) {
+      const isMulti = this.isNoReturnRule && Array.isArray(val) && val.length > 0;
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'isMultiValue', isMulti);
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'value', val);
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], '_selectedOptions', Array.isArray(selectedOption) ? selectedOption : []);
+    },
+    /**
+     * url 类型多值变化处理（标记 isMultiValue）
+     * selectedOption 由 fetch-select 的 change 事件传入，含 value+label(+code) 完整对象，
+     * 持久化到 item._selectedOptions，下次打开弹窗时通过 :default-options 传给
+     * fetch-select，用于补全 options 中找不到的项（避免 el-select 在 multiple 模式下
+     * 因 selectedLabels 为空而显示空白）。这是保修类型回显看不见值问题的修复点。
+     */
+    handleUrlChange (val, selectedOption, conditionIndex, itemIndex) {
+      const isMulti = this.isNoReturnRule && Array.isArray(val) && val.length > 0;
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'isMultiValue', isMulti);
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'value', val);
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], '_selectedOptions', Array.isArray(selectedOption) ? selectedOption : []);
+    },
     handleFieldChange (_, row, conditionIndex, itemIndex) {
-      // 清空值
-      this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'value', '');
+      // 切换字段时根据字段类型决定 value 的初始形态：
+      // 1) 不返件规则下 url/dict（multiple 多选下拉）：用 []，否则 Element UI el-select 内部
+      //    handleOptionSelect 调用 value.push() 会因字符串没有 push 方法而 TypeError 卡死
+      // 2) 不返件规则下 text 批量输入字段（备件编码/供应商编码）：用 []
+      // 3) 其他（单值 text / 单值 url/dict）：用 ''
+      const isNoReturnRuleMultiSelect = this.isNoReturnRule && (row.fieldType === 'dict' || row.fieldType === 'url');
+      const isBatchText = row.fieldType === 'text' && this.isBatchTextField(row.value);
+      const initialValue = (isNoReturnRuleMultiSelect || isBatchText) ? [] : '';
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'value', initialValue);
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'isMultiValue', false);
       this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'valueSource', row.valueSource);
       this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'fieldType', row.fieldType);
+      // 切换字段时同步把 operator 重置为新字段的默认操作符，
+      // 避免旧值（如 '='）不在新选项列表里导致 el-select 显示空白
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'operator', this.getDefaultOperator(row.value));
     },
-    // URL 类型的远程搜索
+    /**
+     * 文本批量输入字段白名单（不返件规则下，备件编码/供应商编码用 TagInput 批量录入）。
+     * 数组对应后端 IN/NOT IN 语义（matcher 用 compareValuesWithMulti 解析）。
+     */
+    isBatchTextField (field) {
+      return ['PART_CODE', 'SUPPLIER_CODE'].includes(field);
+    },
+    /**
+     * TagInput 的 @input：用 :value 单向绑定，所以这里把 val 同步写回 item.value，
+     * 同时标记 isMultiValue，让后端 matcher 走多值分支。
+     */
+    handleTagChange (val, conditionIndex, itemIndex) {
+      // 兼容 TagInput 偶发传 undefined / null（弹窗关闭时触发）
+      const list = Array.isArray(val) ? val : [];
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'value', list);
+      this.$set(this.conditions[conditionIndex].dataList[itemIndex], 'isMultiValue', list.length > 0);
+    },
+    // URL 类型的远程搜索（仅保修类型仍走 url 远程搜索；备件编码/供应商编码已改为 text 批量输入，不再触发此方法）
     async handleUrlRemoteMethod (keyword, item) {
       const url = item.valueSource;
       if (!url) return [];
       try {
-        // 调用接口获取数据
-        const res = await api.jsonPost(url, { keyword });
-        return res.data || res || [];
+        let payload;
+        if (this.isNoReturnRule && item.field === 'WARRANTY_TYPE') {
+          // 保修类型走维修项目接口，按列表页保修类型筛选器行为双层过滤：
+          // 1) 后端 categorys=['20'] 限定维修项目大类；2) 前端 checkoutTypeName 仅保留「保修/合同」
+          payload = { nameLike: keyword, pageNum: 1, pageSize: 50, categorys: ['20'] };
+        } else {
+          // 附件分类场景：保持原有 { keyword } 行为，向后兼容
+          payload = { keyword };
+        }
+        const res = await api.jsonPost(url, payload);
+        // api.jsonPost 走 fetch 的 axios.post(...).then(res => res.data) 链路，
+        // 最终 resolve 的是 PageResp 对象 { records, total }（不是 axios 原始的 { code, message, data }）
+        // 兼容其他服务直传数组的场景，统一解包为数组
+        let list = (res && (res.records || res.data || res)) || [];
+        if (this.isNoReturnRule && item.field === 'WARRANTY_TYPE') {
+          // 与列表页保修类型筛选器保持一致：仅展示 checkoutTypeName 为「保修/合同」的维修项目
+          list = (Array.isArray(list) ? list : []).filter(it => it.checkoutTypeName && ['保修', '合同'].includes(it.checkoutTypeName));
+        }
+        return Array.isArray(list) ? list : [];
       } catch (err) {
         console.error('获取远程数据失败', err);
         return [];
       }
     },
-    // 加载字段选项 - 直接调用 attachmentConfigConditionPage 接口
+    /**
+     * 不返件规则下 url 类型 fetch-select 的字段映射：
+     *   - value：实际写入 item.value 的字段（与后端 matcher 比对依据）
+     *   - label：下拉框主标签（名称）
+     *   - sub：下拉框副标签（编码；与列表页保修类型下拉框 sub-label-key="code" 风格一致）
+     *
+     * 不同字段对应接口返回的 record 字段名不同，不能写死 value-key="id" label-key="name"：
+     *   保修类型 /maintain/web/basic/repairItemType/page      → id / name / code
+     *   备件编码 /sp/web/basic/sparePartSupplier/list         → partCode / partName / partCode
+     *   供应商编码 /sp/web/basic/supplierInfo/list            → supplierCode / supplierName / supplierCode
+     */
+    getUrlFieldKey (field, type) {
+      const map = {
+        WARRANTY_TYPE: { value: 'id', label: 'name', sub: 'code' },
+        PART_CODE: { value: 'partCode', label: 'partName', sub: 'partCode' },
+        SUPPLIER_CODE: { value: 'supplierCode', label: 'supplierName', sub: 'supplierCode' }
+      };
+      const cfg = map[field] || { value: 'id', label: 'name', sub: 'code' };
+      return cfg[type] || '';
+    },
+    // 加载字段选项
     loadFieldOptions () {
+      // 不返件规则场景：使用写死的字段列表，不调用接口
+      if (this.isNoReturnRule) {
+        this.fieldOptions = this.noReturnRuleFields;
+        return;
+      }
+      // 附件分类场景：调用 attachmentConfigConditionPage 接口
       const params = { pageNum: 1, pageSize: 100 };
-      // 如果有 configCode，则传入参数
       if (this.configCode) {
         params.configCode = this.configCode;
       }
@@ -215,7 +451,8 @@ export default {
       this.conditions[conditionIndex].dataList.push({
         field: '',
         operator: '',
-        value: ''
+        value: '',
+        isMultiValue: false
       });
     },
     removeData (conditionIndex, itemIndex) {
@@ -224,7 +461,7 @@ export default {
     addOuterCondition () {
       this.conditions.push({
         logic: 'AND',
-        dataList: [{ field: '', operator: '', value: '' }]
+        dataList: [{ field: '', operator: '', value: '', isMultiValue: false }]
       });
     },
     removeOuterCondition (conditionIndex) {
@@ -244,9 +481,21 @@ export default {
     },
     // 获取条件数据（供父组件调用）
     getConditions () {
+      // 深拷贝并剔除内存中的回显辅助字段 _selectedOptions，
+      // 避免接口返回的完整元数据(code/name/sort/remark/...)污染数据库 condition_json。
+      // _selectedOptions 只在内存中给 fetch-select 的 :default-options 用，
+      // 不属于业务持久化数据。
+      const cleaned = JSON.parse(JSON.stringify(this.conditions));
+      cleaned.forEach(condition => {
+        if (Array.isArray(condition.dataList)) {
+          condition.dataList.forEach(item => {
+            delete item._selectedOptions;
+          });
+        }
+      });
       return {
         outerLogic: this.outerLogic,
-        conditions: this.conditions
+        conditions: cleaned
       };
     },
     // 设置条件数据（供父组件回显）
@@ -264,16 +513,19 @@ export default {
       this.outerLogic = outerLogic;
 
       if (conditions && Array.isArray(conditions)) {
-        this.conditions = JSON.parse(JSON.stringify(conditions));
-        // 回显时初始化 logic 和 fieldType
-        this.conditions.forEach((condition, index) => {
+        // 关键时序：先在 plain object 上完成规范化（深拷贝 + 补全字段），
+        // 再整体赋值给 this.conditions——一次性触发响应式更新。
+        // 避免"先赋值再 forEach 修改"的写法：当 item.fieldType 已经是 'text' 时
+        // Vue 2 的 reactiveSetter 检测 newVal === value 直接 return，不触发 dep.notify，
+        // 而 this.conditions 引用变化触发的 watcher flush 后，模板读取到的 item.fieldType
+        // 又是修改过的值——这种时序在某些场景下会让渲染失效。
+        const normalized = JSON.parse(JSON.stringify(conditions));
+        normalized.forEach(condition => {
           // 确保 logic 有值，默认为 AND
-          const logicValue = condition.logic || 'AND';
-          this.$set(this.conditions[index], 'logic', logicValue);
-
+          condition.logic = condition.logic || 'AND';
           condition.dataList.forEach(item => {
+            // 兼容旧数据：缺 fieldType 时根据 valueSource 推断
             if (item.field && !item.fieldType) {
-              // 如果是 url 类型，需要设置 fieldType
               if (item.valueSource && (item.valueSource.startsWith('http') || item.valueSource.startsWith('/'))) {
                 item.fieldType = 'url';
               } else if (item.valueSource && item.valueSource.startsWith('dict:')) {
@@ -282,8 +534,32 @@ export default {
                 item.fieldType = 'text';
               }
             }
+            // 不返件规则下，备件编码/供应商编码的值必须规范成数组（TagInput v-model 期望数组）
+            if (this.isNoReturnRule && this.isBatchTextField(item.field)) {
+              item.fieldType = 'text';
+              if (!Array.isArray(item.value)) {
+                item.value = item.value !== '' && item.value !== null && item.value !== undefined
+                  ? [item.value]
+                  : [];
+              }
+              item.isMultiValue = item.value.length > 0;
+            }
+            // 不返件规则下，url/dict（multiple 多选下拉）的值必须是数组：
+            // Element UI el-select 内部 handleOptionSelect 会调用 value.push(option.value)，
+            // 如果 value 是字符串 '' 会抛 TypeError 导致点击失效卡死。
+            // 这里把非数组的 value 规范化：单值→[val]，空→[]
+            if (this.isNoReturnRule && (item.fieldType === 'dict' || item.fieldType === 'url')) {
+              if (!Array.isArray(item.value)) {
+                item.value = item.value !== '' && item.value !== null && item.value !== undefined
+                  ? [item.value]
+                  : [];
+              }
+              item.isMultiValue = item.value.length > 0;
+            }
           });
         });
+        // 整体赋值触发响应式（Vue 2 observe 会递归把数组和元素都变成响应式）
+        this.conditions = normalized;
       }
     },
     // 重置条件（供父组件调用）
@@ -298,6 +574,70 @@ export default {
           ]
         }
       ];
+    },
+    /**
+     * 提交校验入口（供父组件调用）。
+     *   - 非不返件规则：保持原有"至少一条完整条件"逻辑
+     *   - 不返件规则：4 个必填字段逐行校验（PART_UNIT_PRICE 额外校验数字格式）
+     * 返回 { valid, errors }，errors 为所有错误文案（弹窗默认只展示首条）
+     */
+    validate () {
+      if (!this.isNoReturnRule) {
+        const hasValidItem = this.conditions.some(g =>
+          g.dataList && g.dataList.some(it =>
+            it.field && it.operator &&
+            (it.value !== '' && it.value !== null && it.value !== undefined) &&
+            (!Array.isArray(it.value) || it.value.length > 0)
+          )
+        );
+        return {
+          valid: hasValidItem,
+          errors: hasValidItem ? [] : ['请至少配置一条完整的条件']
+        };
+      }
+
+      const errors = [];
+      let rowCount = 0;
+      this.conditions.forEach((g, gIdx) => {
+        if (!g.dataList) return;
+        g.dataList.forEach((item, iIdx) => {
+          if (!item.field) return;
+          rowCount++;
+          const err = this.validateRequiredField(item, gIdx, iIdx);
+          if (err) errors.push(err);
+        });
+      });
+      if (rowCount === 0) {
+        errors.push('请至少配置一条条件');
+      }
+      return { valid: errors.length === 0, errors };
+    },
+    /**
+     * 单行必填字段校验：返回 null 表示通过，返回字符串表示错误文案
+     * 仅处理 NO_RETURN_RULE_FIELD_LABELS 中的 4 个字段，其他字段（如未来扩展）放行
+     */
+    validateRequiredField (item, gIdx, iIdx) {
+      const label = NO_RETURN_RULE_FIELD_LABELS[item.field];
+      if (!label) return null;
+
+      // 空值校验（数组视为空数组；字符串视为空串/null/undefined）
+      const isEmpty = Array.isArray(item.value)
+        ? item.value.length === 0 || item.value.every(v => v === '' || v === null || v === undefined)
+        : (item.value === '' || item.value === null || item.value === undefined);
+      if (isEmpty) {
+        return `【${label}】不能为空`;
+      }
+
+      // 零件单价：必须 ≥ 0 的数字，正则拒绝 99..99、-5、abc、5. 等格式
+      if (item.field === 'PART_UNIT_PRICE') {
+        const rawVal = Array.isArray(item.value) ? item.value[0] : item.value;
+        const strVal = String(rawVal).trim();
+        if (!/^\d+(\.\d+)?$/.test(strVal)) {
+          return `【${label}】格式错误`;
+        }
+      }
+
+      return null;
     },
     async fetchOptions (code) {
       if (code) {

@@ -399,6 +399,7 @@
     </el-form>
     <div class="ais-actions">
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="noReturnRuleView" size="small" @click="handleNoReturnRuleClick">不返件规则配置</el-button>
       <template v-if="activeTab !== 'parts' && activeTab !== 'workhours' && activeTab !== 'other' && activeTab !== 'approval'">
         <el-button v-if="withdraw" size="small" @click="handleWithdraw">批量撤回</el-button>
         <el-button v-if="reject" size="small" @click="handleReject">批量驳回</el-button>
@@ -470,6 +471,7 @@
       :vehicleProfileId="vehicleProfileId"
       :id="rowId"
     />
+    <NoReturnRuleDialog :visible.sync="noReturnRuleDialogVisible" />
   </div>
 </template>
 
@@ -477,6 +479,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
+import NoReturnRuleDialog from './NoReturnRuleDialog.vue';
 import {
   getList,
   getPartList,
@@ -484,9 +487,6 @@ import {
   getOtherList,
   getApprovalList,
   submit,
-  withdraw,
-  approve,
-  batchCancel,
   getDetailDecryptField,
   print,
 } from '@/api/claimreturn/claim/warrantyapply/index';
@@ -618,6 +618,7 @@ export default {
     ApproveDialog,
     CancelDialog,
     WithdrawDialog,
+    NoReturnRuleDialog,
   },
   data () {
     return {
@@ -671,10 +672,16 @@ export default {
       submit: false,
       edit: false,
       detail: false,
+      // 不返件规则配置权限（对应后端 web:warrantyapply:warrantyNoReturnRule:*）
+      // 拆分为三个 boolean：view 控制入口按钮可见，edit/delete 控制弹窗内操作
+      noReturnRuleView: false,
+      noReturnRuleEdit: false,
+      noReturnRuleDelete: false,
       //
       rightsDialogVisible: false,
       vehicleProfileId: '',
       rowId: '',
+      noReturnRuleDialogVisible: false,
     };
   },
   computed: {
@@ -1603,6 +1610,16 @@ export default {
     this.submit = this.permissions.has(`${this.moduleKey}-submit`);
     this.edit = this.permissions.has(`${this.moduleKey}-addOrUpdate`);
     this.detail = this.permissions.has(`${this.moduleKey}-detail`);
+    // 不返件规则配置权限：按操作类型拆分
+    //   view   = 有任一查看类权限即可打开弹窗（page 或 get）
+    //   edit   = 有 addOrUpdate 权限才能新增/修改（控制 + tab + 确认按钮）
+    //   delete = 有 delete 权限才能删除（控制 tab × 关闭按钮）
+    // 后端 @ResourcePermission AOP 是否真拦截未经验证，因此前端必须按权限细分
+    this.noReturnRuleView = ['page', 'get'].some(
+      suffix => this.permissions.has(`${this.moduleKey}-noReturnRule-${suffix}`)
+    );
+    this.noReturnRuleEdit = this.permissions.has(`${this.moduleKey}-noReturnRule-addOrUpdate`);
+    this.noReturnRuleDelete = this.permissions.has(`${this.moduleKey}-noReturnRule-delete`);
   },
   methods: {
     /**
@@ -1707,6 +1724,11 @@ export default {
           this.$message.warning('未查询到打印数据');
         }
       });
+    },
+    handleNoReturnRuleClick () {
+      console.log('[index.vue] handleNoReturnRuleClick, before:', this.noReturnRuleDialogVisible);
+      this.noReturnRuleDialogVisible = true;
+      console.log('[index.vue] handleNoReturnRuleClick, after:', this.noReturnRuleDialogVisible);
     },
     // 排序
     handleSortChange (value) {
