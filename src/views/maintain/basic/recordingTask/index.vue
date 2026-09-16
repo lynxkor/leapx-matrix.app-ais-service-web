@@ -191,11 +191,14 @@
       <LPVxeTable
         ref="tableRef"
         v-loading="loading"
+        is-checkbox
+        checkboxFixed
         is-page
         :option-obj="optionObj"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
       />
     </div>
     <el-dialog
@@ -273,6 +276,7 @@ export default {
       show: false,
       loading: false,
       exportLoading: false,
+      selectionList: [],
       statementDialogVisible: false,
       statementDialogList: [],
       optionObj: {
@@ -410,6 +414,7 @@ export default {
     },
     getData () {
       this.loading = true;
+      this.selectionList = [];
       getList({
         ...this.getFormData(),
         pageNum: this.optionObj.form.page,
@@ -445,6 +450,10 @@ export default {
       }
       this.debouncedGetData();
     },
+    // 多选框选中数据
+    handleSelectionChange (selection) {
+      this.selectionList = selection;
+    },
     getFormData () {
       const data = { ...this.form };
       Object.keys(data).forEach(key => {
@@ -478,6 +487,14 @@ export default {
         data[endKey] = getEndOfDayString(range[1]);
       }
     },
+    // 构造导出请求参数：勾选记录时按选中 ids 导出，否则按查询条件导出全部
+    buildExportParams () {
+      const params = this.getFormData();
+      if (this.selectionList.length > 0) {
+        params.ids = this.selectionList.map(item => item.id);
+      }
+      return params;
+    },
     fetchOptions (code) {
       if (code) {
         return getEnum(code);
@@ -489,7 +506,7 @@ export default {
       exportTable({
         businessType: '录音事件',
         dataFetchPath: '/maintain/web/basic/recordingTask/page',
-        reqParams: this.getFormData(),
+        reqParams: this.buildExportParams(),
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
       }).then(async res => {
