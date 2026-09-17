@@ -806,16 +806,19 @@ export default {
     },
     // 手动开启录音：二次确认后调用开启接口
     handleStartRecording () {
+      // 防抖：点击后立即锁定，请求结束前不可再次点击
+      if (this.startRecordingLoading) return;
+      this.startRecordingLoading = true;
       this.showMsg('此操作将开启录音，是否继续？').then((result) => {
         if (result) {
           this.doStartRecording();
+        } else {
+          this.startRecordingLoading = false;
         }
       });
     },
     async doStartRecording () {
-      if (this.startRecordingLoading) return;
       try {
-        this.startRecordingLoading = true;
         await startRecordingForStatement(this._id);
         this.$message.success('开启录音成功');
         this.canStartRecording = false;

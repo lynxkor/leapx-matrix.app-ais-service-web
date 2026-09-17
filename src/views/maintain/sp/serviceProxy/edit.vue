@@ -680,6 +680,9 @@ export default {
     },
     // 手动开启录音：二次确认后调用开启接口
     handleStartRecording () {
+      // 防抖：点击后立即锁定，请求结束前不可再次点击
+      if (this.startRecordingLoading) return;
+      this.startRecordingLoading = true;
       const message = '<div class="ais-leave-tips-main"><i class="iconfont icon-lxppc-prompt"></i>此操作将开启录音，是否继续？</div>';
       this.$confirm(message, '', {
         confirmButtonText: '确定',
@@ -689,12 +692,12 @@ export default {
         showClose: false
       }).then(() => {
         this.doStartRecording();
-      }).catch(() => {});
+      }).catch(() => {
+        this.startRecordingLoading = false;
+      });
     },
     async doStartRecording () {
-      if (this.startRecordingLoading) return;
       try {
-        this.startRecordingLoading = true;
         await startRecordingForProxy(this._id);
         this.$message.success('开启录音成功');
         this.canStartRecording = false;
