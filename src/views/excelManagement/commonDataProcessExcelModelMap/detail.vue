@@ -33,7 +33,7 @@
               <el-form-item label="最大行数：" prop="maxRows">
                 {{ info.maxRows  }}
               </el-form-item>
-              <el-form-item label="导入参数DTO：" prop="postParamDto">
+              <el-form-item label="导入参数DTO：" prop="postParamDto" class="header-map-item wrap-item" style="width: 100%;">
                 {{ info.postParamDto  }}
               </el-form-item>
               <el-form-item label="每批n条数据：" prop="batchSize">
@@ -121,6 +121,12 @@ export default {
   ::v-deep .el-form-item__content {
     display: block;
     overflow: hidden;
+  }
+}
+.wrap-item {
+  ::v-deep .el-form-item__content {
+    word-break: break-all;
+    white-space: pre-wrap;
   }
 }
 </style>
