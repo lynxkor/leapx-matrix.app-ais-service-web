@@ -706,7 +706,7 @@
       padding-left: 8px;
       word-break: break-all;
     ">
-      {{ item.content }}
+      {{ stripProxyNoSuffix(item.content, item.ruleType) }}
     </div>
     <!-- 保修单号 / 施工单号 列表 (点击可跳转详情, 超过 3 条时折叠 + "查看更多"跳列表页)
          content 文案里已经拼了完整单号序列, 这里只渲染链接块, 不再重复 "保修单号:" 之类的 label,
@@ -1285,6 +1285,43 @@ export default {
      */
     getProxyListHref (proxyNos) {
       return `/maintain/sp/serviceProxy?codes=${proxyNos.map(encodeURIComponent).join(',')}`;
+    },
+    /**
+     * 剥掉 BXYJ009 content 末尾内联的施工单号值，仅保留 "对应的施工单号：" 提示前缀。
+     * <p>
+     * 背景：remind_content 模板结尾是 {@code 此车最近${day}天内，存在事故维修记录的情况，对应的施工单号：}，
+     * 实际施工单号由 {@code item.proxyNos} 链接块单独渲染为可跳转链接。
+     * 但历史版本模板曾含 {@code ${proxyNos}} 占位符，存量 {@code warranty_warning_detail} 里
+     * 部分 BXYJ009 content 会以 {@code 对应的施工单号：WO-001,WO-002} 形式内联施工单号，
+     * 弹窗里就会视觉上看到同一施工单号出现两次（一次纯文本、一次可点击）。
+     * 这里在渲染前把前缀之后的内联施工单号值剥掉，前缀本身（"对应的施工单号" + 分隔符）保留。
+     * </p>
+     *
+     * @param {string} content 后端渲染后的 content 文本
+     * @param {string} ruleType 规则类型 (仅 BXYJ009 走剥除)
+     * @returns {string} 剥内联值后的文本；非 BXYJ009 或无前缀时原样返回
+     */
+    stripProxyNoSuffix (content, ruleType) {
+      if (!content || ruleType !== 'BXYJ009') {
+        return content;
+      }
+      const marker = '对应的施工单号';
+      const idx = content.indexOf(marker);
+      if (idx < 0) {
+        return content;
+      }
+      // 跳过 marker + 紧随的分隔符 ("：" / ":" / "为")
+      let sepEnd = idx + marker.length;
+      while (sepEnd < content.length) {
+        const ch = content.charAt(sepEnd);
+        if (ch === '：' || ch === ':' || ch === '为') {
+          sepEnd++;
+        } else {
+          break;
+        }
+      }
+      // 保留前缀部分 (含分隔符), 截掉内联的施工单号值
+      return content.substring(0, sepEnd);
     },
     /**
      * 备件主数据详情链接 (BXYJ010 跳转)
