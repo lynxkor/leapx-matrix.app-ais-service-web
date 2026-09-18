@@ -325,11 +325,15 @@ export default {
               message: '保存成功',
               type: 'success'
             });
-            const id = this.$route.query.id;
+            const id = this.id || this.$route.query.id;
             if (rest || !id) {
               this.resetForm(formName);
             } else {
-              this.getDetailData();
+              // 编辑态：保存成功后跳转详情页，不再留在编辑页刷新数据
+              this.$router.push({
+                path: '/excelManagement/commonDataProcessExcelModelMap/detail',
+                query: { id }
+              });
             }
           } catch (error) {
             // 报错已由全局拦截器 toast（唯一性校验/保存失败），此处静默
