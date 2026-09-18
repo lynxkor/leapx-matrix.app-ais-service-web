@@ -123,7 +123,8 @@ export default {
       }).then(res => {
         if (res) {
           // console.log(res);
-          downloadExcel(res.authFileUrl, fileName || '导出文件.xlsx');
+          // 文件名优先取换签接口返回的 originalFilename（=文件服务原始上传名，与同步导出 window.location.href 下载名一致）
+          downloadExcel(res.authFileUrl, res.originalFilename || fileName || '导出文件.xlsx');
         } else {
           this.$message({
             type: 'warning',
