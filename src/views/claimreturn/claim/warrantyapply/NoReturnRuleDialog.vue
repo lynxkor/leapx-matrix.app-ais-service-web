@@ -297,7 +297,10 @@ export default {
   font-size: 14px;
 }
 .dialog-footer {
-  text-align: right;
+  text-align: center;
+  .el-button + .el-button {
+    margin-left: 50px;
+  }
 }
 .condition-area {
   min-height: 200px;
