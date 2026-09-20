@@ -1251,14 +1251,14 @@ export default {
     getApplyDetailHref (applyNo) {
       const id = this.applyNoToIdMap[applyNo];
       return id
-        ? `/claimreturn/claim/warrantyApply/edit?id=${id}`
-        : `/claimreturn/claim/warrantyApply?applyNo=${encodeURIComponent(applyNo)}`;
+        ? `/service/claimreturn/claim/warrantyApply/edit?id=${id}`
+        : `/service/claimreturn/claim/warrantyApply?applyNo=${encodeURIComponent(applyNo)}`;
     },
     /**
      * 保修单列表链接: 批量带入 applyNoList 过滤
      */
     getApplyListHref (applyNos) {
-      return `/claimreturn/claim/warrantyApply?applyNoList=${applyNos.map(encodeURIComponent).join(',')}`;
+      return `/service/claimreturn/claim/warrantyApply?applyNoList=${applyNos.map(encodeURIComponent).join(',')}`;
     },
     /**
      * 施工单详情链接: 优先用 id, 降级到 proxyNo 跳列表页查询 (参考 BXYJ006-008 applyNos 实现)
@@ -1271,10 +1271,10 @@ export default {
     getProxyDetailHref (proxyNo) {
       const id = this.proxyNoToIdMap[proxyNo];
       if (id) {
-        return `/maintain/sp/serviceProxy/edit?id=${id}`;
+        return `/service/maintain/sp/serviceProxy/edit?id=${id}`;
       }
       // 映射加载失败 / 找不到 → 降级跳列表 (带 codes 让用户在列表里筛选)
-      return `/maintain/sp/serviceProxy?codes=${encodeURIComponent(proxyNo)}`;
+      return `/service/maintain/sp/serviceProxy?codes=${encodeURIComponent(proxyNo)}`;
     },
     /**
      * 施工单列表链接: 跳转到接车施工单管理列表页, 通过 {@code codes} 多值过滤。
@@ -1284,7 +1284,7 @@ export default {
      * </p>
      */
     getProxyListHref (proxyNos) {
-      return `/maintain/sp/serviceProxy?codes=${proxyNos.map(encodeURIComponent).join(',')}`;
+      return `/service/maintain/sp/serviceProxy?codes=${proxyNos.map(encodeURIComponent).join(',')}`;
     },
     /**
      * 剥掉 BXYJ009 content 末尾内联的施工单号值，仅保留 "对应的施工单号：" 提示前缀。
