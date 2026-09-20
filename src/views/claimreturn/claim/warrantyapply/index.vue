@@ -1648,7 +1648,7 @@ export default {
       // 2. 整体重置 form 为 defaultForm (强制清空所有查询条件), 再覆盖多选字段
       this.form = {
         ...defaultForm,
-        createTime: getDefaultCreateTime(),
+        createTime: null,
         ...(applyNoList ? { applyNoList } : {}),
         ...(serviceProxyNoList ? { serviceProxyNoList } : {}),
         ...(partCodeList ? { partCodeList } : {})
