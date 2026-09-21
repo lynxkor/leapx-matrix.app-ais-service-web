@@ -175,46 +175,49 @@ export default {
           },
           { props: 'taskTypeLabel', label: '任务类型', visible: true, width: 200 },
           { props: 'businessType', label: '业务标识', visible: true, width: 200 },
-          {
-            props: 'importExcelFileName',
-            label: '文件名称',
-            visible: true,
-            width: 200,
-            buttons: [{
-              name: '点击下载',
-              // 展示条件：任务存有原始文件 OSS 地址（存量任务 URL 空不显示）+ 权限码 -downloadOriginalFile，全状态可下载
-              show: (row) => !!row.importOriginalUrl && this.permissions.has(`${this.moduleKey}-downloadOriginalFile`),
-              click: (rowIndex, row) => {
-                this.handleDownloadOriginal(row);
-              },
-              type: 'primary'
-            }]
-          },
+          // 文件名称/导入失败数据下载地址 两列不展示（下载入口收敛到操作列，PRD 2026-09）
           // 行数三列空值展示 '-'：LPVxeTable 不支持 dataProp.formatter，由 getData 数据侧映射
           { props: 'totalNum', label: '总数据行数', visible: true, width: 200 },
           { props: 'successNum', label: '成功行数', visible: true, width: 200 },
           { props: 'failNum', label: '失败行数', visible: true, width: 200 },
-          {
-            props: 'importFailUrl',
-            label: '导入失败数据下载地址',
-            visible: true,
-            width: 200,
-            buttons: [{
-              name: '点击下载',
-              show: (row) => row.fileId,
-              click: (rowIndex, row) => {
-                this.handleDownload(row);
-              },
-              type: 'primary'
-            }]
-          },
           // 处理中（等待导入 11/导入中 12）行内展示发送进度 sendNum/totalNum，由 getData 数据侧拼入状态文案，随列表刷新更新（无轮询）
           { props: 'taskStatusLabel', label: '任务状态', visible: true, width: 200 },
           { props: 'importRemark', label: '描述', visible: true, width: 200 },
           { props: 'creatorName', label: '创建者', visible: true, width: 200 },
           { props: 'modifierName', label: '修改人', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 }
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            width: 200,
+            buttons: [
+              {
+                name: '下载失败文件',
+                // 展示条件：状态 失败(14)/部分失败(15) + 权限码 -downloadFailFile（资源配置）；失败文件未生成（importFailUrl 空）不展示
+                show: (row) => [14, 15].includes(row.taskStatus) &&
+                  !!row.importFailUrl &&
+                  this.permissions.has(`${this.moduleKey}-downloadFailFile`),
+                click: (rowIndex, row) => {
+                  this.handleDownload(row);
+                },
+                type: 'primary'
+              },
+              {
+                name: '下载原始文件',
+                // 展示条件：所有状态 + 权限码 -downloadOriginalFile（资源配置）；存量任务无原始文件（importOriginalUrl 空）不展示
+                show: (row) => !!row.importOriginalUrl &&
+                  this.permissions.has(`${this.moduleKey}-downloadOriginalFile`),
+                click: (rowIndex, row) => {
+                  this.handleDownloadOriginal(row);
+                },
+                type: 'primary'
+              }
+            ]
+          }
         ],
         total: 0
       },
