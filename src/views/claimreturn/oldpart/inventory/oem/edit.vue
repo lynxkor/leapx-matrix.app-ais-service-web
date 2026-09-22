@@ -117,6 +117,9 @@
                 <el-form-item label="旧件名称：" prop="oldPartName">
                   {{form.oldPartName}}
                 </el-form-item>
+                <el-form-item label="零件单价：" prop="partUnitPrice">
+                  {{form.partUnitPrice}}
+                </el-form-item>
                 <el-form-item label="旧件返还类型：" prop="returnTypeLabel">
                   {{form.returnTypeLabel}}
                 </el-form-item>
@@ -128,9 +131,6 @@
                 </el-form-item>
                 <el-form-item label="数量：" prop="oldPartQuantity">
                   {{form.oldPartQuantity}}
-                </el-form-item>
-                <el-form-item label="零件单价：" prop="partUnitPrice">
-                  {{form.partUnitPrice}}
                 </el-form-item>
                 <el-form-item label="主机厂库存状态：" prop="oemStatusLabel">
                   {{form.oemStatusLabel}}
@@ -156,15 +156,6 @@
                 <el-form-item label="维修开始日期：" prop="repairStartTime">
                   {{form.repairStartTime}}
                 </el-form-item>
-                <el-form-item label="VDC入库日期：" prop="vdcStorageDate">
-                  {{form.vdcStorageDate}}
-                </el-form-item>
-                <el-form-item label="生产日期：" prop="produceDate">
-                  {{form.produceDate}}
-                </el-form-item>
-                <el-form-item label="保修开始日期：" prop="warrantyStartDate">
-                  {{form.warrantyStartDate}}
-                </el-form-item>
                 <el-form-item label="活动编号：" prop="serviceActivityCode">
                   {{form.serviceActivityCode}}
                 </el-form-item>
@@ -177,6 +168,9 @@
                     <span>{{ form.vin }}</span>
                     <span @click="onDecryptVin" class="eye-icon iconfont icon-lxppc-eye"></span>
                   </template>
+                </el-form-item>
+                <el-form-item label="VDC入库日期：" prop="vdcStorageDate">
+                     {{form.vdcStorageDate}}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   <el-button class="link"
@@ -249,6 +243,12 @@
                 </el-form-item>
                 <el-form-item label="审批通过时间：" prop="warrantyApproveTime">
                   {{form.warrantyApproveTime}}
+                </el-form-item>
+                <el-form-item label="生产日期：" prop="produceDate">
+                  {{form.produceDate}}
+                </el-form-item>
+                <el-form-item label="保修开始日期：" prop="warrantyStartDate">
+                  {{form.warrantyStartDate}}
                 </el-form-item>
                 <el-form-item label="VRT：" prop="vrtName">
                   {{form.vrtName}}
