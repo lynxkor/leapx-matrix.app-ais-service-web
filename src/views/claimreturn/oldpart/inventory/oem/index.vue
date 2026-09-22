@@ -24,11 +24,7 @@
         />
       </el-form-item>
       <el-form-item label="保修申请单"  v-show="this.visibleCount === 3 || show">
-        <el-input
-          placeholder="请输入"
-          v-model="form.warrantyNo"
-          clearable
-        />
+        <tag-input v-model="form.warrantyNoList" placeholder="请输入保修申请单号" />
       </el-form-item>
       <template v-if="show">
         <el-form-item label="旧件销毁单">
@@ -56,11 +52,7 @@
           />
         </el-form-item>
         <el-form-item label="旧件编码">
-          <el-input
-            placeholder="请输入"
-            v-model="form.oldPartCode"
-            clearable
-          />
+          <tag-input v-model="form.oldPartCodeList" placeholder="请输入旧件编码" />
         </el-form-item>
         <el-form-item v-if="isDealer" label="旧件名称">
           <el-input
@@ -197,6 +189,48 @@
             clearable
           />
         </el-form-item>
+        <el-form-item label="VDC入库日期">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="vdcStorageDateRange"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="生产日期">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="produceDateRange"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="保修开始日期">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="warrantyStartDateRange"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            clearable
+          />
+        </el-form-item>
         <el-form-item label="出库单号">
           <el-input
             placeholder="请输入"
@@ -268,20 +302,21 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import DealerSelect from '@/components/dealer-select/index.vue';
+import TagInput from '@/libs/components/TagInput';
 import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   oldPartUniqueCode: '',
   serviceProxyNo: '',
-  warrantyNo: '',
+  warrantyNoList: [],
   oldPartDestroyOrderNo: '',
   dealerName: '',
   isMainPart: '',
   vin: '',
   oldPartSupplierName: '',
   dutySupplierName: '',
-  oldPartCode: '',
+  oldPartCodeList: [],
   oldPartName: '',
   partCode: '',
   partName: '',
@@ -321,6 +356,7 @@ export default {
     LPVxeTable,
     FetchSelect,
     EditPage,
+    TagInput,
     Upload
   },
   data () {
@@ -335,6 +371,9 @@ export default {
       },
       warrantyApproveTimeRange: '',
       repairStartTimeRange: '',
+      vdcStorageDateRange: '',
+      produceDateRange: '',
+      warrantyStartDateRange: '',
       selectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
@@ -534,10 +573,14 @@ export default {
           },
           { props: 'partName', label: '换上零件名称', visible: true, width: 200 },
           { props: 'oldPartQuantity', label: '数量', visible: true, width: 100 },
+          { props: 'partUnitPrice', label: '零件单价', visible: true, width: 120 },
           { props: 'vehicleModelName', label: '车型', visible: true, width: 200 },
           { props: 'mileage', label: '进店里程KM', visible: true, width: 140 },
           { props: 'repairItemTypeName', label: '保修类型', visible: true, width: 200 },
           { props: 'repairStartTime', label: '维修开始日期', visible: true, width: 180 },
+          { props: 'vdcStorageDate', label: 'VDC入库日期', visible: true, width: 180 },
+          { props: 'produceDate', label: '生产日期', visible: true, width: 180 },
+          { props: 'warrantyStartDate', label: '保修开始日期', visible: true, width: 180 },
           { props: 'serviceActivityCode', label: '活动编号', visible: true, width: 200 },
           { props: 'warrantyApproveTime', label: '审批通过时间', visible: true, width: 200 },
           { props: 'vrtName', label: 'VRT', visible: true, width: 200 },
@@ -696,6 +739,9 @@ export default {
       this.form = { ...defaultForm };
       this.warrantyApproveTimeRange = '';
       this.repairStartTimeRange = '';
+      this.vdcStorageDateRange = '';
+      this.produceDateRange = '';
+      this.warrantyStartDateRange = '';
       this.optionObj.form.page = 1;
       this.optionObj.form.pageSize = pageSize;
       this.getData();
@@ -806,6 +852,21 @@ export default {
       if (this.repairStartTimeRange && this.repairStartTimeRange.length > 1) {
         data.repairStartTimeStart = this.repairStartTimeRange[0];
         data.repairStartTimeEnd = this.repairStartTimeRange[1];
+      }
+
+      if (this.vdcStorageDateRange && this.vdcStorageDateRange.length > 1) {
+        data.vdcStorageDateStart = this.vdcStorageDateRange[0];
+        data.vdcStorageDateEnd = this.vdcStorageDateRange[1];
+      }
+
+      if (this.produceDateRange && this.produceDateRange.length > 1) {
+        data.produceDateStart = this.produceDateRange[0];
+        data.produceDateEnd = this.produceDateRange[1];
+      }
+
+      if (this.warrantyStartDateRange && this.warrantyStartDateRange.length > 1) {
+        data.warrantyStartDateStart = this.warrantyStartDateRange[0];
+        data.warrantyStartDateEnd = this.warrantyStartDateRange[1];
       }
 
       return data;
