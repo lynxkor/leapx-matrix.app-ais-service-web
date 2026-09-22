@@ -127,7 +127,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: 'Excel导入任务',
+      pageTitle: '导入任务',
       pageType: 'list',
       moduleKey: 'AISMC-commonDataProcessExcelImportTask',
       form: {
@@ -183,7 +183,7 @@ export default {
           // 处理中（等待导入 11/导入中 12）行内展示发送进度 sendNum/totalNum，由 getData 数据侧拼入状态文案，随列表刷新更新（无轮询）
           { props: 'taskStatusLabel', label: '任务状态', visible: true, width: 200 },
           { props: 'importRemark', label: '描述', visible: true, width: 200 },
-          { props: 'creatorName', label: '创建者', visible: true, width: 200 },
+          { props: 'creatorName', label: '创建人', visible: true, width: 200 },
           { props: 'modifierName', label: '修改人', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -446,28 +446,21 @@ export default {
         });
       }).catch(() => {});
     },
-    // 下载导入失败数据
+    // 下载导入失败文件：文件名 = 业务标识 + yyyyMMddHHmmss
     handleDownload (row) {
       const url = row?.importFailUrl || this.info?.importFailUrl;
-      const originalUrl = url.split('?')[0];
-      refreshFileAuthUrl({
-        url: originalUrl,
-        expireMinutes: 1440
-      }).then(res => {
-        if (res) {
-          // console.log(res);
-          downloadExcel(res.authFileUrl, res.originalFilename || '导入失败数据.xlsx');
-        } else {
-          this.$message({
-            type: 'warning',
-            message: '下载地址为空'
-          });
-        }
-      });
+      const businessType = row?.businessType || this.info?.businessType || '导入失败数据';
+      this.downloadWithFileName(url, `${businessType}${this.nowTimestamp()}.xlsx`);
     },
-    // 下载原始文件：与下载失败文件同形式，行内 importOriginalUrl 走 refreshFileAuthUrl 换签后下载
+    // 下载原始文件：文件名 = 之前导入文件的名称（建任务时落库的 importExcelFileName）
     handleDownloadOriginal (row) {
       const url = row?.importOriginalUrl || this.info?.importOriginalUrl;
+      this.downloadWithFileName(url, row?.importExcelFileName || this.info?.importExcelFileName || '原始导入文件.xlsx');
+    },
+    // 换签后以指定文件名下载：fetch 转 blob 走同源 a[download]，
+    // 保证跨域签名 URL 下浏览器使用指定文件名（直挂 link 会被忽略、落成 OSS 的 md5 存储名）；
+    // fetch 失败降级为直接下载（此时文件名可能不被浏览器采纳）
+    downloadWithFileName (url, fileName) {
       if (!url) {
         this.$message({
           type: 'warning',
@@ -480,15 +473,39 @@ export default {
         url: originalUrl,
         expireMinutes: 1440
       }).then(res => {
-        if (res) {
-          downloadExcel(res.authFileUrl, res.originalFilename || row?.importExcelFileName || '原始导入文件.xlsx');
-        } else {
+        if (!res) {
           this.$message({
             type: 'warning',
             message: '下载地址为空'
           });
+          return;
         }
+        fetch(res.authFileUrl).then(response => response.blob()).then(blob => {
+          const objectUrl = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = objectUrl;
+          link.download = fileName;
+          link.style.display = 'none';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(objectUrl);
+        }).catch(() => {
+          downloadExcel(res.authFileUrl, fileName);
+        });
       });
+    },
+    // 当前时间 yyyyMMddHHmmss
+    nowTimestamp () {
+      const now = new Date();
+      return [
+        now.getFullYear(),
+        now.getMonth() + 1,
+        now.getDate(),
+        now.getHours(),
+        now.getMinutes(),
+        now.getSeconds()
+      ].map(num => String(num).padStart(2, '0')).join('');
     }
   }
 };

@@ -78,7 +78,7 @@
                     clearable
                   />
                 </el-form-item>
-                <el-form-item label="每批n条数据" prop="batchSize">
+                <el-form-item label="每批N条数据" prop="batchSize">
                   <el-input
                     placeholder="请输入"
                     v-model="form.batchSize"
@@ -118,7 +118,7 @@
                     <el-option label="全有全无" value="ALL_OR_NOTHING" />
                   </el-select>
                 </el-form-item>
-                <el-form-item label="文件大小限制MB" prop="fileSizeLimitMb">
+                <el-form-item label="文件大小限制（MB）" prop="fileSizeLimitMb">
                   <el-input
                     type="number"
                     min="1"
@@ -218,7 +218,16 @@ export default {
           { required: true, message: '请输入导入参数DTO', trigger: 'blur' }
         ],
         batchSize: [
-          { required: true, message: '请输入每批n条数据', trigger: 'blur' }
+          { required: true, message: '请输入每批N条数据', trigger: 'blur' },
+          { validator: this.validatePositiveInteger, trigger: 'blur' }
+        ],
+        titleStartRow: [
+          { required: true, message: '请输入表头起始行', trigger: 'blur' },
+          { validator: this.validatePositiveInteger, trigger: 'blur' }
+        ],
+        dataStartRow: [
+          { required: true, message: '请输入数据起始行', trigger: 'blur' },
+          { validator: this.validatePositiveInteger, trigger: 'blur' }
         ],
         fileSizeLimitMb: [
           { validator: this.validatePositiveInteger, trigger: 'blur' }
@@ -273,7 +282,7 @@ export default {
     handleBack () {
       this.$router.back();
     },
-    // 文件大小限制MB/最大行数：可空，填值须为正整数
+    // 数值字段正整数校验：batchSize/表头起始行/数据起始行必填，文件大小限制MB/最大行数可空，填值均须为正整数
     validatePositiveInteger (rule, value, callback) {
       if (value === '' || value === null || value === undefined) {
         callback();
@@ -287,7 +296,7 @@ export default {
     },
     getDetailData () {
       const id = this.id || this.$route.query.id;
-      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导入', `${id ? '编辑' : '新建'}`]);
+      this.$store.commit('SET_ACTIVE_BREADCRUMB', ['导入模板', `${id ? '编辑' : '新建'}`]);
       if (id) {
         getDetail(id).then(res => {
           this.loading = false;

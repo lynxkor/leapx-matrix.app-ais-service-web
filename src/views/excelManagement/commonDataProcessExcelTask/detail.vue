@@ -3,7 +3,11 @@
     <el-skeleton v-if="loading" :rows="6" animated />
     <template v-else>
       <section class="common-title">
-        <h2>主键：{{ info.id }}</h2>
+        <h2>业务标识：{{ info.businessType }}</h2>
+        <div>
+          <!-- 下载展示条件与列表"导出下载地址"列一致：文件已生成（fileId 非空）才展示 -->
+          <el-button v-if="info.fileId" size="small" type="primary" @click="handleDownload()">下载导出文件</el-button>
+        </div>
       </section>
       <section class="common-section">
         <div class="common-section-header">
@@ -11,12 +15,6 @@
         </div>
         <div class="common-section-body">
           <el-form :inline="true" ref="ruleForm" label-width="150px" class="form-detail">
-            <!-- <el-form-item label="主键：" prop="id">
-              {{ info.id  }}
-            </el-form-item> -->
-             <el-form-item label="业务标题：" prop="businessTitle">
-              {{ info.businessTitle  }}
-            </el-form-item>
             <el-form-item label="任务类型：" prop="taskTypeLabel">
               {{ info.taskTypeLabel  }}
             </el-form-item>
@@ -26,7 +24,16 @@
             <el-form-item label="任务状态：" prop="taskStatusLabel">
               {{ info.taskStatusLabel  }}
             </el-form-item>
-            <el-form-item label="创建者：" prop="creatorName">
+            <el-form-item label="行数：" prop="exportedRows">
+              {{ info.exportedRows ?? '-' }}
+            </el-form-item>
+            <el-form-item label="重试次数：" prop="retryCount">
+              {{ info.retryCount ?? '-' }}
+            </el-form-item>
+            <el-form-item label="描述：" prop="importRemark">
+              {{ info.importRemark  }}
+            </el-form-item>
+            <el-form-item label="创建人：" prop="creatorName">
               {{ info.creatorName  }}
             </el-form-item>
             <el-form-item label="创建时间：" prop="createTime">
@@ -34,40 +41,6 @@
             </el-form-item>
             <el-form-item label="修改时间：" prop="updateTime">
               {{ info.updateTime  }}
-            </el-form-item>
-<!--            <el-form-item label="导入模板的主键id：" prop="importModelId">-->
-<!--              {{ info.importModelId  }}-->
-<!--            </el-form-item>-->
-<!--            <el-form-item label="导入失败的数据excel下载地址：" prop="importFailUrl">-->
-<!--              {{ info.importFailUrl  }}-->
-<!--            </el-form-item>-->
-            <el-form-item label="修改者：" prop="modifierName">
-              {{ info.modifierName  }}
-            </el-form-item>
-            <el-form-item label="删除状态：" prop="deleteStatusLabel">
-              {{ info.deleteStatusLabel  }}
-            </el-form-item>
-             <el-form-item label="结果备注：" prop="importRemark">
-              {{ info.importRemark  }}
-            </el-form-item>
-            <el-form-item label="行数：" prop="exportedRows">
-              {{ info.exportedRows ?? '-' }}
-            </el-form-item>
-            <el-form-item label="重试次数：" prop="retryCount">
-              {{ info.retryCount ?? '-' }}
-            </el-form-item>
-            <el-form-item label="最近重试时间：" prop="lastRetryTime">
-              {{ info.lastRetryTime ?? '-' }}
-            </el-form-item>
-            <el-form-item label="最近重试人：" prop="lastRetryByName">
-              {{ info.lastRetryByName || info.lastRetryBy || '-' }}
-            </el-form-item>
-            <el-form-item label="需要转发的请求头：" prop="headerMap" class="header-map-item" style="width: 100%;">
-              {{ info.headerMap }}
-            </el-form-item>
-            <el-form-item label="导出的excel下载地址：" prop="excelUrl" class="header-map-item" style="width: 100%;">
-              <span v-if="!info.fileId"></span>
-              <span v-else class="url-link" @click="handleDownload"> 点击下载 </span>
             </el-form-item>
           </el-form>
         </div>
@@ -93,7 +66,7 @@ export default {
     };
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导出', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['导出任务', '详情']);
     this.getData();
   },
   methods: {
@@ -137,21 +110,4 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.url-link {
-  color: #009100;
-  cursor: pointer;
-  &:hover {
-    text-decoration: underline;
-  }
-}
-.header-map-item {
-  width: 100%;
-  ::v-deep .el-form-item__label {
-    width: 220px;
-  }
-  ::v-deep .el-form-item__content {
-    display: block;
-    overflow: hidden;
-  }
-}
 </style>

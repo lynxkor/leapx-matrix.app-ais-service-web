@@ -111,7 +111,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: 'Excel导出任务',
+      pageTitle: '导出任务',
       pageType: 'list',
       moduleKey: 'AISMC-commonDataProcessExcelTask',
       form: {
@@ -180,7 +180,7 @@ export default {
           { props: 'exportedRows', label: '行数', visible: true, width: 200, formatter: (row) => (row.exportedRows ?? '-') },
           { props: 'retryCount', label: '重试次数', visible: true, width: 200, formatter: (row) => (row.retryCount ?? '-') },
           { props: 'importRemark', label: '描述', visible: true, width: 200 },
-          { props: 'creatorName', label: '创建者', visible: true, width: 200 },
+          { props: 'creatorName', label: '创建人', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {

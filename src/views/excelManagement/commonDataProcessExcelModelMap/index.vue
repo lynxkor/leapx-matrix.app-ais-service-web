@@ -126,7 +126,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: 'Excel导入模板',
+      pageTitle: '导入模板',
       pageType: 'list',
       form: {
         ...defaultForm
@@ -183,9 +183,13 @@ export default {
           { props: 'importStrategyLabel', label: '导入策略', visible: true, width: 200 },
           { props: 'postInterface', label: '导入数据的第三方接口信息', visible: true, width: 200 },
           { props: 'postParamDto', label: '导入参数DTO', visible: true, width: 200 },
-          { props: 'batchSize', label: '每批n条数据', visible: true, width: 200 },
+          { props: 'batchSize', label: '每批N条数据', visible: true, width: 200 },
+          { props: 'fileSizeLimitMb', label: '文件大小限制（MB）', visible: true, width: 200 },
+          { props: 'maxRows', label: '最大行数', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'creatorName', label: '创建人', visible: true, width: 200 },
+          { props: 'modifierName', label: '修改人', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',

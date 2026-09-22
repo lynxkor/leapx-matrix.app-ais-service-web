@@ -27,7 +27,7 @@
               <el-form-item label="导入策略：" prop="importStrategy">
                 {{ importStrategyLabel }}
               </el-form-item>
-              <el-form-item label="文件大小限制MB：" prop="fileSizeLimitMb">
+              <el-form-item label="文件大小限制（MB）：" prop="fileSizeLimitMb">
                 {{ info.fileSizeLimitMb  }}
               </el-form-item>
               <el-form-item label="最大行数：" prop="maxRows">
@@ -36,7 +36,7 @@
               <el-form-item label="导入参数DTO：" prop="postParamDto" class="header-map-item wrap-item" style="width: 100%;">
                 {{ info.postParamDto  }}
               </el-form-item>
-              <el-form-item label="每批n条数据：" prop="batchSize">
+              <el-form-item label="每批N条数据：" prop="batchSize">
                 {{ info.batchSize  }}
               </el-form-item>
               <el-form-item label="表头起始行：" prop="titleStartRow">
@@ -89,7 +89,7 @@ export default {
     }
   },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导入', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['导入模板', '详情']);
     this.getData();
   },
   methods: {
