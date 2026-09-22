@@ -227,14 +227,14 @@
               <el-form-item v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND" label="变更后车主姓名：" prop="targetOwnerName">
                 <el-input
                   placeholder="请输入"
-                  v-model="form.targetOwnerName"
+                  v-model.trim="form.targetOwnerName"
                   clearable
                 />
               </el-form-item>
               <el-form-item label="变更后车主手机号：" prop="targetOwnerPhone">
                 <el-input
                   placeholder="请输入"
-                  v-model="form.targetOwnerPhone"
+                  v-model.trim="form.targetOwnerPhone"
                   clearable
                   maxLength="11"
                 />
@@ -252,14 +252,14 @@
               <el-form-item v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND"  label="变更后车主证件号码：" prop="targetIdNo">
                 <el-input
                   placeholder="请输入"
-                  v-model="form.targetIdNo"
+                  v-model.trim="form.targetIdNo"
                   clearable
                 />
               </el-form-item>
               <el-form-item label="变更后车牌号：" prop="targetPlateNo">
                 <el-input
                   placeholder="请输入"
-                  v-model="form.targetPlateNo"
+                  v-model.trim="form.targetPlateNo"
                   clearable
                 />
               </el-form-item>
