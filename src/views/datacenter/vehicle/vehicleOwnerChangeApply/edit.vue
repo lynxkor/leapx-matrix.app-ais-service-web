@@ -990,6 +990,12 @@ export default {
   width: 100%;
   height: 100%;
 }
+.form-edit {
+  .el-form-item.is-error {
+    // 校验提示绝对定位在字段下方，行间距只有 8px，会压到下一行字段
+    margin-bottom: 50px;
+  }
+}
 .common-section-sub-header{
   display: flex;
   margin-bottom: 8px;
