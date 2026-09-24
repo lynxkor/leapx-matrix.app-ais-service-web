@@ -31,7 +31,7 @@
             <el-button v-if="!isDealer" @click="onNext" type="primary" plain size="small" :loading="publishLoading">下发</el-button>
           </template>
           <template v-if="form.returnStatus==='20'">
-            <el-button v-if="isDealer" @click="onOutbound" size="small" :loading="outboundLoading">回运出库</el-button>
+            <el-button @click="onOutbound" size="small" :loading="outboundLoading">回运出库</el-button>
           </template>
           <template v-if="form.returnStatus==='30'">
             <el-button v-if="!isDealer" @click="onSign" size="small" :loading="signLoading">签收</el-button>
