@@ -197,7 +197,7 @@
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
       >
-        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+        <EditPage slot="centralizedViewSlot" :key="`order_${clickItemId}`" :id="clickItemId"/>
       </LPVxeTable>
     </div>
     <div
@@ -218,7 +218,7 @@
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
       >
-        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+        <EditPage slot="centralizedViewSlot" :key="`all_${clickItemId}`" :id="clickItemId"/>
       </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
@@ -562,7 +562,8 @@ export default {
   },
   methods: {
     handleListSelect (row) {
-      this.clickItemId = row.id;
+      // 全部备件 tab 行为明细维度，row.id 是明细 id，需取 maintenanceOutboundOrderId
+      this.clickItemId = row.maintenanceOutboundOrderId || row.id;
     },
     getOptionObj () {
       if (this.activeName === 'homePage') {
