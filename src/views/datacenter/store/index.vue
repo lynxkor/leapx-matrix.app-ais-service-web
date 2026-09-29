@@ -187,6 +187,16 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="合作类型">
+                 <fetch-select
+                    :request="fetchOptions"
+                    enumCode="ws_cooperation_type"
+                    v-model="form.cooperationType"
+                    placeholder="请选择"
+                    clearable
+                    filterable
+                  />
+                </el-form-item>
       </template>
       <page-search-action
         v-model="show"
