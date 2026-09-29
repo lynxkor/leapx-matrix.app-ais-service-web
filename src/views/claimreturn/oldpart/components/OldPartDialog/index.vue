@@ -1,8 +1,12 @@
 <template>
+  <!-- append-to-body: 弹窗挂载到 body，脱离页面容器（.page-common-edit 等），
+       避免被页面级容器查询/页面样式影响（否则销毁单页面会命中 responsive.scss
+       的 @container 规则，表单变两列、日期独占整行），保证各页面打开样式一致 -->
   <el-dialog
     class="m-start-work-dialog"
     title="添加旧件"
     width="1200px"
+    append-to-body
     :visible.sync="dialogVisible"
     @close="close"
     @closed="closed"
@@ -114,23 +118,27 @@
           <vxe-column field="serviceProxyNo" title="接车施工单" width="200" />
           <vxe-column field="warrantyNo" title="保修申请单" width="200" />
           <vxe-column field="oldPartUniqueCode" title="旧件唯一码" width="200" />
-          <vxe-column field="dealerName" title="门店名称" width="200" />
+          <!-- 销毁单弹窗需求列：零件单价 / 门店库存状态 / 数量 -->
+          <vxe-column v-if="type === 'destroy'" field="partUnitPrice" title="零件单价" width="120" />
+          <vxe-column field="dealerName" :title="type === 'destroy' ? '厅店名称' : '门店名称'" width="200" />
+          <vxe-column v-if="type === 'destroy'" field="dealerStatusLabel" title="门店库存状态" width="140" />
           <vxe-column field="isMainPartLabel" title="是否主因零部件" width="160" />
           <vxe-column field="repairItemTypeName" title="保修类型" width="160" />
-          <vxe-column field="mileage" title="进店里程KM" width="140" />
+          <vxe-column v-if="type !== 'destroy'" field="mileage" title="进店里程KM" width="140" />
           <vxe-column field="vin" title="VIN" width="140" />
           <vxe-column field="oldPartSupplierName" title="零件供应商" width="200" />
           <vxe-column field="mainPartSupplierName" title="主因件供应商" width="150" />
           <vxe-column field="oldPartCode" title="旧件编码" width="120" />
           <vxe-column field="oldPartName" title="旧件名称" width="150" />
+          <vxe-column v-if="type === 'destroy'" field="oldPartQuantity" title="数量" width="100" />
           <vxe-column field="partCode" title="换上零件编码" width="200" />
           <vxe-column field="partName" title="换上零件名称" width="220" />
           <vxe-column field="oldPartCode" title="入库旧件编码" width="200" />
           <vxe-column field="oemStatusLabel" title="主机厂库存状态" width="140" />
-          <vxe-column field="oemCheckTime" title="主机厂验收时间" width="180" />
+          <vxe-column v-if="type !== 'destroy'" field="oemCheckTime" title="主机厂验收时间" width="180" />
           <vxe-column field="returnTypeLabel" title="旧件返回类型" width="120" />
           <vxe-column field="remark" title="备注" width="120" />
-          <vxe-column field="checkRemark" title="验收备注" width="120" />
+          <vxe-column v-if="type !== 'destroy'" field="checkRemark" title="验收备注" width="120" />
         </vxe-table>
         <el-pagination
           style="float: right; padding-top: 16px;"
@@ -165,6 +173,7 @@ import {
 import { exportTable } from '@/api/common';
 import { addDetail as addDetailReturnorder } from '@/api/claimreturn/oldpart/returnorder/index';
 import { addDetail as addDetailOutbound } from '@/api/claimreturn/oldpart/outbound/index';
+import { addDestroyDetail } from '@/api/claimreturn/oldpart/destroy/oldPartDestroyOrder/index';
 import RepairTypeSelect from '@/components/RepairTypeSelect';
 import { formatDateTime, getEndOfDayString, downloadExcel } from '@/libs/utils';
 
@@ -204,7 +213,7 @@ export default {
       type: String,
     },
     type: {
-      type: String// ['outbound', 'returnorder'],
+      type: String// ['outbound', 'returnorder', 'destroy'],
     }
   },
   data () {
@@ -262,7 +271,8 @@ export default {
     visible (val) {
       this.dialogVisible = val;
       if (val) {
-        this.getData();
+        // 打开弹窗的首次加载静默查询（不触发按钮 loading，避免行内位置抖动）
+        this.getData(true);
       }
     }
   },
@@ -283,7 +293,12 @@ export default {
     submit () {
       //
       this.submitLoading = true;
-      const addDetail = this.type === 'outbound' ? addDetailOutbound : addDetailReturnorder;
+      const addDetailMap = {
+        outbound: addDetailOutbound,
+        returnorder: addDetailReturnorder,
+        destroy: addDestroyDetail,
+      };
+      const addDetail = addDetailMap[this.type] || addDetailReturnorder;
       addDetail({
         id: this._id,
         detailIdList: this.selectedRows.map(item => item.id),
@@ -304,8 +319,12 @@ export default {
       this.pageNum = 1;
       this.getData();
     },
-    getData () {
-      this.loading = true;
+    // silent=true 时不显示按钮 loading：打开弹窗的首次加载用，
+    // 避免 loading 图标使按钮宽度变化导致查询区行内位置抖动
+    getData (silent) {
+      if (silent !== true) {
+        this.loading = true;
+      }
       this.selectedRows = [];
       getList(this.getQueryData())
         .then(res => {
@@ -350,14 +369,14 @@ export default {
     // -------------- 表单查询 --------------------------
     exportExcel () {
       this.exportLoading = true;
-      const titleMap = {
+      // 导出表头按弹窗类型区分（避免出现空列）
+      const commonTitleMap = {
         serviceProxyNo: '接车施工单',
         warrantyNo: '保修申请单',
         oldPartUniqueCode: '旧件唯一码',
         dealerName: '门店名称',
         isMainPartLabel: '是否主因零部件',
         repairItemTypeName: '保修类型',
-        mileage: '进店里程KM',
         vin: 'VIN',
         oldPartSupplierName: '零件供应商',
         mainPartSupplierName: '主因件供应商',
@@ -366,11 +385,25 @@ export default {
         partCode: '换上零件编码',
         partName: '换上零件名称',
         oemStatusLabel: '主机厂库存状态',
-        oemCheckTime: '主机厂验收时间',
         returnTypeLabel: '旧件返回类型',
         remark: '备注',
-        checkRemark: '验收备注',
       };
+      let titleMap = commonTitleMap;
+      if (this.type === 'destroy') {
+        titleMap = {
+          ...commonTitleMap,
+          partUnitPrice: '零件单价',
+          dealerStatusLabel: '门店库存状态',
+          oldPartQuantity: '数量',
+        };
+      } else {
+        titleMap = {
+          ...commonTitleMap,
+          mileage: '进店里程KM',
+          oemCheckTime: '主机厂验收时间',
+          checkRemark: '验收备注',
+        };
+      }
       exportTable({
         businessType: '旧件库存',
         dataFetchPath: '/claimreturn/oldpart/web/inventory/oldPartOemInventory/page',
@@ -405,6 +438,14 @@ export default {
           mainPartSupplierId: this.supplierId,
           oemStatus: '700',
           oemOutboundOrderIdIsNull: true,
+        });
+      } else if (this.type === 'destroy') {
+        // 自建销毁单：当前门店 + 不返件 + 门店已入库 + 未关联任何销毁单
+        Object.assign(data, {
+          dealerCode: this.dealerCode,
+          returnType: '20',
+          dealerStatus: '300',
+          oldPartDestroyOrderIdIsNull: true,
         });
       } else {
         Object.assign(data, {
@@ -454,6 +495,29 @@ export default {
       .el-form {
         .el-form-item {
           margin-bottom: 8px;
+        }
+      }
+
+      // 查询表单布局规则自包含：与 pages.scss 中 .page-common-edit 的表单布局保持一致。
+      // 此前该布局依赖页面级 .page-common-edit 命中（快返单弹窗在容器内所以正常），
+      // 销毁单页面弹窗放在 edit-base-container 之外、以及 append-to-body 之后，
+      // 页面级规则都不会再命中，必须由组件自身保证“一行三列”布局，避免不同页面表现不一致。
+      ::v-deep .el-form {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      ::v-deep .el-form-item {
+        width: 33.3%;
+        display: flex;
+        margin-right: 0;
+      }
+      ::v-deep .el-form-item__content {
+        flex: 1;
+        min-width: 0;
+
+        .el-select,
+        .el-date-editor {
+          width: 100%;
         }
       }
     }
