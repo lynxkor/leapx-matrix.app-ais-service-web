@@ -758,7 +758,7 @@ export default {
       return [
         { column: 'part_unit_price', sort: 'DESC' },
         { column: 'old_part_unique_code', sort: 'ASC' },
-        { column: 'create_time', sort: 'DESC' },
+        { column: 'update_time', sort: 'DESC' },
         { column: 'id', sort: 'DESC' }
       ];
     },

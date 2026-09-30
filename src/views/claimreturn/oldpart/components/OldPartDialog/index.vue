@@ -57,6 +57,18 @@
               clearable
             />
           </el-form-item>
+          <!-- 旧件返还类型：仅主机厂出库弹窗开放查询（回运/销毁弹窗有固定返还类型过滤，不开放） -->
+          <el-form-item v-if="type === 'outbound'" label="旧件返还类型" prop="returnTypeList">
+            <fetch-select
+              :request="fetchOptions"
+              enumCode="old_part_return_type"
+              v-model="form.returnTypeList"
+              placeholder="请选择"
+              clearable
+              multiple
+              filterable
+            />
+          </el-form-item>
           <el-form-item class="form-item-half" label="保修审核通过日期" prop="warrantyApproveTime">
             <el-date-picker
               v-model="form.warrantyApproveTime"
@@ -170,11 +182,12 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction/index.vue';
 import {
   getList, // 旧件库存详情分页查询
 } from '@/api/claimreturn/oldpart/inventory/oem/index';
-import { exportTable } from '@/api/common';
+import { exportTable, getEnum } from '@/api/common';
 import { addDetail as addDetailReturnorder } from '@/api/claimreturn/oldpart/returnorder/index';
 import { addDetail as addDetailOutbound } from '@/api/claimreturn/oldpart/outbound/index';
 import { addDestroyDetail } from '@/api/claimreturn/oldpart/destroy/oldPartDestroyOrder/index';
 import RepairTypeSelect from '@/components/RepairTypeSelect';
+import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { formatDateTime, getEndOfDayString, downloadExcel } from '@/libs/utils';
 
 const defaultForm = {
@@ -191,12 +204,14 @@ const defaultForm = {
   dealerInTime: null,
   dealerInTimeStart: '',
   dealerInTimeEnd: '',
+  returnTypeList: [],
 };
 export default {
   name: 'OldPartDialog',
   components: {
     PageSearchAction,
     RepairTypeSelect,
+    FetchSelect,
   },
   props: {
     visible: {
@@ -344,6 +359,13 @@ export default {
       this.form.pageSize = 20;
       this.$refs.ruleForm.resetFields();
       this.getData();
+    },
+    // 获取字典选项（旧件返还类型等）
+    async fetchOptions (code) {
+      if (code) {
+        return getEnum(code);
+      }
+      return [];
     },
     getFormData () {
       const data = { ...this.form };

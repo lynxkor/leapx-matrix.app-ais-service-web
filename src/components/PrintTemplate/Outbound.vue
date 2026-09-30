@@ -59,7 +59,7 @@
             <td>{{ item.partName }}</td>
             <td>{{ item.vin }}</td>
             <td></td>
-            <td>{{ item.returnType === '40' ? '是': '否'}}</td>
+            <td>{{ item.returnType === '40' ? '是' : '' }}</td>
             <td style=" overflow: hidden; white-space: nowrap; text-overflow: ellipsis;max-width: 100px;">{{ item.remark }}</td>
           </tr>
           <tr>
