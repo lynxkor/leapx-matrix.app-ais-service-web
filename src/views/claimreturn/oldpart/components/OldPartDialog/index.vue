@@ -355,9 +355,8 @@ export default {
       this.getData();
     },
     onReset () {
-      this.form.page = 1;
-      this.form.pageSize = 20;
-      this.$refs.ruleForm.resetFields();
+      this.form = { ...defaultForm };
+      this.pageNum = 1;
       this.getData();
     },
     // 获取字典选项（旧件返还类型等）

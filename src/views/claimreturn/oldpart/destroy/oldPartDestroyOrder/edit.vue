@@ -825,14 +825,19 @@ export default {
         }
         titleMap[col.field] = col.title;
       });
+      const reqParams = {
+        oldPartDestroyOrderId: this._id,
+        // 导出与列表同排序规则，避免导出顺序与页面不一致
+        sortColumns: this.buildDetailSortColumns()
+      };
+      // 勾选了明细时仅导出勾选行(与库存列表页导出一致)，未勾选导出全部
+      if (this.selectedRows.length > 0) {
+        reqParams.ids = this.selectedRows.map(item => item.id);
+      }
       exportTable({
         businessType: '旧件销毁明细',
         dataFetchPath: '/claimreturn/oldpart/web/inventory/oldPartOemInventory/page',
-        reqParams: {
-          oldPartDestroyOrderId: this._id,
-          // 导出与列表同排序规则，避免导出顺序与页面不一致
-          sortColumns: this.buildDetailSortColumns()
-        },
+        reqParams,
         titleMap,
         httpMethod: 'POST'
       }).then(async res => {
