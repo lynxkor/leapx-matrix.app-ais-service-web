@@ -48,10 +48,14 @@ export default {
     orgId (val) {
       this.$emit('input', val);
     },
-    defaultDealerName (val, old) {
-      if (val && !old) {
-        this.storeSearch(val);
-      }
+    defaultDealerName: {
+      handler (val, old) {
+        if (val && !old) {
+          this.storeSearch(val);
+        }
+      },
+      // 组件可能晚于详情数据挂载（如被 v-if 包裹），挂载时名称已就位也需触发搜索
+      immediate: true
     },
     value (val, old) {
       this.orgId = val;
