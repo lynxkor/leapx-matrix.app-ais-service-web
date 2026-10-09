@@ -229,7 +229,11 @@ export default {
           { required: true, message: '请输入数据起始行', trigger: 'blur' },
           { validator: this.validatePositiveInteger, trigger: 'blur' }
         ],
+        importStrategy: [
+          { required: true, message: '请选择导入策略', trigger: 'change' }
+        ],
         fileSizeLimitMb: [
+          { required: true, message: '请输入文件大小限制（MB）', trigger: 'blur' },
           { validator: this.validatePositiveInteger, trigger: 'blur' }
         ],
         maxRows: [
@@ -323,9 +327,7 @@ export default {
             }
             const payload = { ...this.form };
             // 数值可空字段空串不下发，避免后端 Integer 反序列化失败
-            if (payload.fileSizeLimitMb === '') {
-              delete payload.fileSizeLimitMb;
-            }
+            // （fileSizeLimitMb 已改为必填，表单校验挡住空值，无需再剥）
             if (payload.maxRows === '') {
               delete payload.maxRows;
             }
