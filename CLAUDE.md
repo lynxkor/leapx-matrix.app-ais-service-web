@@ -127,3 +127,10 @@ src/
 
 ## 运行
 `npm run local` | `npm run sit` | `npm run build`
+
+## 架构规范（强制）
+- 列表页（`index.vue`）+ 明细/编辑页（`edit.vue`）开发前必读 `.claude/skills/frontend-architecture-rules/skill.md`
+- 代码评审按该 skill §8 检查清单执行（L1-L14 列表 + E1-E10 编辑 + A1-A4 API）
+- 列表页与编辑页 `moduleKey` 必须保持一致
+- 状态枚举集中在 `<page>/constants.js`，禁止页面硬编码
+- 通用模式（搜索表单骨架、optionObj、双 form、EditBaseContainer 等）以 skill 为准，不在本文件重复粘贴

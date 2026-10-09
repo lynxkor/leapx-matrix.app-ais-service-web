@@ -476,6 +476,8 @@ export default {
         // 保存后通知父组件刷新方案信息（主因零部件、供应商、VRT、VFG）
         this.$emit('saved');
       }).catch(e => {
+        // axios 拦截器已统一弹错，此处仅回滚表格显示，避免开关状态残留在内存与库不一致
+        this.getDetailPageApi();
       });
     },
     pageSizeChange (pageSize) {
