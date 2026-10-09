@@ -49,16 +49,15 @@ export default {
       this.$emit('input', val);
     },
     defaultDealerName: {
-      handler (val, old) {
-        if (val && !old) {
-          this.storeSearch(val);
-        }
+      handler (val) {
+        this.ensureSelectedOption(this.value, val);
       },
-      // 组件可能晚于详情数据挂载（如被 v-if 包裹），挂载时名称已就位也需触发搜索
+      // 组件可能晚于详情数据挂载（如被 v-if 包裹），挂载时名称已就位也需兜底
       immediate: true
     },
-    value (val, old) {
+    value (val) {
       this.orgId = val;
+      this.ensureSelectedOption(val, this.defaultDealerName);
     }
   },
   mounted () {
@@ -67,6 +66,14 @@ export default {
     }
   },
   methods: {
+    // 回显兜底：用已知编码+名称直接构造选项，不依赖搜索接口结果（搜索可能因主数据改名而查不到）
+    ensureSelectedOption (orgCode, orgName) {
+      if (!orgCode || !orgName) {
+        return;
+      }
+      const rest = this.options.filter(item => item.orgCode !== orgCode && item.orgId !== null);
+      this.options = [...rest, { orgId: null, orgCode, orgName }];
+    },
     // 门店模糊搜索方法（带防抖）
     storeSearch (query) {
       if (!query || (query && query.length < 2)) {
