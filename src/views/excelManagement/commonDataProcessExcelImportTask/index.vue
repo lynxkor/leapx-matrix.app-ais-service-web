@@ -175,6 +175,9 @@ export default {
           },
           { props: 'taskTypeLabel', label: '任务类型', visible: true, width: 200 },
           { props: 'businessType', label: '业务标识', visible: true, width: 200 },
+          // 导入策略取自导入模板配置（后端按任务 importModelId=模板编码 反查回填 importStrategy），
+          // 两值字典映射由 getData 数据侧生成 importStrategyLabel（LPVxeTable 不支持 dataProp.formatter）
+          { props: 'importStrategyLabel', label: '导入策略', visible: true, width: 200 },
           // 文件名称/导入失败数据下载地址 两列不展示（下载入口收敛到操作列，PRD 2026-09）
           // 行数三列空值展示 '-'：LPVxeTable 不支持 dataProp.formatter，由 getData 数据侧映射
           { props: 'totalNum', label: '总数据行数', visible: true, width: 200 },
@@ -314,6 +317,9 @@ export default {
               totalNum: item.totalNum ?? '-',
               successNum: item.successNum ?? '-',
               failNum: item.failNum ?? '-',
+              // 导入策略两值字典映射：SKIP_ERROR_ROWS=跳过错误行（默认）/ ALL_OR_NOTHING=全有全无，
+              // 模板缺失或策略为空展示 '-'（与模板列表口径一致）
+              importStrategyLabel: item.importStrategy === 'ALL_OR_NOTHING' ? '全有全无' : (item.importStrategy ? '跳过错误行' : '-'),
               deleteLoading: false
             };
           });
