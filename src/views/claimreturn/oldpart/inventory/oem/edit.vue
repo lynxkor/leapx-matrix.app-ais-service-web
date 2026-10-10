@@ -305,7 +305,7 @@
                     class="link"
                     @click="$router.push('/claimreturn/oldpart/returnorder/edit?id=' + item.returnOrderId)"
                     type="text">
-                    {{ form.returnOrderNo }}
+                    {{ item.returnOrderNo }}
                     <span v-if="index !== form.returnOrderHisList.length - 1">,</span>
                   </el-button>
                 </el-form-item>

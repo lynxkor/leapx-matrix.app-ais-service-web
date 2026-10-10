@@ -76,6 +76,10 @@
           />
         </el-form-item>
 
+        <el-form-item label="关联快返回运单号">
+          <tag-input v-model="form.returnOrderHisNoList" placeholder="请输入关联快返回运单号" />
+        </el-form-item>
+
         <el-form-item label="旧件返还类型">
           <fetch-select
             :request="fetchOptions"
@@ -324,6 +328,7 @@ const defaultForm = {
   dealerInTime: '',
   dealerOutTime: '',
   returnOrderNo: '',
+  returnOrderHisNoList: [],
   returnStatusList: [],
   isCheckedList: [],
   returnDate: '',
@@ -623,6 +628,7 @@ export default {
               type: 'primary'
             }]
           },
+          { props: 'returnOrderHisNos', label: '关联快返回运单号', visible: true, width: 220 },
           { props: 'oemInTime', label: '主机厂入库时间', visible: true, width: 200 },
           { props: 'oemCheckTime', label: '主机厂验收时间', visible: true, width: 200 },
           {
