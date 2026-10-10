@@ -29,7 +29,7 @@
           @change="handleSeriesChange"
         />
       </el-form-item>
-      <el-form-item label="车型">
+      <el-form-item label="车型" v-show="visibleCount === 3 || show">
         <list-select
           listUrl="/datacenter/web/materials/vehicleModel/list"
           placeholder="请选择"
@@ -43,26 +43,28 @@
           :params="{seriesIdList: form.vehSeriesId ? [form.vehSeriesId] : []}"
         />
       </el-form-item>
-      <el-form-item label="年款">
-        <list-select
-          listUrl="/datacenter/web/materials/vehicleYearType/list"
-          placeholder="请选择"
-          v-model="form.vehYearTypeId"
-          query-key="yearTypeNameLike"
-          collapseTags
-          auto-load-options
-          no-param-load
-          clearable
-          filterable
-          :params="{}" />
-      </el-form-item>
-      <el-form-item label="备注">
-        <el-input
-          placeholder="请输入"
-          v-model="form.remark"
-          clearable
-        />
-      </el-form-item>
+      <template v-if="show">
+        <el-form-item label="年款">
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleYearType/list"
+            placeholder="请选择"
+            v-model="form.vehYearTypeId"
+            query-key="yearTypeNameLike"
+            collapseTags
+            auto-load-options
+            no-param-load
+            clearable
+            filterable
+            :params="{}" />
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input
+            placeholder="请输入"
+            v-model="form.remark"
+            clearable
+          />
+        </el-form-item>
+      </template>
       <page-search-action
         v-if="canList"
         v-model="show"
@@ -277,6 +279,8 @@ export default {
           this.optionObj.dataList = records.map(item => {
             return {
               ...item,
+              // 车型为空（全车型配置）时默认展示“全车型”
+              vehModelName: item.vehModelName || '全车型',
               deleteLoading: false
             };
           });

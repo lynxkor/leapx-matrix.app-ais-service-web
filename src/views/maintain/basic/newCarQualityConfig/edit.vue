@@ -84,15 +84,18 @@
                     placeholder="请选择"
                     value-format="yyyy-MM-dd"
                     align="right"
+                    :picker-options="pickerOptions"
                   />
                 </el-form-item>
                 <el-form-item label="新车期（月）：" prop="newCarPeriod">
                   <el-input-number
                     v-model="form.newCarPeriod"
                     :min="1"
+                    :max="24"
                     :precision="0"
                     :controls="false"
                     placeholder="请输入"
+                    @input="handleNewCarPeriodInput"
                   />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
@@ -227,6 +230,12 @@ export default {
       moduleKey: 'AISMC-newCarQualityConfig',
       loading: false,
       submitLoading: false,
+      // 上市时间只能选择今天及之前的日期
+      pickerOptions: {
+        disabledDate (time) {
+          return time.getTime() > Date.now();
+        }
+      },
       form: { ...form },
       originalForm: { ...form },
       rules: {
@@ -259,6 +268,12 @@ export default {
       return {
         ...defaultForm
       };
+    },
+    // 新车期输入有效数据后立即清除下方校验提示
+    handleNewCarPeriodInput (val) {
+      if (val !== undefined && val !== null && val !== '') {
+        this.$refs.ruleForm.clearValidate('newCarPeriod');
+      }
     },
     // 车系变化：回填车系名称并联动清空车型
     handleSeriesChange (val, record) {
