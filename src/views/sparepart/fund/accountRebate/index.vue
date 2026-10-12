@@ -78,7 +78,7 @@
           <el-form-item label="交易类型">
             <fetch-select
               :request="fetchOptions"
-              enumCode="AccountTransactionTypeEnum"
+              enumCode="AccountTransactionTypeNoFrozenEnum"
               v-model="form.transactionTypeList"
               placeholder="请选择"
               clearable

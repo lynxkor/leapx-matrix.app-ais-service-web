@@ -2724,16 +2724,6 @@ const routes = [
         customViewResourceTag: 'AISCR-warrantyApply-customView'
       }
     }, {
-      path: '/claimreturn/claim/warrantyApplyCustom',
-      name: 'warrantyApply',
-      component: () => import('@/views/claimreturn/claim/warrantyapply/index_custom_query.vue'),
-      meta: {
-        name: '自定义查询',
-        keepAlive: true,
-        notRefresh: true,
-        customViewBizKey: 'warrantyapply'
-      }
-    }, {
       path: '/claimreturn/claim/warrantyApply/edit',
       name: 'warrantyApplyEdit',
       component: () => import('@/views/claimreturn/claim/warrantyapply/edit.vue'),

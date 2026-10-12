@@ -117,8 +117,7 @@ export default {
 
 <style lang="scss" scoped>
 table.gridtable {
-    font-family: verdana, arial, sans-serif;
-    font-size: 11px;
+    font-size: 14px;
     color: #333333;
     border-width: 1px;
     border-color: #666666;
@@ -158,7 +157,7 @@ table.gridtable td {
     display: inline-block;
     padding: 5px 15px 5px 5px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
     color: #444444;
     margin-right: 10px;
     margin-top: 7px;

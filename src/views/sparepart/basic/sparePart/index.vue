@@ -128,6 +128,17 @@
             label-key="name"
           />
         </el-form-item>
+        <el-form-item label="旧件返还类型">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="OldReturnTypeEnum"
+            v-model="form.oldReturnTypeList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -229,6 +240,7 @@ const defaultForm = {
   remark: '',
   createTime: '',
   updateTime: '',
+  oldReturnTypeList: [],
   statusIncludeList: ['1']
 };
 
@@ -328,6 +340,7 @@ export default {
           { props: 'supplierMinOrderQuantity', label: '供应商起订量', visible: true, width: 200 },
           { props: 'supplierDeliveryPeriod', label: '供应商交货周期', visible: true, width: 200 },
           { props: 'purchaseTypeLabel', label: '采购状态', visible: true, width: 200 },
+          { props: 'oldReturnTypeLabel', label: '旧件返还类型', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           {

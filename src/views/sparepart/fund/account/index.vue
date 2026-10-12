@@ -46,9 +46,6 @@
       </el-form-item>
       <template v-if="show">
         <template v-if="activeName === 'allSpareParts'">
-          <el-form-item label="账户编号">
-            <el-input placeholder="请输入" v-model="form.code" clearable />
-          </el-form-item>
           <el-form-item label="账户创建时间">
             <el-date-picker
               :default-time="['00:00:00', '23:59:59']"
@@ -81,7 +78,7 @@
           <el-form-item label="交易类型">
             <fetch-select
               :request="fetchOptions"
-              enumCode="AccountTransactionTypeEnum"
+              enumCode="AccountTransactionTypeNoFrozenEnum"
               v-model="form.transactionTypeList"
               placeholder="请选择"
               clearable
@@ -392,7 +389,7 @@ export default {
           { props: 'bizTypeLabel', label: '业务类型', visible: true, width: 120 },
           { props: 'bizNo', label: '业务单号', visible: true, width: 200, buttons: [{ click: (rowIndex, row) => { this.handleBizNoJump(row); }, type: 'primary' }] },
           { props: 'accountingVoucher', label: '税务发票号', visible: true, width: 200 },
-          { props: 'voucherYear', label: '开票日期', visible: true, width: 200 },
+          { props: 'invoiceDate', label: '开票日期', visible: true, width: 200 },
           { props: 'flowCreateTime', label: '流水创建时间', visible: true, width: 200 }
         ],
         total: 0
@@ -637,10 +634,10 @@ export default {
           data.accountingVoucherList = data.invoiceNoList;
           delete data.invoiceNoList;
         }
-        // invoiceDate 区间 -> voucherYearStart/End（开票日期区间）
+        // invoiceDate 区间 -> invoiceDateStart/End（开票日期区间，关联 oem_outbound_order.invoice_date）
         if (data.invoiceDate && Array.isArray(data.invoiceDate) && data.invoiceDate.length > 1) {
-          data.voucherYearStart = data.invoiceDate[0];
-          data.voucherYearEnd = getEndOfDayString(data.invoiceDate[1]);
+          data.invoiceDateStart = data.invoiceDate[0];
+          data.invoiceDateEnd = getEndOfDayString(data.invoiceDate[1]);
           delete data.invoiceDate;
         } else if (data.invoiceDate !== undefined) {
           delete data.invoiceDate;

@@ -585,6 +585,7 @@
                     v-model="form.customerContent"
                     maxlength="500"
                     clearable
+                    @input="onCustomerContentInput"
                   />
                 </el-form-item>
                 <el-form-item label="故障排查流程：" prop="troubleshootingProcess" class="form-item-full">
@@ -594,6 +595,7 @@
                     v-model="form.troubleshootingProcess"
                     maxlength="500"
                     clearable
+                    @input="onTroubleshootingProcessInput"
                   />
                 </el-form-item>
               </el-form>
@@ -1150,7 +1152,11 @@ export default {
           getDetail(id).then(res => {
             this.tableDataFault = res.qualityOrderReportFaultRespList || [];
             this.supportApprovalTableData = res.supportApprovalRespList || [];
-            resolve(res);
+            resolve({
+              ...res,
+              customerContent: this.removeEmoji(res.customerContent),
+              troubleshootingProcess: this.removeEmoji(res.troubleshootingProcess),
+            });
           });
         });
       }
@@ -1158,6 +1164,29 @@ export default {
     async submitRequest () {
       const tableDataFault = await this.handleSaveTableFault();
       return addOrUpdate({ ...this.form, qualityOrderReportFaultList: tableDataFault });
+    },
+    /**
+     * 去除字符串中的表情符号
+     */
+    removeEmoji (str) {
+      if (!str) return str;
+      return str
+        .replace(/\p{Extended_Pictographic}/gu, '')
+        .replace(/\p{Emoji_Modifier}/gu, '')
+        .replace(/[\u{FE00}\u{FE0F}\u{200D}]/gu, '')
+        .replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu, '');
+    },
+    onCustomerContentInput (val) {
+      const cleaned = this.removeEmoji(val);
+      if (cleaned !== val) {
+        this.form.customerContent = cleaned;
+      }
+    },
+    onTroubleshootingProcessInput (val) {
+      const cleaned = this.removeEmoji(val);
+      if (cleaned !== val) {
+        this.form.troubleshootingProcess = cleaned;
+      }
     },
     // 行保存
     async saveRowEdit (row, defer) {

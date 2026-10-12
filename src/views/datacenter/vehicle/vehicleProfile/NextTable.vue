@@ -22,13 +22,14 @@
       </template>
     </vxe-column>
     <vxe-column field="mileageTypeLabel" title="里程类型" ></vxe-column>
-    <vxe-column field="nextMaintenanceDate" title="下次保养日期" >
+    <vxe-column field="nextMaintenanceDate" title="下次保养日期" width="180">
       <template #default="{ row, rowIndex }">
         <el-date-picker
-          v-if="isEdit && eidtRowIndex === rowIndex && row.nextMaintenanceDate"
+          v-if="isEdit && eidtRowIndex === rowIndex && originTableData[rowIndex] && originTableData[rowIndex].nextMaintenanceDate"
           v-model="row.nextMaintenanceDate"
           type="date"
           value-format="yyyy-MM-dd HH:mm:ss"
+          :clearable="false"
           placeholder="选择日期"
           size="small"
         />
@@ -41,8 +42,9 @@
           v-if="isEdit && eidtRowIndex === rowIndex"
           v-model="row.nextMileage"
           placeholder="请输入"
+          :clearable="!originTableData[rowIndex] || !originTableData[rowIndex].nextMileage"
           :controls="false"
-          :precision="2"
+          :precision="0"
           size="small"
           style="width: 100%;"
         />
@@ -206,6 +208,17 @@ export default {
       }
     },
     saveRowEdit (row, rowIndex) {
+      const origin = this.originTableData.find(r => r.id === row.id);
+      // 若原数据日期非空,当前值不能为空
+      if (origin && origin.nextMaintenanceDate && !row.nextMaintenanceDate) {
+        this.$message.error('下次保养日期不能为空');
+        return;
+      }
+      // 若原数据里程非空,当前值不能为空
+      if (origin && origin.nextMileage && (row.nextMileage === '' || row.nextMileage === null || row.nextMileage === undefined)) {
+        this.$message.error('下次保养里程不能为空');
+        return;
+      }
       editMaintenanceRecord({
         id: row.id,
         nextMaintenanceDate: row.nextMaintenanceDate,
@@ -248,8 +261,13 @@ export default {
           this.$message.error('零件里程类型异常,无法重置');
           return;
         }
+        const h = this.$createElement;
         await this.$confirm(
-          `当前车联网里程数(${mileageLabel})为 ${mileageValue} km,是否确定重置?`,
+          h('div', null, [
+            `当前车联网里程数(${mileageLabel})为 ${mileageValue} km,是否确定重置?`,
+            h('br'),
+            '只有时间/里程超期的零件才允许重置，重置成功后的下次保养时间及里程数据将自动同步至零跑App及车机。'
+          ]),
           '重置确认',
           { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
         );

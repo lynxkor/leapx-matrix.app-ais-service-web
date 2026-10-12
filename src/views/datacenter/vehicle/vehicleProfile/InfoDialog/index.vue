@@ -50,7 +50,7 @@
             placeholder="请输入"
             :disabled="!isEditing"
             maxlength="20"
-            precision="2"
+            precision="0"
             min="0"
             :controls="false"
             style="flex: 1; min-width: 0;"
@@ -209,8 +209,13 @@ export default {
           this.$message.warning('未获取到车联网里程,无法重置');
           return;
         }
+        const h = this.$createElement;
         await this.$confirm(
-          `当前车联网里程(总)为 ${totalMileage} km,是否确定重置?`,
+          h('div', null, [
+            `当前车联网里程(总)为 ${totalMileage} km,是否确定重置?`,
+            h('br'),
+            '只有时间/里程超期的车辆才允许重置，重置成功后的下次保养时间及里程数据将自动同步至零跑App及车机。'
+          ]),
           '重置确认',
           { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
         );

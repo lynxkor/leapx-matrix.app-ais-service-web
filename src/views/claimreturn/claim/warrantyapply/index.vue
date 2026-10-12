@@ -614,6 +614,10 @@ export default {
         {
           column: 'create_time',
           sort: 'DESC'
+        },
+        {
+          column: 'id',
+          sort: 'DESC'
         }
       ],
       rejectDialogVisible: false,
@@ -1863,40 +1867,11 @@ export default {
       return (records || []).map(item => ({ ...item, deleteLoading: false }));
     },
     getConfig () {
-      // 后端 user_define_table 表中可能存了 warrantyApplyTable 的旧配置，
-      // 会覆盖前端 optionObj.dataProp 的列顺序。这里主动用前端硬编码的
-      // columnConfig 同步到后端。
-      // 注意：visible 始终以前端硬编码为准（避免远端缓存 visible:false 覆盖新列）
-      // 宽度保留用户自定义（remote.width 优先于 item.width）
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         getTableConfig(this.optionObj.id).then(data => {
-          const remoteData = data?.data || {};
-          const remoteColumnConfig = remoteData?.config?.columnConfig || [];
-
-          const mergedColumnConfig = this.optionObj.dataProp.map((item) => {
-            const existing = remoteColumnConfig.find(c => c.props === item.props);
-            return {
-              ...item,
-              props: item.props,
-              visible: item.visible !== false,
-              width: existing?.width || item.width,
-            };
-          });
-
-          const mergedConfig = {
-            ...(remoteData.config || {}),
-            columnConfig: mergedColumnConfig
-          };
-
-          // 异步覆盖后端旧配置，不阻塞页面渲染
-          tableAddOrUpdate({
-            tableCode: this.optionObj.id,
-            config: mergedConfig
-          }).catch(err => console.error('同步表格列配置失败:', err));
-
-          resolve({ data: { ...remoteData, config: mergedConfig } });
+          resolve({ data });
         }).catch(err => {
-          // 容错：接口挂了也不影响使用，回落到前端硬编码
+          // 容错：此处如果接口挂了，也不应该影响正常使用
           console.error(err);
           resolve(mockConfig);
         });
@@ -2136,6 +2111,8 @@ export default {
       // 自动拆箱抛出 NPE → 500。这里主动补 pageNum=1, pageSize=99999。
       reqParams.pageNum = reqParams.pageNum || 1;
       reqParams.pageSize = reqParams.pageSize || 99999;
+      reqParams.viewId = this.activePresetId || null;
+
       const tab = this.activeTab;
       const isParts = tab === 'parts';
       const isWorkhours = tab === 'workhours';

@@ -10,6 +10,7 @@
     "uat": "vue-cli-service build --mode uat",
     "pre": "vue-cli-service build --mode pre",
     "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
     "postinstall": "cp ./patches/dom.js ./node_modules/vxe-pc-ui/lib/ui/src/dom.js",
     "template": "node ./bin-2/generate.js"
   },
@@ -43,7 +44,7 @@
     "moment": "^2.30.1",
     "moment-locales-webpack-plugin": "^1.2.0",
     "mustache": "^4.2.0",
-    "pinyin-pro": "^3.28.2",
+    "pinyin-pro": "^3.29.3",
     "qrcode.vue": "^1.7.0",
     "qs": "^6.10.1",
     "recast": "^0.23.11",

@@ -116,10 +116,16 @@ export default {
         vehProfileId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
-        sortColumns: [{
-          column: 'order_time',
-          sort: 'DESC'
-        }]
+        sortColumns: [
+          {
+            column: 'order_time',
+            sort: 'DESC'
+          },
+          {
+            column: 'id',
+            sort: 'DESC'
+          }
+        ]
       }).then((res) => {
         this.tableData = (res.records || []).map(item => {
           return {

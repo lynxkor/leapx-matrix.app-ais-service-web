@@ -117,6 +117,9 @@
         <el-form-item label="发票号">
           <tag-input v-model="form.invoiceNoList" placeholder="请输入" />
         </el-form-item>
+        <el-form-item label="税务发票号">
+          <tag-input v-model="form.taxInvoiceNoList" placeholder="请输入" />
+        </el-form-item>
         <el-form-item label="开票日期">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -296,6 +299,9 @@
         <el-form-item label="发票号">
           <tag-input v-model="sparePartForm.invoiceNoList" placeholder="请输入" />
         </el-form-item>
+        <el-form-item label="税务发票号">
+          <tag-input v-model="sparePartForm.taxInvoiceNoList" placeholder="请输入" />
+        </el-form-item>
         <el-form-item label="开票日期">
           <el-date-picker
            :default-time="['00:00:00', '23:59:59']"
@@ -453,6 +459,7 @@ const defaultForm = {
   salesVoucherList: [],
   deliveryVoucherList: [],
   invoiceNoList: [],
+  taxInvoiceNoList: [],
   invoiceDate: '',
   createTime: '',
   updateTime: '',
@@ -474,6 +481,7 @@ const defaultSparePartForm = {
   salesVoucherList: [],
   deliveryVoucherList: [],
   invoiceNoList: [],
+  taxInvoiceNoList: [],
   invoiceDate: '',
   createTime: '',
   updateTime: '',

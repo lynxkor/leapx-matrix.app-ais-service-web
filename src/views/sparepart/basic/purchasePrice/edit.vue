@@ -52,7 +52,8 @@
                 </el-form-item>
                 <el-form-item label="订单类型：" prop="orderType">
                   <fetch-select
-                    :options="orderTypeOptions"
+                    :request="fetchOptions"
+                    enumCode="PurchaseOrderTypeDistributionEnum"
                     v-model="form.orderType"
                     placeholder="请选择"
                     clearable
@@ -252,10 +253,9 @@ const defaultForm = {
   remark: '',
 };
 
-// 订单类型：写死只保留紧急订单，枚举值 '1'
-const orderTypeOptions = [
-  { code: '1', message: '紧急订单' }
-];
+// 订单类型：使用 PurchaseOrderTypeEnum 枚举（与同文件优惠券字段保持一致），
+// 列表中只显示"紧急订单"由后端 enum 注册时通过 BizEnumScope 控制，或业务层在保存时校验。
+// 这里只保证 select 的 label 正确反显。
 
 export default {
   name: 'purchasePriceEdit',
