@@ -21,23 +21,12 @@
 export function notifyBatchResult (vm, res, actionLabel) {
   const failedIds = Array.isArray(res?.failedIds) ? res.failedIds : [];
   const failedCount = Number(res?.failedCount ?? failedIds.length) || 0;
-  const failedMessages = (res?.failedMessages && typeof res.failedMessages === 'object') ? res.failedMessages : {};
 
   // 注意：total 这里无法从响应直接获取，调用方需要传入或基于入参 ids 推算。
   // 本函数按"已知失败数"维度做提示，成功数由前端配合入参推算。
   if (failedCount === 0) {
     vm.$message.success(`${actionLabel}成功！`);
     return { allSuccess: true, failedCount: 0, failedIds: [] };
-  }
-
-  // 单条失败且后端返回了原因（如：当前车辆为新上市车型，必须上传质量反馈报告）
-  // 直接弹窗展示原始提示，不再只提示失败ID
-  if (failedCount === 1 && failedMessages[failedIds[0]]) {
-    vm.$alert(failedMessages[failedIds[0]], `${actionLabel}失败`, {
-      confirmButtonText: '知道了',
-      customClass: 'batch-result-msgbox',
-    }).catch(() => { /* 用户关闭，无操作 */ });
-    return { allSuccess: false, failedCount, failedIds };
   }
 
   // 有失败明细 → 用 warning 提示 + 询问是否查看明细
@@ -47,7 +36,7 @@ export function notifyBatchResult (vm, res, actionLabel) {
   try {
     vm.$msgbox({
       title: `${actionLabel}结果`,
-      message: buildFailureDetailMessage(failedIds, failedMessages, actionLabel),
+      message: buildFailureDetailMessage(failedIds, actionLabel),
       dangerouslyUseHTMLString: true,
       confirmButtonText: '复制失败ID',
       cancelButtonText: '关闭',
@@ -58,7 +47,7 @@ export function notifyBatchResult (vm, res, actionLabel) {
       .catch(() => { /* 用户关闭，无操作 */ });
   } catch (e) {
     // $msgbox 不存在或异常时降级为 $alert
-    vm.$alert(buildFailureDetailMessage(failedIds, failedMessages, actionLabel), `${actionLabel}结果`, {
+    vm.$alert(buildFailureDetailMessage(failedIds, actionLabel), `${actionLabel}结果`, {
       dangerouslyUseHTMLString: true,
       confirmButtonText: '复制失败ID',
       customClass: 'batch-result-msgbox',
@@ -71,14 +60,10 @@ export function notifyBatchResult (vm, res, actionLabel) {
 /**
  * 构造失败明细 HTML（限长，最多展示 100 条，超过给提示）
  */
-function buildFailureDetailMessage (failedIds, failedMessages, actionLabel) {
+function buildFailureDetailMessage (failedIds, actionLabel) {
   const MAX = 100;
   const list = failedIds.slice(0, MAX);
-  const items = list.map(id => {
-    const reason = failedMessages[id];
-    const reasonHtml = reason ? `<div class="batch-failed-msg">${escapeHtml(reason)}</div>` : '';
-    return `<div class="batch-failed-id">${escapeHtml(id)}${reasonHtml}</div>`;
-  }).join('');
+  const items = list.map(id => `<div class="batch-failed-id">${escapeHtml(id)}</div>`).join('');
   const overflow = failedIds.length > MAX
     ? `<div class="batch-failed-overflow">…等共 ${failedIds.length} 条（仅展示前 ${MAX} 条）</div>`
     : '';
