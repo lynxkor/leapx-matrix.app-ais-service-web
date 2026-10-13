@@ -383,6 +383,21 @@ export default {
           ? String(data.mainPartId) + String(data.mainSupplierId)
           : data.mainPartId || '';
 
+        // 主因零部件反显：零件行改主因件后走 onPartSaved → getDetail，此时组件 initialLoaded 已为 true，
+        // 不会再自动加载选项，需手动设置，否则显示原始 id
+        if (data.mainPartId && this.$refs.mainPartSelectRef) {
+          const label = data.mainPartCode || data.mainPartName
+            ? `${data.mainPartCode || ''}/${data.mainPartName || ''}`
+            : data.mainPartId;
+          this.$refs.mainPartSelectRef.remoteOptions = [{
+            partAndSupplierId: this.selectedPartKey,
+            displayLabel: label,
+            sparePartId: data.mainPartId,
+            supplierInfoId: data.mainSupplierId
+          }];
+          this.$refs.mainPartSelectRef.initialLoaded = true;
+        }
+
         // 如果有主因件与主因供应商，直接用详情返回的名称设置选项，首次加载即可显示
         if (data.mainPartId && data.mainSupplierId) {
           this.supplierOptions = [{
