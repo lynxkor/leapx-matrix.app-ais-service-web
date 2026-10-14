@@ -1,4 +1,5 @@
 <template>
+  <div class="spare-part-claim-edit">
   <edit-page-layout ref="editLayout" title="侧边栏标题" showPaneFooter>
     <template #left>
       <!-- TIPS: 如果需要竖排，direction="vertical" -->
@@ -407,6 +408,14 @@
                   <span class="value">{{ logistics?.waybillCode }}</span>
                   <span class="label">预计送达日期：</span>
                   <span class="value">{{ logistics?.promiseAgingDate }}</span>
+                  <el-button
+                    v-if="hasEpod(logistics)"
+                    type="success"
+                    plain
+                    size="mini"
+                    class="epod-btn"
+                    @click="openEpodList(logistics)"
+                  >回单凭证</el-button>
                 </div>
 
                 <!-- 物流节点 -->
@@ -436,6 +445,55 @@
       </div>
     </template>
   </edit-page-layout>
+
+  <!-- 回单凭证列表弹框 -->
+  <div
+    v-if="epodListVisible"
+    class="epod-list-mask"
+    @click.self="closeEpodList"
+  >
+    <div class="epod-list-panel">
+      <div class="epod-list-header">
+        <span class="epod-list-title">回单凭证（{{ previewIndex + 1 }} / {{ currentEpodList.length }}）</span>
+        <span class="epod-list-close" @click="closeEpodList">×</span>
+      </div>
+      <div class="epod-list-body">
+        <div class="epod-list-main">
+          <img
+            :src="currentEpodList[previewIndex]"
+            class="epod-list-main-img"
+            alt="回单凭证"
+            @click="openPreview(previewIndex)"
+          />
+        </div>
+        <div class="epod-list-thumbs">
+          <div
+            v-for="(url, idx) in currentEpodList"
+            :key="idx"
+            :class="['epod-thumb', { active: idx === previewIndex }]"
+            @click="setPreviewIndex(idx)"
+          >
+            <img :src="url" alt="回单凭证" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 全屏预览 -->
+  <div
+    v-if="previewVisible"
+    class="epod-preview-mask"
+    @click.self="closePreview"
+  >
+    <span class="epod-preview-close" @click="closePreview">×</span>
+    <img
+      :src="currentEpodList[previewIndex]"
+      class="epod-preview-img"
+      alt="回单凭证"
+    />
+  </div>
+  </div>
 </template>
 
 <script>
@@ -574,6 +632,10 @@ export default {
       activeName: 'getOutboundDetailList',
       logisticsData: [], // 物流信息
       loadingLogistics: false,
+      epodListVisible: false, // 回单凭证列表弹框
+      previewVisible: false, // 全屏预览
+      previewIndex: 0, // 当前预览索引
+      currentEpodList: [], // 当前展示的 epod 列表
       tableData: [],
       outboundTableData: [],
       outboundPageNum: 1,
@@ -850,6 +912,33 @@ export default {
       this.logisticsData = res || [];
       this.loadingLogistics = false;
     },
+    // 判断是否有回单凭证
+    hasEpod (logistics) {
+      return logistics && Array.isArray(logistics.epod) && logistics.epod.length > 0;
+    },
+    // 打开回单列表弹框
+    openEpodList (logistics) {
+      this.currentEpodList = (logistics.epod || []).filter(url => !!url);
+      this.previewIndex = 0;
+      this.epodListVisible = true;
+    },
+    // 关闭回单列表弹框
+    closeEpodList () {
+      this.epodListVisible = false;
+    },
+    // 切换当前大图
+    setPreviewIndex (idx) {
+      this.previewIndex = idx;
+    },
+    // 打开全屏预览
+    openPreview (idx) {
+      this.previewIndex = idx;
+      this.previewVisible = true;
+    },
+    // 关闭全屏预览
+    closePreview () {
+      this.previewVisible = false;
+    },
     // 打印索赔回运单
     handlePrint () {
       this.$print.show({
@@ -960,6 +1049,160 @@ export default {
     font-size: 12px;
     color: #999;
   }
+}
+
+.epod-btn {
+  margin-left: 12px;
+  border-color: #67c23a;
+  color: #67c23a;
+  background-color: #fff;
+
+  &:hover,
+  &:focus {
+    background-color: #fff;
+    border-color: #67c23a;
+    color: #67c23a;
+  }
+}
+
+.epod-list-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.epod-list-panel {
+  width: 600px;
+  max-width: 90vw;
+  max-height: 80vh;
+  background: #fff;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.epod-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.epod-list-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #303133;
+}
+
+.epod-list-close {
+  font-size: 24px;
+  color: #909399;
+  cursor: pointer;
+  line-height: 1;
+  user-select: none;
+}
+
+.epod-list-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  max-height: 70vh;
+}
+
+.epod-list-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+  overflow: hidden;
+  min-height: 300px;
+  max-height: 55vh;
+  margin-bottom: 12px;
+  cursor: zoom-in;
+}
+
+.epod-list-main-img {
+  display: block;
+  max-width: 100%;
+  max-height: 55vh;
+  object-fit: contain;
+}
+
+.epod-list-thumbs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px;
+}
+
+.epod-thumb {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: #f5f7fa;
+  transition: border-color 0.2s;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &.active {
+    border-color: #67c23a;
+  }
+
+  &:hover {
+    border-color: #b3e19d;
+  }
+}
+
+.epod-preview-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.epod-preview-img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  display: block;
+}
+
+.epod-preview-close {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  font-size: 36px;
+  color: #fff;
+  cursor: pointer;
+  line-height: 1;
+  user-select: none;
 }
 
 </style>

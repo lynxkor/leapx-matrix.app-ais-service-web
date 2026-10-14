@@ -661,6 +661,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/datareport/customView',
+      name: 'customView',
+      component: () => import('@/views/datareport/customView/index.vue'),
+
+      meta: {
+        name: '自定义视图元数据主表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/datareport/customView/edit',
+      name: 'customView',
+      component: () => import('@/views/datareport/customView/edit.vue'),
+
+      meta: {
+        name: '自定义视图元数据主表详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/claimreturn/claim/basic/partWarrantyPolicy',
       name: 'partWarrantyPolicy',
       component: () => import('@/views/claimreturn/claim/basic/partWarrantyPolicy/index.vue'),
@@ -2711,6 +2729,8 @@ const routes = [
         name: '新页面',
         keepAlive: true,
         notRefresh: true,
+        customViewBizKey: 'warrantyapply',
+        customViewResourceTag: 'AISCR-warrantyApply-customView'
       }
     }, {
       path: '/claimreturn/claim/warrantyApply/edit',
@@ -2952,6 +2972,40 @@ const routes = [
 
       meta: {
         name: '门店备件库存流水详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/desensitize/fieldMapping',
+      name: 'desensitizeFieldMapping',
+      component: () => import('@/views/desensitize/fieldMapping/index.vue'),
+      meta: {
+        name: '字段映射管理',
+        keepAlive: true,
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/desensitize/fieldMapping/edit',
+      name: 'desensitizeFieldMappingEdit',
+      component: () => import('@/views/desensitize/fieldMapping/edit.vue'),
+      meta: {
+        name: '字段映射管理-编辑',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/desensitize/setting',
+      name: 'desensitizeSetting',
+      component: () => import('@/views/desensitize/setting/index.vue'),
+      meta: {
+        name: '脱敏设置',
+        keepAlive: true,
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/desensitize/setting/edit',
+      name: 'desensitizeSettingEdit',
+      component: () => import('@/views/desensitize/setting/edit.vue'),
+      meta: {
+        name: '脱敏设置-编辑',
         noResourceUrl: 'true'
       }
     }, {

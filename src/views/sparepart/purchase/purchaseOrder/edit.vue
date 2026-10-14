@@ -572,7 +572,7 @@ export default {
           width: '7%',
         },
         {
-          field: 'detailRemark',
+          field: 'remark',
           title: '备注',
           width: '7%',
         }

@@ -10,6 +10,7 @@
     "uat": "vue-cli-service build --mode uat",
     "pre": "vue-cli-service build --mode pre",
     "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
     "postinstall": "cp ./patches/dom.js ./node_modules/vxe-pc-ui/lib/ui/src/dom.js",
     "template": "node ./bin-2/generate.js"
   },
