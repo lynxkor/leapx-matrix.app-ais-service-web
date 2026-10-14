@@ -42,3 +42,11 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 模板编码唯一性校验（编辑态传 id 排除自身）
+ * @param {Object} data - { code, id? }
+ */
+export function checkCodeUnique (data) {
+  return api.jsonPost(prefix + 'checkCodeUnique', data);
+}

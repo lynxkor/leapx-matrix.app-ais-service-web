@@ -4,7 +4,7 @@
       <template v-else>
         <section class="common-title">
           <h2>主键：{{ info.id }}</h2>
-<!--          <el-button size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>-->
+          <el-button size="small" @click="handleEdit"><i class="iconfont icon-lxppc-edit"></i>编辑</el-button>
         </section>
         <section class="common-section">
           <div class="common-section-header">
@@ -21,10 +21,22 @@
               <el-form-item label="业务标识：" prop="businessType">
                 {{ info.businessType  }}
               </el-form-item>
-              <el-form-item label="导入参数DTO：" prop="postParamDto">
+              <el-form-item label="导入业务：" prop="importBusiness">
+                {{ info.importBusiness  }}
+              </el-form-item>
+              <el-form-item label="导入策略：" prop="importStrategy">
+                {{ importStrategyLabel }}
+              </el-form-item>
+              <el-form-item label="文件大小限制（MB）：" prop="fileSizeLimitMb">
+                {{ info.fileSizeLimitMb  }}
+              </el-form-item>
+              <el-form-item label="最大行数：" prop="maxRows">
+                {{ info.maxRows  }}
+              </el-form-item>
+              <el-form-item label="导入参数DTO：" prop="postParamDto" class="header-map-item wrap-item" style="width: 100%;">
                 {{ info.postParamDto  }}
               </el-form-item>
-              <el-form-item label="每批n条数据：" prop="batchSize">
+              <el-form-item label="每批N条数据：" prop="batchSize">
                 {{ info.batchSize  }}
               </el-form-item>
               <el-form-item label="表头起始行：" prop="titleStartRow">
@@ -67,14 +79,23 @@ export default {
       yes_no_enum_map: YES_NO_ENUM_MAP
     };
   },
+  computed: {
+    // 导入策略两值字典映射：SKIP_ERROR_ROWS=跳过错误行（默认）/ ALL_OR_NOTHING=全有全无
+    importStrategyLabel () {
+      if (this.info.importStrategy === 'ALL_OR_NOTHING') {
+        return '全有全无';
+      }
+      return this.info.importStrategy ? '跳过错误行' : '';
+    }
+  },
   created () {
-    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['Excel模板导入', '详情']);
+    this.$store.commit('SET_ACTIVE_BREADCRUMB', ['导入模板', '详情']);
     this.getData();
   },
   methods: {
     handleEdit () {
       this.$router.push({
-        path: '/excelManagement/basic/commonDataProcessExcelModelMap/edit',
+        path: '/excelManagement/commonDataProcessExcelModelMap/edit',
         query: {
           id: this.$route.query.id
         }
@@ -100,6 +121,12 @@ export default {
   ::v-deep .el-form-item__content {
     display: block;
     overflow: hidden;
+  }
+}
+.wrap-item {
+  ::v-deep .el-form-item__content {
+    word-break: break-all;
+    white-space: pre-wrap;
   }
 }
 </style>
