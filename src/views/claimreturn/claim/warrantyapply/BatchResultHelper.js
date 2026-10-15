@@ -3,7 +3,8 @@
  *
  * 用于「批量审批同意 / 批量审批驳回 / 批量审批拒赔 / 批量审核撤回 / 批量申请驳回」
  * 等场景。后端响应形状：
- *   { failedCount: number, failedIds: string[] }
+ *   { failedCount: number, failedIds: string[], failedApplyNos?: string[] }
+ *   （failedApplyNos 为失败单申请单号，与 failedIds 同序；旧版本后端未返回时回退展示 failedIds）
  *
  * 用法（在 Dialog 的 submit() 的 .then(res => {...}) 中）：
  *   import { notifyBatchResult } from '../BatchResultHelper';
@@ -20,6 +21,10 @@
  */
 export function notifyBatchResult (vm, res, actionLabel) {
   const failedIds = Array.isArray(res?.failedIds) ? res.failedIds : [];
+  // 后端返回失败单申请单号（REQ-2026101316421956，与 failedIds 同序，查不到时为 ID），优先展示单号
+  const failedApplyNos = Array.isArray(res?.failedApplyNos) && res.failedApplyNos.length
+    ? res.failedApplyNos
+    : failedIds;
   const failedCount = Number(res?.failedCount ?? failedIds.length) || 0;
 
   // 注意：total 这里无法从响应直接获取，调用方需要传入或基于入参 ids 推算。
@@ -36,22 +41,22 @@ export function notifyBatchResult (vm, res, actionLabel) {
   try {
     vm.$msgbox({
       title: `${actionLabel}结果`,
-      message: buildFailureDetailMessage(failedIds, actionLabel),
+      message: buildFailureDetailMessage(failedApplyNos, actionLabel),
       dangerouslyUseHTMLString: true,
-      confirmButtonText: '复制失败ID',
+      confirmButtonText: '复制单号',
       cancelButtonText: '关闭',
       showCancelButton: true,
       customClass: 'batch-result-msgbox',
     })
-      .then(() => copyFailedIds(vm, failedIds))
+      .then(() => copyFailedNos(vm, failedApplyNos))
       .catch(() => { /* 用户关闭，无操作 */ });
   } catch (e) {
     // $msgbox 不存在或异常时降级为 $alert
-    vm.$alert(buildFailureDetailMessage(failedIds, actionLabel), `${actionLabel}结果`, {
+    vm.$alert(buildFailureDetailMessage(failedApplyNos, actionLabel), `${actionLabel}结果`, {
       dangerouslyUseHTMLString: true,
-      confirmButtonText: '复制失败ID',
+      confirmButtonText: '复制单号',
       customClass: 'batch-result-msgbox',
-    }).then(() => copyFailedIds(vm, failedIds)).catch(() => {});
+    }).then(() => copyFailedNos(vm, failedApplyNos)).catch(() => {});
   }
 
   return { allSuccess: false, failedCount, failedIds };
@@ -59,17 +64,20 @@ export function notifyBatchResult (vm, res, actionLabel) {
 
 /**
  * 构造失败明细 HTML（限长，最多展示 100 条，超过给提示）
+ *
+ * @param {string[]} displayList 展示列表——后端 failedApplyNos（申请单号，与 failedIds 同序；
+ *   后端未返回时由调用方回退为 failedIds）
  */
-function buildFailureDetailMessage (failedIds, actionLabel) {
+function buildFailureDetailMessage (displayList, actionLabel) {
   const MAX = 100;
-  const list = failedIds.slice(0, MAX);
-  const items = list.map(id => `<div class="batch-failed-id">${escapeHtml(id)}</div>`).join('');
-  const overflow = failedIds.length > MAX
-    ? `<div class="batch-failed-overflow">…等共 ${failedIds.length} 条（仅展示前 ${MAX} 条）</div>`
+  const list = displayList.slice(0, MAX);
+  const items = list.map(no => `<div class="batch-failed-id">${escapeHtml(no)}</div>`).join('');
+  const overflow = displayList.length > MAX
+    ? `<div class="batch-failed-overflow">…等共 ${displayList.length} 条（仅展示前 ${MAX} 条）</div>`
     : '';
   return `
     <div class="batch-result-detail">
-      <div class="batch-result-summary">${actionLabel}失败 ${failedIds.length} 条，失败单据 ID 如下：</div>
+      <div class="batch-result-summary">${actionLabel}失败 ${displayList.length} 条，失败单据（申请单号）如下：</div>
       <div class="batch-result-list">${items || '<div class="batch-failed-id">无</div>'}${overflow}</div>
     </div>
   `;
@@ -88,21 +96,21 @@ function escapeHtml (str) {
 }
 
 /**
- * 复制失败 ID 到剪贴板
+ * 复制失败单申请单号到剪贴板
  */
-function copyFailedIds (vm, failedIds) {
-  const text = (failedIds || []).join('\n');
+function copyFailedNos (vm, failedApplyNos) {
+  const text = (failedApplyNos || []).join('\n');
   if (!text) {
-    vm.$message.info('无失败ID可复制');
+    vm.$message.info('无申请单号可复制');
     return;
   }
   // 优先使用 Clipboard API；降级使用 execCommand
   if (navigator?.clipboard?.writeText) {
     navigator.clipboard.writeText(text)
-      .then(() => vm.$message.success(`已复制 ${failedIds.length} 条失败ID`))
-      .catch(() => fallbackCopy(vm, text, failedIds.length));
+      .then(() => vm.$message.success(`已复制 ${failedApplyNos.length} 条申请单号`))
+      .catch(() => fallbackCopy(vm, text, failedApplyNos.length));
   } else {
-    fallbackCopy(vm, text, failedIds.length);
+    fallbackCopy(vm, text, failedApplyNos.length);
   }
 }
 
@@ -116,7 +124,7 @@ function fallbackCopy (vm, text, count) {
     textarea.select();
     document.execCommand('copy');
     document.body.removeChild(textarea);
-    vm.$message.success(`已复制 ${count} 条失败ID`);
+    vm.$message.success(`已复制 ${count} 条申请单号`);
   } catch (e) {
     vm.$message.error('复制失败，请手动选择');
   }
