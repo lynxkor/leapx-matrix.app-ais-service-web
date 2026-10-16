@@ -159,7 +159,9 @@ export default {
           if (res !== '') {
             this.$notify({
               title: '警告',
-              message: res,
+              // 全局样式对通知内容有两端对齐(text-align:justify),用 HTML 渲染强制左对齐
+              message: `<div style="text-align:left;">${res}</div>`,
+              dangerouslyUseHTMLString: true,
               type: 'warning'
             });
           }
