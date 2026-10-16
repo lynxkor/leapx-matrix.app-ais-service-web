@@ -292,6 +292,15 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/basic/recordingTask',
+      name: 'recordingTask',
+      component: () => import('@/views/maintain/basic/recordingTask/index.vue'),
+
+      meta: {
+        name: '录音事件',
+        keepAlive: true
+      }
+    }, {
       path: '/maintain/basic/dealerPermission',
       name: 'dealerPermission',
       component: () => import('@/views/maintain/basic/dealerPermission/index.vue'),
