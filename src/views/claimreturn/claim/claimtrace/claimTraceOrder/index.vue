@@ -489,7 +489,8 @@ export default {
                 // 门店同意/申诉拒绝需已追溯金额为 0（与后端 canCancelInSingleMode 同口径）
                 show: (row) => this.permissions.has(`${this.moduleKey}-cancel`) && (
                   [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED, TRACE_STATUS.PENDING_CONFIRM, TRACE_STATUS.APPEALING].includes(row.traceStatus) ||
-                  ((row.traceStatus === TRACE_STATUS.STORE_AGREED || row.traceStatus === TRACE_STATUS.APPEAL_REFUSED) && !row.tracedAmount)
+                  ((row.traceStatus === TRACE_STATUS.STORE_AGREED || row.traceStatus === TRACE_STATUS.APPEAL_REFUSED) &&
+                    (!row.tracedAmount || Number(row.tracedAmount) === 0))
                 ),
                 click: (rowIndex, row) => {
                   this.currentRow = row;
