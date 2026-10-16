@@ -155,7 +155,14 @@ export default {
           attachFileList: attachFileList,
         }).then(res => {
           this.close();
-          this.$message.success('验收成功');
+          this.$message.success('验收成功！');
+          if (res !== '') {
+            this.$notify({
+              title: '警告',
+              message: res,
+              type: 'warning'
+            });
+          }
           this.$emit('refresh');
         }).finally(() => {
           this.submitLoading = false;
