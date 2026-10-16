@@ -84,13 +84,28 @@
                       clearable
                     />
                   </el-form-item>
-                  <!-- <el-form-item label="保证资金：" prop="marginAmount">
+                  <!-- 预留资金：原保证资金字段，UI展示为"预留资金" -->
+                  <el-form-item label="预留资金：" prop="marginAmount">
                     <el-input
                       placeholder="请输入"
                       v-model="form.marginAmount"
                       clearable
                     />
-                  </el-form-item> -->
+                  </el-form-item>
+                  <el-form-item label="预留资金额度：" prop="marginQuota">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.marginQuota"
+                      clearable
+                    />
+                  </el-form-item>
+                  <el-form-item label="预留资金额度调整说明：" prop="marginQuotaRemark">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.marginQuotaRemark"
+                      clearable
+                    />
+                  </el-form-item>
                   <el-form-item label="账户总额：" prop="totalAmount">
                     <el-input
                       placeholder="请输入"
@@ -232,9 +247,16 @@
                   <el-form-item label="冻结资金：" prop="frozenAmount">
                     {{ form.frozenAmount }}
                   </el-form-item>
-                  <!-- <el-form-item label="保证资金：" prop="marginAmount">
+                  <!-- 预留资金：原保证资金字段，UI展示为"预留资金" -->
+                  <el-form-item label="预留资金：" prop="marginAmount">
                     {{ form.marginAmount }}
-                  </el-form-item> -->
+                  </el-form-item>
+                  <el-form-item label="预留资金额度：" prop="marginQuota">
+                    {{ form.marginQuota }}
+                  </el-form-item>
+                  <el-form-item label="预留资金额度调整说明：" prop="marginQuotaRemark">
+                    {{ form.marginQuotaRemark }}
+                  </el-form-item>
                   <el-form-item label="账户总额：" prop="totalAmount">
                     {{ form.totalAmount }}
                   </el-form-item>
@@ -383,6 +405,8 @@ const defaultForm = {
   availableAmount: '',
   frozenAmount: '',
   marginAmount: '',
+  marginQuota: '',
+  marginQuotaRemark: '',
   totalAmount: '',
   createTime: '',
   updateTime: '',
