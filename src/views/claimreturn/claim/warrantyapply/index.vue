@@ -650,6 +650,18 @@ export default {
     };
   },
   computed: {
+    /**
+     * 把本页当前页签告诉 customViewMixin(需求 LP262042 7.1.2.2)。
+     * mixin 据此做两件事:回写 store 让全局标题栏判断视图入口是否显示;
+     * 以及给视图查询带上 tabCode,使页签固定条件先于视图筛选条件生效。
+     *
+     * ⚠️ 必须定义在 computed 而非 methods —— mixin 里同名项也是 computed。
+     * 若本页用 methods 定义,同名冲突时 methods 优先,mixin 的 computed 会读到
+     * 未绑定的原始函数而返回 undefined,导致页签判断永远失效。
+     */
+    currentCustomViewTab () {
+      return this.activeTab;
+    },
     optionObj () {
       if (this.activeTab === 'parts') return this.optionObjParts;
       if (this.activeTab === 'workhours') return this.optionObjWorkhours;
@@ -2034,6 +2046,10 @@ export default {
       } else if (this.activeTab === 'gm') {
         data.isGeneralManagerApproval = 1;
       }
+
+      // 页签标识:随查询条件一起缓存到 sessionStorage,供 edit.vue 的「下一条」复用。
+      // 视图查询路径由 mixin 另行携带,这里存的是普通列表路径的同一份标识。
+      data.tabCode = this.customViewTabCode;
 
       return data;
     },
