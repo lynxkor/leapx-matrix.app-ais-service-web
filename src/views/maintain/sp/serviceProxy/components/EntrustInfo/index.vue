@@ -13,7 +13,7 @@
             disabled
           />
         </el-form-item>
-        <el-form-item label="业务类型：" prop="businessType">
+        <el-form-item label="进店类型：" prop="businessType">
           <fetch-select
             :request="fetchOptions"
             :format="formatBusinessTypeOptions"
@@ -23,6 +23,14 @@
             placeholder="请选择"
             clearable
             filterable
+          />
+        </el-form-item>
+        <el-form-item label="离店类型：" prop="departureTypeLabel">
+          <el-input
+            placeholder="请输入"
+            v-model="form.departureTypeLabel"
+            clearable
+            disabled
           />
         </el-form-item>
         <el-form-item label="三包预警：" prop="alarmLevel">
@@ -322,8 +330,11 @@
         <el-form-item label="维修类型（汇总）：" prop="repairItemTypeDetailCollect">
           {{ form.repairItemTypeDetailCollect }}
         </el-form-item>
-        <el-form-item label="业务类型：" prop="businessTypeLabel">
+        <el-form-item label="进店类型：" prop="businessTypeLabel">
           {{ form.businessTypeLabel }}
+        </el-form-item>
+        <el-form-item label="离店类型：" prop="departureTypeLabel">
+          {{ form.departureTypeLabel }}
         </el-form-item>
         <el-form-item label="三包预警：" prop="alarmLevelLabel">
           {{ form.alarmLevelLabel }}
@@ -614,7 +625,7 @@ export default {
       ConfirmFaultEnum,
       rules: {
         businessType: [
-          { required: true, message: '请选择业务类型', trigger: 'change' }
+          { required: true, message: '请选择进店类型', trigger: 'change' }
         ],
         testResult: [
           { required: true, message: '请输入客户经理建议', trigger: 'change' }

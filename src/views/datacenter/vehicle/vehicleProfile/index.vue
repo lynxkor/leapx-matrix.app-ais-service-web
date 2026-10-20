@@ -72,7 +72,7 @@
         <el-form-item label="车主证件类型">
           <fetch-select
             :request="fetchOptions"
-            enumCode="vehretail_id_card_type"
+            enumCode="vehicle_profile_id_type"
             v-model="form.idcardTypeList"
             placeholder="请选择"
             clearable

@@ -34,3 +34,5 @@ mcp-yapi-server/
 .lingma
 .claude
 .omo
+.agents
+/doc
