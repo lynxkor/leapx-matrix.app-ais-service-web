@@ -76,7 +76,7 @@
                   <el-input v-model="form.latestIssueTime" disabled />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
-                  <el-input placeholder="请输入" v-model="form.remark" clearable type="textarea" :rows="1" :disabled="!!_id && (![TRACE_STATUS.DRAFT, TRACE_STATUS.AUDITING, TRACE_STATUS.REJECTED].includes(form.traceStatus))" />
+                  <el-input placeholder="请输入" v-model="form.remark" clearable type="textarea" :rows="1" maxlength="500" show-word-limit :disabled="!!_id && (![TRACE_STATUS.DRAFT, TRACE_STATUS.AUDITING, TRACE_STATUS.REJECTED].includes(form.traceStatus))" />
                 </el-form-item>
                 <el-form-item label="系统自动同意时间：">
                   <el-input v-model="form.sysAutoAgreeDate" disabled />
