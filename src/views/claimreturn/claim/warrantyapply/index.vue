@@ -388,10 +388,11 @@
       <el-tab-pane label="全部订单" name="all" />
       <el-tab-pane label="保修经理订单" name="manager" />
       <el-tab-pane label="总经理订单" name="gm" />
-      <el-tab-pane label="备件清单" name="parts" />
-      <el-tab-pane label="工时清单" name="workhours" />
-      <el-tab-pane label="其他清单" name="other" />
-      <el-tab-pane label="审批记录" name="approval" />
+      <!-- 后四个页签查的是明细表,选中自定义视图后不可用 -->
+      <el-tab-pane label="备件清单" name="parts" :disabled="!!activePresetId" />
+      <el-tab-pane label="工时清单" name="workhours" :disabled="!!activePresetId" />
+      <el-tab-pane label="其他清单" name="other" :disabled="!!activePresetId" />
+      <el-tab-pane label="审批记录" name="approval" :disabled="!!activePresetId" />
     </el-tabs>
     <div
       class="ais-table-c"
@@ -470,6 +471,7 @@ import {
   PENDING_REVIEW_STATUSES,
   WITHDRAWABLE_STATUSES,
   validateBatchStatus,
+  CUSTOM_VIEW_TAB_CODES,
 } from './constants';
 import {
   getTableConfig, tableAddOrUpdate, getEnum,
@@ -650,17 +652,13 @@ export default {
     };
   },
   computed: {
-    /**
-     * 把本页当前页签告诉 customViewMixin(需求 LP262042 7.1.2.2)。
-     * mixin 据此做两件事:回写 store 让全局标题栏判断视图入口是否显示;
-     * 以及给视图查询带上 tabCode,使页签固定条件先于视图筛选条件生效。
-     *
-     * ⚠️ 必须定义在 computed 而非 methods —— mixin 里同名项也是 computed。
-     * 若本页用 methods 定义,同名冲突时 methods 优先,mixin 的 computed 会读到
-     * 未绑定的原始函数而返回 undefined,导致页签判断永远失效。
-     */
-    currentCustomViewTab () {
-      return this.activeTab;
+    // 当前页签允许使用自定义视图(仅查询主表的三个页签)
+    customViewAllowed () {
+      return Object.prototype.hasOwnProperty.call(CUSTOM_VIEW_TAB_CODES, this.activeTab);
+    },
+    // 当前页签传给后端的标识;空串表示无页签固定条件
+    customViewTabCode () {
+      return CUSTOM_VIEW_TAB_CODES[this.activeTab] || '';
     },
     optionObj () {
       if (this.activeTab === 'parts') return this.optionObjParts;
@@ -1562,6 +1560,12 @@ export default {
       };
     },
   },
+  watch: {
+    activePresetId (val) {
+      // 选中视图后仅前三个页签可用;停留在明细页签时自动回到第一个页签
+      if (val && !this.customViewAllowed) this.activeTab = 'all';
+    },
+  },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
@@ -1865,6 +1869,10 @@ export default {
       this.getData();
     }, 300),
     // ---- customViewMixin 字段适配(本页用 tableForm/tableDataList/tableTotal,非默认 optionObj 命名) ----
+    /** 视图查询附带页签标识,后端据此叠加页签固定条件 */
+    customViewQueryParams () {
+      return { tabCode: this.customViewTabCode };
+    },
     /** 分页对象引用(读写同一份,保持单一来源) */
     _cvPager () {
       return this.tableForm;
