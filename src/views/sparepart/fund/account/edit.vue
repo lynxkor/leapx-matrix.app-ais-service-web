@@ -647,16 +647,10 @@ export default {
         path = '/sparepart/warehouse/oemOutboundOrder/edit';
         type = 'oemOutboundOrder';
       } else if (row.businessType === 'PRODUCT_PURCHASE') {
-        this.$router.push({
-          path: '/serviceProduct/serviceProductOrder/wholesaleOrder',
-          query: { wholesaleOrderNo: row.businessNo }
-        });
+        window.open(`/serviceProduct/serviceProductOrder/wholesaleOrder?wholesaleOrderNo=${encodeURIComponent(row.businessNo)}`, '_blank');
         return;
       } else if (row.businessType === 'PRODUCT_RETURN') {
-        this.$router.push({
-          path: '/serviceProduct/serviceProductOrder/wholesaleOrderReturn',
-          query: { wholesaleReturnNo: row.businessNo }
-        });
+        window.open(`/serviceProduct/serviceProductOrder/wholesaleOrderReturn?wholesaleReturnNo=${encodeURIComponent(row.businessNo)}`, '_blank');
         return;
       } else {
         return;
