@@ -896,6 +896,10 @@ export default {
       }
       // 转换statementStatusList
       data.statementStatusList = this.form.statementStatusList.map((item) => +item);
+      // 枚举多选字段统一转整型（fetch-select 返回字符串 code）
+      ['accountTypeList', 'isPushVisitResultList', 'dataSourceList', 'signChannelList', 'signStatusList'].forEach((key) => {
+        data[key] = (this.form[key] || []).map((item) => +item);
+      });
       data.sortColumns = this.sortColumns;
       return data;
     },
