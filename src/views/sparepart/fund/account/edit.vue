@@ -646,6 +646,18 @@ export default {
       } else if (row.businessType === 'SPARE_PART_PURCHASE' && row.businessNoType !== 'so') {
         path = '/sparepart/warehouse/oemOutboundOrder/edit';
         type = 'oemOutboundOrder';
+      } else if (row.businessType === 'PRODUCT_PURCHASE') {
+        this.$router.push({
+          path: '/serviceProduct/serviceProductOrder/wholesaleOrder',
+          query: { wholesaleOrderNo: row.businessNo }
+        });
+        return;
+      } else if (row.businessType === 'PRODUCT_RETURN') {
+        this.$router.push({
+          path: '/serviceProduct/serviceProductOrder/wholesaleOrderReturn',
+          query: { wholesaleReturnNo: row.businessNo }
+        });
+        return;
       } else {
         return;
       }

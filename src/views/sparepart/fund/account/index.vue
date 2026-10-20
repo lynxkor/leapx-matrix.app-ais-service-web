@@ -731,6 +731,20 @@ export default {
       } else if (row.bizType === 'REBATE_DEDUCTION') {
         path = '/sparepart/fund/accountOperateDeductionApply/edit';
         type = 'accountOperateDeductionApply';
+      } else if (row.bizType === 'PRODUCT_PURCHASE') {
+        // 外购件采购单：目标页吃 wholesaleOrderCode 直接拼业务单号，不走 id 转换
+        this.$router.push({
+          path: '/serviceProduct/serviceProductOrder/wholesaleOrder',
+          query: { wholesaleOrderNo: row.bizNo }
+        });
+        return;
+      } else if (row.bizType === 'PRODUCT_RETURN') {
+        // 外购件退货单：目标页吃 wholesaleOrderCode 直接拼业务单号，不走 id 转换
+        this.$router.push({
+          path: '/serviceProduct/serviceProductOrder/wholesaleOrderReturn',
+          query: { wholesaleReturnNo: row.bizNo }
+        });
+        return;
       } else {
         return;
       }
