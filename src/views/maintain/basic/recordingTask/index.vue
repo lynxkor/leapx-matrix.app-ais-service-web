@@ -31,6 +31,13 @@
             multiple
           />
         </el-form-item>
+        <el-form-item label="任务ID" v-show="visibleCount === 3 || show">
+          <el-input
+            placeholder="请输入"
+            v-model="form.taskId"
+            clearable
+          />
+        </el-form-item>
         <el-form-item label="单据编号" v-show="visibleCount === 3 || show">
           <el-input
             placeholder="请输入"
@@ -240,6 +247,7 @@ import { getEndOfDayString, downloadExcel } from '@/libs/utils';
 const defaultForm = {
   createTime: '',
   docTypes: [],
+  taskId: '',
   docCodeLike: '',
   batchDocCodesLike: '',
   taskStatuses: [],
