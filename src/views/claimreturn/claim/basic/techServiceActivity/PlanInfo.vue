@@ -189,6 +189,7 @@
           </div>
           <item-info
             v-if="id && schemeId"
+            ref="itemInfo"
             :id="id"
             :moduleKey="moduleKey"
             :schemeId="schemeId"
@@ -382,24 +383,27 @@ export default {
           ? String(data.mainPartId) + String(data.mainSupplierId)
           : data.mainPartId || '';
 
-        // 如果有主因零部件，获取零部件详情设置供应商选项
-        if (data.mainPartId) {
-          sparePartList({
-            id: data.mainPartId,
-            pageSize: 1,
-            pageNum: 1,
-            status: 1
-          }).then(partData => {
-            const partRecord = partData?.records?.[0] || partData?.[0] || partData;
-            if (partRecord?.sparePartSupplierRespList) {
-              this.supplierOptions = partRecord.sparePartSupplierRespList?.map(item => {
-                return {
-                  label: item.supplierName,
-                  value: item.supplierInfoId
-                };
-              }) || [];
-            }
-          });
+        // 主因零部件反显：零件行改主因件后走 onPartSaved → getDetail，此时组件 initialLoaded 已为 true，
+        // 不会再自动加载选项，需手动设置，否则显示原始 id
+        if (data.mainPartId && this.$refs.mainPartSelectRef) {
+          const label = data.mainPartCode || data.mainPartName
+            ? `${data.mainPartCode || ''}/${data.mainPartName || ''}`
+            : data.mainPartId;
+          this.$refs.mainPartSelectRef.remoteOptions = [{
+            partAndSupplierId: this.selectedPartKey,
+            displayLabel: label,
+            sparePartId: data.mainPartId,
+            supplierInfoId: data.mainSupplierId
+          }];
+          this.$refs.mainPartSelectRef.initialLoaded = true;
+        }
+
+        // 如果有主因件与主因供应商，直接用详情返回的名称设置选项，首次加载即可显示
+        if (data.mainPartId && data.mainSupplierId) {
+          this.supplierOptions = [{
+            label: data.mainSupplierName,
+            value: data.mainSupplierId
+          }];
         }
 
         // 设置 VRT 下拉组件的选项数据，确保正确显示名称
@@ -504,7 +508,7 @@ export default {
         }
 
         // 使用 nextTick 填充下拉选项数据
-        this.$nextTick(() => {
+        this.$nextTick(async () => {
           // 设置 VRT 下拉组件的选项数据
           if (vrtId && this.$refs.vrtSelect) {
             this.$refs.vrtSelect.remoteOptions = [{
@@ -536,8 +540,9 @@ export default {
             this.form.mainSupplierName = '';
           }
 
-          // 更新
-          this.updatePlan(this.form);
+          // 更新方案：保存成功后刷新零件列表（后端已归一化主因件标记）
+          await this.updatePlan(this.form);
+          this.refreshPartTable();
         });
       } else {
         // 清空选择
@@ -550,7 +555,8 @@ export default {
         this.form.vfgId = '';
         this.form.vfgName = '';
         this.supplierOptions = [];
-        this.updatePlan(this.form);
+        await this.updatePlan(this.form);
+        this.refreshPartTable();
       }
     },
     // vrt
@@ -602,6 +608,13 @@ export default {
     onPartSaved () {
       if (this.schemeId) {
         this.getDetail(this.schemeId);
+      }
+    },
+    // 方案保存成功后刷新零件列表（后端已归一化零件明细的主因件标记）
+    refreshPartTable () {
+      const itemInfo = this.$refs.itemInfo;
+      if (itemInfo && typeof itemInfo.refreshPartTable === 'function') {
+        itemInfo.refreshPartTable();
       }
     },
     command (command, item, index) {
