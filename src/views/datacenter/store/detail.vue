@@ -44,6 +44,7 @@
                 <el-form-item label="服务热线：">{{ form.serviceHotline }}</el-form-item>
                 <el-form-item label="验收完成时间：">{{ form.acceptanceTime }}</el-form-item>
                 <el-form-item label="门店等级：">{{ form.storeLevelName }}</el-form-item>
+                <el-form-item label="合作类型：">{{ form.cooperationTypeLabel }}</el-form-item>
               </el-form>
             </div>
           </section>
@@ -164,6 +165,7 @@ const defaultForm = {
   isPartOrder: false,
   roadRescueAddress: '',
   storeLevelName: '',
+  cooperationTypeLabel: '',
   warehouseList: []
 };
 
