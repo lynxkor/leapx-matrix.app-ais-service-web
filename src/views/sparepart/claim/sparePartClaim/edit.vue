@@ -408,14 +408,6 @@
                   <span class="value">{{ logistics?.waybillCode }}</span>
                   <span class="label">预计送达日期：</span>
                   <span class="value">{{ logistics?.promiseAgingDate }}</span>
-                  <el-button
-                    v-if="hasEpod(logistics)"
-                    type="success"
-                    plain
-                    size="mini"
-                    class="epod-btn"
-                    @click="openEpodList(logistics)"
-                  >回单凭证</el-button>
                 </div>
 
                 <!-- 物流节点 -->
@@ -429,6 +421,18 @@
                   >
                     <div class="timeline-content">
                       <strong>{{ item.context }}</strong>
+
+                      <!-- 回单缩略图：展示在第一笔物流轨迹（时间最早的一笔）的明细与时间之间 -->
+                      <div v-if="index === 0 && hasEpod(logistics)" class="logistics-epod-thumbs">
+                        <div
+                          v-for="(url, epodIdx) in getEpodList(logistics)"
+                          :key="epodIdx"
+                          class="logistics-epod-thumb"
+                          @click="openEpodList(logistics, epodIdx)"
+                        >
+                          <img :src="url" alt="回单凭证" />
+                        </div>
+                      </div>
                     </div>
                   </el-timeline-item>
                 </el-timeline>
@@ -916,10 +920,15 @@ export default {
     hasEpod (logistics) {
       return logistics && Array.isArray(logistics.epod) && logistics.epod.length > 0;
     },
+    // 获取回单图片列表（过滤空值）
+    getEpodList (logistics) {
+      if (!logistics || !Array.isArray(logistics.epod)) return [];
+      return logistics.epod.filter(url => !!url);
+    },
     // 打开回单列表弹框
-    openEpodList (logistics) {
-      this.currentEpodList = (logistics.epod || []).filter(url => !!url);
-      this.previewIndex = 0;
+    openEpodList (logistics, idx = 0) {
+      this.currentEpodList = this.getEpodList(logistics);
+      this.previewIndex = idx;
       this.epodListVisible = true;
     },
     // 关闭回单列表弹框
@@ -1051,17 +1060,33 @@ export default {
   }
 }
 
-.epod-btn {
-  margin-left: 12px;
-  border-color: #67c23a;
-  color: #67c23a;
-  background-color: #fff;
+.logistics-epod-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
 
-  &:hover,
-  &:focus {
-    background-color: #fff;
+.logistics-epod-thumb {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: #f5f7fa;
+  transition: border-color 0.2s;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &:hover {
     border-color: #67c23a;
-    color: #67c23a;
   }
 }
 
