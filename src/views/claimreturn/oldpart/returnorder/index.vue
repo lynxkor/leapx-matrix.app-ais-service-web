@@ -296,7 +296,7 @@ export default {
               popconfirmConfirmButtonType: 'danger',
               popconfirmConfirmButtonText: '删除',
               show: (row) => {
-                return row.returnStatus === '10' && this.canDelete;
+                return (row.returnStatus === '10' || row.returnStatus === '20') && this.canDelete;
               },
               popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
@@ -488,12 +488,12 @@ export default {
     // 批量删除
     handleBatchDelete () {
       this.selectionList.forEach(item => {
-        if (item.returnStatus !== '10') {
+        if (item.returnStatus !== '10' && item.returnStatus !== '20') {
           this.$message({
             type: 'error',
-            message: '仅草稿状态数据允许删除!'
+            message: '仅草稿或待回运且无明细的数据允许删除!'
           });
-          throw new Error('仅草稿状态数据允许删除!');
+          throw new Error('仅草稿或待回运且无明细的数据允许删除!');
         }
       });
       const ids = this.selectionList.map(item => item.id) || [];
