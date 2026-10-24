@@ -450,6 +450,11 @@ export default {
       // 重置 form 为 defaultForm（模块级常量，不受 mixin data 合并影响）
       // 然后仅保留 partCodeList，其他字段用默认值
       this.form = { ...defaultForm, partCodeList };
+      // TagInput 内部 tagList 只在 value 变化时同步, created 中的同步赋值不会回显;
+      // 挂载后再赋新数组引用触发 watcher, 让零件编码查询条件正常回显.
+      this.$nextTick(() => {
+        this.form = { ...this.form, partCodeList: partCodeList.slice() };
+      });
     },
     handleListSelect (row) {
       this.clickItemId = row.id;

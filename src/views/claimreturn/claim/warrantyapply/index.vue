@@ -1646,13 +1646,21 @@ export default {
       // 三个都没带 → 不是预警跳转, 不动 form
       if (!applyNoList && !serviceProxyNoList && !partCodeList) return;
       // 2. 整体重置 form 为 defaultForm (强制清空所有查询条件), 再覆盖多选字段
-      this.form = {
-        ...defaultForm,
-        createTime: null,
-        ...(applyNoList ? { applyNoList } : {}),
-        ...(serviceProxyNoList ? { serviceProxyNoList } : {}),
-        ...(partCodeList ? { partCodeList } : {})
-      };
+      const tagParams = {};
+      if (applyNoList) tagParams.applyNoList = applyNoList;
+      if (serviceProxyNoList) tagParams.serviceProxyNoList = serviceProxyNoList;
+      if (partCodeList) tagParams.partCodeList = partCodeList;
+      this.form = { ...defaultForm, createTime: null, ...tagParams };
+      // TagInput 只用初始 value 渲染一次是不够的: 组件内部 tagList 只在 value 变化时才同步,
+      // created 中同步赋值发生在子组件首次渲染前, 回显会丢失. 挂载后再赋一次新数组引用,
+      // 触发 TagInput 的 value watcher, 让查询条件正常回显.
+      this.$nextTick(() => {
+        const remount = {};
+        Object.keys(tagParams).forEach(key => {
+          remount[key] = tagParams[key].slice();
+        });
+        this.form = { ...this.form, ...remount };
+      });
       // 3. 重置分页, 避免老分页状态干扰
       if (this.tableForm) {
         this.tableForm.page = 1;

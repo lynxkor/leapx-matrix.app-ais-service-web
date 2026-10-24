@@ -507,6 +507,11 @@ export default {
       if (codes.length === 0) return;
       // 覆盖 codes 字段, 并显式清空 createTime 时间窗口.
       this.form = { ...defaultForm, codes, createTime: [] };
+      // TagInput 内部 tagList 只在 value 变化时同步, created 中的同步赋值不会回显;
+      // 挂载后再赋新数组引用触发 watcher, 让施工单号查询条件正常回显.
+      this.$nextTick(() => {
+        this.form = { ...this.form, codes: codes.slice() };
+      });
     },
     handleListSelect (row) {
       this.clickItemId = row.id;
