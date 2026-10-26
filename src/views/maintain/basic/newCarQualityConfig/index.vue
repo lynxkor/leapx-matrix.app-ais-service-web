@@ -112,7 +112,6 @@ import { getTableConfig, tableAddOrUpdate } from '@/api/common';
 import ListSelect from '@/libs/components/list-select/index.vue';
 import responsiveSearchForm from '@/libs/mixins/responsive';
 import permissions from '@/libs/mixins/permissions';
-import { handleBatchStatusChange } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 
@@ -362,16 +361,48 @@ export default {
         });
       }).catch(() => {});
     },
-    // 批量启用停用
+    // 批量启用停用（本页专用：启用、停用均必须填写备注说明）
     handleBatchEnable (status) {
-      handleBatchStatusChange.call(this, {
-        selectionList: this.selectionList,
-        targetStatus: status,
-        apiFunc: enableItem,
-        refreshFunc: this.getData,
-        // 启用、停用均必须填写备注说明
-        enableRequireInput: true
-      });
+      const statusText = status === 1 ? '启用' : '停用';
+
+      if (!this.selectionList || this.selectionList.length === 0) {
+        this.$message({ type: 'warning', message: '请先选择要操作的数据!' });
+        return;
+      }
+
+      // 选中项必须全部不是目标状态，才允许操作
+      const sameStatusItems = this.selectionList.filter(item => item.status === status);
+      if (sameStatusItems.length > 0) {
+        this.$message({
+          type: 'warning',
+          message: sameStatusItems.length === this.selectionList.length
+            ? `选中的数据已经是${statusText}状态，无需重复操作！`
+            : `选中的数据中存在${statusText}状态的数据，无法批量${statusText}！`
+        });
+        return;
+      }
+
+      const ids = this.selectionList.map(item => item.id);
+      this.$prompt(`此操作将${statusText}选中项，是否继续?`, '', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        customClass: 'ais-enable-tips',
+        inputPlaceholder: `请输入${statusText}说明`
+      }).then(({ value }) => {
+        const reason = (value || '').trim();
+        if (!reason) {
+          this.$message({ type: 'error', message: `${statusText}说明不能为空!` });
+          return;
+        }
+        if (reason.length > 100) {
+          this.$message({ type: 'error', message: `${statusText}说明不能超过100字!` });
+          return;
+        }
+        enableItem({ idSet: ids, status, statusDesc: reason }).then(() => {
+          this.$message({ type: 'success', message: '操作成功!' });
+          this.getData();
+        });
+      }).catch(() => {});
     }
   }
 };
