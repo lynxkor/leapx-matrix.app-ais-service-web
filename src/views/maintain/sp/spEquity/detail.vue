@@ -54,6 +54,12 @@
                 <el-form-item label="权益发放ID：">
                   {{ form.equityDistributionId }}
                 </el-form-item>
+                <el-form-item label="权益来源：">
+                  {{ form.grantSourceLabel || '-' }}
+                </el-form-item>
+                <el-form-item label="权益订单号：">
+                  {{ form.grantOrderId }}
+                </el-form-item>
               </el-form>
             </div>
           </section>
@@ -86,7 +92,9 @@ const defaultForm = {
   spreadType: '',
   suggestedSpreadPrice: '',
   verificationEquityCode: '',
-  equityDistributionId: ''
+  equityDistributionId: '',
+  grantSource: '',
+  grantOrderId: ''
 };
 
 export default {
