@@ -368,7 +368,9 @@ export default {
         selectionList: this.selectionList,
         targetStatus: status,
         apiFunc: enableItem,
-        refreshFunc: this.getData
+        refreshFunc: this.getData,
+        // 启用、停用均必须填写备注说明
+        enableRequireInput: true
       });
     }
   }

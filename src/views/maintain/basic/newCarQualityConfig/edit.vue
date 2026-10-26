@@ -131,6 +131,9 @@
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
                 </el-form-item>
+                <el-form-item label="备注说明：" prop="statusDesc">
+                  {{ form.statusDesc }}
+                </el-form-item>
                 <el-form-item label="状态：" prop="status">
                   {{ form.statusLabel }}
                 </el-form-item>
@@ -179,6 +182,7 @@ const defaultForm = {
   launchDate: '',
   newCarPeriod: undefined,
   remark: '',
+  statusDesc: '',
   status: '',
   statusLabel: '',
   id: '',
