@@ -131,7 +131,7 @@
                 <el-form-item label="备注：" prop="remark">
                   {{ form.remark }}
                 </el-form-item>
-                <el-form-item label="备注说明：" prop="statusDesc">
+                <el-form-item label="停用启用说明：" prop="statusDesc">
                   {{ form.statusDesc }}
                 </el-form-item>
                 <el-form-item label="状态：" prop="status">
