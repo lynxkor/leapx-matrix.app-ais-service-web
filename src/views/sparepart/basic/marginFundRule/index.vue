@@ -429,7 +429,7 @@ export default {
           { props: 'approveTime', label: '审批时间', visible: true, width: 170 },
           { props: 'originalMonthlyUseCount', label: '月使用次数（原）', visible: true, width: 130 },
           { props: 'originalRuleRemark', label: '使用规则备注（原）', visible: true, width: 240 },
-          { props: 'useMarginFundIs', label: '是否使用预留资金', visible: true, width: 200 },
+          { props: 'useMarginFundIsLabel', label: '是否使用预留资金', visible: true, width: 200 },
           { props: 'orderRemark', label: '订单备注', visible: true, width: 160 },
           { props: 'createTime', label: '创建时间', visible: true, width: 170 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 170 }
