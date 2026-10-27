@@ -222,7 +222,7 @@
 
     <Upload
       :visible="uploadDialogVisible"
-      id="marginFundRuleImport"
+      id="sparePartMarginFundRuleImport"
       @close="handleUploadDialogClose"
       @getData="getData"
     />

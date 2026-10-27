@@ -204,7 +204,7 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      id="marginImport"
+      id="sparePartMarginImport"
       title="预留资金额度导入"
       download-title="备件预留资金额度导入模板"
       @close="handleUploadDialogClose"
