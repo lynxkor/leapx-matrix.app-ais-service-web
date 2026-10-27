@@ -145,6 +145,7 @@
                   <vxe-column field="approveTime" title="审批时间" min-width="160" />
                   <vxe-column field="originalMonthlyUseCount" title="月使用次数（原）" min-width="140" />
                   <vxe-column field="originalRuleRemark" title="使用规则备注（原）" min-width="200" show-overflow="ellipsis" />
+                  <vxe-column field="orderRemark" title="订单备注" min-width="160" />
                   <vxe-column field="createTime" title="创建时间" min-width="180" />
                   <template #empty>
                     <div class="m-empty-tip">
@@ -407,5 +408,35 @@ export default {
   font-size: 13px;
   text-align: center;
   line-height: 1.6;
+}
+/* 快照列：区分「审批时快照值」与「规则当前值」 */
+.snapshot-col-title {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.snapshot-col-title .snapshot-col-icon {
+  margin-left: 4px;
+  font-size: 14px;
+  color: #909399;
+  cursor: help;
+}
+.snapshot-col-title .snapshot-col-icon:hover {
+  color: var(--leap-color-primary);
+}
+.snapshot-value {
+  display: inline-flex;
+  align-items: center;
+}
+.snapshot-tag {
+  margin-left: 6px;
+  padding: 0 6px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #8c6d1f;
+  background: #fdf6ec;
+  border: 1px solid #e6d5a8;
+  border-radius: 3px;
+  white-space: nowrap;
 }
 </style>
