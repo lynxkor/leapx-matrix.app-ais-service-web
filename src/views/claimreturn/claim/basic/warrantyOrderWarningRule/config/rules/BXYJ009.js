@@ -16,7 +16,7 @@ import {
 export default {
   ruleType: 'BXYJ009',
   isOcr: false,
-  description: '当保修单上传附件时,若保修类型为 {warrantyTypes} ,且 VRT 为 {vrtIds} ,若存在施工单 vin 为当前 vin,且结算日期大于等于当前日期- {withinDays} 天,且工单状态为 {workOrderStatuses} ,同时还存在结算类型为 {checkoutTypeIds} 的维修记录(工时或备件一项即可),则提醒:',
+  description: '若保修类型为 {warrantyTypes} ,且 VRT 为 {vrtIds} ,若存在施工单 vin 为当前 vin,且结算日期大于等于当前日期- {withinDays} 天,且工单状态为 {workOrderStatuses} ,同时还存在结算类型为 {checkoutTypeIds} 的维修记录(工时或备件一项即可),则提醒:',
   fields: [
     {
       key: 'warrantyTypes',
