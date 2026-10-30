@@ -108,6 +108,16 @@
             <el-form-item label="是否关键件：" prop="keyPartIs">
               {{ info.keyPartIsLabel  }}
             </el-form-item>
+            <!-- 【LP260102】新增字段：门店账号的可见性由后端置空实现，前端不做隐藏 -->
+            <el-form-item label="分库是否备货：" prop="subLibraryStockIs">
+              {{ info.subLibraryStockIsLabel  }}
+            </el-form-item>
+            <el-form-item label="是否EOP产品：" prop="eopProductIs">
+              {{ info.eopProductIsLabel  }}
+            </el-form-item>
+            <el-form-item label="是否一次性备货：" prop="oneTimeStockIs">
+              {{ info.oneTimeStockIsLabel  }}
+            </el-form-item>
             <el-form-item label="国内包装前长（mm）：" prop="domesticPrePackageLengthMm">
               {{ info.domesticPrePackageLengthMm  }}
             </el-form-item>

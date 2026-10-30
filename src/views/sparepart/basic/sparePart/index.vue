@@ -139,6 +139,40 @@
             filterable
           />
         </el-form-item>
+        <!-- 【LP260102】新增字段：门店账号的可见性由后端置空实现，前端不做隐藏 -->
+        <el-form-item label="分库是否备货">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.subLibraryStockIsList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="是否EOP产品">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.eopProductIsList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
+        <el-form-item label="是否一次性备货">
+          <fetch-select
+            :request="fetchOptions"
+            enumCode="BooleanEnum"
+            v-model="form.oneTimeStockIsList"
+            placeholder="请选择"
+            clearable
+            multiple
+            filterable
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -241,6 +275,9 @@ const defaultForm = {
   createTime: '',
   updateTime: '',
   oldReturnTypeList: [],
+  subLibraryStockIsList: [],
+  eopProductIsList: [],
+  oneTimeStockIsList: [],
   statusIncludeList: ['1']
 };
 
@@ -343,6 +380,9 @@ export default {
           { props: 'oldReturnTypeLabel', label: '旧件返还类型', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'subLibraryStockIsLabel', label: '分库是否备货', visible: true, width: 150 },
+          { props: 'eopProductIsLabel', label: '是否EOP产品', visible: true, width: 150 },
+          { props: 'oneTimeStockIsLabel', label: '是否一次性备货', visible: true, width: 160 },
           {
             props: 'operate',
             label: '操作',
