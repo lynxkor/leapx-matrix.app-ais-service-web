@@ -1,4 +1,13 @@
 <template>
+  <!--
+    个人视图设置(容器)。
+
+    结构:
+      上半 —— 引用原「自定义条件查询」组件(CustomQueryBlock:继承 CustomQueryDialog 的全部逻辑,
+              仅把弹窗外壳替换为行内容块,原组件自带的「取消 / 保存」因此不再出现);
+      下半 —— 引用「自定义表格」组件(TableSetting:表格设置功能已复制到本项目内);
+      右下 —— 统一的「取消 / 保存」按钮(取消关闭弹框)。
+  -->
   <el-dialog
     title="个人视图设置"
     :visible.sync="dialogVisible"
@@ -10,125 +19,67 @@
     @closed="onClosed"
   >
     <div class="pvs">
-      <!-- 视图名称(必填) -->
-      <div class="pvs__block">
-        <div class="pvs__label">
-          <span class="pvs__required">*</span>视图名称
-        </div>
-        <el-input
-          v-model="viewName"
-          placeholder="请输入"
-          size="small"
-          maxlength="20"
-          show-word-limit
-          class="pvs__name-input"
-        />
-      </div>
+      <!-- 上半:原个人视图配置(视图名称 + 自定义筛选) -->
+      <custom-query-block
+        ref="queryBlock"
+        :biz-key="bizKey"
+        :active-preset-id="activePresetId"
+        :hide-sort="true"
+      />
 
-      <!-- 自定义筛选:复用 CustomView 的条件组组件(未改动) -->
-      <div class="pvs__block">
-        <div class="pvs__label">自定义筛选</div>
-        <div v-loading="fieldsLoading" class="pvs__filter">
-          <custom-condition-group
-            v-if="!fieldsLoading"
-            :group="workingTree"
-            :fields="fields"
-            :depth="0"
-            :removable="false"
-            @change="onTreeChange"
-          />
-          <div v-else class="pvs__tip">字段元数据加载中...</div>
-        </div>
-      </div>
-
-      <!-- 自定义排序:支持添加多个排序字段 -->
+      <!-- 自定义排序:多字段,支持添加 / 删除 / 拖拽调整次序 -->
       <div class="pvs__block">
         <div class="pvs__label">自定义排序</div>
         <div class="pvs__sort">
-          <div v-for="(item, idx) in sortList" :key="idx" class="pvs__sort-row">
-            <el-select
-              v-model="item.field"
-              placeholder="选择排序字段"
-              size="small"
-              filterable
-              clearable
-              class="pvs__sort-field"
+          <div ref="sortListRef" class="pvs__sort-list">
+            <div
+              v-for="(item, idx) in sortList"
+              :key="idx"
+              class="pvs__sort-row"
             >
-              <el-option
-                v-for="f in fields"
-                :key="f.key"
-                :value="f.key"
-                :label="f.label"
+              <i class="el-icon-rank pvs__sort-handle" title="拖动调整次序" />
+              <el-select
+                v-model="item.field"
+                placeholder="选择排序字段"
+                size="small"
+                filterable
+                clearable
+                class="pvs__sort-field"
+              >
+                <el-option
+                  v-for="f in sortableFields(item)"
+                  :key="f.key"
+                  :value="f.key"
+                  :label="f.label"
+                />
+              </el-select>
+              <el-radio-group v-model="item.order" size="small" :disabled="!item.field">
+                <el-radio-button label="asc">升序</el-radio-button>
+                <el-radio-button label="desc">降序</el-radio-button>
+              </el-radio-group>
+              <el-button
+                type="text"
+                icon="el-icon-close"
+                class="pvs__sort-remove"
+                @click="removeSortField(idx)"
               />
-            </el-select>
-            <el-radio-group v-model="item.order" size="small" :disabled="!item.field">
-              <el-radio-button label="asc">升序</el-radio-button>
-              <el-radio-button label="desc">降序</el-radio-button>
-            </el-radio-group>
-            <el-button
-              type="text"
-              icon="el-icon-close"
-              class="pvs__sort-remove"
-              @click="removeSortField(idx)"
-            />
+            </div>
           </div>
-          <el-button size="mini" icon="el-icon-plus" @click="addSortField">添加排序字段</el-button>
-          <div class="pvs__tip">不选字段则按后端默认排序</div>
+          <el-button size="mini" icon="el-icon-plus" @click="addSortField">
+            添加排序字段<template v-if="sortList.length">（{{ sortList.length }}）</template>
+          </el-button>
+          <div class="pvs__tip">不选字段则按后端默认排序;次序靠前的字段优先排序</div>
         </div>
       </div>
 
-      <!-- 自定义表格:复用 design 包 optionModal 的基础设置与显示列逻辑 -->
-      <div class="pvs__block option-modal-wrapper">
+      <!-- 下半:自定义表格 -->
+      <div class="pvs__block">
         <div class="pvs__label">自定义表格</div>
-
-        <p class="modal-wrapper-header">基础设置</p>
-        <el-form :model="form" label-width="100px">
-          <el-form-item label="表格式标准">
-            <el-radio-group v-model="form.layout">
-              <el-radio
-                v-for="item of LAYOUTS"
-                :key="item.value"
-                :label="item.value"
-                name="layout"
-              >
-                {{ item.label }}
-              </el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="表格内容折行">
-            <el-switch v-model="form.autoWrap" /><span>（开启后页面内容将换行显示完整）</span>
-          </el-form-item>
-          <el-form-item label="操作列固定">
-            <el-switch v-model="form.isOperateFixed" /><span>（开启后操作列在右边固定展示）</span>
-          </el-form-item>
-        </el-form>
-
-        <p class="modal-wrapper-header">自定义显示示例<em>下方表头字段会按照从左往右，从上往下的排序逻辑排布</em></p>
-        <div class="modal-wrapper-search">
-          <el-input
-            v-model="colLabel"
-            size="mini"
-            clearable
-            prefix-icon="el-icon-search"
-            placeholder="搜索列名称"
-          />
-        </div>
-        <div class="m-multi-cols">
-          <span>批量控制</span>
-          <el-checkbox v-model="checkAll" :indeterminate="isCheckIndeterminate" @change="handleCheckAllChange">全部显示</el-checkbox>
-          <el-checkbox v-model="notCheckAll" :indeterminate="isNoCheckIndeterminate" @change="handlenotCheckAllChange">全部隐藏</el-checkbox>
-        </div>
-        <div class="m-cols">
-          <el-checkbox-group v-model="checkedCols" @change="handleCheckedColsChange">
-            <div ref="grid" class="grid-container">
-              <div v-for="col in filteredCols" :key="col.props" class="grid-item">
-                <svg class="icon u-move-icon" aria-hidden="true">
-                  <use xlink:href="#icon-leapmotor-design-move"></use>
-                </svg><el-checkbox :key="col.props" :label="col.props" :disabled="col.disabled">{{ col.label }}</el-checkbox>
-              </div>
-            </div>
-          </el-checkbox-group>
-        </div>
+        <table-setting
+          ref="tableSetting"
+          :config="tableConfig"
+          :show-base-settings="showBaseSettings"
+        />
       </div>
 
       <!-- 校验提示 -->
@@ -143,7 +94,7 @@
 
     <template v-slot:footer>
       <div class="dialog-footer">
-        <el-button size="small" @click="onClose">取消</el-button>
+        <el-button size="small" :disabled="applying" @click="onClose">取消</el-button>
         <el-button size="small" type="primary" :loading="applying" @click="onSave">保存</el-button>
       </div>
     </template>
@@ -152,40 +103,41 @@
 
 <script>
 /**
- * 个人视图设置 —— 「表格设置」与「自定义条件查询」合并为一个弹窗。
+ * 个人视图设置 —— 「自定义条件查询」与「表格设置」合并为一个弹窗。
  *
- * 复用方式(两个来源组件的源码零改动):
- *   1. mixins 继承 @leapmotor/design 的 optionModal.vue —— 拿到表格设置的全部逻辑:
- *      form(autoWrap/layout/columnConfig/isOperateFixed)、checkedCols、checkAll/notCheckAll、
- *      filteredCols、init、initSortable、updateCheck、handleCheckedColsChange、
- *      handleCheckAllChange、handlenotCheckAllChange、LAYOUTS;
- *      同时沿用其 .option-modal-wrapper 全局样式(基础设置/显示列/批量控制的样式完全一致)。
- *   2. mixins 继承 @/libs 的 CustomQueryDialog.vue —— 拿到视图侧的全部逻辑:
- *      workingTree/workingSort/viewName/errorSummary/fieldsMeta、fetchFields、loadPresetDetail、
- *      buildAndSave、validateTree、validateSort、onTreeChange;
- *      条件树 UI 仍由 CustomConditionGroup 组件渲染,未做任何改动。
- *
- * 本组件只负责「把两者拼进同一个弹窗」:模板重排为 视图名称 / 自定义筛选 / 自定义排序 / 自定义表格
- * 四个区块,并新增多字段排序(添加排序字段)与统一的保存出口(save 事件)。
+ * 组件组织(本组件只做「容器」,不重复实现子组件的逻辑):
+ *   1. 上半 <custom-query-block>:extends 继承 @/libs 的 CustomQueryDialog.vue,
+ *      拿到全部视图侧逻辑(字段元数据 / 条件树 / 视图名 / 校验 / 保存),
+ *      并把其 el-dialog 局部覆盖为行内容块 —— 原组件自带的「取消 / 保存」按钮不再出现。
+ *   2. 下半 <table-setting>:design 包的 optionModal.vue 在 node_modules 里无法加参数,
+ *      故把「表格设置」功能复制到本项目内(见 TableSetting.vue),去掉弹窗外壳与自带 footer。
+ *   3. 右下角统一「取消 / 保存」,取消关闭弹框。
  */
-import OptionModal from '@leapmotor/design/packages/table/optionModal.vue';
-import CustomQueryDialog from '@/libs/components/CustomView/CustomQueryDialog.vue';
+import Sortable from 'sortablejs';
+import CustomQueryBlock from './CustomQueryBlock.vue';
+import TableSetting from './TableSetting.vue';
+import { getTableConfig, tableAddOrUpdate } from '@/api/common';
+import { viewTableConfigCode } from './localView';
 
 export default {
   name: 'PersonalViewSetting',
-  mixins: [OptionModal, CustomQueryDialog],
+  components: { CustomQueryBlock, TableSetting },
   props: {
     visible: {
       type: Boolean,
       default: false
     },
-    // 视图业务键:CustomQueryDialog 加载字段元数据与保存视图都需要
+    // 视图业务键:加载字段元数据与保存视图都需要
     bizKey: {
       type: String,
       required: true
     },
-    // 表格列配置(含 columnConfig / autoWrap / layout / isOperateFixed)。
-    // optionModal 的 init() 依赖该 prop,这里覆盖其默认值,保证未传时也不报错。
+    // 编辑既有视图时传入其 id(新增时传 null)
+    activePresetId: {
+      type: String,
+      default: null
+    },
+    // 表格列配置(含 columnConfig / autoWrap / layout / isOperateFixed)
     config: {
       type: Object,
       default: () => ({
@@ -194,94 +146,204 @@ export default {
         columnConfig: [],
         isOperateFixed: true
       })
+    },
+    /**
+     * 是否跳过「性能测试」。
+     *
+     * 性能测试是针对列表查询接口的耗时校验(视图被用于查询前必须通过)。
+     * 但有些场景的视图并不是用于查询 —— 例如单据详情页里的明细表视图,
+     * 其筛选/排序在前端本地生效,后端 perf 走通用查询会因缺少业务上下文而失败
+     * (实测 bizKey=maintenanceOutboundOrderDetail 会报「维修出库单不存在null」)。
+     * 这类场景传 true,保存后直接关闭弹窗。
+     */
+    skipPerfTest: {
+      type: Boolean,
+      default: false
+    },
+    /**
+     * 是否显示「基础设置」区块(表格内容折行 / 表格紧凑度 / 操作列固定)。
+     * 底层表格组件若不支持这三项(如 EditTable 写死了 show-overflow 与行高),
+     * 传 false 隐藏该区块,避免出现「设了不生效」的假象。
+     */
+    showBaseSettings: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
     return {
-      // 弹窗显隐(optionModal 与 CustomQueryDialog 都有同名 data,此处显式声明以确定语义)
       dialogVisible: this.visible,
+      // 校验错误汇总
+      errorSummary: [],
+      // 保存中
+      applying: false,
       // 多字段排序项
-      sortList: []
+      sortList: [],
+      // 「自定义表格」区的当前配置(初值取页面传入的列定义)
+      tableConfig: this.buildTableConfig(this.config)
     };
   },
   watch: {
-    /**
-     * 打开时初始化。
-     *
-     * CustomQueryDialog 的 visible watch 只在「false → true」变化时触发,
-     * 若宿主初始就把 visible 置为 true,字段元数据与条件树不会被初始化。
-     * 这里用 immediate 补上初始即打开的分支,内部全部调用继承来的方法,不复制逻辑。
-     */
-    visible: {
-      immediate: true,
-      handler (val, oldVal) {
-        this.dialogVisible = val;
-        if (!val) return;
-        if (oldVal === undefined) {
-          // 初始即打开:走一遍与 CustomQueryDialog 相同的初始化
-          this.workingTree = this.makeInitialTree();
-          this.workingSort = this.makeInitialSort();
-          this.errorSummary = [];
-          this.viewName = '';
-          this.currentPresetId = this.activePresetId || null;
-          this.fetchFields();
-          if (this.currentPresetId) {
-            this.loadPresetDetail(this.currentPresetId);
-          }
-        }
-        // 每次打开重置排序项,随后由 workingSort 的 watch 回填
-        this.sortList = [];
-      }
+    visible (val) {
+      this.dialogVisible = val;
     },
-    // 表格配置变化时,复用 optionModal 的 init() 重新初始化表格设置区
-    config () {
-      this.init();
-    },
-    // 视图详情回填(继承自 CustomQueryDialog 的 loadPresetDetail)后同步排序项
-    workingSort: {
+    // 页面列定义变化时重置表格配置区
+    config: {
       deep: true,
-      handler () {
-        this.syncSortListFromWorking();
-      }
-    },
-    // 排序项变化时回写继承的 workingSort,使 validateSort / buildAndSave 继续可用
-    sortList: {
-      deep: true,
-      handler () {
-        this.syncWorkingFromSortList();
+      handler (val) {
+        this.tableConfig = this.buildTableConfig(val);
       }
     }
   },
-  created () {
-    // mixins 的 created 先执行(CustomQueryDialog 用 props.sort 初始化 workingSort),
-    // 此处把已有排序同步成多行展示
-    this.syncSortListFromWorking();
+  mounted () {
+    this.initSortable();
   },
   methods: {
     /**
-     * workingSort → sortList。
-     * 仅当 sortList 为空时回填,避免用户手动调整后被覆盖。
+     * 以页面传入的列定义为基准构造表格配置。
      */
-    syncSortListFromWorking () {
-      if (this.sortList.length > 0) return;
-      if (this.workingSort && this.workingSort.field) {
-        this.sortList = [{ field: this.workingSort.field, order: this.workingSort.order }];
+    buildTableConfig (config) {
+      const columnConfig = Array.isArray(config.columnConfig) ? config.columnConfig : [];
+      return {
+        autoWrap: config.autoWrap,
+        layout: config.layout,
+        isOperateFixed: config.isOperateFixed,
+        columnConfig: columnConfig.map(item => ({ ...item }))
+      };
+    },
+    /**
+     * 弹窗打开:初始化上半区(字段元数据 / 条件树 / 视图名)与排序项,
+     * 编辑既有视图时还要把该视图已保存的表格配置拉回来。
+     */
+    async onOpened () {
+      const qb = this.$refs.queryBlock;
+      if (qb) {
+        await qb.resetState();
+        this.syncSortListFromWorking();
+      }
+      if (this.activePresetId) {
+        await this.loadTableConfig(this.activePresetId);
+      }
+    },
+    onClosed () {
+      this.errorSummary = [];
+    },
+    /**
+     * 取消:关闭弹框。
+     */
+    onClose () {
+      this.$emit('update:visible', false);
+    },
+    /**
+     * 表格配置在服务端的存储键(与业务页面共用同一套规则)。
+     */
+    tableConfigCode (viewId) {
+      return viewTableConfigCode(this.bizKey, viewId);
+    },
+    /**
+     * 加载已保存视图的表格配置并回填到「自定义表格」区。
+     */
+    async loadTableConfig (viewId) {
+      if (!viewId) return;
+      try {
+        const res = await getTableConfig(this.tableConfigCode(viewId));
+        const cfg = res && res.config;
+        if (!cfg || !Array.isArray(cfg.columnConfig) || cfg.columnConfig.length === 0) return;
+        // 以当前页面的列定义为基准,只覆盖「显隐 / 顺序」——
+        // 页面新增的列不该被历史配置里的旧列覆盖掉
+        const base = this.config.columnConfig || [];
+        const savedMap = new Map(cfg.columnConfig.map(item => [item.props, item]));
+        const merged = base.map(item => {
+          const saved = savedMap.get(item.props);
+          return { ...item, visible: saved ? saved.visible !== false : true };
+        });
+        // 排序:历史配置里出现过的列按其顺序排前面,其余保持页面定义顺序
+        const savedOrder = cfg.columnConfig
+          .filter(item => savedMap.has(item.props))
+          .map(item => item.props);
+        merged.sort((a, b) => {
+          const ia = savedOrder.indexOf(a.props);
+          const ib = savedOrder.indexOf(b.props);
+          if (ia === -1 && ib === -1) return 0;
+          if (ia === -1) return 1;
+          if (ib === -1) return -1;
+          return ia - ib;
+        });
+        this.tableConfig = {
+          autoWrap: cfg.autoWrap !== undefined ? cfg.autoWrap : this.tableConfig.autoWrap,
+          layout: cfg.layout || this.tableConfig.layout,
+          isOperateFixed: cfg.isOperateFixed !== undefined ? cfg.isOperateFixed : this.tableConfig.isOperateFixed,
+          columnConfig: merged
+        };
+      } catch (e) {
+        // 表格配置是增强能力,读取失败不阻断弹窗使用
       }
     },
     /**
-     * sortList → workingSort。
-     * 后端 addOrUpdate 只接受单字段排序(sortField/sortOrder),
+     * 保存当前表格配置到服务端(按视图 id 关联)。
+     */
+    async saveTableConfig (viewId, tableConfig) {
+      if (!viewId || !tableConfig) return;
+      try {
+        await tableAddOrUpdate({
+          tableCode: this.tableConfigCode(viewId),
+          config: {
+            autoWrap: tableConfig.autoWrap,
+            layout: tableConfig.layout,
+            isOperateFixed: tableConfig.isOperateFixed,
+            columnConfig: (tableConfig.columnConfig || []).map(item => ({
+              props: item.props,
+              label: item.label,
+              visible: item.visible !== false,
+              disabled: item.disabled,
+              type: item.type
+            }))
+          },
+          resizableData: {}
+        });
+      } catch (e) {
+        this.$message.error('保存表格配置失败');
+      }
+    },
+    /**
+     * 可选排序字段:字段元数据(不受表格设置影响),剔除已参与排序的字段。
+     */
+    sortableFields (current) {
+      const qb = this.$refs.queryBlock;
+      const fields = (qb && qb.fields) || [];
+      const used = this.sortList
+        .filter(item => item !== current)
+        .map(item => item.field)
+        .filter(Boolean);
+      return fields.filter(f => !used.includes(f.key));
+    },
+    /**
+     * 上半区的工作排序 → 多字段排序项。
+     */
+    syncSortListFromWorking () {
+      const qb = this.$refs.queryBlock;
+      if (!qb) return;
+      const working = qb.workingSort;
+      this.sortList = working && working.field
+        ? [{ field: working.field, order: working.order }]
+        : [];
+    },
+    /**
+     * 多字段排序项 → 上半区的工作排序。
+     * 后端 addOrUpdate 只接受单字段排序(sortField / sortOrder),
      * 故以第一项为准回写,完整的多字段列表随 save 事件一并抛出。
      */
     syncWorkingFromSortList () {
+      const qb = this.$refs.queryBlock;
+      if (!qb) return;
       const first = this.sortList[0];
       const next = first
         ? { field: first.field, order: first.order }
         : { field: null, order: null };
-      if (!this.workingSort ||
-        this.workingSort.field !== next.field ||
-        this.workingSort.order !== next.order) {
-        this.workingSort = next;
+      if (!qb.workingSort ||
+        qb.workingSort.field !== next.field ||
+        qb.workingSort.order !== next.order) {
+        qb.workingSort = next;
       }
     },
     addSortField () {
@@ -291,8 +353,26 @@ export default {
       this.sortList.splice(idx, 1);
     },
     /**
+     * 排序字段拖拽调整次序(最终排序时次序靠前的字段先排)。
+     */
+    initSortable () {
+      const el = this.$refs.sortListRef;
+      if (!el) return;
+      if (this.sortable) this.sortable.destroy();
+      this.sortable = new Sortable(el, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        handle: '.pvs__sort-handle',
+        onEnd: (evt) => {
+          const { oldIndex, newIndex } = evt;
+          if (oldIndex === newIndex) return;
+          const moved = this.sortList.splice(oldIndex, 1)[0];
+          this.sortList.splice(newIndex, 0, moved);
+        }
+      });
+    },
+    /**
      * 校验排序项:字段必填 + 已选字段必须选顺序。
-     * 继承的 validateSort 只覆盖 workingSort(第一项),多字段场景在此补充。
      */
     validateSortList () {
       const summary = [];
@@ -306,66 +386,68 @@ export default {
       return summary;
     },
     /**
-     * 保存入口:在 CustomQueryDialog 原生保存流程(校验 → 存视图 → 性能测试 → 关闭)
-     * 之上补两件事 —— 多字段排序校验,以及把表格设置区一并交出去落库。
+     * 保存入口。
      *
-     * 视图侧全部复用继承来的方法:validateTree / validateSort / buildAndSave / onRunPerfTest。
+     * <p>校验复用上半区继承来的 validateTree;视图落库复用其 buildAndSave;
+     * 「自定义表格」的配置另外落到 userDefineTable(按视图 id 关联)。</p>
      */
     async onSave () {
       if (this.applying) return;
-      const extra = this.validateSortList();
-      if (extra.length > 0) {
-        this.errorSummary = extra;
-        return;
-      }
-      await this.onApply();
-    },
-    /**
-     * 覆盖 CustomQueryDialog 的 onApply:在其原有流程中插入「表格设置」落库出口。
-     */
-    async onApply () {
-      if (this.applying || this.perfTesting) return;
-      const name = (this.viewName || '').trim();
-      // 复用继承的 validateTree / validateSort
+      const qb = this.$refs.queryBlock;
+      const ts = this.$refs.tableSetting;
+      if (!qb) return;
+
+      const name = (qb.viewName || '').trim();
       const summary = [];
       if (!name) summary.push('请输入视图名称');
-      summary.push(...this.validateTree(this.workingTree).summary);
-      summary.push(...this.validateSort().summary);
+      summary.push(...qb.validateTree(qb.workingTree).summary);
+      summary.push(...this.validateSortList());
       if (summary.length > 0) {
         this.errorSummary = summary;
         return;
       }
       this.errorSummary = [];
+
+      // 多字段排序的第一项回写到上半区,供 buildAndSave 使用
+      this.syncWorkingFromSortList();
+
       this.applying = true;
       try {
-        // 复用继承的 buildAndSave(视图名 + 条件树 + 排序)
-        const newId = await this.buildAndSave(this.currentPresetId, name);
+        const newId = await qb.buildAndSave(qb.currentPresetId, name);
         if (!newId) {
           this.$message.error('保存视图失败');
           return;
         }
-        this.currentPresetId = newId;
-        // 表格设置区(optionModal 的 form)一并交出,由宿主页面落库
+        qb.currentPresetId = newId;
+        // 表格配置按视图 id 单独存
+        const tableConfig = ts ? ts.getTableConfig() : null;
+        await this.saveTableConfig(newId, tableConfig);
+        // 交出保存结果,供宿主页面应用
         this.$emit('save', {
           id: newId,
           viewName: name,
-          conditionTree: this.workingTree,
+          conditionTree: qb.workingTree,
           sortFields: this.sortList.map(item => ({
             column: item.field,
             sort: item.order ? item.order.toUpperCase() : ''
           })),
-          tableConfig: this.form
+          tableConfig
         });
-        // 复用继承的 onRunPerfTest(视图需通过性能测试方可使用)
-        const passed = await this.onRunPerfTest();
-        // 性能测试未通过:弹窗保持打开便于修改条件,不触发页面刷新
-        if (!passed) return;
+        // 性能测试:视图需通过方可使用。
+        // skipPerfTest 场景(如单据明细表视图)不做查询型性能测试
+        if (!this.skipPerfTest) {
+          const passed = await qb.onRunPerfTest();
+          if (!passed) return;
+        }
         this.$emit('update:active-preset-id', newId);
         this.$emit('update:visible', false);
       } finally {
         this.applying = false;
       }
     }
+  },
+  beforeDestroy () {
+    if (this.sortable) this.sortable.destroy();
   }
 };
 </script>
@@ -391,41 +473,31 @@ export default {
     font-size: 14px;
     margin-bottom: 12px;
   }
-  &__required {
-    color: #f56c6c;
-    margin-right: 2px;
-  }
-  &__name-input {
-    width: 280px;
-  }
-  &__filter {
-    min-height: 60px;
-  }
   &__tip {
     color: #909399;
     font-size: 12px;
     margin-top: 6px;
   }
   &__sort {
+    &-list {
+      margin-bottom: 4px;
+    }
     &-row {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-bottom: 10px;
     }
+    &-handle {
+      cursor: move;
+      color: #909399;
+    }
     &-field {
-      width: 240px;
+      width: 220px;
     }
     &-remove {
-      color: #c0c4cc;
-      padding: 4px;
+      color: #909399;
     }
   }
-  &__alert {
-    margin-top: 12px;
-  }
-}
-.dialog-footer {
-  text-align: right;
 }
 </style>

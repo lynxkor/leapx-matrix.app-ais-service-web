@@ -92,13 +92,30 @@
           </section>
           <section class="common-section">
             <div class="common-section-header">
-              <h2>出库明细信息</h2>
+              <div class="common-section-header__title">
+                <h2>出库明细信息</h2>
+                <CustomView
+                  :biz-key="viewBizKey"
+                  :active-preset-id.sync="activeViewId"
+                  :value="viewConditionTree"
+                  :sort-columns="viewSortColumns"
+                  trigger-text="系统视图"
+                  :dialog-component="viewDialogComponent"
+                  :dialog-props="viewDialogProps"
+                  local-apply
+                  enable-default-view
+                  @copy="onViewCopy"
+                  @change="onViewChange"
+                  @save="onViewSave"
+                />
+              </div>
             </div>
             <div class="common-section-body">
               <div class="common-section-table">
                 <edit-table
                   ref="editTable"
-                  :columns="columns"
+                  :key="tableColumnsKey"
+                  :columns="displayColumns"
                   :data="tableData"
                   :checkbox="true"
                   :show-toolbar="false"
@@ -159,12 +176,27 @@ import FetchSelect from '@/libs/components/FetchSelect';
 import EditTable from '@/libs/components/EditTable';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
-import { getEnum } from '@/api/common';
+import { getEnum, getTableConfig, tableAddOrUpdate } from '@/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import RepairDialog from './RepairDialog.vue';
+import CustomView from '@/libs/components/CustomView/index.vue';
+import PersonalViewSetting from '@/components/PersonalViewSetting/index.vue';
+import {
+  filterByTree,
+  sortByFields,
+  applyTableConfig,
+  viewTableConfigCode
+} from '@/components/PersonalViewSetting/localView';
+
+// 个人视图的业务键:后端已为该 bizKey 配置好出库明细的字段元数据
+// (customViewMain.path = /sp/web/maintenance/maintenanceOutboundOrderDetail/page)
+const VIEW_BIZ_KEY = 'maintenanceOutboundOrderDetail';
+// 视图筛选/排序在前端本地生效,需一次性拉全量明细再本地分页
+// (单据明细行数量有限,取 500 足够覆盖)
+const LOCAL_VIEW_MAX_ROWS = 500;
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -205,7 +237,8 @@ export default {
     EditPageLayout,
     EditBaseContainer,
     EditTable,
-    RepairDialog
+    RepairDialog,
+    CustomView
   },
   computed: {
     _id () {
@@ -217,6 +250,63 @@ export default {
     // 出库状态为待出库(0)或部分出库(3)时可编辑备注
     remarkEditable () {
       return this.form.outboundStatus === '0' || this.form.outboundStatus === '3';
+    },
+    /**
+     * 实际渲染的出库明细列。
+     * 视图的「自定义表格」配置(列显隐 + 顺序)在此生效。
+     */
+    displayColumns () {
+      return applyTableConfig(this.columns, this.viewTableConfig);
+    },
+    /**
+     * 表格组件的 key。
+     *
+     * <p>EditTable 内部是 vxe-table,vxe 在 columns prop 变化时只同步列的 visible,
+     * <b>不会重排已有列的位置</b> —— 视图里拖拽调整的列顺序会不生效。
+     * 这里用「可见列的字段序列」做 key,列顺序或显隐一变就重建表格组件,
+     * 让 vxe 按新顺序渲染。未使用视图时 key 恒定,不影响常规操作。</p>
+     */
+    tableColumnsKey () {
+      return this.displayColumns.map(col => col.field).join('|');
+    },
+    /**
+     * 个人视图的业务键。
+     */
+    viewBizKey () {
+      return VIEW_BIZ_KEY;
+    },
+    /**
+     * 传给「个人视图设置」弹窗的 props。
+     *
+     * <p>config: 当前明细表的列定义 —— 弹窗里的「自定义显示列」据此渲染可勾选项。
+     * skipPerfTest: 该 bizKey 的视图由前端本地应用,后端通用查询不可用,跳过性能测试。
+     * showBaseSettings: EditTable 写死了 show-overflow 与行高,不支持折行/紧凑度,故隐藏。</p>
+     */
+    viewDialogProps () {
+      return {
+        config: {
+          autoWrap: false,
+          layout: 3,
+          isOperateFixed: true,
+          columnConfig: this.columns.map(col => ({
+            props: col.field,
+            label: col.title,
+            visible: true,
+            disabled: false,
+            type: ''
+          }))
+        },
+        skipPerfTest: true,
+        showBaseSettings: false
+      };
+    },
+    /**
+     * 「新增/编辑视图」弹窗组件。
+     * 标准 CustomView 通过 dialog-component 入参接收,默认用内置的
+     * CustomQueryDialog(仅自定义条件查询),这里换成合并后的「个人视图设置」。
+     */
+    viewDialogComponent () {
+      return PersonalViewSetting;
     }
   },
   watch: {
@@ -258,6 +348,14 @@ export default {
         pageSize: 10,
         total: 0,
       },
+      // 当前选中的个人视图 id(null = 系统视图)
+      activeViewId: null,
+      // 当前视图的表格配置(列显隐/顺序)
+      viewTableConfig: null,
+      // 当前视图的筛选条件树
+      viewConditionTree: null,
+      // 当前视图的排序项 [{column, sort}]
+      viewSortColumns: [],
       tableData: [
         { id: 1, name: '张三', age: 25, email: 'zhangsan@example.com' },
         { id: 2, name: '李四', age: 30, email: 'lisi@example.com' }
@@ -446,16 +544,34 @@ export default {
       }
       return [];
     },
-    // 出库明细信息
+    /**
+     * 出库明细信息。
+     *
+     * 视图的筛选/排序在前端本地生效(后端 executeQuery 不支持该 bizKey,
+     * 明细接口必须带维修出库单 ID 才能定位数据),所以这里一次性拉全量,
+     * 再按视图条件过滤、排序,最后按前端分页参数切页。
+     * 未使用视图时行为不变:走后端分页。
+     */
     async getCollar () {
+      const hasLocalView = !!(this.viewConditionTree || (this.viewSortColumns && this.viewSortColumns.length));
       const params = {
-        pageNum: this.collarParams.current,
-        pageSize: this.collarParams.pageSize,
+        pageNum: hasLocalView ? 1 : this.collarParams.current,
+        pageSize: hasLocalView ? LOCAL_VIEW_MAX_ROWS : this.collarParams.pageSize,
         maintenanceOutboundOrderId: this._id
       };
       const res = await collarPage(params);
-      this.tableData = res.records || [];
-      this.collarParams.total = res.total || 0;
+      const records = res.records || [];
+      if (!hasLocalView) {
+        this.tableData = records;
+        this.collarParams.total = res.total || 0;
+        return;
+      }
+      // 本地生效:筛选 → 排序 → 分页
+      const filtered = filterByTree(records, this.viewConditionTree);
+      const sorted = sortByFields(filtered, this.viewSortColumns);
+      this.collarParams.total = sorted.length;
+      const start = (this.collarParams.current - 1) * this.collarParams.pageSize;
+      this.tableData = sorted.slice(start, start + this.collarParams.pageSize);
     },
     pageSizeChange (pageSize) {
       this.collarParams.pageSize = pageSize;
@@ -511,6 +627,103 @@ export default {
       let list = selection;
       this.selectedRows = list.map(item => item.id);
     },
+    /**
+     * 切换个人视图。
+     *
+     * <p>标准 CustomView 在选中视图后会把条件树与排序通过 change 事件抛出,
+     * 这里接收后在前端本地生效(后端通用查询对该 bizKey 不可用)。
+     * 表格配置不在 change 事件里,需另行按视图 id 读取。</p>
+     *
+     * @param {Object} payload {conditions, sortColumns, activePresetId}
+     */
+    async onViewChange (payload) {
+      const activePresetId = payload && payload.activePresetId;
+      if (!activePresetId) {
+        // 系统视图:清空筛选、排序与表格配置,恢复默认
+        this.viewConditionTree = null;
+        this.viewSortColumns = [];
+        this.resetViewTableConfig();
+        this.collarParams.current = 1;
+        await this.getCollar();
+        return;
+      }
+      this.viewConditionTree = (payload && payload.conditions) || null;
+      this.viewSortColumns = (payload && payload.sortColumns) || [];
+      // 表格配置与视图分开存储,按视图 id 读取
+      this.viewTableConfig = await this.loadViewTableConfig(activePresetId);
+      this.resetSelection();
+      this.collarParams.current = 1;
+      await this.getCollar();
+    },
+    /**
+     * 复制视图成功后,把原视图的表格配置一并复制给新视图。
+     *
+     * <p>表格配置按视图 id 单独存在 userDefineTable,不在视图记录里,
+     * 所以复制视图时需要单独复制一份,否则新视图会退回默认列配置。</p>
+     *
+     * @param {Object} payload {sourceId, newId, sourceIsSystem}
+     */
+    async onViewCopy (payload) {
+      if (!payload || !payload.newId || !payload.sourceId) return;
+      try {
+        const src = await getTableConfig(viewTableConfigCode(this.viewBizKey, payload.sourceId));
+        if (!src || !src.config) return;
+        await tableAddOrUpdate({
+          tableCode: viewTableConfigCode(this.viewBizKey, payload.newId),
+          config: src.config,
+          resizableData: {}
+        });
+      } catch (e) {
+        // 表格配置复制失败不影响视图本身
+      }
+    },
+    /**
+     * 个人视图保存成功。
+     * 视图与表格配置均已落库,这里应用表格配置并刷新明细。
+     */
+    async onViewSave (payload) {
+      this.viewTableConfig = (payload && payload.tableConfig) || null;
+      this.resetSelection();
+      this.collarParams.current = 1;
+      await this.getCollar();
+    },
+    /**
+     * 清空勾选状态。
+     * 切换视图会重建表格组件(列顺序/显隐变化),vxe 内部的勾选随之丢失,
+     * 页面侧的选中记录需同步清空,避免与表格显示不一致。
+     */
+    resetSelection () {
+      this.selectedRows = [];
+    },
+    /**
+     * 读取视图已保存的表格配置(列显隐/顺序)。
+     * 与 PersonalViewSetting 使用同一套存储键规则。
+     * @param {String} viewId
+     */
+    async loadViewTableConfig (viewId) {
+      if (!viewId) return null;
+      try {
+        const res = await getTableConfig(viewTableConfigCode(this.viewBizKey, viewId));
+        return (res && res.config) || null;
+      } catch (e) {
+        return null;
+      }
+    },
+    /**
+     * 恢复默认表格配置(切回系统视图时用)。
+     */
+    resetViewTableConfig () {
+      this.viewTableConfig = null;
+    },
   }
 };
 </script>
+
+<style lang="scss" scoped>
+/* 标题 + 视图下拉的左对齐分组 */
+.common-section-header__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+</style>
