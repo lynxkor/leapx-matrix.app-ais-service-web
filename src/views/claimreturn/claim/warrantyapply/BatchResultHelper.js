@@ -12,6 +12,8 @@
  *   notifyBatchResult(this, res, '同意');
  */
 
+import { escapeHtml } from '@/libs/utils';
+
 /**
  * 汇总批量操作结果并提示用户
  *
@@ -91,18 +93,6 @@ function buildFailureDetailMessage (displayList, actionLabel, noLabel) {
       <div class="batch-result-list">${items || '<div class="batch-failed-id">无</div>'}${overflow}</div>
     </div>
   `;
-}
-
-/**
- * HTML 转义，防止 ID 中存在特殊字符破坏结构
- */
-function escapeHtml (str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }
 
 /**

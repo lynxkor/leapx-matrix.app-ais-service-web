@@ -116,6 +116,7 @@ import { queryByOldPartUniqueCode4Check } from '@/api/claimreturn/oldpart/invent
 import { getList } from '@/api/claimreturn/oldpart/basic/oldPartUnqualifiedConfig/index';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import AisAttachment from '@/libs/components/AisAttachment/index.vue';
+import { escapeHtml } from '@/libs/utils';
 
 const defaultForm = {
   acceptanceResult: '0', // 验收结果 0-验收通过 1-验收不合格
@@ -211,7 +212,7 @@ export default {
             this.$notify({
               title: '警告',
               // 全局样式对通知内容有两端对齐(text-align:justify),用 HTML 渲染强制左对齐
-              message: `<div style="text-align:left;">${res}</div>`,
+              message: `<div style="text-align:left;">${escapeHtml(res)}</div>`,
               dangerouslyUseHTMLString: true,
               type: 'warning'
             });
