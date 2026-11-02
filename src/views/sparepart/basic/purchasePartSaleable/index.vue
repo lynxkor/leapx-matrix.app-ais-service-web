@@ -45,6 +45,17 @@
           filterable
         />
       </el-form-item>
+      <el-form-item label="模式">
+        <fetch-select
+          :request="fetchOptions"
+          enumCode="PurchasePartSaleableModeEnum"
+          v-model="form.modeList"
+          placeholder="请选择"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
       <template v-if="show">
         <el-form-item label="创建时间">
           <el-date-picker
@@ -124,7 +135,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, addOrUpdate } from '@/api/sparepart/basic/purchasePartSaleable/index';
+import { getList, deleteItem, enableItem, addOrUpdate, changeSaleable } from '@/api/sparepart/basic/purchasePartSaleable/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, sparePartListShort } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -139,6 +150,7 @@ const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   sparePartIdList: [],
   orderTypeList: [],
+  modeList: [],
   partCode: '',
   partName: '',
   saleableIs: '',
@@ -209,6 +221,9 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
+                if (!row.sparePartId) {
+                  return;
+                }
                 this.$router.push({
                   path: '/sparepart/basic/sparePart/edit',
                   query: {
@@ -220,7 +235,10 @@ export default {
             }]
           },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 140 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 160 },
           { props: 'saleableIsLabel', label: '是否可售', visible: true, width: 120 },
+          { props: 'modeLabel', label: '模式', visible: true, width: 100 },
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
@@ -236,7 +254,8 @@ export default {
                 this.toggleSalesStatus(row.id, '0', row);
               },
               show: (row) => {
-                return row.saleableIs === '1' && this.permissions.has('AISPART-purchasePartSaleable-canotSale'); // Show button only if user has permission
+                // 仅【模式=按备件】且【是否可售】为是，才可点击禁售
+                return row.mode === '1' && row.saleableIs === '1' && this.canAddOrUpdate;
               },
               type: 'info' // Different color for different states
             }, {
@@ -245,7 +264,8 @@ export default {
                 this.toggleSalesStatus(row.id, '1', row);
               },
               show: (row) => {
-                return row.saleableIs === '0' && this.permissions.has('AISPART-purchasePartSaleable-canSale'); ; // Show button only if user has permission
+                // 仅【模式=按备件】且【是否可售】为否，才可点击可售
+                return row.mode === '1' && row.saleableIs === '0' && this.canAddOrUpdate;
               },
               type: 'info' // Different color for different states
             }, {
@@ -258,6 +278,13 @@ export default {
                     isEditing: true
                   }
                 });
+              },
+              show: (row) => {
+                // 「按门店」场景下，【是否可售】为否的记录不允许编辑
+                if (row.mode === '2' && row.saleableIs === '0') {
+                  return false;
+                }
+                return true;
               },
               type: 'info'
             }, {
@@ -494,17 +521,15 @@ export default {
       //   });
       // });
     },
-    // Toggle sales status for a single item
+    // Toggle sales status for a single item（仅按备件模式）
     toggleSalesStatus (id, status, row) {
-      const action = status === 1 ? '禁售' : '启售';
+      const action = status === '1' ? '可售' : '禁售';
       this.$confirm(`此操作将${action}该备件，是否继续?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // Assuming there's an API endpoint for updating sales status
-        // You may need to adjust the API call according to your backend implementation
-        addOrUpdate({
+        changeSaleable({
           id: id,
           saleableIs: status
         }).then(() => {
@@ -512,9 +537,7 @@ export default {
             type: 'success',
             message: `${action}成功!`
           });
-          // Update the local row data
-          row.saleableIs = status;
-          row.saleableIsLabel = status === 1 ? '是' : '否';
+          this.getData();
         }).catch(() => {
           this.$message({
             type: 'error',
