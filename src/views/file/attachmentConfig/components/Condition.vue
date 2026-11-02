@@ -601,8 +601,20 @@ export default {
       this.conditions.forEach((g, gIdx) => {
         if (!g.dataList) return;
         g.dataList.forEach((item, iIdx) => {
-          if (!item.field) return;
           rowCount++;
+          // 每一行条件都必须完整填写：条件项/逻辑判断/条件值逐项校验，空行也报错
+          if (!item.field || !String(item.field).trim()) {
+            errors.push(`第${rowCount}行：请选择条件项`);
+            return;
+          }
+          if (!item.operator || !String(item.operator).trim()) {
+            errors.push(`第${rowCount}行：请选择逻辑判断`);
+            return;
+          }
+          if (!this.hasFilledValue(item.value)) {
+            errors.push(`第${rowCount}行：条件值不能为空`);
+            return;
+          }
           const err = this.validateRequiredField(item, gIdx, iIdx);
           if (err) errors.push(err);
         });
@@ -613,17 +625,25 @@ export default {
       return { valid: errors.length === 0, errors };
     },
     /**
-     * 单行必填字段校验：返回 null 表示通过，返回字符串表示错误文案
-     * 仅处理 NO_RETURN_RULE_FIELD_LABELS 中的 4 个字段，其他字段（如未来扩展）放行
+     * 条件值是否有实际内容：数组按"存在非空元素"判定，字符串按 trim 后非空判定
+     */
+    hasFilledValue (value) {
+      if (Array.isArray(value)) {
+        return value.some(v => v !== null && v !== undefined && String(v).trim() !== '');
+      }
+      return value !== null && value !== undefined && String(value).trim() !== '';
+    },
+    /**
+     * 单行字段校验：返回 null 表示通过，返回字符串表示错误文案
+     * 仅处理 NO_RETURN_RULE_FIELD_LABELS 中的 4 个字段；条件项/逻辑判断/条件值的必填
+     * 已在 validate() 中逐行校验，这里只做字段合法性与格式校验
      */
     validateRequiredField (item, gIdx, iIdx) {
       const label = NO_RETURN_RULE_FIELD_LABELS[item.field];
       if (!label) return null;
 
-      // 空值校验（数组视为空数组；字符串视为空串/null/undefined）
-      const isEmpty = Array.isArray(item.value)
-        ? item.value.length === 0 || item.value.every(v => v === '' || v === null || v === undefined)
-        : (item.value === '' || item.value === null || item.value === undefined);
+      // 空值校验（数组视为空数组；字符串 trim 后纯空格同样视为空）
+      const isEmpty = !this.hasFilledValue(item.value);
       if (isEmpty) {
         return `【${label}】不能为空`;
       }
