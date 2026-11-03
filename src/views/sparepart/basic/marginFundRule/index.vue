@@ -521,8 +521,8 @@ export default {
         reqParams.ids = ids;
       }
       const fetchPath = this.activeName === 'useDetail'
-        ? 'sparepart/web/basic/marginFundRule/useDetailPage'
-        : 'sparepart/web/basic/marginFundRule/page';
+        ? 'sp/web/basic/marginFundRule/useDetailPage'
+        : 'sp/web/basic/marginFundRule/page';
       const tableRef = this.activeName === 'useDetail' ? this.$refs.tableRefDetail : this.$refs.tableRef;
       const businessType = this.activeName === 'useDetail' ? '预留金使用明细' : '预留金使用规则';
       exportTable({
