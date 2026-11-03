@@ -13,7 +13,8 @@ module.exports = {
     '@vue/standard'
   ],
   parserOptions: {
-    parser: '@babel/eslint-parser'
+    parser: '@babel/eslint-parser',
+    requireConfigFile: false
   },
   rules: {
     'space-before-function-paren': ['error', 'always'], // 函数定义时括号前后必须要有空格

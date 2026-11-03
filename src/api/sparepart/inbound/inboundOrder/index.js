@@ -59,3 +59,29 @@ export function inboundOrderDetail (data) {
 export function warehousing (data) {
   return api.jsonPost(prefix + 'inbound', data);
 }
+
+/**
+ * 备件入库单-全部备件（明细维度）分页查询
+ * @param {Object} data
+ */
+export function pageAll (data) {
+  return api.jsonPost('sp/web/purchase/inboundOrderDetail/pageAll', data);
+}
+
+/**
+ * 获取当前用户备件入库打印设置
+ * @param {Object} data
+ */
+export function getMySet (data) {
+  return api.jsonPost('sp/web/purchase/inboundPrintSetting/getMySet', data);
+}
+
+/**
+ * 保存当前用户备件入库打印设置
+ * 注意：后端 @RequestBody String，入参直接传 sortOrder 字符串字面量（如 '1'），
+ * axios 以 application/json 发送 '1'，后端正确接收。
+ * @param {String} sortOrder 排序方式 code（1/2/3）
+ */
+export function saveMySet (sortOrder) {
+  return api.jsonPost('sp/web/purchase/inboundPrintSetting/saveMySet', sortOrder);
+}

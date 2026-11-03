@@ -165,7 +165,7 @@
               <el-link
                 v-if="form.dealerCode"
                 type="primary"
-                :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                 target="_blank"
               >{{ form.dealerCode }}</el-link>
               <span v-else>{{ form.dealerCode }}</span>
@@ -389,10 +389,10 @@
               />
             </el-form-item>
             <el-form-item class="form-item-full" label="故障现象描述：" prop="faultPhenomenon">
-              <base-input type="textarea" v-model="form.faultPhenomenon" clearable maxlength="5000" />
+              <base-input type="textarea" v-model="form.faultPhenomenon" clearable maxlength="5000" @input="onFaultPhenomenonInput" />
             </el-form-item>
             <el-form-item class="form-item-full" label="故障排查流程：" prop="troubleshootingFlow">
-              <base-input type="textarea" v-model="form.troubleshootingFlow" clearable maxlength="5000" />
+              <base-input type="textarea" v-model="form.troubleshootingFlow" clearable maxlength="5000" @input="onTroubleshootingFlowInput" />
             </el-form-item>
           </el-form>
           <el-form :inline="true" class="form-detail" v-show="!isFormEditing">
@@ -491,6 +491,7 @@
             :id="_id"
             :canAddOrUpdate="canEdit"
             @update="handleTableUpdate"
+            @loading-change="handleTableLoadingChange"
           />
         </div>
       </section>
@@ -518,8 +519,13 @@
                 :disabled="!isFormEditing"
               >
                 <template #option="{ item }">
-                  <span v-if="item.disabled">{{ item.placeholder }}</span>
-                  <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
+                  <template v-if="item.supplierCode">
+                    <span v-if="item.disabled">{{ item.placeholder }}</span>
+                    <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
+                  </template>
+                  <template v-else>
+                    <span></span>
+                  </template>
                 </template>
               </fetch-select>
             </el-form-item>
@@ -551,7 +557,9 @@
             ref="partTableRef"
             :id="_id"
             :canAddOrUpdate="canEdit"
+            :disableOldPartEdit="disableOldPartEdit"
             @update="handleTableUpdate"
+            @loading-change="handleTableLoadingChange"
           />
         </div>
       </section>
@@ -767,6 +775,7 @@ import {
   getNextId,
   getList
 } from '@/api/claimreturn/claim/warrantyapply/index';
+import { serviceActivitySchemeGet, getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity/index';
 import {
   APPLY_STATUS,
   EDITABLE_STATUSES,
@@ -797,7 +806,6 @@ import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 // 旧件供应商
 import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
-import { getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity';
 // 接车施工单 (BXYJ009 跳转需要按 proxyNo 批量查 id, 详情页只接受 id 入参)
 import { getList as getServiceProxyList } from '@/api/maintain/sp/serviceProxy/index';
 // 备件主数据 (BXYJ010 跳转需要按 partCode 批量查 sparePartId, 详情页只接受 id 入参)
@@ -994,6 +1002,16 @@ export default {
     isGoodwillWarranty () {
       return this.form.repairItemTypeName === '善意保修';
     },
+    // 是否技术服务活动
+    isTechnicalServiceActivity () {
+      // 保修类型字典的 code 通过 WarrantyTypeEnum.TECHNICAL_SERVICE_ACTIVITY.getCode() 与 repairItemTypeId 比对
+      // 但前端拿不到枚举常量,这里采用与后端一致的判定:repairItemTypeName === '技术服务活动'
+      return this.form.repairItemTypeName === '技术服务活动';
+    },
+    // 是否禁用备件明细的旧件编码编辑:技术服务活动 + 方案不允许修改旧件
+    disableOldPartEdit () {
+      return this.isTechnicalServiceActivity && this.allowModifyOldPart === '0';
+    },
     remindContent () {
       return this.form.spRemindInfo;
     },
@@ -1013,6 +1031,14 @@ export default {
           if (this.$refs.mainPartSelectRef) {
             this.$refs.mainPartSelectRef.loadRemoteMethod(this.form.mainPartCode);
           }
+        }
+      }
+    },
+    // 加载保修单后,根据活动方案判断是否禁用备件明细的旧件编码编辑
+    'form.schemeId': {
+      handler (val, old) {
+        if (val && val !== old) {
+          this.loadAllowModifyOldPart(val);
         }
       }
     },
@@ -1048,6 +1074,8 @@ export default {
       canDeny: false,
       canCancel: false,
       printLoading: false,
+      // 当前活动方案的"是否允许修改旧件"(1=是,0=否),用于控制备件明细的旧件编码列是否禁用
+      allowModifyOldPart: '',
       // 对话框状态
       rejectDialogVisible: false,
       rejectIds: [],
@@ -1123,7 +1151,13 @@ export default {
     handleTableUpdate () {
       this.refreshAll();
     },
-    // 取详情并补齐 partAndSupplierId
+    // 子表格行保存时切换整页 loading（借用容器的整页遮罩）
+    handleTableLoadingChange (val) {
+      if (this.$refs.containerRef) {
+        this.$refs.containerRef.detailLoading = val;
+      }
+    },
+    // 取详情并补齐 partAndSupplierId（不含弹窗副作用）
     fetchDetail () {
       const id = this._id;
       if (!id) return Promise.resolve();
@@ -1131,6 +1165,19 @@ export default {
         ...res,
         partAndSupplierId: res.mainPartId ? res.mainPartId + res.mainPartSupplierId : '',
       }));
+    },
+    // 加载活动方案的"是否允许修改旧件",用于控制备件明细编辑
+    loadAllowModifyOldPart (schemeId) {
+      if (!schemeId) {
+        this.allowModifyOldPart = '';
+        return;
+      }
+      // 后端接口签名 @RequestBody String id,要求请求体为纯字符串 ID,不能传对象
+      serviceActivitySchemeGet(schemeId).then(res => {
+        this.allowModifyOldPart = res?.allowModifyOldPart ?? '';
+      }).catch(() => {
+        this.allowModifyOldPart = '';
+      });
     },
     detailRequest () {
       return this.fetchDetail();
@@ -1386,6 +1433,29 @@ export default {
       });
       return res;
     },
+    /**
+     * 去除字符串中的表情符号
+     */
+    removeEmoji (str) {
+      if (!str) return str;
+      return str
+        .replace(/\p{Extended_Pictographic}/gu, '')
+        .replace(/\p{Emoji_Modifier}/gu, '')
+        .replace(/[\u{FE00}\u{FE0F}\u{200D}]/gu, '')
+        .replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu, '');
+    },
+    onFaultPhenomenonInput (val) {
+      const cleaned = this.removeEmoji(val);
+      if (cleaned !== val) {
+        this.form.faultPhenomenon = cleaned;
+      }
+    },
+    onTroubleshootingFlowInput (val) {
+      const cleaned = this.removeEmoji(val);
+      if (cleaned !== val) {
+        this.form.troubleshootingFlow = cleaned;
+      }
+    },
     // 打开侧边栏
     openPane () {
       this.$refs.editLayout.openPane();
@@ -1427,7 +1497,7 @@ export default {
         codeOrNameLike: query,
         serviceProxyId: this.form.serviceProxyId,
         createTimeStart: dateStr,
-        applyStatusList: ['30', '50'],
+        applyStatusList: ['20', '30', '40'],
       });
     },
     onReportChange (val, row) {
@@ -1621,9 +1691,13 @@ export default {
       const searchParams = JSON.parse(sessionStorage.getItem(SEARCH_PARAMS_KEY) || '{}');
       // 增加预防，无id不跳
       if (!this._id) return;
+      const bucket = this.$store.state.customView?.cache?.warrantyapply;
+      const viewId = bucket ? bucket.activePresetId : null;
+
       getNextId({
         ...searchParams,
-        maxId: this._id
+        maxId: this._id,
+        viewId
       }).then(nextId => {
         if (nextId) {
           if (nextId !== this._id) {

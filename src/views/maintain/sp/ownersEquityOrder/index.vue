@@ -23,6 +23,32 @@
           />
         </el-form-item>
       <template v-if="show">
+        <el-form-item label="创建时间">
+          <el-date-picker
+              :default-time="['00:00:00', '23:59:59']"
+              v-model="form.createTime"
+              type="daterange"
+              unlink-panels
+              :picker-options="pickerOptions"
+              range-separator="至"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+          />
+        </el-form-item>
+        <el-form-item label="核销时间">
+          <el-date-picker
+              :default-time="['00:00:00', '23:59:59']"
+              v-model="form.writeOffDate"
+              type="daterange"
+              unlink-panels
+              :picker-options="pickerOptions"
+              range-separator="至"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+          />
+        </el-form-item>
         <el-form-item label="订单状态">
           <fetch-select
             :request="fetchOptions"
@@ -257,7 +283,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.dealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -459,13 +485,15 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          this.optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
+        }).catch(err => {
+          console.error('列表数据加载失败:', err);
         }).finally(() => {
           this.loading = false;
         });
@@ -531,6 +559,13 @@ export default {
         if (this.form.createTime.length > 1) {
           data.createTimeStart = this.form.createTime[0];
           data.createTimeEnd = this.form.createTime[1];
+        }
+      }
+      if (this.form.writeOffDate) {
+        delete data.writeOffDate;
+        if (this.form.writeOffDate.length > 1) {
+          data.writeOffDateStart = this.form.writeOffDate[0];
+          data.writeOffDateEnd = this.form.writeOffDate[1];
         }
       }
       // 排序字段

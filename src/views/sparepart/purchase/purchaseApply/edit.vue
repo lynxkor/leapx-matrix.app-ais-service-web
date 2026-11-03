@@ -155,7 +155,7 @@
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   <el-link type="success"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                     target="_blank">{{ form.dealerName }}</el-link>
                 </el-form-item>
                 <el-form-item label="仓库名称：" prop="warehouseName">
@@ -823,7 +823,9 @@ export default {
     },
     async submitRequest () {
       const result = await addOrUpdate({ ...this.form });
-      await this.getDetailData();
+      if (this._id) {
+        await this.getDetailData();
+      }
       return result;
     },
     async getDealerList (query) {

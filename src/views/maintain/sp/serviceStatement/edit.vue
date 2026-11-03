@@ -7,6 +7,7 @@
         :title="`单据编号：${form.code}`">
         <template #extraButtons>
           <el-button size="small" @click="rightsList" v-if="buttonPermissions.rights">权益核销</el-button>
+          <el-button size="small" @click="cancelRightsLock" v-if="buttonPermissions.cancelRightsLock">取消权益锁定</el-button>
           <el-button size="small" @click="handleResendSignSms" v-if="buttonPermissions.canResendSignSms">补推结算单短信签字</el-button>
           <el-button size="small" @click="submitAndSing" v-if="buttonPermissions.sign">提交结算并签字</el-button>
           <el-button size="small" @click="reject" v-if="buttonPermissions.reject" :loading="rejectLoading">驳回</el-button>
@@ -16,6 +17,7 @@
           <el-button size="small" @click="createWarrantyApply"
             v-if="canCreateWarrantyApply">创建保修申请单</el-button>
           <el-button size="small" @click="handlePrint" v-if="buttonPermissions.canPrint">打印结算单</el-button>
+          <el-button size="small" @click="handleStartRecording" v-if="canStartRecording" :loading="startRecordingLoading">开启录音</el-button>
         </template>
         <div class="common-sub-title">
           <span>结算单号：{{ form.code || '-' }}</span>
@@ -296,6 +298,7 @@
         </el-main>
       </edit-base-container>
       <SelectRightsDialog :visible.sync="rightsDialogVisible" :statementId="_id" @refresh="handleRefresh" :formData="form"/>
+      <CancelRightsLockDialog :visible.sync="cancelRightsLockDialogVisible" :formData="form" @refresh="handleRefresh" />
       <SubmitSettlemenDialog ref="settlemenDialogRef" :visible.sync="submitSettlemenDialogVisible" :serviceProxyId="_id"
         :info="form" @refresh="handleRefresh" />
       <AddPayrecordDialog :visible.sync="addPayrecordDialogVisible" :serviceProxyId="_id" :info="form"
@@ -331,9 +334,11 @@ import MaintenanceRecord from '@/views/maintain/sp/serviceStatement/components/P
 import PartsRecodr from '@/views/maintain/sp/serviceStatement/components/PartsRecord/index.vue';
 import PayRecord from '@/views/maintain/sp/serviceStatement/components/PayRecord/index.vue';
 import SelectRightsDialog from './components/SelectRightsDialog';
+import CancelRightsLockDialog from './components/CancelRightsLockDialog';
 import SubmitSettlemenDialog from './components/SubmitSettlemenDialog';
 import AddPayrecordDialog from './components/AddPayrecordDialog';
 import { checkCanCreate } from '@/api/claimreturn/claim/warrantyapply';
+import { startRecordingForStatement, getBlockReasonForStatement } from '@/api/maintain/basic/recordingTask/index';
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -426,6 +431,7 @@ export default {
     PartsRecodr,
     PayRecord,
     SelectRightsDialog,
+    CancelRightsLockDialog,
     SubmitSettlemenDialog,
     AddPayrecordDialog,
     CreateWarrantyApplyDialog,
@@ -458,6 +464,9 @@ export default {
         // 权益核销：结算类型为自费/保险/内部结算，状态为待结算，商城订单不显示
         rights: baseType.includes(statementType) && statementStatus === 10 && !this.isStoreOrder && this.permissions.has('AISMC-serviceStatement-execEquityWriteOff'),
 
+        // 取消权益锁定：待结算且已锁定权益券
+        cancelRightsLock: statementStatus === 10 && (this.form.rightsUsageRecordResps || []).length > 0 && this.permissions.has('AISMC-serviceStatement-rightsUnlock'),
+
         // 提交结算并签字：签字状态为未签字，且结算状态为待结算
         sign: statementStatus === 10 && !isCheck && this.permissions.has('AISMC-serviceStatement-submitSettlementAndSign'),
 
@@ -475,7 +484,7 @@ export default {
         // 重推签字短信
         canResendSignSms: signStatus === 10 && signGeneratedOn,
         // 打印结算单
-        canPrint: this.permissions.has('AISMC-serviceStatement-print'),
+        canPrint: this.permissions.has('AISMC-serviceStatement-print')
       };
     },
 
@@ -489,6 +498,9 @@ export default {
       handler (val) {
         if (val && this.$refs.containerRef) {
           this.$refs.containerRef.loadDetail();
+        }
+        if (val) {
+          this.loadStartRecordingBlock();
         }
       },
       immediate: true
@@ -513,11 +525,14 @@ export default {
       loading: false,
       submitLoading: false,
       rightsDialogVisible: false,
+      cancelRightsLockDialogVisible: false,
       submitSettlemenDialogVisible: false,
       addPayrecordDialogVisible: false,
       refundLoading: false,
       rejectLoading: false,
       payLoading: false,
+      canStartRecording: false,
+      startRecordingLoading: false,
       tableData: [],
       form: { ...form },
       originalForm: { ...form },
@@ -535,6 +550,9 @@ export default {
     };
   },
   mounted () {
+    if (this._id) {
+      this.loadStartRecordingBlock();
+    }
   },
   methods: {
     checkCanCreate () {
@@ -590,11 +608,15 @@ export default {
 
     // 跳转到门店详情
     goToDealer (dealerId) {
-      window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${this.form.dealerCode}`, '_blank');
+      window.open(`/service/datacenter/store/store/detail?storeCode=${this.form.dealerCode}`, '_blank');
     },
 
     rightsList () {
       this.rightsDialogVisible = true;
+    },
+
+    cancelRightsLock () {
+      this.cancelRightsLockDialogVisible = true;
     },
 
     submitAndSing () {
@@ -763,6 +785,50 @@ export default {
     handleRefresh () {
       // this.checkCanCreate();
       this.$refs.containerRef.handleRefresh();
+      this.loadStartRecordingBlock();
+    },
+    // 查询手动开启录音的阻断原因：返回为空表示可开启
+    loadStartRecordingBlock () {
+      // 无开启录音权限时不查询阻断原因，按钮直接隐藏
+      if (!this.permissions.has('AISMC-serviceStatement-startRecording')) {
+        this.canStartRecording = false;
+        return;
+      }
+      if (!this._id) {
+        this.canStartRecording = false;
+        return;
+      }
+      getBlockReasonForStatement(this._id).then(res => {
+        this.canStartRecording = !res;
+      }).catch(() => {
+        this.canStartRecording = false;
+      });
+    },
+    // 手动开启录音：二次确认后调用开启接口
+    handleStartRecording () {
+      // 防抖：点击后立即锁定，请求结束前不可再次点击
+      if (this.startRecordingLoading) return;
+      this.startRecordingLoading = true;
+      this.showMsg('此操作将开启录音，是否继续？').then((result) => {
+        if (result) {
+          this.doStartRecording();
+        } else {
+          this.startRecordingLoading = false;
+        }
+      });
+    },
+    async doStartRecording () {
+      try {
+        await startRecordingForStatement(this._id);
+        this.$message.success('开启录音成功');
+        this.canStartRecording = false;
+        this.handleRefresh();
+      } catch (error) {
+        console.error('开启录音失败:', error);
+        this.handleRefresh();
+      } finally {
+        this.startRecordingLoading = false;
+      }
     },
     detailRequest () {
       const id = this._id;

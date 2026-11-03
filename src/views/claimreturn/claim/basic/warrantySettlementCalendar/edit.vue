@@ -89,7 +89,7 @@
                 <!-- 门店日历模式字段 -->
                 <template v-if="form.calendarMode === '20'">
                   <el-form-item label="门店名称：" prop="dealerCode">
-                    <dealer-select v-model="form.dealerCode" :disabled="isEditMode" />
+                    <dealer-select v-model="form.dealerCode" :disabled="isEditMode" :defaultDealerName="form.dealerName" />
                   </el-form-item>
                   <el-form-item label="门店编码：" prop="dealerCode">
                     <el-input v-model="form.dealerCode" disabled/>

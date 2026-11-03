@@ -20,7 +20,7 @@
           <vxe-column field="payAmount" title="实际付款总额" min-width="150" />
           <vxe-column field="payTypeLabel" title="支付方式" min-width="150" />
           <vxe-column field="rightsCode" title="权益代码" min-width="150" />
-          <vxe-column field="invoiceNumber" title="发票号码" width="150" />
+          <vxe-column field="invoiceNumber" title="发票号码" min-width="150" />
 
           <vxe-column
             field="invoiceTypeLabel"

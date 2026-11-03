@@ -94,6 +94,7 @@ import { getDetail } from '@/api/claimreturn/oldpart/returnorder';
 import {
   getPrintDetail, // 旧件库存详情分页查询
 } from '@/api/claimreturn/oldpart/inventory/oem/index';
+import { pinyin } from 'pinyin-pro';
 export default {
   components: {
   },
@@ -101,9 +102,6 @@ export default {
     id: {
       type: String,
       default: ''
-    },
-    data: {
-      type: String,
     }
   },
   data () {
@@ -124,16 +122,38 @@ export default {
   },
   methods: {
     init () {
-      getDetail(this.data).then((res) => {
+      getDetail(this.id).then((res) => {
         this.form = res;
       });
       getPrintDetail({
-        returnOrderId: this.data,
+        returnOrderId: this.id,
         pageNum: 1,
         pageSize: 5000
       }).then((res) => {
-        this.tableData = res.records;
+        // 打印明细按旧件名称 A-Z 排序，旧件名称一致时按旧件编码排序
+        this.tableData = this.sortPrintDetail(res.records || []);
       });
+    },
+    // 打印明细排序：旧件名称 A-Z，旧件名称一致按旧件编码 A-Z
+    // 中文按拼音首字母与英文字母同序比较，实现全局 A-Z
+    sortPrintDetail (list) {
+      return [...list].sort((a, b) => {
+        const nameCompare = this.compareByText(a.oldPartName || '', b.oldPartName || '');
+        if (nameCompare !== 0) {
+          return nameCompare;
+        }
+        return this.compareByText(a.oldPartCode || '', b.oldPartCode || '');
+      });
+    },
+    // 生成排序键：中文转拼音首字母，英文/数字保留原字符，统一大写
+    sortKey (str) {
+      return pinyin(str, { pattern: 'first', toneType: 'none', type: 'array' })
+        .join('')
+        .toUpperCase();
+    },
+    // 基于拼音首字母键做 A-Z 比较，启用 numeric 让 C2 < C10
+    compareByText (a, b) {
+      return this.sortKey(a).localeCompare(this.sortKey(b), 'en', { sensitivity: 'base', numeric: true });
     },
     transformDate (time) {
       if (!time) {
@@ -164,8 +184,7 @@ export default {
 }
 
 table {
-  font-family: verdana, arial, sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   color: #333333;
   border-width: 1px;
   border-color: #666666;

@@ -76,7 +76,7 @@
                   <el-input v-model="form.latestIssueTime" disabled />
                 </el-form-item>
                 <el-form-item label="备注：" prop="remark">
-                  <el-input placeholder="请输入" v-model="form.remark" clearable type="textarea" :rows="1" :disabled="!!_id && (![TRACE_STATUS.DRAFT, TRACE_STATUS.AUDITING, TRACE_STATUS.REJECTED].includes(form.traceStatus))" />
+                  <el-input placeholder="请输入" v-model="form.remark" clearable type="textarea" :rows="1" maxlength="500" show-word-limit :disabled="!!_id && (![TRACE_STATUS.DRAFT, TRACE_STATUS.AUDITING, TRACE_STATUS.REJECTED].includes(form.traceStatus))" />
                 </el-form-item>
                 <el-form-item label="系统自动同意时间：">
                   <el-input v-model="form.sysAutoAgreeDate" disabled />
@@ -104,7 +104,7 @@
                   <el-link
                     v-if="form.dealerCode"
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                     target="_blank"
                   >{{ form.dealerCode }}</el-link>
                   <span v-else>{{ form.dealerCode }}</span>
@@ -388,7 +388,8 @@ export default {
     },
     detailButtons () {
       if (this.isEditing) return [];
-      return getDetailVisibleButtons(this.form.traceStatus);
+      // 传入已追溯金额：门店同意/申诉拒绝状态下按金额=0 判定作废按钮可见性（F9）
+      return getDetailVisibleButtons(this.form.traceStatus, this.form.tracedAmount);
     },
     // 追溯凭证是否可编辑：仅主机厂账号在【草稿/已驳回/申诉中】状态下可上传/删除/编辑
     traceCertEditable () {

@@ -8,14 +8,10 @@
       label-width="120px"
       class="ais-search-form"
     >
-      <el-form-item label="月度">
-        <el-date-picker
-          v-model="form.month"
-          type="month"
-          format="yyyyMM"
-          value-format="yyyyMM"
-          placeholder="请选择"
-          :clearable="false"
+      <el-form-item label="保修月度">
+        <tag-input
+          v-model="form.monthList"
+          placeholder="请输入6位年月，如202609"
         />
       </el-form-item>
       <el-form-item label="公司名称">
@@ -39,7 +35,6 @@
         </el-form-item>
       </template>
       <page-search-action
-        v-if="canList"
         v-model="show"
         is-expandable
         :loading="loading"
@@ -69,6 +64,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
+import TagInput from '@/libs/components/TagInput';
 import { getList } from '@/api/claimreturn/claim/warrantysettle/warrantySettleSummary';
 import { getTableConfig, tableAddOrUpdate, getSparePartCompany, exportTable } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -80,7 +76,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
-  month: moment().subtract(1, 'month').format('YYYYMM'),
+  monthList: [moment().subtract(1, 'month').format('YYYYMM')],
   companyCodeList: '',
   dealerCodes: [],
   dealerNames: [],
@@ -98,6 +94,7 @@ export default {
     LPVxeTable,
     DealerSelect,
     FetchSelect,
+    TagInput,
   },
   mixins: [responsiveSearchForm, permissions, commonMixins],
   data () {

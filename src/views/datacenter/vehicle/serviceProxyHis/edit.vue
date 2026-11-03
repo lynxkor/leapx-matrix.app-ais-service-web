@@ -43,7 +43,7 @@
                 <el-form-item label="维修门店名称：">
                   <el-link
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                    :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                     target="_blank"
                   >{{ form.dealerName }}</el-link>
                 </el-form-item>
@@ -156,6 +156,7 @@
                     </template>
                   </vxe-column>
                   <vxe-column field="partsName" title="配件名称" min-width="180" />
+                  <vxe-column field="quantity" title="数量" min-width="120" />
                   <vxe-column field="repairItemTypeName" title="维修类型" min-width="120" />
                   <vxe-column field="checkoutTypeName" title="结算类型" min-width="120" />
                   <vxe-column field="warrantyTypeName" title="保修类型" min-width="120" />

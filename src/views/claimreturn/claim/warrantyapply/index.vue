@@ -521,6 +521,7 @@ import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 import { getTimeRangeByTypeFormat } from '@/libs/utils/time';
 import { getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity';
+import customViewMixin from '@/libs/mixins/customView';
 
 // 创建时间默认值：最近 3 个月
 function getDefaultCreateTime () {
@@ -603,7 +604,7 @@ const mockConfig = {
 };
 
 export default {
-  mixins: [responsiveSearchForm, permissions, commonMixins],
+  mixins: [responsiveSearchForm, permissions, commonMixins, customViewMixin],
   components: {
     PageSearchAction,
     LPVxeTable,
@@ -646,6 +647,10 @@ export default {
       sortColumns: [
         {
           column: 'create_time',
+          sort: 'DESC'
+        },
+        {
+          column: 'id',
           sort: 'DESC'
         }
       ],
@@ -805,7 +810,7 @@ export default {
             buttons: [{
               type: 'primary',
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.dealerCode}`, '_blank');
               }
             }]
           },
@@ -1911,6 +1916,7 @@ export default {
       this.getData();
     },
     onReset () {
+      this.resetCustomView();
       this.form = { ...defaultForm, createTime: getDefaultCreateTime() };
       this.tableForm.page = 1;
       this.tableForm.pageSize = pageSize;
@@ -1923,6 +1929,8 @@ export default {
       this.getData();
     },
     getData () {
+      // 视图锁定(有 activePresetId)时交给 mixin 走 executeQuery,否则走业务列表查询
+      if (this.fetchByCustomView()) return;
       this.loading = true;
       this.selectionList = [];
 
@@ -1957,11 +1965,26 @@ export default {
     debouncedGetData: debounce(function () {
       this.getData();
     }, 300),
+    // ---- customViewMixin 字段适配(本页用 tableForm/tableDataList/tableTotal,非默认 optionObj 命名) ----
+    /** 分页对象引用(读写同一份,保持单一来源) */
+    _cvPager () {
+      return this.tableForm;
+    },
+    /** 视图取数结果回填表格 */
+    _cvSetResult (records, total) {
+      this.tableDataList = records;
+      this.tableTotal = total;
+    },
+    /** 视图取数结果 → 表格行(注入行级 deleteLoading,与业务列表保持一致) */
+    customViewListAdapter (records) {
+      return (records || []).map(item => ({ ...item, deleteLoading: false }));
+    },
     getConfig () {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         getTableConfig(this.optionObj.id).then(data => {
           resolve({ data });
         }).catch(err => {
+          // 容错：此处如果接口挂了，也不应该影响正常使用
           console.error(err);
           resolve(mockConfig);
         });
@@ -2201,6 +2224,8 @@ export default {
       // 自动拆箱抛出 NPE → 500。这里主动补 pageNum=1, pageSize=99999。
       reqParams.pageNum = reqParams.pageNum || 1;
       reqParams.pageSize = reqParams.pageSize || 99999;
+      reqParams.viewId = this.activePresetId || null;
+
       const tab = this.activeTab;
       const isParts = tab === 'parts';
       const isWorkhours = tab === 'workhours';

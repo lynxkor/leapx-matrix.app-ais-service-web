@@ -40,7 +40,7 @@
       <vxe-column title="旧件编码" width="200">
         <template #default="{ row, rowIndex }">
           <fetch-select
-            v-if="editRowIndex === rowIndex"
+            v-if="editRowIndex === rowIndex && !disableOldPartEdit"
             :remote-method="partRemote"
             remote
             v-model="row.partAndSupplierId"
@@ -53,8 +53,13 @@
             filterable
           >
             <template #option="{ item }">
-              <span v-if="item.disabled">{{ item.placeholder }}</span>
-              <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
+              <template v-if="item.supplierCode">
+                <span v-if="item.disabled">{{ item.placeholder }}</span>
+                <span v-else>{{ item.partCode }}/{{ item.partName }}{{item.supplierCode ? `-${item.supplierName}-${item.supplierCode}`: ''}}</span>
+              </template>
+              <template v-else>
+                <span></span>
+              </template>
             </template>
           </fetch-select>
           <span v-else>
@@ -162,6 +167,11 @@ export default {
       type: Boolean,
       default: false,
     },
+    // 是否禁用旧件编码编辑(技术服务活动方案不允许修改旧件时为 true)
+    disableOldPartEdit: {
+      type: Boolean,
+      default: false,
+    },
   },
   components: {
     FetchSelect,
@@ -251,6 +261,7 @@ export default {
     },
     // 行保存
     saveRowEdit (row) {
+      this.$emit('loading-change', true);
       warrantyApplyPartUpdate({
         id: row.id,
         applyId: this._id,
@@ -264,7 +275,9 @@ export default {
         this.getDetailPageApi();
         this.editRowIndex = -1;
         this.$emit('update');
-      }).catch(e => {});
+      }).catch(e => {}).finally(() => {
+        this.$emit('loading-change', false);
+      });
     },
     pageSizeChange (pageSize) {
       this.pageSize = pageSize;

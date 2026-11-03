@@ -51,7 +51,7 @@
                     disabled
                   />
                 </el-form-item>
-                <el-form-item label="是否下发：" prop="suedDealer" v-show="!accountFlag">
+                <el-form-item label="是否下发：" prop="comboStatus" v-show="!accountFlag">
                   <el-radio-group v-model="form.comboStatus">
                     <el-radio v-for="item in yes_no_enum" :key="item.code" :label="item.code">{{ item.message }}</el-radio>
                   </el-radio-group>
@@ -137,7 +137,7 @@
           </section>
           <section class="common-section" v-if="_id">
             <div class="common-section-header">
-              <h2>套餐明细</h2>
+              <h2>项目明细</h2>
             </div>
             <div class="common-section-body">
               <div class="common-section-header">
@@ -419,8 +419,18 @@ export default {
         typeIdList: [
           { required: true, message: '请选择套餐类型', trigger: 'change' }
         ],
-        suedDealer: [
-          { required: true, message: '请输入是否下发门店', trigger: 'change' }
+        comboStatus: [
+          {
+            validator: (rule, value, callback) => {
+              // 是否下发 radio 有任一选择（是/否）时不做必填校验，只有未选择才提示
+              if (value !== '' && value !== null && value !== undefined) {
+                callback();
+                return;
+              }
+              callback(new Error('请输入是否下发门店'));
+            },
+            trigger: 'change'
+          }
         ],
       },
       modelDialogVisible: false, // 适配车型弹窗
@@ -546,12 +556,12 @@ export default {
     },
     // 适配车型接口
     async getModelList () {
-      const res = await getModel({ repairPackagesId: this._id });
+      const res = await getModel({ repairPackagesId: this._id, pageSize: 5000 });
       this.tableDataModel = res.records || [];
     },
     // 维修项目套餐列表
     async getProjectPackage () {
-      const res = await getPackagesItem({ repairPackagesId: this._id });
+      const res = await getPackagesItem({ repairPackagesId: this._id, pageSize: 5000 });
       this.tableData = res.records || [];
       // 计算项目金额
       this.itemAmount = 0;

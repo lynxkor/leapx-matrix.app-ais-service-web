@@ -72,7 +72,7 @@
         <el-form-item label="车主证件类型">
           <fetch-select
             :request="fetchOptions"
-            enumCode="vehretail_id_card_type"
+            enumCode="vehicle_profile_id_type"
             v-model="form.idcardTypeList"
             placeholder="请选择"
             clearable
@@ -524,53 +524,53 @@ export default {
             label: '整车订单',
             visible: true,
             width: 180,
-            // buttons: [{
-            //   click: (rowIndex, row) => {
-            //     this.navigateToRoute({
-            //       path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
-            //       query: {
-            //         id: row.vehicleOrderId
-            //       }
-            //     });
-            //   },
-            //   type: 'primary'
-            // }]
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.navigateToRoute({
+                  path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
+                  query: {
+                    id: row.vehicleOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
           },
           {
             props: 'shopcode',
             label: '商城订单',
             visible: true,
             width: 180,
-            // buttons: [{
-            //   click: (rowIndex, row) => {
-            //     if (row.shopcode) {
-            //       this.navigateToRoute({
-            //         path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
-            //         query: {
-            //           id: row.vehicleOrderId
-            //         }
-            //       });
-            //     }
-            //   },
-            //   type: 'primary'
-            // }]
+            buttons: [{
+              click: (rowIndex, row) => {
+                if (row.shopcode) {
+                  this.navigateToRoute({
+                    path: '/sales/vehretail/orderManager/retailOrderInfo/edit',
+                    query: {
+                      id: row.vehicleOrderId
+                    }
+                  });
+                }
+              },
+              type: 'primary'
+            }]
           },
           {
             props: 'vehicleEnterpriseOrder',
             label: '企业整车订单',
             visible: true,
             width: 180,
-            // buttons: [{
-            //   click: (rowIndex, row) => {
-            //     this.navigateToRoute({
-            //       path: '/sales/vehwholesale/entorder/entVehicleOrder/edit',
-            //       query: {
-            //         id: row.vehicleEnterpriseOrderId
-            //       }
-            //     });
-            //   },
-            //   type: 'primary'
-            // }]
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.navigateToRoute({
+                  path: '/sales/vehwholesale/entorder/entVehicleOrder/edit',
+                  query: {
+                    id: row.vehicleEnterpriseOrderId
+                  }
+                });
+              },
+              type: 'primary'
+            }]
           },
           { props: 'warrantyStartdate', label: '保修开始日期', visible: true, width: 160 },
           {
@@ -624,7 +624,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.salesDealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.salesDealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -637,7 +637,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.deliveryDealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.deliveryDealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -650,7 +650,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.serviceDealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.serviceDealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -688,6 +688,10 @@ export default {
           { props: 'createTime', label: '创建时间', visible: true, width: 180 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 180 },
           { props: 'isIovVehicleLabel', label: '车联网对接', visible: true, width: 120 },
+          { props: 'certNumber', label: '合格证号', visible: false, width: 120 },
+          { props: 'carSalesVersionName', label: '公告车型', visible: false, width: 120 },
+          { props: 'enginenNumber', label: '发动机号', visible: false, width: 120 },
+          { props: 'batterySerialNumber', label: '电池序列号', visible: false, width: 120 },
           {
             props: 'operate',
             label: '操作',

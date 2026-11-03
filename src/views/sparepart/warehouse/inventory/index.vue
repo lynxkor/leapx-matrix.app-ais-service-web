@@ -24,18 +24,7 @@
       </el-form-item>
       <template v-if="show">
         <el-form-item label="库位">
-          <fetch-select
-            :remote-method="getLocaltion"
-            remote
-            v-model="form.locationIdList"
-            placeholder="请输入库位名称"
-            labelKey="name"
-            valueKey="id"
-            clearable
-            multiple
-            collapseTags
-            filterable
-          />
+          <tag-input v-model="form.locationNameList" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="门店">
           <fetch-select
@@ -202,7 +191,6 @@ import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem } from '@/api/sparepart/warehouse/inventory/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listDealerPartWithOem, listOrgStoreInfoByParam } from '@/api/common';
-import { locationList } from '@/api/sparepart/warehouse/warehouse/index';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -220,7 +208,7 @@ const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   sparePartIdList: null,
   codeList: [],
-  locationIdList: null,
+  locationNameLike: '',
   dealerCodeList: null,
   remarkLike: '',
   latestInboundTime: '',
@@ -325,7 +313,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?dealerCode=${row.dealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.dealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -410,14 +398,6 @@ export default {
       }
     },
 
-    async getLocaltion (query) {
-      try {
-        const res = await locationList({ codeOrName: query });
-        return res;
-      } catch (error) {
-        console.error('Error fetching series list:', error);
-      }
-    },
     async getDealerList (query) {
       try {
         const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });

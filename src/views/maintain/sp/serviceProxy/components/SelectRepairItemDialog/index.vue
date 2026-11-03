@@ -247,7 +247,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE || row.packageType == PackageTypeEnum.TECH_ACTIVITY || row.packageType == PackageTypeEnum.CARE_ACTIVITY">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || packageTypeIncluded(row.packageType)">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -393,7 +393,7 @@
               <vxe-column field="discountRate" title="折扣率" width="120px" />
               <vxe-column field="discountAmount" title="优惠金额" width="160px">
                 <template #default="{ row }">
-                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || row.packageType == PackageTypeEnum.STORE || row.packageType == PackageTypeEnum.TECH_ACTIVITY || row.packageType == PackageTypeEnum.CARE_ACTIVITY">{{ row?.discountAmount | tofixed2 }}</template>
+                  <template v-if="checkoutTypeIncluded(row.checkoutTypeId) || packageTypeIncluded(row.packageType)">{{ row?.discountAmount | tofixed2 }}</template>
                   <el-input-number
                     v-else
                     v-model="row.discountAmount"
@@ -511,6 +511,8 @@ export default {
       itemSearchKey: '',
       partSearchKey: '',
       submitLoading: false,
+      // 保存路径下 check 事件延后到维修类型提醒确认框关闭后触发，避免与提醒信息弹窗同屏
+      needConfirmCheck: false,
       repairType: '',
       partRepairType: '',
       selectedRepairItem: null, // 选中的维修项目
@@ -686,6 +688,11 @@ export default {
     },
     close () {
       this.dialogVisible = false;
+      // 保存路径的 check 由 checkRepairTypeChange 的回调负责
+      if (this.needConfirmCheck) {
+        this.needConfirmCheck = false;
+        return;
+      }
       this.$emit('check');
     },
     closed () {
@@ -876,24 +883,19 @@ export default {
       //   this.$message.warning('请至少添加一个维修项目或维修配件');
       //   return;
       // }
-      // 保修类型为售前保修只能单独开单
-      const preSaleItem = this.itemData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.PRE_SALE_WARRANTY) || [];
-      const preSalePart = this.partData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.PRE_SALE_WARRANTY) || [];
-      if (preSaleItem.length > 0 || preSalePart.length > 0) {
-        if ((this.itemData.length && preSaleItem.length < this.itemData.length) || (this.partData.length && preSalePart.length < this.partData.length)) {
-          this.$message.warning('售前保修只能单独开单');
-          return;
+      // "只能单独开单"校验:存在某类型行时,所有维修项目和配件必须都是该类型
+      const allRows = [...this.itemData, ...this.partData];
+      const checkSoloRule = ({ match, message }) => {
+        const matched = allRows.filter(match);
+        if (matched.length > 0 && matched.length !== allRows.length) {
+          this.$message.warning(message);
+          return false;
         }
-      }
-
-      const preSaleItem2 = this.itemData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.GOODWILL_WARRANTY) || [];
-      const preSalePart2 = this.partData.filter(item => item.warrantyTypeId === WarrantyTypeEnum.GOODWILL_WARRANTY) || [];
-      if (preSaleItem2.length > 0 || preSalePart2.length > 0) {
-        if ((this.itemData.length && preSaleItem2.length < this.itemData.length) || (this.partData.length && preSalePart2.length < this.partData.length)) {
-          this.$message.warning('善意保修只能单独开单');
-          return;
-        }
-      }
+        return true;
+      };
+      if (!checkSoloRule({ match: r => r.warrantyTypeId === WarrantyTypeEnum.PRE_SALE_WARRANTY, message: '售前保修只能单独开单' })) return;
+      if (!checkSoloRule({ match: r => r.warrantyTypeId === WarrantyTypeEnum.GOODWILL_WARRANTY, message: '善意保修只能单独开单' })) return;
+      if (!checkSoloRule({ match: r => String(r.packageType) === PackageTypeEnum.STORE, message: '商城订单只能单独开单' })) return;
 
       this.submitLoading = true;
 
@@ -917,10 +919,13 @@ export default {
         this.submitLoading = false;
         this.$message.success('保存成功');
 
+        this.needConfirmCheck = true;
         this.$emit('update:visible', false);
         this.$emit('refresh');
-        // 检查维修类型变化
-        this.checkRepairTypeChange();
+        // 检查维修类型变化，check 事件在提醒确认框关闭后触发
+        this.checkRepairTypeChange(() => {
+          this.$emit('check');
+        });
       }).catch(e => {
         this.submitLoading = false;
       });
@@ -1380,9 +1385,10 @@ export default {
       return null;
     },
 
-    // 套餐类型是否为商城订单
+    // 套餐类型是否为商城订单、技术和关爱服务活动、免保、权益套餐
     packageTypeIncluded (type) {
-      return (type || '').toString() === PackageTypeEnum.STORE;
+      const includesTypes = [PackageTypeEnum.STORE, PackageTypeEnum.TECH_ACTIVITY, PackageTypeEnum.CARE_ACTIVITY, PackageTypeEnum.FREE, PackageTypeEnum.EQUITY];
+      return includesTypes.includes((type || '').toString());
     },
 
     // 【结算类型】为保修，【保修类型】为：技术服务活动 选不到

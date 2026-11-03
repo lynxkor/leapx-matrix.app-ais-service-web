@@ -219,7 +219,7 @@
                   {{ form.businessOrderCode }}
                 </el-form-item>
                 <el-form-item label="门店编码：" prop="dealerCode">
-                  <el-link type="primary" :href="`/partner/channelManagement/shopDetail?dealerCode=${form.dealerCode}`" target="_blank">
+                  <el-link type="primary" :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`" target="_blank">
                     {{ form.dealerCode }}
                   </el-link>
                 </el-form-item>
@@ -396,6 +396,11 @@ export default {
         {
           field: 'sparePartName',
           title: '备件名称',
+          width: '20%',
+        },
+        {
+          field: 'locationName',
+          title: '仓库库位',
           width: '10%',
         },
         {

@@ -292,6 +292,15 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/basic/recordingTask',
+      name: 'recordingTask',
+      component: () => import('@/views/maintain/basic/recordingTask/index.vue'),
+
+      meta: {
+        name: '录音事件',
+        keepAlive: true
+      }
+    }, {
       path: '/maintain/basic/dealerPermission',
       name: 'dealerPermission',
       component: () => import('@/views/maintain/basic/dealerPermission/index.vue'),
@@ -649,6 +658,24 @@ const routes = [
 
       meta: {
         name: '新页面详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/datareport/customView',
+      name: 'customView',
+      component: () => import('@/views/datareport/customView/index.vue'),
+
+      meta: {
+        name: '自定义视图元数据主表管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/datareport/customView/edit',
+      name: 'customView',
+      component: () => import('@/views/datareport/customView/edit.vue'),
+
+      meta: {
+        name: '自定义视图元数据主表详情',
         noResourceUrl: 'true'
       }
     }, {
@@ -1513,6 +1540,42 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/datacenter/store/store',
+      name: 'store',
+      component: () => import('@/views/datacenter/store/index.vue'),
+
+      meta: {
+        name: '门店管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/datacenter/store/store/detail',
+      name: 'storeDetail',
+      component: () => import('@/views/datacenter/store/detail.vue'),
+
+      meta: {
+        name: '门店详情',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/datacenter/store/parentCompany',
+      name: 'parentCompany',
+      component: () => import('@/views/datacenter/store/parentCompany/index.vue'),
+
+      meta: {
+        name: '母公司管理',
+        keepAlive: true
+      }
+    }, {
+      path: '/datacenter/store/parentCompany/detail',
+      name: 'parentCompanyDetail',
+      component: () => import('@/views/datacenter/store/parentCompany/detail.vue'),
+
+      meta: {
+        name: '母公司详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/sparepart/basic/purchasePartSaleable',
       name: 'purchasePartSaleable',
       component: () => import('@/views/sparepart/basic/purchasePartSaleable/index.vue'),
@@ -1966,6 +2029,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/basic/newCarQualityConfig',
+      name: 'newCarQualityConfig',
+      component: () => import('@/views/maintain/basic/newCarQualityConfig/index.vue'),
+
+      meta: {
+        name: '新车质量反馈设置',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/basic/newCarQualityConfig/edit',
+      name: 'newCarQualityConfigEdit',
+      component: () => import('@/views/maintain/basic/newCarQualityConfig/edit.vue'),
+
+      meta: {
+        name: '新车质量反馈设置详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/claimreturn/claim/basic/warrantyHourSetting',
       name: 'warrantyHourSetting',
       component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/index.vue'),
@@ -2250,7 +2331,7 @@ const routes = [
       component: () => import('@/views/sparepart/sale/retailOrder/index.vue'),
 
       meta: {
-        name: '备附件销售',
+        name: '备附件零售',
         keepAlive: true
       }
     }, {
@@ -2259,7 +2340,7 @@ const routes = [
       component: () => import('@/views/sparepart/sale/retailOrderOut/index.vue'),
 
       meta: {
-        name: '备附件销售出库',
+        name: '备附件零售出库',
         keepAlive: true
       }
     }, {
@@ -2666,6 +2747,8 @@ const routes = [
         name: '新页面',
         keepAlive: true,
         notRefresh: true,
+        customViewBizKey: 'warrantyapply',
+        customViewResourceTag: 'AISCR-warrantyApply-customView'
       }
     }, {
       path: '/claimreturn/claim/warrantyApply/edit',
@@ -2910,6 +2993,40 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/desensitize/fieldMapping',
+      name: 'desensitizeFieldMapping',
+      component: () => import('@/views/desensitize/fieldMapping/index.vue'),
+      meta: {
+        name: '字段映射管理',
+        keepAlive: true,
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/desensitize/fieldMapping/edit',
+      name: 'desensitizeFieldMappingEdit',
+      component: () => import('@/views/desensitize/fieldMapping/edit.vue'),
+      meta: {
+        name: '字段映射管理-编辑',
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/desensitize/setting',
+      name: 'desensitizeSetting',
+      component: () => import('@/views/desensitize/setting/index.vue'),
+      meta: {
+        name: '脱敏设置',
+        keepAlive: true,
+        noResourceUrl: 'true'
+      }
+    }, {
+      path: '/desensitize/setting/edit',
+      name: 'desensitizeSettingEdit',
+      component: () => import('@/views/desensitize/setting/edit.vue'),
+      meta: {
+        name: '脱敏设置-编辑',
+        noResourceUrl: 'true'
+      }
+    }, {
       // 数据上报 - 门店利润明细
       path: '/datareport/profitDetail',
       name: 'profitDetail',
@@ -2927,6 +3044,16 @@ const routes = [
 
       meta: {
         name: '门店营收报表',
+        keepAlive: true
+      }
+    }, {
+      // 数据上报 - 门店产值报表
+      path: '/datareport/storeOutputValue',
+      name: 'storeOutputValue',
+      component: () => import('@/views/datareport/storeOutputValue/index.vue'),
+
+      meta: {
+        name: '门店产值报表',
         keepAlive: true
       }
     }]

@@ -4,7 +4,7 @@
       <h2>车辆信息</h2>
     </div>
     <div class="common-section-body" v-if="id">
-      <section class="common-section" style="display: flex;">
+      <section class="common-section" style="display: flex;" v-if="canAddOrUpdate">
          <base-search
           :style="{marginRight: '8px'}"
           filterable

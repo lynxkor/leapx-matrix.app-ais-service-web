@@ -132,7 +132,7 @@
             <el-form-item label="门店编码：" prop="dealerCode">
               <el-link
                 type="primary"
-                :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.dealerCode}`"
+                :href="`/service/datacenter/store/store/detail?storeCode=${form.dealerCode}`"
                 target="_blank"
               >{{ form.dealerCode }}</el-link>
             </el-form-item>
@@ -227,14 +227,14 @@
               <el-form-item v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND" label="变更后车主姓名：" prop="targetOwnerName">
                 <el-input
                   placeholder="请输入"
-                  v-model="form.targetOwnerName"
+                  v-model.trim="form.targetOwnerName"
                   clearable
                 />
               </el-form-item>
               <el-form-item label="变更后车主手机号：" prop="targetOwnerPhone">
                 <el-input
                   placeholder="请输入"
-                  v-model="form.targetOwnerPhone"
+                  v-model.trim="form.targetOwnerPhone"
                   clearable
                   maxLength="11"
                 />
@@ -242,7 +242,7 @@
               <el-form-item v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND"  label="变更后车主证件类型：" prop="targetIdType">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="vehretail_id_card_type"
+                  enumCode="vehicle_profile_id_type"
                   v-model="form.targetIdType"
                   placeholder="请选择"
                   clearable
@@ -252,14 +252,14 @@
               <el-form-item v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND"  label="变更后车主证件号码：" prop="targetIdNo">
                 <el-input
                   placeholder="请输入"
-                  v-model="form.targetIdNo"
+                  v-model.trim="form.targetIdNo"
                   clearable
                 />
               </el-form-item>
               <el-form-item label="变更后车牌号：" prop="targetPlateNo">
                 <el-input
                   placeholder="请输入"
-                  v-model="form.targetPlateNo"
+                  v-model.trim="form.targetPlateNo"
                   clearable
                 />
               </el-form-item>
@@ -989,6 +989,12 @@ export default {
 .container{
   width: 100%;
   height: 100%;
+}
+.form-edit {
+  .el-form-item.is-error {
+    // 校验提示绝对定位在字段下方，行间距只有 8px，会压到下一行字段
+    margin-bottom: 50px;
+  }
 }
 .common-section-sub-header{
   display: flex;

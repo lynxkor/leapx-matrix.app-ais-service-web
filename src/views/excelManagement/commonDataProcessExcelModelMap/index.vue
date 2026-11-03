@@ -35,6 +35,13 @@
           />
         </el-form-item>
         <template v-if="show">
+          <el-form-item label="模板编码">
+            <el-input
+              placeholder="请输入"
+              v-model="form.codeLike"
+              clearable
+            />
+          </el-form-item>
           <el-form-item label="业务标识">
             <el-input
               placeholder="请输入"
@@ -100,6 +107,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 const defaultForm = {
   // 多选时字段有变化，自行修复
   businessType: '',
+  codeLike: '',
   createTime: '',
   updateTime: ''
 };
@@ -118,7 +126,7 @@ export default {
   },
   data () {
     return {
-      pageTitle: 'Excel导入模板',
+      pageTitle: '导入模板',
       pageType: 'list',
       form: {
         ...defaultForm
@@ -169,11 +177,19 @@ export default {
           },
           { props: 'code', label: '模板编码', visible: true, width: 200 },
           { props: 'businessType', label: '业务标识', visible: true, width: 200 },
+          { props: 'importBusiness', label: '导入业务', visible: true, width: 200 },
+          // 导入策略两值字典映射：SKIP_ERROR_ROWS=跳过错误行（默认）/ ALL_OR_NOTHING=全有全无，
+          // 由 getData 数据侧映射为 importStrategyLabel（LPVxeTable 不支持 dataProp.formatter）
+          { props: 'importStrategyLabel', label: '导入策略', visible: true, width: 200 },
           { props: 'postInterface', label: '导入数据的第三方接口信息', visible: true, width: 200 },
           { props: 'postParamDto', label: '导入参数DTO', visible: true, width: 200 },
-          { props: 'batchSize', label: '每批n条数据', visible: true, width: 200 },
+          { props: 'batchSize', label: '每批N条数据', visible: true, width: 200 },
+          { props: 'fileSizeLimitMb', label: '文件大小限制（MB）', visible: true, width: 200 },
+          { props: 'maxRows', label: '最大行数', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'creatorName', label: '创建人', visible: true, width: 200 },
+          { props: 'modifierName', label: '修改人', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
@@ -305,6 +321,8 @@ export default {
           this.optionObj.dataList = res.records?.map(item => {
             return {
               ...item,
+              // 导入策略两值字典映射（LPVxeTable 不支持 dataProp.formatter，数据侧生成展示字段）
+              importStrategyLabel: item.importStrategy === 'ALL_OR_NOTHING' ? '全有全无' : (item.importStrategy ? '跳过错误行' : '-'),
               deleteLoading: false
             };
           });

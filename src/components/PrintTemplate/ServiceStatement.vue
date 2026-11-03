@@ -243,7 +243,7 @@
                     <td style="width:120px;"></td>
                     <td style="width:120px;">客户签字</td>
                     <td style="width:120px;">
-                      <img v-if="signUrl" :src="signUrl"  style="width: 120px; height: 32px" />
+                      <img v-if="signUrl" :src="signUrl"  style="width: 120px; height: 32px; object-fit: contain;" />
                     </td>
                   </tr>
                   <tr>
@@ -259,7 +259,7 @@
             </td>
           </tr>
           <tr>
-            <td colspan="2" id="disclaimer" style="text-align:left;font-size:12px;line-height:2;font-weight:bold">
+            <td colspan="2" id="disclaimer" style="text-align:left;font-size:14px;line-height:2;font-weight:bold">
               <pre class="content">    在接受本协议之前，请您仔细阅读本协议的全部内容。您确认或签名后，即视为您已确认
 并同意：
 1）按本协议内容履行，如产生您相关责任的，同意承担相应法律责任；

@@ -29,7 +29,7 @@
               <div class="common-section-sub-header">
                 <h3>归属信息</h3>
                 <el-button v-if="canViewLifetimeBenefits" size="small" @click="onBenefit">查看终身权益</el-button>
-                <el-button v-if="form.warrantyStartdate" size="small" @click="onWarranty">重新预测质保期</el-button>
+                <el-button v-if="canWarrantyForecast && form.warrantyStartdate" size="small" @click="onWarranty">重新预测质保期</el-button>
               </div>
               <!-- <el-form :inline="true" :model="form" label-width="150px" class="form-detail"> -->
               <el-form label-width="150px" :inline="true" :model="form" :rules="rules" ref="ruleForm1" class="form-edit" v-show="isEditing || !_id">
@@ -114,46 +114,49 @@
                     maxLength="50"
                   />
                 </el-form-item>
+                <el-form-item label="城市交付顺序：">
+                  <el-input clearable v-model="form.cityDeliveryNo" placeholder="请输入" disabled maxLength="50" />
+                </el-form-item>
+                <el-form-item label="全国交付顺序：">
+                  <el-input clearable v-model="form.countryDeliveryNo" placeholder="请输入" disabled maxLength="50" />
+                </el-form-item>
                 <el-form-item label="特殊备注：" prop="remark" v-if="!accountFlag">
                   <el-input clearable v-model="form.remark" placeholder="请输入内容"></el-input>
                 </el-form-item>
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="整车订单：">
-                  <!-- <el-link
+                  <el-link
                     v-if="form.vehicleOrderId"
                     type="primary"
                     :href="`/sales/vehretail/orderManager/retailOrderInfo/edit?id=${form.vehicleOrderId}`"
                     target="_blank"
                   >{{ form.vehicleOrder }}</el-link>
-                  <span v-else>{{ form.vehicleOrder }}</span> -->
-                  <span>{{ form.vehicleOrder }}</span>
+                  <span v-else>{{ form.vehicleOrder }}</span>
                 </el-form-item>
                 <el-form-item label="企业客户整车订单：">
-                  <!-- <el-link
+                  <el-link
                     v-if="form.vehicleEnterpriseOrderId"
                     type="primary"
                     :href="`/sales/vehwholesale/entorder/entVehicleOrder/edit?id=${form.vehicleEnterpriseOrderId}`"
                     target="_blank"
                   >{{ form.vehicleEnterpriseOrder }}</el-link>
-                  <span v-else>{{ form.vehicleEnterpriseOrder }}</span> -->
-                  <span>{{ form.vehicleEnterpriseOrder }}</span>
+                  <span v-else>{{ form.vehicleEnterpriseOrder }}</span>
                 </el-form-item>
                 <el-form-item label="商城订单号：">
-                  <!-- <el-link
+                  <el-link
                     v-if="form.shopcode"
                     type="primary"
                     :href="`/sales/vehretail/orderManager/retailOrderInfo/edit?id=${form.vehicleOrderId}`"
                     target="_blank"
                   >{{ form.shopcode }}</el-link>
-                  <span v-else>{{ form.shopcode }}</span> -->
-                  <span>{{ form.shopcode }}</span>
+                  <span v-else>{{ form.shopcode }}</span>
                 </el-form-item>
                 <el-form-item label="销售门店：">
                   <el-link
                     v-if="form.salesDealerCode"
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.salesDealerCode}`"
+                    :href="`/service/datacenter/store/store/detail?storeCode=${form.salesDealerCode}`"
                     target="_blank"
                   >{{ form.salesDealerName }}</el-link>
                   <span v-else>{{ form.salesDealerName }}</span>
@@ -165,7 +168,7 @@
                   <el-link
                     v-if="form.deliveryDealerCode"
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.deliveryDealerCode}`"
+                    :href="`/service/datacenter/store/store/detail?storeCode=${form.deliveryDealerCode}`"
                     target="_blank"
                   >{{ form.deliveryDealerName }}</el-link>
                   <span v-else>{{ form.deliveryDealerName }}</span>
@@ -177,7 +180,7 @@
                   <el-link
                     v-if="form.serviceDealerCode"
                     type="primary"
-                    :href="`/partner/channelManagement/shopDetail?num=2&dealerCode=${form.serviceDealerCode}`"
+                    :href="`/service/datacenter/store/store/detail?storeCode=${form.serviceDealerCode}`"
                     target="_blank"
                   >{{ form.serviceDealerName }}</el-link>
                   <span v-else>{{ form.serviceDealerName }}</span>
@@ -187,6 +190,12 @@
                 </el-form-item>
                 <el-form-item label="是否用户修改服务门店：">
                   {{ form.isUserChangeDealer === 0 ? '否' : '是' }}
+                </el-form-item>
+                <el-form-item label="城市交付顺序：">
+                  {{ form.cityDeliveryNo }}
+                </el-form-item>
+                <el-form-item label="全国交付顺序：">
+                  {{ form.countryDeliveryNo }}
                 </el-form-item>
                 <el-form-item label="特殊备注：" prop="remark" v-if="!accountFlag">
                   {{ form.remark }}
@@ -264,6 +273,8 @@
                   <next-table
                     v-if="!(isEditing || !_id)"
                     ref="nextTable"
+                    :can-reset-part="canResetPart"
+                    :can-reset-vehicle="canResetVehicle"
                     :id="form.id"
                   />
                 </el-form-item>
@@ -305,7 +316,13 @@
               </el-form>
               <el-form :inline="true" class="form-detail" v-show="!(isEditing || !_id)">
                 <el-form-item label="整车物料：">
-                  {{ form.vehicleMaterialCode }}
+                  <el-link
+                    v-if="form.vehicleMaterialId"
+                    type="primary"
+                    :href="`/sales/datacenter/materials/vehicleMaterials/edit?id=${form.vehicleMaterialId}`"
+                    target="_blank"
+                  >{{ form.vehicleMaterialCode }}</el-link>
+                  <span v-else>{{ form.vehicleMaterialCode }}</span>
                 </el-form-item>
                 <el-form-item label="物料描述：">
                   {{ form.vehicleMaterialDesc }}
@@ -439,6 +456,9 @@
                 <el-form-item label="卡ICCID：">
                   <el-input clearable v-model="form.iccid" placeholder="请输入" disabled />
                 </el-form-item>
+                <el-form-item label="卡MSISDN：">
+                  <el-input clearable v-model="form.msisdn" placeholder="请输入" disabled />
+                </el-form-item>
                 <el-form-item label="受理时间：">
                   <el-input clearable v-model="form.acceptTime" placeholder="请输入" disabled />
                 </el-form-item>
@@ -455,6 +475,7 @@
                   <vxe-column field="operateTime" title="操作时间" min-width="10%" />
                   <vxe-column field="remark" title="描述" min-width="10%" />
                   <vxe-column field="iccid" title="卡ICCID" min-width="10%" />
+                  <vxe-column field="msisdn" title="卡MSISDN" min-width="10%" />
                   <vxe-column field="operatore" title="运营商" min-width="10%" />
                   <template #empty>
                     <div class="m-vxe-table-empty-text">暂无数据</div>
@@ -480,6 +501,9 @@
                 </el-form-item>
                 <el-form-item label="卡ICCID：">
                   {{ form.iccid }}
+                </el-form-item>
+                <el-form-item label="卡MSISDN：">
+                  {{ form.msisdn }}
                 </el-form-item>
                 <el-form-item label="受理时间：">
                   {{ form.acceptTime }}
@@ -796,6 +820,10 @@
           :visible.sync="infoDialogVisible"
           :vehicleProfileId="form.id"
           :data="infoDialogData"
+          :vin="form.vin"
+          :canResetVehicle="canResetVehicle"
+          :canResetPart="canResetPart"
+          @vehicle-reset="onVehicleReset"
           @update="onInfoSuccess"
         />
       </edit-base-container>
@@ -824,6 +852,7 @@
 
 <script>
 import { getDetail, getDetailDecryptField, syncMaintenance, updateFlat, warrantyForecast, realnameRecordPage } from '@/api/datacenter/vehicle/vehicleProfile/index';
+import moment from 'moment';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import routeGuard from '@/libs/mixins/routeGuard';
@@ -1055,10 +1084,13 @@ export default {
       infoDialogData: {},
       // 权限
       canReturn: false,
+      canResetPart: false,
+      canResetVehicle: false,
       canViewLifetimeBenefits: false,
       syncPad: false,
       modifyMaintenanceRecord: false,
       canKeyInfoChangeLog: false,
+      canWarrantyForecast: false,
       serviceProxyHis: false,
       pageNum: 1, // 实名认证记录分页
       pageSize: 10,
@@ -1069,10 +1101,13 @@ export default {
   },
   created () {
     this.canReturn = this.permissions.has(`${this.moduleKey}-return`);
+    this.canResetPart = this.permissions.has(`${this.moduleKey}-resetPart`);
+    this.canResetVehicle = this.permissions.has(`${this.moduleKey}-resetVehicle`);
     this.canViewLifetimeBenefits = this.permissions.has(`${this.moduleKey}-viewLifetimeBenefits`);
     this.syncPad = this.permissions.has(`${this.moduleKey}-syncPad`);
     this.modifyMaintenanceRecord = this.permissions.has(`${this.moduleKey}-modifyMaintenanceRecord`);
     this.canKeyInfoChangeLog = this.permissions.has(`${this.moduleKey}-keyInfoChangeLog`);
+    this.canWarrantyForecast = this.permissions.has(`${this.moduleKey}-warrantyForecast`);
     this.serviceProxyHis = !!(this.$store.state.pageSource?.aisPageSource || []).find(item => (item === 'AISMC-serviceProxyHis-page'));
   },
   mounted () {
@@ -1093,10 +1128,7 @@ export default {
         return;
       }
       warrantyForecast(this._id).then(res => {
-        if (!res) {
-          this.$message.error('质保政策未维护，无法准确预测质保期');
-          return;
-        }
+        this.$message.success('预测成功');
         this.$refs.containerRef.loadDetail();
       });
     },
@@ -1139,9 +1171,9 @@ export default {
         if (Array.isArray(data[key]) && !data[key].length) {
           delete data[key];
         }
-        if (data[key] === '' || data[key] === null) {
-          delete data[key];
-        }
+        // if (data[key] === '' || data[key] === null) {
+        //   delete data[key];
+        // }
       });
 
       return data;
@@ -1177,6 +1209,14 @@ export default {
     onInfoSuccess () {
       this.$refs?.nextTable?.getDetailPageApi();
       this.$refs?.containerRef?.loadDetail();
+    },
+    onVehicleReset (res) {
+      if (!res) return;
+      // 后端字段:nextMaintenanceDate / nextMaintenanceMileage(注意"tion"和单数)
+      this.form.nextMaintainDate = res.nextMaintenanceDate && moment(res.nextMaintenanceDate).isValid()
+        ? moment(res.nextMaintenanceDate).format('YYYY-MM-DD HH:mm:ss')
+        : null;
+      this.form.nextMaintainMileages = res.nextMaintenanceMileage ?? '';
     },
     onReturnSuccess () {
       this.$refs.containerRef.loadDetail();

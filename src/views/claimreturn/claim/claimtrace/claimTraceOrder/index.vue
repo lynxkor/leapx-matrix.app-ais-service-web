@@ -432,7 +432,7 @@ export default {
             width: 200,
             buttons: [{
               click: (rowIndex, row) => {
-                window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${row.dealerCode}`, '_blank');
+                window.open(`/service/datacenter/store/store/detail?storeCode=${row.dealerCode}`, '_blank');
               },
               type: 'primary'
             }]
@@ -485,7 +485,13 @@ export default {
               },
               {
                 name: '作废',
-                show: (row) => this.permissions.has(`${this.moduleKey}-cancel`) && [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED].includes(row.traceStatus),
+                // 作废按钮可见状态扩大（F9，REQ-2026101316421956）：草稿/已驳回/待门店确认/申诉中直接可见；
+                // 门店同意/申诉拒绝需已追溯金额为 0（与后端 canCancelInSingleMode 同口径）
+                show: (row) => this.permissions.has(`${this.moduleKey}-cancel`) && (
+                  [TRACE_STATUS.DRAFT, TRACE_STATUS.REJECTED, TRACE_STATUS.PENDING_CONFIRM, TRACE_STATUS.APPEALING].includes(row.traceStatus) ||
+                  ((row.traceStatus === TRACE_STATUS.STORE_AGREED || row.traceStatus === TRACE_STATUS.APPEAL_REFUSED) &&
+                    (!row.tracedAmount || Number(row.tracedAmount) === 0))
+                ),
                 click: (rowIndex, row) => {
                   this.currentRow = row;
                   this.batchCancelMode = false;
@@ -664,13 +670,15 @@ export default {
       getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
           console.log(res);
-          this.optionObj.dataList = res.records.map(item => {
+          this.optionObj.dataList = (res?.records || []).map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res.total;
+          this.optionObj.total = res?.total || 0;
+        }).catch(err => {
+          console.error('列表数据加载失败:', err);
         }).finally(() => {
           this.loading = false;
         });

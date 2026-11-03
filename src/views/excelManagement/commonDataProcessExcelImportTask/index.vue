@@ -15,6 +15,13 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="文件名称：">
+        <el-input
+          placeholder="请输入"
+          v-model="form.fileNameLike"
+          clearable
+        />
+      </el-form-item>
       <el-form-item label="任务状态" prop="taskStatus">
         <fetch-select
           :options="taskStatusOptions"
@@ -22,6 +29,13 @@
           placeholder="请选择"
           clearable
           multiple
+        />
+      </el-form-item>
+      <el-form-item label="创建人：">
+        <el-input
+          placeholder="请输入"
+          v-model="form.creatorNameLike"
+          clearable
         />
       </el-form-item>
       <el-form-item label="创建时间">
@@ -82,6 +96,7 @@ import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/co
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import commonMixins from '@/libs/mixins/commonMixins';
+import permissions from '@/libs/mixins/permissions';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { downloadExcel } from '@/utils/index.js';
 import { refreshFileAuthUrl } from '@/api/file/fileDetail';
@@ -91,7 +106,9 @@ const defaultForm = {
   taskType: 1,
   taskStatus: '',
   creator: '',
-  businessType: ''
+  businessType: '',
+  fileNameLike: '',
+  creatorNameLike: ''
 };
 
 const pageSize = 20;
@@ -100,7 +117,7 @@ const mockConfig = {
 };
 
 export default {
-  mixins: [commonMixins],
+  mixins: [permissions, commonMixins],
 
   components: {
     FetchSelect,
@@ -110,17 +127,20 @@ export default {
   },
   data () {
     return {
-      pageTitle: 'Excel导入任务',
+      pageTitle: '导入任务',
       pageType: 'list',
+      moduleKey: 'AISMC-commonDataProcessExcelImportTask',
       form: {
         ...defaultForm
       },
       selectionList: [],
+      // 状态筛选按原始枚举展示（11 等待导入/12 导入中/13 导入完成/14 导入失败 + 本期新增 15 部分失败），选中什么提交什么
       taskStatusOptions: [
         { code: 11, message: '等待导入' },
         { code: 12, message: '导入中' },
         { code: 13, message: '导入完成' },
-        { code: 14, message: '导入失败' }
+        { code: 14, message: '导入失败' },
+        { code: 15, message: '部分失败' }
       ],
       yes_no_enum: YES_NO_ENUM,
       show: false,
@@ -155,25 +175,52 @@ export default {
           },
           { props: 'taskTypeLabel', label: '任务类型', visible: true, width: 200 },
           { props: 'businessType', label: '业务标识', visible: true, width: 200 },
-          {
-            props: 'importFailUrl',
-            label: '导入失败数据下载地址',
-            visible: true,
-            width: 200,
-            buttons: [{
-              name: '点击下载',
-              show: (row) => row.fileId,
-              click: (rowIndex, row) => {
-                this.handleDownload(row);
-              },
-              type: 'primary'
-            }]
-          },
+          // 导入策略取自导入模板配置（后端按任务 importModelId=模板编码 反查回填 importStrategy），
+          // 两值字典映射由 getData 数据侧生成 importStrategyLabel（LPVxeTable 不支持 dataProp.formatter）
+          { props: 'importStrategyLabel', label: '导入策略', visible: true, width: 200 },
+          // 文件名称/导入失败数据下载地址 两列不展示（下载入口收敛到操作列，PRD 2026-09）
+          // 行数三列空值展示 '-'：LPVxeTable 不支持 dataProp.formatter，由 getData 数据侧映射
+          { props: 'totalNum', label: '总数据行数', visible: true, width: 200 },
+          { props: 'successNum', label: '成功行数', visible: true, width: 200 },
+          { props: 'failNum', label: '失败行数', visible: true, width: 200 },
+          // 处理中（等待导入 11/导入中 12）行内展示发送进度 sendNum/totalNum，由 getData 数据侧拼入状态文案，随列表刷新更新（无轮询）
           { props: 'taskStatusLabel', label: '任务状态', visible: true, width: 200 },
           { props: 'importRemark', label: '描述', visible: true, width: 200 },
-          { props: 'creatorName', label: '创建者', visible: true, width: 200 },
+          { props: 'creatorName', label: '创建人', visible: true, width: 200 },
+          { props: 'modifierName', label: '修改人', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 }
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            width: 200,
+            buttons: [
+              {
+                name: '下载失败文件',
+                // 展示条件：状态 失败(14)/部分失败(15) + 权限码 -downloadFailFile（资源配置）；失败文件未生成（importFailUrl 空）不展示
+                show: (row) => [14, 15].includes(row.taskStatus) &&
+                  !!row.importFailUrl &&
+                  this.permissions.has(`${this.moduleKey}-downloadFailFile`),
+                click: (rowIndex, row) => {
+                  this.handleDownload(row);
+                },
+                type: 'primary'
+              },
+              {
+                name: '下载原始文件',
+                // 展示条件：所有状态 + 权限码 -downloadOriginalFile（资源配置）；存量任务无原始文件（importOriginalUrl 空）不展示
+                show: (row) => !!row.importOriginalUrl &&
+                  this.permissions.has(`${this.moduleKey}-downloadOriginalFile`),
+                click: (rowIndex, row) => {
+                  this.handleDownloadOriginal(row);
+                },
+                type: 'primary'
+              }
+            ]
+          }
         ],
         total: 0
       },
@@ -266,6 +313,13 @@ export default {
           this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,
+              // LPVxeTable 不支持 dataProp.formatter，行数列空值 '-' 在数据侧映射
+              totalNum: item.totalNum ?? '-',
+              successNum: item.successNum ?? '-',
+              failNum: item.failNum ?? '-',
+              // 导入策略两值字典映射：SKIP_ERROR_ROWS=跳过错误行（默认）/ ALL_OR_NOTHING=全有全无，
+              // 模板缺失或策略为空展示 '-'（与模板列表口径一致）
+              importStrategyLabel: item.importStrategy === 'ALL_OR_NOTHING' ? '全有全无' : (item.importStrategy ? '跳过错误行' : '-'),
               deleteLoading: false
             };
           });
@@ -376,7 +430,8 @@ export default {
         });
       });
     },
-    // 重试导入任务
+    // 重试导入任务（存量未接线方法，按精准修改原则保留现状死代码不删；
+    // 防重留痕行(dedup_hit=1)的拒绝重试防线由后端 retryImportTask 入口负责，前端无改动）
     handleRetry (row) {
       this.$confirm('确定要重新执行该导入任务吗?', '提示', {
         confirmButtonText: '确定',
@@ -397,24 +452,66 @@ export default {
         });
       }).catch(() => {});
     },
-    // 下载导入失败数据
+    // 下载导入失败文件：文件名 = 业务标识 + yyyyMMddHHmmss
     handleDownload (row) {
       const url = row?.importFailUrl || this.info?.importFailUrl;
+      const businessType = row?.businessType || this.info?.businessType || '导入失败数据';
+      this.downloadWithFileName(url, `${businessType}${this.nowTimestamp()}.xlsx`);
+    },
+    // 下载原始文件：文件名 = 之前导入文件的名称（建任务时落库的 importExcelFileName）
+    handleDownloadOriginal (row) {
+      const url = row?.importOriginalUrl || this.info?.importOriginalUrl;
+      this.downloadWithFileName(url, row?.importExcelFileName || this.info?.importExcelFileName || '原始导入文件.xlsx');
+    },
+    // 换签后以指定文件名下载：fetch 转 blob 走同源 a[download]，
+    // 保证跨域签名 URL 下浏览器使用指定文件名（直挂 link 会被忽略、落成 OSS 的 md5 存储名）；
+    // fetch 失败降级为直接下载（此时文件名可能不被浏览器采纳）
+    downloadWithFileName (url, fileName) {
+      if (!url) {
+        this.$message({
+          type: 'warning',
+          message: '下载地址为空'
+        });
+        return;
+      }
       const originalUrl = url.split('?')[0];
       refreshFileAuthUrl({
         url: originalUrl,
         expireMinutes: 1440
       }).then(res => {
-        if (res) {
-          // console.log(res);
-          downloadExcel(res.authFileUrl, res.originalFilename || '导入失败数据.xlsx');
-        } else {
+        if (!res) {
           this.$message({
             type: 'warning',
             message: '下载地址为空'
           });
+          return;
         }
+        fetch(res.authFileUrl).then(response => response.blob()).then(blob => {
+          const objectUrl = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = objectUrl;
+          link.download = fileName;
+          link.style.display = 'none';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(objectUrl);
+        }).catch(() => {
+          downloadExcel(res.authFileUrl, fileName);
+        });
       });
+    },
+    // 当前时间 yyyyMMddHHmmss
+    nowTimestamp () {
+      const now = new Date();
+      return [
+        now.getFullYear(),
+        now.getMonth() + 1,
+        now.getDate(),
+        now.getHours(),
+        now.getMinutes(),
+        now.getSeconds()
+      ].map(num => String(num).padStart(2, '0')).join('');
     }
   }
 };

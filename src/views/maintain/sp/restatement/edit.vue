@@ -458,9 +458,19 @@ export default {
           id: this._id,
           auditStatus: this.auditForm.auditAction,
           auditDesc: this.auditForm.auditOpinion
-        }).then(() => {
+        }).then(res => {
           this.$message.success('审核成功');
           this.auditDialogVisible = false;
+          // 反结算财务审核：保修申请单作废被拦截时，后端以 data 回传提示文案，此处软提示不阻断
+          if (res) {
+            this.$notify({
+              title: '警告',
+              message: `<div style="text-align:left;">${res}</div>`,
+              dangerouslyUseHTMLString: true,
+              type: 'warning',
+              duration: 0
+            });
+          }
           this.$refs.containerRef.loadDetail();
         }).catch((error) => {
           console.error('审核失败:', error);
@@ -513,7 +523,7 @@ export default {
     },
     goToDealerDetail () {
       if (this.form.dealerCode) {
-        window.open(`/partner/channelManagement/shopDetail?num=2&dealerCode=${this.form.dealerCode}`, '_blank');
+        window.open(`/service/datacenter/store/store/detail?storeCode=${this.form.dealerCode}`, '_blank');
       } else {
         this.$message.warning('未找到厅店信息');
       }

@@ -65,6 +65,7 @@
 
 <script>
 import { submitAudit, batchSubmitForAudit } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
+import { notifyBatchResult } from '../../../warrantyapply/BatchResultHelper';
 import { uploadFile, deleteFile, addOrUpdateFile, getFileList, getByCode } from '@/libs/api/attachment/index';
 import { isFileType } from '@/libs/utils/file.js';
 import AisUpload from '@/libs/components/AisAttachment/AisUpload/index.vue';
@@ -237,7 +238,10 @@ export default {
         }, []);
         const newFiles = this.attachFileList.map(p => p.addOrUpdateParams);
         const allFiles = [...existingFiles, ...newFiles];
-        if (allFiles.length === 0) {
+        // 追溯凭证是否必填以 mcs_claimtrack_form 后端配置为准:
+        // loadUploadConfig 在单条模式下将 cfg.required 同步到 uploadConfig.required,
+        // 后端置 '1' 才拦截;批量模式不加载配置,默认放行(批量场景不允许强制每条都传凭证)。
+        if (this.uploadConfig?.required === '1' && allFiles.length === 0) {
           this.$message.warning('请上传追溯凭证');
           this.submitLoading = false;
           return;
@@ -248,8 +252,9 @@ export default {
             ids: this.traceOrderIds,
             traceDesc: this.form.traceDesc,
             attachFileList: allFiles
-          }).then(() => {
-            this.$message.success('批量审核下发成功');
+          }).then((res) => {
+            // 部分成功口径（REQ-2026101316421956）：有失败时弹明细（追溯单号），全成功提示成功
+            notifyBatchResult(this, res, '下发');
             this.close();
             this.$emit('success');
           }).finally(() => {

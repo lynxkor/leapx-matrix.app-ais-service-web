@@ -61,6 +61,14 @@ export function returnOrderPage (data) {
 }
 
 /**
+ * 备件退货单 - 明细分页查询（按明细维度返回行）
+ * @param {Object} data
+ */
+export function detailPage (data) {
+  return api.jsonPost(prefix + 'detailPage', data);
+}
+
+/**
  * 备件退货明细表分页查询
  * @param {Object} data
  */

@@ -11,7 +11,7 @@
                 <el-input v-model="form.onceSatisfactionRate" type="number" placeholder="请输入" :min="60" :max="99" />
             </el-form-item>
             <el-form-item label="MAX大于等于：">
-                <el-input v-model="form.maxForecast" type="number" placeholder="请输入" />
+                <el-input v-model="form.maxStockLevel" type="number" placeholder="请输入" />
             </el-form-item>
             <el-form-item label="建议采购数大于等于：">
                 <el-input v-model="form.suggestedPurchaseQty" type="number" placeholder="请输入" />
@@ -46,8 +46,8 @@
                   </template>
                 </vxe-column>
                 <vxe-column field="expectedShortageDate" title="预计缺货日期" width="150" />
-                <vxe-column field="minTargetAmount" title="Min" width="100" />
-                <vxe-column field="maxForecast" title="Max" width="100" />
+                <vxe-column field="reorderPoint" title="Min" width="100" />
+                <vxe-column field="maxStockLevel" title="Max" width="100" />
                 <vxe-column field="minOrderQty" title="最小订购量" width="150" />
                 <vxe-column field="totalInventory" title="总库存" width="120" />
                 <vxe-column field="availableInventory" title="可用库存" width="120" />
@@ -105,7 +105,7 @@ const defaultForm = {
   partsCodeList: [],
   partsNameLike: '',
   onceSatisfactionRate: 80,
-  maxForecast: '',
+  maxStockLevel: '',
   suggestedPurchaseQty: '',
   expectedShortageDate: [],
 };
@@ -234,8 +234,8 @@ export default {
           avgWeeklyDemand: '周平均值需求',
           riskWarning: '风险预警',
           expectedShortageDate: '预计缺货日期',
-          minTargetAmount: 'Min',
-          maxForecast: 'Max',
+          reorderPoint: 'Min',
+          maxStockLevel: 'Max',
           minOrderQty: '最小订购量',
           totalInventory: '总库存',
           availableInventory: '可用库存',
@@ -272,13 +272,13 @@ export default {
       this.loading = true;
       purchaseApplyGetCouponPage({ ...this.getFormData(), orderId: this.id, pageNum: this.current, pageSize: this.pageSize })
         .then(res => {
-          this.tableData = (res && res.records || []).map(item => {
+          this.tableData = ((res && res.records) || []).map(item => {
             return {
               ...item,
               checked: true, // 默认选中
             };
           });
-          this.total = res && res.total || 0;
+          this.total = (res && res.total) || 0;
           this.selectedRows = [...this.tableData]; // 默认选中所有数据
         }).finally(() => {
           this.loading = false;

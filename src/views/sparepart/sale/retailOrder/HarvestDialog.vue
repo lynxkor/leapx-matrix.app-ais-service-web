@@ -1,7 +1,7 @@
 <template>
     <el-dialog class="m-start-work-dialog" title="收款" width="70%" :visible.sync="dialogVisible" @close="close">
         <el-form ref="workForm" :model="formData" inline label-width="120px">
-            <el-form-item label="备附件销售单号">
+            <el-form-item label="备附件零售单号">
                 {{formData.code}}
             </el-form-item>
             <el-form-item label="应付总金额">

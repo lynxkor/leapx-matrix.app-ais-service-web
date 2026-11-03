@@ -11,7 +11,7 @@
       <section class="common-section">
         <el-form :inline="true" :model="form" :rules="rules" ref="ruleForm" label-width="100px" class="form-edit" style="padding-right: 16px;">
           <el-form-item prop="appealDesc" class="form-item-full" label="申诉说明：">
-            <el-input type="textarea" v-model="form.appealDesc" placeholder="请输入" :rows="3" />
+            <el-input type="textarea" v-model="form.appealDesc" placeholder="请输入" :rows="3" maxlength="500" show-word-limit />
           </el-form-item>
           <el-form-item class="form-item-full" label="申诉凭证：" required>
             <AisAttachment
