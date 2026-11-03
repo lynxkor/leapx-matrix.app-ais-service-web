@@ -31,6 +31,20 @@ export default {
     hideSort: {
       type: Boolean,
       default: false
+    },
+    /**
+     * 接管「性能测试」的执行。
+     *
+     * <p>继承来的模板里有个「性能测试」按钮,默认走<b>后端</b> perf 接口
+     * (通用视图查询)。但单据明细表场景后端 perf 必然失败 ——
+     * 该接口必须带单据 ID,通用查询拿不到,实测会卡满 10 秒超时。</p>
+     *
+     * <p>外层( PersonalViewSetting )传了这个函数时,按钮改为走本地性能测试,
+     * 测的是「本地过滤 + 排序」这条真实执行路径。</p>
+     */
+    perfTestHandler: {
+      type: Function,
+      default: null
     }
   },
   watch: {
@@ -58,11 +72,17 @@ export default {
     /**
      * 重置并初始化工作区(字段元数据 / 条件树 / 排序 / 视图名)。
      * 父组件在弹窗打开时调用。
+     *
+     * <p>批量排序(需求 LP262002 7.1.2.2)相关状态一并重置:
+     * {@code presetSortJson} 是「保存时要带给后端的排序列表」,
+     * {@code presetSortList} 是「从视图详情读回来的排序列表」。</p>
      */
     async resetState () {
       this.dialogVisible = true;
       this.workingTree = this.makeInitialTree();
       this.workingSort = this.makeInitialSort();
+      this.presetSortJson = '';
+      this.presetSortList = [];
       this.errorSummary = [];
       this.viewName = '';
       this.currentPresetId = this.activePresetId || null;
@@ -70,6 +90,32 @@ export default {
       if (this.currentPresetId) {
         await this.loadPresetDetail(this.currentPresetId);
       }
+    },
+    /**
+     * 取当前视图已保存的排序项列表 [{field, order}]。
+     *
+     * <p>继承自 CustomQueryDialog 的 loadPresetDetail 已按
+     * 「优先 sortJson(多字段),历史数据回落到旧的 sortField/sortOrder」解析好,
+     * 这里只做一次浅拷贝,避免外部改动影响组件内部状态。</p>
+     *
+     * @returns {Array<Object>}
+     */
+    getSortList () {
+      return (this.presetSortList || []).map(item => ({ field: item.field, order: item.order }));
+    },
+    /**
+     * 执行性能测试。
+     *
+     * <p>覆盖继承来的 onRunPerfTest:外层传了 perfTestHandler 就走它
+     * (本地性能测试),否则沿用原实现(后端 perf 接口)。</p>
+     *
+     * @returns {Promise<Boolean>} 是否通过
+     */
+    async onRunPerfTest () {
+      if (this.perfTestHandler) {
+        return this.perfTestHandler();
+      }
+      return CustomQueryDialog.methods.onRunPerfTest.call(this);
     }
   }
 };

@@ -292,7 +292,51 @@ export function filterByTree (rows, tree) {
 }
 
 /**
- * 按排序项排序(多字段依次比较)。
+ * 文本排序比较器(PRD 7.1.2.2「自定义排序」的排序规则)。
+ *
+ * <p>PRD 明确两条:
+ * <ul>
+ *   <li>含混合模式数字时按升序排序后【a2】排在【a10】前面 —— 需要自然序(numeric);</li>
+ *   <li>含中文时需要转化为拼音之后进行排序 —— 需要 zh 的拼音排序规则。</li>
+ * </ul>
+ *
+ * <p>{@code Intl.Collator} 的 zh 排序规则本身就是拼音序,{@code numeric: true}
+ * 则是自然序(数字按数值大小比较,而不是逐字符比),两者一起即可满足 PRD。
+ * {@code -u-co-pinyin} 是显式指定拼音排序规则,老浏览器不认时退回 {@code zh-CN}
+ * (ICU 里 zh 的默认规则同样是拼音)。</p>
+ */
+const TEXT_COLLATOR = (() => {
+  const options = { numeric: true, sensitivity: 'base' };
+  try {
+    return new Intl.Collator('zh-Hans-CN-u-co-pinyin', options);
+  } catch (e) {
+    try {
+      return new Intl.Collator('zh-CN', options);
+    } catch (e2) {
+      // 运行环境不支持 Intl.Collator 时退回普通字符串比较
+      return null;
+    }
+  }
+})();
+
+/**
+ * 两个单元格值的文本比较(升序语义)。
+ * @param {*} a
+ * @param {*} b
+ * @returns {Number} 负数 = a 在前
+ */
+function compareText (a, b) {
+  const at = a === null || a === undefined ? '' : String(a);
+  const bt = b === null || b === undefined ? '' : String(b);
+  if (TEXT_COLLATOR) return TEXT_COLLATOR.compare(at, bt);
+  return at < bt ? -1 : at > bt ? 1 : 0;
+}
+
+/**
+ * 按排序项排序(多字段依次比较,次序靠前的字段先排)。
+ *
+ * <p>排序规则见 {@link TEXT_COLLATOR}:中文按拼音、混合模式数字按自然序。</p>
+ *
  * @param {Array} rows
  * @param {Array} sortFields [{column, sort}] sort 为 ASC/DESC
  * @returns {Array} 返回新数组
@@ -314,11 +358,11 @@ export function sortByFields (rows, sortFields) {
       const an = toNumber(av);
       const bn = toNumber(bv);
       if (!Number.isNaN(an) && !Number.isNaN(bn)) {
+        // 两边都是数值:直接按数值大小比(最精确)
         cmp = an - bn;
       } else {
-        const at = av === null || av === undefined ? '' : String(av);
-        const bt = bv === null || bv === undefined ? '' : String(bv);
-        cmp = at < bt ? -1 : at > bt ? 1 : 0;
+        // 文本(或数值与文本混合):按 PRD 规则 —— 中文转拼音、混合模式数字按自然序
+        cmp = compareText(av, bv);
       }
       if (cmp !== 0) return desc ? -cmp : cmp;
     }
@@ -359,4 +403,60 @@ export function applyTableConfig (columns, tableConfig) {
   decorated.sort((a, b) => (a.order - b.order) || (a.idx - b.idx));
 
   return decorated.filter(item => item.visible).map(item => item.col);
+}
+
+/**
+ * 本地性能测试的耗时上限(ms)。
+ *
+ * <p>与后端 perf 的 5000ms 阈值保持一致。</p>
+ */
+export const LOCAL_PERF_LIMIT_MS = 5000;
+
+/**
+ * 本地性能测试 —— 明细表视图的「性能测试」替代实现。
+ *
+ * <p><b>为什么需要它</b>:后端 perf 接口走 customViewMain.path 指向的列表接口
+ * (通用视图查询)。单据明细表不是独立列表页,该接口必须带单据 ID 才能定位数据,
+ * 通用查询拿不到 —— 实测 bizKey=maintenanceOutboundOrderDetail:
+ * <ul>
+ *   <li>直接调 executeQuery → 报「维修出库单不存在null」/ 500;</li>
+ *   <li>调 perf → 后端 future.get(10s) 超时,perfStatus 恒为 pending(未通过)。</li>
+ * </ul>
+ * 即后端性能测试在明细表场景<b>必然失败</b>,不能用来卡保存。</p>
+ *
+ * <p>明细表视图的筛选/排序本来就在前端本地生效,所以性能测试也应测「本地这条路径」:
+ * 用视图的条件树与排序项对<b>全量明细行</b>做一次真实的过滤 + 排序,统计耗时。
+ * 测的正是用户实际会走的执行路径,语义上与后端 perf 等价(「这条视图跑起来快不快」)。</p>
+ *
+ * <p>与后端 perf 保持一致的口径:
+ * <ul>
+ *   <li>耗时超过 {@link LOCAL_PERF_LIMIT_MS} 视为未通过;</li>
+ *   <li>返回耗时(ms),供前端提示「性能测试通过/未通过:耗时 Xms」。</li>
+ * </ul>
+ *
+ * @param {Array<Object>} rows 全量明细行
+ * @param {Object} conditionTree 视图条件树
+ * @param {Array<Object>} sortFields 排序项 [{column, sort}] sort 为 ASC / DESC
+ * @returns {{passed: Boolean, durationMs: Number, rowCount: Number}}
+ */
+export function localPerfTest (rows, conditionTree, sortFields) {
+  const list = Array.isArray(rows) ? rows : [];
+  const start = Date.now();
+  try {
+    const filtered = filterByTree(list, conditionTree);
+    const sorted = sortByFields(filtered, sortFields);
+    const durationMs = Date.now() - start;
+    return {
+      passed: durationMs <= LOCAL_PERF_LIMIT_MS,
+      durationMs,
+      rowCount: sorted.length
+    };
+  } catch (e) {
+    // 条件求值/排序异常也算未通过(视图条件有问题,不能拿去用)
+    return {
+      passed: false,
+      durationMs: Date.now() - start,
+      rowCount: 0
+    };
+  }
 }

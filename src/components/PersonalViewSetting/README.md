@@ -48,9 +48,26 @@
 | `dialogProps` | Object | `{}` | 传给弹窗组件的额外 props(config / skipPerfTest / showBaseSettings) |
 | `localApply` | Boolean | `false` | 本地生效模式:①选中视图不校验性能测试状态 ②提示语不提「表单已锁定」 |
 | `defaultViewText` | String | `''` | 下拉里「默认视图」项的文案。空 = 与 `triggerText` 一致 |
-| `enableDefaultView` | Boolean | `false` | **默认视图能力总开关**：①「系/默」标识 ②复制 / 设为默认 ③打开时自动选中默认视图 |
+| `enableDefaultView` | Boolean | `false` | **默认视图能力总开关**:①「系/默」标识 ②复制 / 设为默认 ③打开时自动选中默认视图 |
 
 > `src/libs` 是 git submodule(partner-components),改动需在该仓库单独提 MR。
+
+### 共享组件为「多字段排序」做的适配(需求 LP262002 7.1.2.2)
+
+新增 `src/libs/components/CustomView/sortJson.js`,统一 sortJson 的解析 / 序列化规则,
+共享组件与业务项目内的弹窗共用一份,避免两处各写一套导致读不一致。
+
+| 文件 | 改动 |
+|---|---|
+| `CustomView/sortJson.js`(新增) | `parseSortJson` / `resolveSortList` / `toSortJson` / `toSortColumns` / `isVirtualSortField` |
+| `CustomView/CustomQueryDialog.vue` | 详情加载时解析出 `presetSortList`;保存时带上 `presetSortJson`(外部设置才带) |
+| `CustomView/index.vue` | `applyPreset` 按 sortJson 生成多字段 `sortColumns`;`onCopyView` 一并复制 sortJson |
+
+**兼容口径**:读取侧优先用 `sortJson`,没有才回落到旧的 `sortField` / `sortOrder`
+(历史数据只有这两个字段)。保存侧**不做双写** —— 带了 `sortJson` 就不再带旧的单字段排序,
+旧字段与新字段不会并存。
+
+> ⚠️ 以上三个文件在 submodule(partner-components)里,需在该仓库单独提 MR 并更新主仓的 submodule 指针。
 
 ---
 
@@ -107,7 +124,8 @@ computed: {
           props: col.field, label: col.title, visible: true, disabled: false, type: ''
         }))
       },
-      skipPerfTest: true,      // 该 bizKey 后端通用查询不可用,跳过性能测试
+      // 本地性能测试的数据源:拉全量明细行(该 bizKey 后端通用查询不可用)
+      perfTestRowsLoader: this.loadAllCollarRows,
       showBaseSettings: false  // EditTable 不支持折行/紧凑度,隐藏「基础设置」
     };
   }
@@ -119,7 +137,7 @@ computed: {
 | 事件 | 时机 | 载荷 |
 |---|---|---|
 | `change` | 下拉选中视图 / 切回系统视图 | `{ conditions, sortColumns, activePresetId }` |
-| `save` | 弹窗保存成功 | `{ id, viewName, conditionTree, sortFields, tableConfig }` |
+| `save` | 弹窗保存**且性能测试通过**后 | `{ id, viewName, conditionTree, sortFields, tableConfig }` |
 | `copy` | 复制视图成功 | `{ sourceId, newId, sourceIsSystem }` |
 
 ---
@@ -156,18 +174,115 @@ computed: {
 键规则集中在 `localView.viewTableConfigCode(bizKey, viewId)`，
 弹窗与业务页面共用，避免两处各写一份导致读不到。
 
+### 排序的存储格式
+
+后端视图表新增 `sort_json` 列（JSON 数组），存批量排序列表：
+
+```json
+[{"index":1,"sortField":"spare_part_code","sortOrder":"asc"},
+ {"index":2,"sortField":"location_name","sortOrder":"desc"}]
+```
+
+- `index`：排序位次（1 起），越小越靠前，最终排序时次序靠前的字段先排。
+- `sortField`：字段名，下划线形态（与 `custom_view_field.field_name` 一致）。
+- `sortOrder`：`asc` / `desc`。
+
+**历史数据兼容**：改造前的视图只有 `sort_field` / `sort_order` 两个字段（单字段排序）。
+读取时**优先用 `sort_json`，没有才回落到旧的两个字段**，行为与改造前完全一致；
+旧视图被重新编辑保存后会自动迁移到新格式。
+
+保存时**不做双写**：前端带 `sortJson` 就不再带旧的 `sortField` / `sortOrder`，
+后端也只写 `sort_json` 一列，两套字段不会并存。
+
+---
+
+## 七之一、性能测试（测试通过才算真正保存）
+
+与原分支（`feature/20261013-customView`）一致，保存流程是：
+
+```
+校验 → 落库(视图 + 表格配置) → 性能测试 → 【通过才】交出 save 事件 + 切换选中视图 + 关闭弹窗
+```
+
+**性能测试未通过时弹窗保持打开**（便于改条件后重试），且**不会**交出 `save` 事件
+—— 否则宿主页面已按新条件刷新了页面，用户看到的却是「测试没通过」，状态不一致。
+
+上半区的「性能测试」按钮与保存流程**走同一个入口**（`onPerfTest`），保证两条路径判定口径一致。
+
+### 三种测试模式（按优先级）
+
+| 模式 | 触发条件 | 实现 | 适用场景 |
+|---|---|---|---|
+| **本地性能测试** | 宿主传了 `perfTestRowsLoader` | `localView.localPerfTest`：对全量明细行跑一次真实的过滤 + 排序并计时，阈值 5000ms | 单据明细表视图（本地生效） |
+| **跳过** | 无 loader 且 `skipPerfTest: true` | 不测试，保存即生效（⚠️ 与原分支语义不一致，慎用） | 确实不需要测试的场景 |
+| **后端 perf** | 其余 | `qb.onRunPerfTest()` → `customQueryViewApi.perf(id)` | 列表页视图（走后端通用查询） |
+
+### 为什么明细表要用本地性能测试
+
+后端 `perf` 走 `customViewMain.path` 指向的列表接口（通用视图查询）。
+单据明细表**不是独立列表页**，该接口必须带单据 ID 才能定位数据，通用查询拿不到。实测 `bizKey=maintenanceOutboundOrderDetail`：
+
+- 直接调 `executeQuery` → 报「维修出库单不存在null」/ 500；
+- 调 `perf` → 同样报「维修出库单不存在null」（`code:400`），或后端 `future.get(10, SECONDS)` 超时 →
+  `perfStatus` 恒为 `pending`（未通过），**永远不可能通过**。
+
+即后端性能测试在明细表场景**完全不可用**，若照搬原分支的后端 perf 路径，明细页将**永远保存不了视图**。
+而明细表视图的筛选/排序本来就在前端本地生效，所以性能测试也应测「本地这条路径」——
+用视图的条件树与排序项对全量明细行做一次真实的过滤 + 排序并计时，
+测的正是用户实际会走的执行路径，语义上与后端 perf 等价。
+
+> 对照验证：列表页 `bizKey=warrantyapply` 的视图 `perfStatus=passed`（后端 perf 可用），
+> 明细页 `bizKey=maintenanceOutboundOrderDetail` 恒为 `pending`（必然失败）。
+
+### 宿主页面接入
+
+```js
+// 传一个加载器,返回该单据的全部明细行
+async loadAllCollarRows () {
+  const res = await collarPage({
+    pageNum: 1,
+    pageSize: LOCAL_VIEW_MAX_ROWS,
+    maintenanceOutboundOrderId: this._id
+  });
+  return (res && res.records) || [];
+}
+```
+
+用函数而不是直接传数组：明细行只在保存时才需要，且要保证测的是最新数据。
+
 ---
 
 ## 七、已知限制
 
-1. **多字段排序只落第一项**：后端 `addOrUpdate` 只接受单字段 `sortField/sortOrder`，
-   完整多字段列表通过 `save` 事件的 `sortFields` 交给宿主页面（前端本地生效时是完整的）。
-2. **基础设置三项对本页面无效**：`EditTable` 写死了 `show-overflow` 与行高，
+1. **基础设置三项对本页面无效**：`EditTable` 写死了 `show-overflow` 与行高，
    故传 `showBaseSettings: false` 隐藏该区块，避免「设了不生效」。
-3. **原组件的单字段排序区被隐藏**：PRD 的自定义排序要求多字段 + 拖拽调整次序，
+2. **原组件的单字段排序区被隐藏**：PRD 的自定义排序要求多字段 + 拖拽调整次序，
    由外层实现，原组件的 `.c-cqd__sort` 通过 `hide-sort` 隐藏（`CustomQueryBlock` 里加 class 实现）。
-4. **打印设置的「按个人视图」尚未实现**：PRD 里打印设置需联动个人视图列表（必选、单选），
+3. **打印设置的「按个人视图」尚未实现**：PRD 里打印设置需联动个人视图列表（必选、单选），
    属另一模块，不在本组件范围内。
+4. **PRD 的【序号】虚拟字段未加**：PRD 7.1.2.2 还要求明细表加【序号】虚拟列，
+   本次只做「排序字段批量配置」，故未加；但排序候选列表已按 PRD 剔除【序号】（它没有对应的业务字段）。
+5. **后端执行的排序沿用数据库排序规则**：PRD 要求「中文转拼音」「混合模式数字按自然序」，
+   前端本地排序（`localView.sortByFields`）已用 `Intl.Collator` 满足；
+   但走后端 `executeQuery` 的视图（列表页场景），ORDER BY 沿用数据库的排序规则，
+   `a2` / `a10` 的大小写与自然序需数据库排序规则配合，未在本需求内改造。
+
+---
+
+## 七之二、自定义排序的交互（PRD 7.1.2.2）
+
+| PRD 要求 | 实现 |
+|---|---|
+| 首次选择排序字段时，列出所有可排序字段 | 「＋ 添加排序字段」下拉，取自后端字段元数据（`customViewField/list`） |
+| 不受表格设置影响 | 候选字段取自后端字段元数据，不取表格列配置 |
+| 剔除已参与排序的字段 | `candidateFields` 计算属性按 `sortList` 过滤 |
+| 剔除虚拟字段【序号】 | `isVirtualSortField` 黑名单（字段名 + 中文名） |
+| 字段多时支持滚动条 | 候选下拉容器 `max-height: 200px; overflow-y: auto` |
+| 新增排序字段默认升序 | `addSortField` 里 `order: 'asc'` |
+| 支持删除排序字段和排序方式 | 每行 ⊖ 按钮 + 升序/降序单选 |
+| 排序按钮显示已参与排序的字段数量 | 按钮文案「添加排序字段（N）」 |
+| 多个排序字段可拖动调整次序 | `sortablejs`，手柄 `.pvs__sort-handle` |
+| 次序靠前的字段先排序 | 列表顺序即 `sortJson` 的 `index` 顺序 |
 
 ---
 

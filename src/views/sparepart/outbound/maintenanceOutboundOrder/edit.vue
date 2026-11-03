@@ -279,7 +279,9 @@ export default {
      * 传给「个人视图设置」弹窗的 props。
      *
      * <p>config: 当前明细表的列定义 —— 弹窗里的「自定义显示列」据此渲染可勾选项。
-     * skipPerfTest: 该 bizKey 的视图由前端本地应用,后端通用查询不可用,跳过性能测试。
+     * perfTestRowsLoader: 本地性能测试的数据源(拉全量明细行)—— 该 bizKey 的视图
+     * 由前端本地应用,后端通用查询拿不到单据上下文(实测后端 perf 必然失败),
+     * 故改测「本地过滤 + 排序」这条真实执行路径,同样做到测试通过才真正保存。
      * showBaseSettings: EditTable 写死了 show-overflow 与行高,不支持折行/紧凑度,故隐藏。</p>
      */
     viewDialogProps () {
@@ -296,7 +298,7 @@ export default {
             type: ''
           }))
         },
-        skipPerfTest: true,
+        perfTestRowsLoader: this.loadAllCollarRows,
         showBaseSettings: false
       };
     },
@@ -577,6 +579,20 @@ export default {
       this.collarParams.pageSize = pageSize;
       this.collarParams.current = 1;
       this.getCollar();
+    },
+    /**
+     * 拉取该单据的全部出库明细行(不做本地筛选/排序)。
+     *
+     * <p>供「个人视图设置」弹窗做本地性能测试用:视图的条件树与排序项
+     * 要对全量行跑一遍才能测出真实耗时。</p>
+     */
+    async loadAllCollarRows () {
+      const res = await collarPage({
+        pageNum: 1,
+        pageSize: LOCAL_VIEW_MAX_ROWS,
+        maintenanceOutboundOrderId: this._id
+      });
+      return (res && res.records) || [];
     },
     currentPageChange (current) {
       this.collarParams.current = current;
