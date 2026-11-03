@@ -184,9 +184,8 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import RepairDialog from './RepairDialog.vue';
 import CustomView from '@/libs/components/CustomView/index.vue';
 import PersonalViewSetting from '@/components/PersonalViewSetting/index.vue';
+import { executeQuery } from '@/libs/api/customView/customQueryView';
 import {
-  filterByTree,
-  sortByFields,
   applyTableConfig,
   viewTableConfigCode
 } from '@/components/PersonalViewSetting/localView';
@@ -194,9 +193,6 @@ import {
 // 个人视图的业务键:后端已为该 bizKey 配置好出库明细的字段元数据
 // (customViewMain.path = /sp/web/maintenance/maintenanceOutboundOrderDetail/page)
 const VIEW_BIZ_KEY = 'maintenanceOutboundOrderDetail';
-// 视图筛选/排序在前端本地生效,需一次性拉全量明细再本地分页
-// (单据明细行数量有限,取 500 足够覆盖)
-const LOCAL_VIEW_MAX_ROWS = 500;
 
 const defaultForm = {
   // 多选时字段有变化，自行修复
@@ -279,9 +275,9 @@ export default {
      * 传给「个人视图设置」弹窗的 props。
      *
      * <p>config: 当前明细表的列定义 —— 弹窗里的「自定义显示列」据此渲染可勾选项。
-     * perfTestRowsLoader: 本地性能测试的数据源(拉全量明细行)—— 该 bizKey 的视图
-     * 由前端本地应用,后端通用查询拿不到单据上下文(实测后端 perf 必然失败),
-     * 故改测「本地过滤 + 排序」这条真实执行路径,同样做到测试通过才真正保存。
+     * perfTabCode: 性能测试的业务上下文(当前维修出库单 ID)—— 该 bizKey 的视图
+     * 走通用视图查询(executeQuery),后端需要 tabCode 才能定位单据,
+     * 性能测试同样要把 tabCode 带上,否则后端 perf 查不到数据、永远测不过。
      * showBaseSettings: EditTable 写死了 show-overflow 与行高,不支持折行/紧凑度,故隐藏。</p>
      */
     viewDialogProps () {
@@ -298,7 +294,7 @@ export default {
             type: ''
           }))
         },
-        perfTestRowsLoader: this.loadAllCollarRows,
+        perfTabCode: this._id,
         showBaseSettings: false
       };
     },
@@ -549,50 +545,43 @@ export default {
     /**
      * 出库明细信息。
      *
-     * 视图的筛选/排序在前端本地生效(后端 executeQuery 不支持该 bizKey,
-     * 明细接口必须带维修出库单 ID 才能定位数据),所以这里一次性拉全量,
-     * 再按视图条件过滤、排序,最后按前端分页参数切页。
-     * 未使用视图时行为不变:走后端分页。
+     * 选中个人视图时,改走通用视图查询接口(datareport executeQuery),
+     * 与保修申请单(warrantyApply)的个人视图一致:
+     *   - 请求体带 viewId(视图) + tabCode(当前维修出库单 ID);
+     *   - datareport 按 bizKey 找到本明细的列表接口并转发请求,
+     *     后端用 tabCode 定位单据、叠加视图条件过滤 + 按视图排序;
+     *   - 分页同样由后端完成。
+     * 未选中视图(系统视图)时行为不变:直接走明细分页接口。
+     *
+     * @param {String} [viewId] 指定视图 id(不传则取当前选中的视图)。
+     *        保存后立即刷新时用,避免「视图 id 还没同步过来就发了旧请求」。
      */
-    async getCollar () {
-      const hasLocalView = !!(this.viewConditionTree || (this.viewSortColumns && this.viewSortColumns.length));
-      const params = {
-        pageNum: hasLocalView ? 1 : this.collarParams.current,
-        pageSize: hasLocalView ? LOCAL_VIEW_MAX_ROWS : this.collarParams.pageSize,
-        maintenanceOutboundOrderId: this._id
-      };
-      const res = await collarPage(params);
-      const records = res.records || [];
-      if (!hasLocalView) {
-        this.tableData = records;
-        this.collarParams.total = res.total || 0;
+    async getCollar (viewId) {
+      const activeId = viewId || this.activeViewId;
+      if (activeId) {
+        // 通用视图查询:viewId + tabCode(当前单据 ID)
+        const res = await executeQuery({
+          viewId: activeId,
+          tabCode: this._id,
+          pageNum: this.collarParams.current,
+          pageSize: this.collarParams.pageSize
+        });
+        this.tableData = (res && res.records) || [];
+        this.collarParams.total = (res && res.total) || 0;
         return;
       }
-      // 本地生效:筛选 → 排序 → 分页
-      const filtered = filterByTree(records, this.viewConditionTree);
-      const sorted = sortByFields(filtered, this.viewSortColumns);
-      this.collarParams.total = sorted.length;
-      const start = (this.collarParams.current - 1) * this.collarParams.pageSize;
-      this.tableData = sorted.slice(start, start + this.collarParams.pageSize);
+      const res = await collarPage({
+        pageNum: this.collarParams.current,
+        pageSize: this.collarParams.pageSize,
+        maintenanceOutboundOrderId: this._id
+      });
+      this.tableData = (res && res.records) || [];
+      this.collarParams.total = (res && res.total) || 0;
     },
     pageSizeChange (pageSize) {
       this.collarParams.pageSize = pageSize;
       this.collarParams.current = 1;
       this.getCollar();
-    },
-    /**
-     * 拉取该单据的全部出库明细行(不做本地筛选/排序)。
-     *
-     * <p>供「个人视图设置」弹窗做本地性能测试用:视图的条件树与排序项
-     * 要对全量行跑一遍才能测出真实耗时。</p>
-     */
-    async loadAllCollarRows () {
-      const res = await collarPage({
-        pageNum: 1,
-        pageSize: LOCAL_VIEW_MAX_ROWS,
-        maintenanceOutboundOrderId: this._id
-      });
-      return (res && res.records) || [];
     },
     currentPageChange (current) {
       this.collarParams.current = current;
@@ -646,9 +635,11 @@ export default {
     /**
      * 切换个人视图。
      *
-     * <p>标准 CustomView 在选中视图后会把条件树与排序通过 change 事件抛出,
-     * 这里接收后在前端本地生效(后端通用查询对该 bizKey 不可用)。
-     * 表格配置不在 change 事件里,需另行按视图 id 读取。</p>
+     * <p>视图的筛选/排序由<b>后端</b>生效:选中视图后取数改走通用视图查询接口
+     * (executeQuery,带 viewId + tabCode=当前单据 ID),后端叠加视图条件过滤、
+     * 按视图排序并完成分页,前端不再本地过滤/排序。</p>
+     *
+     * <p>表格配置不在 change 事件里,需另行按视图 id 读取。</p>
      *
      * @param {Object} payload {conditions, sortColumns, activePresetId}
      */
@@ -696,12 +687,15 @@ export default {
     /**
      * 个人视图保存成功。
      * 视图与表格配置均已落库,这里应用表格配置并刷新明细。
+     *
+     * <p>save 事件先于「切换选中视图」抛出,此刻 activeViewId 还是旧值,
+     * 故用 payload.id(新视图 id)直接取数,避免先发一次「旧视图/系统视图」的请求。</p>
      */
     async onViewSave (payload) {
       this.viewTableConfig = (payload && payload.tableConfig) || null;
       this.resetSelection();
       this.collarParams.current = 1;
-      await this.getCollar();
+      await this.getCollar(payload && payload.id);
     },
     /**
      * 清空勾选状态。

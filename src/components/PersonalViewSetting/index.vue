@@ -34,6 +34,7 @@
         :biz-key="bizKey"
         :active-preset-id="activePresetId"
         :hide-sort="true"
+        :perf-tab-code="perfTabCode"
         :perf-test-handler="onPerfTest"
       />
 
@@ -215,6 +216,20 @@ export default {
       default: null
     },
     /**
+     * 性能测试用的业务上下文标识(单据 ID)。
+     *
+     * <p>视图对应的接口必须带业务上下文才能定位数据时(单据明细表视图),
+     * 由宿主传入此参数:性能测试会把它带给后端,后端再透传给被测接口,
+     * 这样明细视图也能正常跑通后端性能测试。</p>
+     *
+     * <p>传了它 → 走<b>后端 perf</b>(带业务上下文);
+     * 没传但传了 {@code perfTestRowsLoader} → 走本地性能测试。</p>
+     */
+    perfTabCode: {
+      type: String,
+      default: ''
+    },
+    /**
      * 是否显示「基础设置」区块(表格内容折行 / 表格紧凑度 / 操作列固定)。
      * 底层表格组件若不支持这三项(如 EditTable 写死了 show-overflow 与行高),
      * 传 false 隐藏该区块,避免出现「设了不生效」的假象。
@@ -326,10 +341,12 @@ export default {
     /**
      * 统一的性能测试入口 —— 保存流程与上半区「性能测试」按钮共用。
      *
-     * <p>三条路径(按优先级):
+     * <p>四条路径(按优先级):
      * <ul>
+     *   <li>宿主传了 {@code perfTabCode}(单据 ID)→ <b>后端 perf 接口</b>,
+     *       后端会把 tabCode 透传给被测接口,单据明细视图也能真实测到查询耗时;</li>
      *   <li>宿主传了 {@code perfTestRowsLoader} → <b>本地性能测试</b>
-     *       (明细表场景:后端 perf 必然失败,详见 {@link skipPerfTest});</li>
+     *       (无业务上下文、只能在前端跑的场景);</li>
      *   <li>{@code skipPerfTest=true} 且无 loader → 跳过测试;</li>
      *   <li>其余 → <b>后端 perf 接口</b>(列表页场景,与原分支一致)。</li>
      * </ul>
@@ -339,6 +356,12 @@ export default {
     async onPerfTest () {
       const qb = this.$refs.queryBlock;
       if (!qb) return false;
+      if (this.perfTabCode) {
+        // 带业务上下文(单据 ID):走后端 perf,后端会把 tabCode 透传给被测接口,
+        // 明细视图也能真实测到「按视图条件 + 按视图排序」的查询耗时。
+        // CustomQueryBlock 继承的 onRunPerfTest 会自动带上 perfTabCode。
+        return qb.onRunPerfTest();
+      }
       if (this.perfTestRowsLoader) {
         return this.runLocalPerfTest(qb);
       }
