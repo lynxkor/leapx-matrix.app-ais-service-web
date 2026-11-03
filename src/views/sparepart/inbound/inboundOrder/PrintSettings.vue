@@ -71,8 +71,9 @@ export default {
       }
     },
     async fetchOptions (code) {
-      getEnum('MaintenanceOutboundPrintSortEnum').then(res => {
-        const target = (res || []).filter(item => item.code !== '2'); // 2:按创建时间升序，此处不需要
+      getEnum(code || 'MaintenanceOutboundPrintSortEnum').then(res => {
+        // 「按个人视图」(code=4)仅维修出库打印设置支持，备件入库打印设置过滤掉
+        const target = (res || []).filter(item => item.code !== '2' && item.code !== '4'); // 2:按创建时间升序，此处不需要; 4:按个人视图
         this.options = target;
       });
     },

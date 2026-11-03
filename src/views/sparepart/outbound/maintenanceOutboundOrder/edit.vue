@@ -275,9 +275,6 @@ export default {
      * 传给「个人视图设置」弹窗的 props。
      *
      * <p>config: 当前明细表的列定义 —— 弹窗里的「自定义显示列」据此渲染可勾选项。
-     * perfTabCode: 性能测试的业务上下文(当前维修出库单 ID)—— 该 bizKey 的视图
-     * 走通用视图查询(executeQuery),后端需要 tabCode 才能定位单据,
-     * 性能测试同样要把 tabCode 带上,否则后端 perf 查不到数据、永远测不过。
      * showBaseSettings: EditTable 写死了 show-overflow 与行高,不支持折行/紧凑度,故隐藏。</p>
      */
     viewDialogProps () {
@@ -294,7 +291,6 @@ export default {
             type: ''
           }))
         },
-        perfTabCode: this._id,
         showBaseSettings: false
       };
     },

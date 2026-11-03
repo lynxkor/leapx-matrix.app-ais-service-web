@@ -8,7 +8,7 @@
 
   父组件通过 ref 访问本组件实例,可直接读写继承来的状态
   (viewName / workingTree / workingSort)并调用继承来的方法
-  (validateTree / validateSort / buildAndSave / onRunPerfTest)。
+  (validateTree / validateSort / buildAndSave)。
 -->
 <script>
 import CustomQueryDialog from '@/libs/components/CustomView/CustomQueryDialog.vue';
@@ -31,20 +31,6 @@ export default {
     hideSort: {
       type: Boolean,
       default: false
-    },
-    /**
-     * 接管「性能测试」的执行。
-     *
-     * <p>继承来的模板里有个「性能测试」按钮,默认走<b>后端</b> perf 接口
-     * (通用视图查询)。但单据明细表场景后端 perf 必然失败 ——
-     * 该接口必须带单据 ID,通用查询拿不到,实测会卡满 10 秒超时。</p>
-     *
-     * <p>外层( PersonalViewSetting )传了这个函数时,按钮改为走本地性能测试,
-     * 测的是「本地过滤 + 排序」这条真实执行路径。</p>
-     */
-    perfTestHandler: {
-      type: Function,
-      default: null
     }
   },
   watch: {
@@ -67,6 +53,8 @@ export default {
       // 原组件的排序区在 .c-cqd__sort,隐藏后由外层的多字段排序区承担
       this.$el.classList.add('pvs-hide-inherited-sort');
     }
+    // 合并弹窗不做性能测试(保存即生效),隐藏继承来的「性能测试」按钮
+    this.$el.classList.add('pvs-hide-perf-test');
   },
   methods: {
     /**
@@ -102,20 +90,6 @@ export default {
      */
     getSortList () {
       return (this.presetSortList || []).map(item => ({ field: item.field, order: item.order }));
-    },
-    /**
-     * 执行性能测试。
-     *
-     * <p>覆盖继承来的 onRunPerfTest:外层传了 perfTestHandler 就走它
-     * (本地性能测试),否则沿用原实现(后端 perf 接口)。</p>
-     *
-     * @returns {Promise<Boolean>} 是否通过
-     */
-    async onRunPerfTest () {
-      if (this.perfTestHandler) {
-        return this.perfTestHandler();
-      }
-      return CustomQueryDialog.methods.onRunPerfTest.call(this);
     }
   }
 };
@@ -124,6 +98,10 @@ export default {
 <style lang="scss">
 /* 非 scoped:需要作用到继承自 CustomQueryDialog 的内部元素 */
 .pvs-hide-inherited-sort .c-cqd__sort {
+  display: none;
+}
+/* 合并弹窗不做性能测试:隐藏继承来的「性能测试」按钮(在 .c-cqd__presets 里) */
+.pvs-hide-perf-test .c-cqd__presets .el-button {
   display: none;
 }
 </style>
