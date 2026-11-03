@@ -217,6 +217,7 @@
         :get-config="getConfigDetail"
         :page-sizes="[10, 20, 50, 100]"
         @paginationChange="paginationChangeDetail"
+        @handleSelect="handleSelectionChangeDetail"
       />
     </div>
 
@@ -292,6 +293,7 @@ export default {
         ...defaultUseDetailForm
       },
       selectionList: [],
+      detailSelectionList: [],
       yes_no_enum: YES_NO_ENUM,
       show: false,
       loading: false,
@@ -520,6 +522,11 @@ export default {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
+      // 使用明细勾选导出：行唯一键 = 采购申请单 ID，后端按 a.id IN (ids) 过滤
+      if (this.activeName === 'useDetail' && this.detailSelectionList.length > 0) {
+        const ids = this.detailSelectionList.map(item => item.id).filter(Boolean) || [];
+        reqParams.ids = ids;
+      }
       const fetchPath = this.activeName === 'useDetail'
         ? 'sp/web/basic/marginFundRule/useDetailPage'
         : 'sp/web/basic/marginFundRule/page';
@@ -561,6 +568,7 @@ export default {
     },
     getUseDetailData () {
       this.loading = true;
+      this.detailSelectionList = [];
       const formData = this.getUseDetailFormData();
       const params = {
         ...formData,
@@ -631,6 +639,9 @@ export default {
     },
     handleSelectionChange (selection) {
       this.selectionList = selection;
+    },
+    handleSelectionChangeDetail (selection) {
+      this.detailSelectionList = selection;
     },
     getFormData () {
       const data = { ...this.form };
