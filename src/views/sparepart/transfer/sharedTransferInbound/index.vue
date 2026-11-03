@@ -83,6 +83,13 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <!-- ===== LP261720 物流单号/缺货单号（订单+明细页签共用） ===== -->
+        <el-form-item label="物流单号">
+          <tag-input v-model="form.logisticsOrderNoList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="缺货单号">
+          <tag-input v-model="form.backOrderCodeList" placeholder="请输入" />
+        </el-form-item>
         <!-- ===== 全部备件 tab 专用 ===== -->
         <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
           <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
@@ -168,6 +175,12 @@
       @close="handleUploadDialogClose"
       @getData="getData"
     />
+    <!-- LP261720 物流信息抽屉 -->
+    <LogisticsDrawer
+      :visible.sync="logisticsDrawerVisible"
+      :drawerData="logisticsData"
+      @update:visible="val => logisticsDrawerVisible = val"
+    />
   </div>
 </template>
 
@@ -178,6 +191,7 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, detailPage, deleteItem, enableItem, getSign } from '@/api/sparepart/transfer/sharedTransferInbound/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
+import LogisticsDrawer from '@/libs/components/LogisticsDrawer';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
@@ -194,6 +208,8 @@ const defaultForm = {
   outboundDealerCodeList: null,
   createTime: '',
   updateTime: '',
+  logisticsOrderNoList: [],
+  backOrderCodeList: [],
 
   transferOutboundCodeList: [],
   inboundDealerCodeList: null,
@@ -217,7 +233,8 @@ export default {
     FetchSelect,
     EditPage,
     Upload,
-    TagInput
+    TagInput,
+    LogisticsDrawer
   },
   data () {
     return {
@@ -235,6 +252,8 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      logisticsDrawerVisible: false, // LP261720 物流信息抽屉
+      logisticsData: {},
       activeName: 'homePage',
       optionObj: {
         id: 'sharedTransferInboundTable',
@@ -288,6 +307,8 @@ export default {
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'logisticsOrderNo', label: '物流单号', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.getLogisticsInfo(row); }, type: 'primary', show: (row) => !!row.logisticsOrderNo }] },
+          { props: 'backOrderCode', label: '缺货单号', visible: true, width: 180 },
           {
             props: 'operate',
             label: '操作',
@@ -389,6 +410,8 @@ export default {
           { props: 'remark', label: '订单备注', visible: true, width: 200 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+          { props: 'logisticsOrderNo', label: '物流单号', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.getLogisticsInfo(row); }, type: 'primary', show: (row) => !!row.logisticsOrderNo }] },
+          { props: 'backOrderCode', label: '缺货单号', visible: true, width: 180 },
 
           /* ========== 明细维度 ========== */
           { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/basic/sparePart/edit', query: { id: row.sparePartId } }); }, type: 'primary' }] },
@@ -735,6 +758,14 @@ export default {
         template: 'SharedTransferReceipt', // 必选，对应 ./template/文件名.vue
         title: `${val.dealerName}厅店共享备件调拨入库单`// 可选，打印标题
       });
+    },
+    // LP261720 打开物流信息抽屉
+    getLogisticsInfo (row) {
+      this.logisticsData = {
+        logisticsProvider: row.logisticsProvider,
+        logisticsOrderNo: row.logisticsOrderNo,
+      };
+      this.logisticsDrawerVisible = true;
     },
   }
 };

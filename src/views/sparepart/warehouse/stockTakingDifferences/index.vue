@@ -116,6 +116,19 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <!-- ===== LP261720 全部备件页签专用 ===== -->
+        <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="备件名称" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
+        </el-form-item>
+        <el-form-item label="库位" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <tag-input v-model="form.locationNameList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="明细备注" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
+          <el-input placeholder="请输入" v-model="form.detailRemark" clearable />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canPage"
@@ -136,8 +149,14 @@
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
       <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(0)" :disabled="selectionList.length === 0">批量停用</el-button> -->
     </div>
+    <!-- LP261720 全部订单/全部备件 页签 -->
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="全部订单" name="homePage"></el-tab-pane>
+      <el-tab-pane label="全部备件" name="allSpareParts"></el-tab-pane>
+    </el-tabs>
     <div
       class="ais-table-c"
+      v-if="activeName === 'homePage'"
     >
       <LPVxeTable
         ref="tableRef"
@@ -147,6 +166,28 @@
         checkboxFixed
         centralized
         :option-obj="optionObj"
+        :get-config="getConfig"
+        :save-or-update="saveOrUpdate"
+        @paginationChange="paginationChange"
+        @handleSelect="handleSelectionChange"
+        @listSelect="handleListSelect"
+        @sortChange="handleSortChange"
+      >
+        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+      </LPVxeTable>
+    </div>
+    <div
+      class="ais-table-c"
+      v-if="activeName === 'allSpareParts'"
+    >
+      <LPVxeTable
+        :key="2"
+        ref="tableRefAll"
+        v-loading="loading"
+        is-checkbox
+        is-page
+        checkboxFixed
+        :option-obj="optionObjAll"
         :get-config="getConfig"
         :save-or-update="saveOrUpdate"
         @paginationChange="paginationChange"
@@ -171,7 +212,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, getApply, agreeLoss, rejectLoss, agreeProfit, rejectProfit, getInbound, getOutbound } from '@/api/sparepart/warehouse/stockTakingDifferences/index';
+import { getList, deleteItem, enableItem, getApply, agreeLoss, rejectLoss, agreeProfit, rejectProfit, getInbound, getOutbound, pageDetailView } from '@/api/sparepart/warehouse/stockTakingDifferences/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, getUserByNameOrNo, listOrgStoreInfoByParam, getSparePartCompany, listWarehouse, getPartDealer, getLoginUser } from '@/api/common';
 import TagInput from '@/libs/components/TagInput';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -196,6 +237,11 @@ const defaultForm = {
   outInboundStatusList: '',
   createTime: '',
   updateTime: '',
+  // ===== LP261720 全部备件页签专用 =====
+  sparePartCodeList: [],
+  sparePartName: '',
+  locationNameList: [],
+  detailRemark: '',
 };
 
 const pageSize = 20;
@@ -229,6 +275,7 @@ export default {
       exportLoading: false,
       uploadDialogVisible: false,
       clickItemId: '',
+      activeName: 'homePage',
       optionObj: {
         id: 'stockTakingDifferencesTable',
         dataList: [],
@@ -499,6 +546,56 @@ export default {
         ],
         total: 0
       },
+      // LP261720 全部备件明细视图列定义
+      optionObjAll: {
+        id: 'stockTakingDifferencesTableAll',
+        dataList: [],
+        form: {
+          page: 1,
+          size: pageSize
+        },
+        dataProp: [
+          {
+            props: 'differencesCode',
+            label: '差异单号',
+            visible: true,
+            width: 200,
+            fixed: 'left',
+            buttons: [{
+              click: (rowIndex, row) => {
+                this.$router.push({
+                  path: '/sparepart/warehouse/stockTakingDifferences/edit',
+                  query: {
+                    id: row.stockTakingDifferencesId || row.id
+                  }
+                });
+              },
+              type: 'primary'
+            }]
+          },
+          { props: 'stockTakingCode', label: '盘点单号', visible: true, width: 200 },
+          { props: 'dealerCode', label: '门店编码', visible: true, width: 180 },
+          { props: 'dealerName', label: '门店名称', visible: true, width: 200 },
+          { props: 'companyName', label: '母公司名称', visible: true, width: 200 },
+          { props: 'warehouseId', label: '备件仓库', visible: true, width: 200 },
+          { props: 'stockTypeLabel', label: '盘点类型', visible: true, width: 100 },
+          { props: 'differencesTypeLabel', label: '差异类型', visible: true, width: 100 },
+          { props: 'orderStatusLabel', label: '差异单状态', visible: true, width: 120 },
+          { props: 'outInboundStatusLabel', label: '出入库状态', visible: true, width: 120 },
+          { props: 'applyDescription', label: '申请说明', visible: true, width: 200 },
+          { props: 'orderCreateTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'orderUpdateTime', label: '订单修改时间', visible: true, width: 200 },
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/basic/sparePart/edit', query: { id: row.sparePartId } }); }, type: 'primary' }] },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'locationName', label: '库位', visible: true, width: 120 },
+          { props: 'totalQty', label: '盘点前库存总数', visible: true, width: 140, align: 'right' },
+          { props: 'actualQty', label: '实盘库存', visible: true, width: 120, align: 'right' },
+          { props: 'costUnitPrice', label: '成本单价', visible: true, width: 120, align: 'right' },
+          { props: 'differencesQty', label: '差异数量', visible: true, width: 120, align: 'right' },
+          { props: 'detailRemark', label: '明细备注', visible: true, width: 200 }
+        ],
+        total: 0
+      },
       sortColumns: [
         // {
         // column: 'create_time',
@@ -587,15 +684,47 @@ export default {
         path: '/sparepart/warehouse/stockTakingDifferences/edit'
       });
     },
-    onSubmit () {
+    // LP261720 当前页签对应的表格配置
+    getOptionObj () {
+      if (this.activeName === 'allSpareParts') {
+        return this.optionObjAll;
+      }
+      return this.optionObj;
+    },
+    handleClick (item) {
+      this.activeName = item.name;
+      this.show = false;
       this.optionObj.form.page = 1;
+      this.optionObj.form.size = pageSize;
+      this.optionObjAll.form.page = 1;
+      this.optionObjAll.form.size = pageSize;
+      this.onReset();
+    },
+    onSubmit () {
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
       this.getData();
     },
     onReset () {
-      this.form = { ...defaultForm };
-      this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      // 全部备件页签：默认创建时间 = 最近一个月
+      const extraDefaults = this.activeName === 'allSpareParts'
+        ? { createTime: this.getLastMonthRange() }
+        : {};
+      this.form = { ...defaultForm, ...extraDefaults };
+      const optionObj = this.getOptionObj();
+      optionObj.form.page = 1;
+      optionObj.form.size = pageSize;
       this.getData();
+    },
+    getLastMonthRange () {
+      const end = new Date();
+      const start = new Date();
+      start.setMonth(start.getMonth() - 1);
+      const fmt = (d, isEnd) => {
+        const pad = (n) => (n < 10 ? `0${n}` : n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${isEnd ? '23:59:59' : '00:00:00'}`;
+      };
+      return [fmt(start, false), fmt(end, true)];
     },
     exportExcel () {
       this.exportLoading = true;
@@ -604,11 +733,18 @@ export default {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
+      // LP261720 按 tab 切换导出接口
+      const fetchPath = this.activeName === 'allSpareParts'
+        ? 'sp/web/dealer/stockTakingDifferences/pageDetailView'
+        : 'sp/web/dealer/stockTakingDifferences/page';
+      const tableRef = this.activeName === 'allSpareParts'
+        ? this.$refs.tableRefAll
+        : this.$refs.tableRef;
       exportTable({
         businessType: '盘点差异单',
-        dataFetchPath: 'sp/web/dealer/stockTakingDifferences/page',
+        dataFetchPath: fetchPath,
         reqParams,
-        titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
+        titleMap: tableRef && tableRef.getVisibleCols ? Object.fromEntries(tableRef.getVisibleCols()) : {},
         httpMethod: 'POST'
       }).then(async res => {
         if (res && res.excelUrl) {
@@ -633,18 +769,19 @@ export default {
     getData () {
       this.loading = true;
       this.selectionList = [];
-
-      getList({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      const optionObj = this.getOptionObj();
+      // LP261720 全部备件页签走明细视图接口
+      const fetchApi = this.activeName === 'allSpareParts' ? pageDetailView : getList;
+      fetchApi({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
-          console.log(res);
           const records = res?.records || [];
-          this.optionObj.dataList = records.map(item => {
+          optionObj.dataList = records.map(item => {
             return {
               ...item,
               deleteLoading: false
             };
           });
-          this.optionObj.total = res?.total || 0;
+          optionObj.total = res?.total || 0;
         }).finally(() => {
           this.loading = false;
         });
@@ -654,8 +791,9 @@ export default {
       this.getData();
     }, 300),
     getConfig () {
+      const optionObj = this.getOptionObj();
       return new Promise((resolve, reject) => {
-        getTableConfig(this.optionObj.id).then(data => {
+        getTableConfig(optionObj.id).then(data => {
           resolve({ data });
         }).catch(err => {
           // 容错：此处如果接口挂了，也不应该影响正常使用
@@ -668,10 +806,11 @@ export default {
       return tableAddOrUpdate(data);
     },
     paginationChange (type, num) {
+      const optionObj = this.getOptionObj();
       if (type === 'page') {
-        this.optionObj.form.page = num;
+        optionObj.form.page = num;
       } else {
-        this.optionObj.form.size = num;
+        optionObj.form.size = num;
       }
       this.debouncedGetData();
     },
@@ -705,6 +844,29 @@ export default {
       }
       // 排序字段
       data.sortColumns = this.sortColumns;
+
+      // LP261720 全部备件页签默认条件校验
+      // 【差异单号】【盘点单号】【订单创建时间】不允许全部为空
+      if (this.activeName === 'allSpareParts') {
+        const hasCode = !!(data.codeList && data.codeList.length);
+        const hasStockTakingCode = !!(data.stockTakingCodeList && data.stockTakingCodeList.length);
+        const hasCreateTime = !!(data.createTimeStart && data.createTimeEnd);
+        if (!hasCode && !hasStockTakingCode && !hasCreateTime) {
+          this.$message.warning('请至少填写【差异单号】【盘点单号】【订单创建时间】中的任意一个');
+          return null;
+        }
+        // 订单创建时间跨度校验（不超过半年）
+        if (data.createTimeStart && data.createTimeEnd) {
+          const start = new Date(data.createTimeStart);
+          const end = new Date(data.createTimeEnd);
+          const sixMonthsLater = new Date(start);
+          sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+          if (end > sixMonthsLater) {
+            this.$message.warning('【订单创建时间】跨度不能超过半年');
+            return null;
+          }
+        }
+      }
       return data;
     },
     async fetchOptions (code) {

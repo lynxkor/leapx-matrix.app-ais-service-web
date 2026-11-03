@@ -94,6 +94,13 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <!-- ===== LP261720 物流单号/缺货单号（订单+明细页签共用） ===== -->
+        <el-form-item label="物流单号">
+          <tag-input v-model="form.logisticsOrderNoList" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="缺货单号">
+          <tag-input v-model="form.backOrderCodeList" placeholder="请输入" />
+        </el-form-item>
         <!-- ===== 全部备件 tab 专用 ===== -->
         <el-form-item label="备件编码" v-if="activeName === 'allSpareParts'" v-show="this.visibleCount === 3 || show">
           <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
@@ -186,6 +193,12 @@
       @update:visible="val => shipmentDialogVisible = val"
       @success="getData"
     />
+    <!-- LP261720 物流信息抽屉 -->
+    <LogisticsDrawer
+      :visible.sync="logisticsDrawerVisible"
+      :drawerData="logisticsData"
+      @update:visible="val => logisticsDrawerVisible = val"
+    />
   </div>
 </template>
 
@@ -208,6 +221,7 @@ import { handleBatchStatusChange, downloadExcel } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import ShipmentDialog from './ShipmentDialog.vue';
+import LogisticsDrawer from '@/libs/components/LogisticsDrawer';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   // 注意：被 <tag-input> 绑定的字段必须用 [] 而非 null，否则 reset 时
@@ -216,6 +230,8 @@ const defaultForm = {
   inboundDealerCodeList: null,
   createTime: '',
   updateTime: '',
+  logisticsOrderNoList: [],
+  backOrderCodeList: [],
 
   // ===== 扩展条件（homePage + allSpareParts） =====
   outboundDealerCodeList: null,
@@ -243,7 +259,8 @@ export default {
     EditPage,
     Upload,
     TagInput,
-    ShipmentDialog
+    ShipmentDialog,
+    LogisticsDrawer
   },
   data () {
     return {
@@ -263,6 +280,8 @@ export default {
       shipmentDialogVisible: false, // 发运弹窗
       shipmentId: '',
       clickItemId: '',
+      logisticsDrawerVisible: false, // LP261720 物流信息抽屉
+      logisticsData: {},
       activeName: 'homePage',
       optionObj: {
         id: 'sharedTransferOutboundTable',
@@ -315,6 +334,8 @@ export default {
           { props: 'remark', label: '备注', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'logisticsOrderNo', label: '物流单号', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.getLogisticsInfo(row); }, type: 'primary', show: (row) => !!row.logisticsOrderNo }] },
+          { props: 'backOrderCode', label: '缺货单号', visible: true, width: 180 },
           {
             props: 'operate',
             label: '操作',
@@ -416,6 +437,8 @@ export default {
           { props: 'remark', label: '订单备注', visible: true, width: 200 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+          { props: 'logisticsOrderNo', label: '物流单号', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.getLogisticsInfo(row); }, type: 'primary', show: (row) => !!row.logisticsOrderNo }] },
+          { props: 'backOrderCode', label: '缺货单号', visible: true, width: 180 },
 
           /* ========== 明细维度 ========== */
           { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/basic/sparePart/edit', query: { id: row.sparePartId } }); }, type: 'primary' }] },
@@ -791,6 +814,14 @@ export default {
     handleShipment (val) {
       this.shipmentId = val.id;
       this.shipmentDialogVisible = true;
+    },
+    // LP261720 打开物流信息抽屉
+    getLogisticsInfo (row) {
+      this.logisticsData = {
+        logisticsProvider: row.logisticsProvider,
+        logisticsOrderNo: row.logisticsOrderNo,
+      };
+      this.logisticsDrawerVisible = true;
     },
   }
 };
