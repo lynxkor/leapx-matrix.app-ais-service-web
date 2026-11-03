@@ -37,7 +37,7 @@
         />
       </el-form-item>
       <el-form-item label="名称" v-show="show">
-        <tag-input v-model="form.codeList" placeholder="请输入名称（精确）" />
+        <tag-input v-model="form.codeList" placeholder="请输入名称" />
       </el-form-item>
       <el-form-item label="创建时间" v-show="show">
         <el-date-picker
@@ -111,10 +111,10 @@
         />
       </el-form-item>
       <el-form-item label="名称" v-show="show">
-        <tag-input v-model="useDetailForm.codeList" placeholder="请输入名称（精确）" />
+        <tag-input v-model="useDetailForm.codeList" placeholder="请输入名称" />
       </el-form-item>
       <el-form-item label="采购申请单" v-show="show">
-        <tag-input v-model="useDetailForm.purchaseApplyCodeList" placeholder="请输入（精确批量）" />
+        <tag-input v-model="useDetailForm.purchaseApplyCodeList" placeholder="请输入" />
       </el-form-item>
       <el-form-item label="审批时间" v-show="show">
         <el-date-picker
