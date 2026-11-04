@@ -290,7 +290,7 @@ export default {
           { props: 'bankAccount', label: '开户账户', visible: true, width: 200 },
           { props: 'availableAmount', label: '可用资金', visible: true, align: 'right', width: 120 },
           { props: 'frozenAmount', label: '冻结资金', visible: true, align: 'right', width: 120 },
-          { props: 'marginAmount', label: '保证资金', visible: true, align: 'right', width: 120 },
+          { props: 'marginAmount', label: '预留资金', visible: true, align: 'right', width: 120 },
           { props: 'totalAmount', label: '账户总额', visible: true, align: 'right', width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },

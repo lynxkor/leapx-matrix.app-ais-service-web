@@ -84,7 +84,7 @@
                       clearable
                     />
                   </el-form-item>
-                  <!-- 预留资金：原保证资金字段，UI展示为"预留资金" -->
+                  <!-- 预留资金：原预留资金字段，UI展示为"预留资金" -->
                   <el-form-item label="预留资金：" prop="marginAmount">
                     <el-input
                       placeholder="请输入"
@@ -247,7 +247,7 @@
                   <el-form-item label="冻结资金：" prop="frozenAmount">
                     {{ form.frozenAmount }}
                   </el-form-item>
-                  <!-- 预留资金：原保证资金字段，UI展示为"预留资金" -->
+                  <!-- 预留资金：原预留资金字段，UI展示为"预留资金" -->
                   <el-form-item label="预留资金：" prop="marginAmount">
                     {{ form.marginAmount }}
                   </el-form-item>
