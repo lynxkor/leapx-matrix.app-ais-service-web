@@ -19,12 +19,16 @@
        └─ 弹窗:<component :is="dialogComponent">
                 └─ <PersonalViewSetting>  ← 本组件(替换默认的 CustomQueryDialog)
                      ├─ 上半 <CustomQueryBlock>  ← 引用原「自定义条件查询」组件
+                     │        (含 lib 自带的批量排序区,本项目不再重复实现)
                      ├─ 下半 <TableSetting>       ← 表格设置功能(已复制到本项目内)
                      └─ 右下 统一「取消 / 保存」
 ```
 
 **关键点**：下拉本身用的是标准 `CustomView`，本组件只负责「新增/编辑」时弹出的那个弹窗。
 列表页（保修申请单）继续用默认的 `CustomQueryDialog`，明细表页用合并弹窗，互不影响。
+
+**批量排序(需求 LP262002 7.1.2.2)的实现位置在 lib 标准组件里**，
+不是在本项目内另起一套 —— 详见下文「二之二」。
 
 ### 本项目内的文件
 
@@ -35,7 +39,6 @@
 | `TableSetting.vue` | **复制**到本项目内的「表格设置」功能（design 包 optionModal 在 node_modules 里加不了参数） |
 | `InlineDialog.vue` | 行内容块容器（替代 el-dialog，不渲染 footer slot） |
 | `localView.js` | 前端本地生效的工具：条件树求值 / 排序 / 列配置应用 / 存储键规则 |
-
 ---
 
 ## 二、CustomView 新增的入参（src/libs/components/CustomView/index.vue）
@@ -54,20 +57,28 @@
 
 ### 共享组件为「多字段排序」做的适配(需求 LP262002 7.1.2.2)
 
+> **批量排序是 lib 标准功能,实现在 partner-components 仓库里**,
+> 所有使用标准 `CustomQueryDialog` 弹窗的页面(列表页 + 明细表页)自动都具备批量排序。
+
 新增 `src/libs/components/CustomView/sortJson.js`,统一 sortJson 的解析 / 序列化规则,
 共享组件与业务项目内的弹窗共用一份,避免两处各写一套导致读不一致。
 
 | 文件 | 改动 |
 |---|---|
 | `CustomView/sortJson.js`(新增) | `parseSortJson` / `resolveSortList` / `toSortJson` / `toSortColumns` / `isVirtualSortField` |
-| `CustomView/CustomQueryDialog.vue` | 详情加载时解析出 `presetSortList`;保存时带上 `presetSortJson`(外部设置才带) |
+| `CustomView/SortFieldEditor.vue`(新增) | 批量排序编辑器:「＋添加排序字段」下拉 + 每行(手柄/字段名/升降序/删除)+ 拖拽调整次序 |
+| `CustomView/CustomQueryDialog.vue` | 排序区由单字段改为批量(内嵌 `SortFieldEditor`);`sortList` 成为排序的唯一数据源;保存只发 `sortJson` |
 | `CustomView/index.vue` | `applyPreset` 按 sortJson 生成多字段 `sortColumns`;`onCopyView` 一并复制 sortJson |
 
 **兼容口径**:读取侧优先用 `sortJson`,没有才回落到旧的 `sortField` / `sortOrder`
-(历史数据只有这两个字段)。保存侧**不做双写** —— 带了 `sortJson` 就不再带旧的单字段排序,
+(历史数据只有这两个字段)。保存侧**不做双写** —— 只发 `sortJson`,不再带旧的单字段排序,
 旧字段与新字段不会并存。
 
-> ⚠️ 以上三个文件在 submodule(partner-components)里,需在该仓库单独提 MR 并更新主仓的 submodule 指针。
+**空排序的语义**:清空排序时前端发 `"[]"`(不是空串)——
+空串会被后端当成「没传 sortJson」而回落到旧字段,导致清不掉;
+`"[]"` 则明确表示「无排序」,后端与前端读取口径一致,都以此为准。
+
+> ⚠️ 以上文件在 submodule(partner-components)里,需在该仓库单独提 MR 并更新主仓的 submodule 指针。
 
 ---
 
@@ -256,13 +267,11 @@ async loadAllCollarRows () {
 
 1. **基础设置三项对本页面无效**：`EditTable` 写死了 `show-overflow` 与行高，
    故传 `showBaseSettings: false` 隐藏该区块，避免「设了不生效」。
-2. **原组件的单字段排序区被隐藏**：PRD 的自定义排序要求多字段 + 拖拽调整次序，
-   由外层实现，原组件的 `.c-cqd__sort` 通过 `hide-sort` 隐藏（`CustomQueryBlock` 里加 class 实现）。
-3. **打印设置的「按个人视图」尚未实现**：PRD 里打印设置需联动个人视图列表（必选、单选），
+2. **打印设置的「按个人视图」尚未实现**：PRD 里打印设置需联动个人视图列表（必选、单选），
    属另一模块，不在本组件范围内。
-4. **PRD 的【序号】虚拟字段未加**：PRD 7.1.2.2 还要求明细表加【序号】虚拟列，
+3. **PRD 的【序号】虚拟字段未加**：PRD 7.1.2.2 还要求明细表加【序号】虚拟列，
    本次只做「排序字段批量配置」，故未加；但排序候选列表已按 PRD 剔除【序号】（它没有对应的业务字段）。
-5. **后端执行的排序沿用数据库排序规则**：PRD 要求「中文转拼音」「混合模式数字按自然序」，
+4. **后端执行的排序沿用数据库排序规则**：PRD 要求「中文转拼音」「混合模式数字按自然序」，
    前端本地排序（`localView.sortByFields`）已用 `Intl.Collator` 满足；
    但走后端 `executeQuery` 的视图（列表页场景），ORDER BY 沿用数据库的排序规则，
    `a2` / `a10` 的大小写与自然序需数据库排序规则配合，未在本需求内改造。
@@ -271,6 +280,9 @@ async loadAllCollarRows () {
 
 ## 七之二、自定义排序的交互（PRD 7.1.2.2）
 
+> 实现位置：**lib 标准组件** `src/libs/components/CustomView/SortFieldEditor.vue`
+> (由 `CustomQueryDialog.vue` 内嵌),本项目通过继承直接复用,不再另写一套。
+
 | PRD 要求 | 实现 |
 |---|---|
 | 首次选择排序字段时，列出所有可排序字段 | 「＋ 添加排序字段」下拉，取自后端字段元数据（`customViewField/list`） |
@@ -278,10 +290,10 @@ async loadAllCollarRows () {
 | 剔除已参与排序的字段 | `candidateFields` 计算属性按 `sortList` 过滤 |
 | 剔除虚拟字段【序号】 | `isVirtualSortField` 黑名单（字段名 + 中文名） |
 | 字段多时支持滚动条 | 候选下拉容器 `max-height: 200px; overflow-y: auto` |
-| 新增排序字段默认升序 | `addSortField` 里 `order: 'asc'` |
+| 新增排序字段默认升序 | `addField` 里 `order: 'asc'` |
 | 支持删除排序字段和排序方式 | 每行 ⊖ 按钮 + 升序/降序单选 |
 | 排序按钮显示已参与排序的字段数量 | 按钮文案「添加排序字段（N）」 |
-| 多个排序字段可拖动调整次序 | `sortablejs`，手柄 `.pvs__sort-handle` |
+| 多个排序字段可拖动调整次序 | `vuedraggable`，手柄 `.c-sfe__handle` |
 | 次序靠前的字段先排序 | 列表顺序即 `sortJson` 的 `index` 顺序 |
 
 ---

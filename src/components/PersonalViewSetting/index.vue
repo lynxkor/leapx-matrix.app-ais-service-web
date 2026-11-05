@@ -29,71 +29,15 @@
   >
     <div class="pvs">
       <!-- 上半:原个人视图配置(视图名称 + 自定义筛选) -->
+      <!--
+        排序区在 CustomQueryBlock 里 —— 它继承的就是 lib 标准组件 CustomQueryDialog,
+        批量多字段排序(需求 LP262002 7.1.2.2)由 lib 自带,这里不再重复实现一套。
+      -->
       <custom-query-block
         ref="queryBlock"
         :biz-key="bizKey"
         :active-preset-id="activePresetId"
-        :hide-sort="true"
       />
-
-      <!--
-        自定义排序:多字段批量配置(需求 LP262002 7.1.2.2)。
-        交互按 PRD 原型:
-          - 一个「＋ 添加排序字段」按钮,下拉列出所有可参与排序的字段;
-          - 每行 = [拖拽手柄][字段名] ............ [升序|降序][⊖ 删除];
-          - 次序靠前的字段先排序(可拖动调整次序)。
-      -->
-      <div class="pvs__block">
-        <div class="pvs__label">自定义排序</div>
-        <div class="pvs__sort">
-          <div ref="sortListRef" class="pvs__sort-list">
-            <div
-              v-for="(item, idx) in sortList"
-              :key="idx"
-              class="pvs__sort-row"
-            >
-              <!-- 拖拽手柄:多个排序字段时按住它可调整次序 -->
-              <i class="el-icon-rank pvs__sort-handle" title="拖动调整次序" />
-              <span class="pvs__sort-name" :title="fieldLabel(item.field)">{{ fieldLabel(item.field) }}</span>
-              <el-radio-group v-model="item.order" size="small">
-                <el-radio-button label="asc">升序</el-radio-button>
-                <el-radio-button label="desc">降序</el-radio-button>
-              </el-radio-group>
-              <el-button
-                type="text"
-                icon="el-icon-remove-outline"
-                class="pvs__sort-remove"
-                title="删除该排序字段"
-                @click="removeSortField(idx)"
-              />
-            </div>
-          </div>
-          <!--
-            添加排序字段:下拉里的候选字段取自后端字段元数据(不受表格设置影响),
-            已剔除「已参与排序的字段」与虚拟字段【序号】;字段多时可滚动。
-          -->
-          <el-dropdown
-            trigger="click"
-            placement="bottom-start"
-            class="pvs__sort-add"
-            @command="addSortField"
-          >
-            <el-button size="mini" icon="el-icon-plus" :disabled="!candidateFields.length">
-              添加排序字段<template v-if="sortList.length">（{{ sortList.length }}）</template>
-            </el-button>
-            <el-dropdown-menu slot="dropdown">
-              <div class="pvs__sort-candidates">
-                <el-dropdown-item
-                  v-for="f in candidateFields"
-                  :key="f.key"
-                  :command="f.key"
-                >{{ f.label }}</el-dropdown-item>
-              </div>
-            </el-dropdown-menu>
-          </el-dropdown>
-          <div class="pvs__tip">次序靠前的字段优先排序;不选字段则按后端默认排序</div>
-        </div>
-      </div>
 
       <!-- 下半:自定义表格 -->
       <div class="pvs__block">
@@ -136,12 +80,10 @@
  *      故把「表格设置」功能复制到本项目内(见 TableSetting.vue),去掉弹窗外壳与自带 footer。
  *   3. 右下角统一「取消 / 保存」,取消关闭弹框。
  */
-import Sortable from 'sortablejs';
 import CustomQueryBlock from './CustomQueryBlock.vue';
 import TableSetting from './TableSetting.vue';
 import { getTableConfig, tableAddOrUpdate } from '@/api/common';
 import { viewTableConfigCode } from './localView';
-import { toSortJson, isVirtualSortField } from '@/libs/components/CustomView/sortJson';
 
 export default {
   name: 'PersonalViewSetting',
@@ -187,33 +129,9 @@ export default {
       errorSummary: [],
       // 保存中
       applying: false,
-      // 多字段排序项 [{field, order}]
-      sortList: [],
-      // 候选排序字段(后端字段元数据,打开弹窗时刷新一次)
-      fieldOptions: [],
       // 「自定义表格」区的当前配置(初值取页面传入的列定义)
       tableConfig: this.buildTableConfig(this.config)
     };
-  },
-  computed: {
-    /**
-     * 可参与排序的候选字段。
-     *
-     * <p>取自后端字段元数据(customViewField/list)—— <b>不受表格设置影响</b>,
-     * 满足 PRD「显示列表中所有可见字段(不受表格设置影响)」的要求。</p>
-     *
-     * <p>剔除两类:
-     * <ul>
-     *   <li>已经参与排序的字段(PRD:添加排序字段时需要过滤掉已经参与排序的字段);</li>
-     *   <li>虚拟字段【序号】(前端虚拟列,没有对应的业务字段)。</li>
-     * </ul>
-     */
-    candidateFields () {
-      const used = this.sortList.map(item => item.field);
-      return this.fieldOptions.filter(f => (
-        f && f.key && used.indexOf(f.key) === -1 && !isVirtualSortField(f)
-      ));
-    }
   },
   watch: {
     // 页面列定义变化时重置表格配置区
@@ -223,9 +141,6 @@ export default {
         this.tableConfig = this.buildTableConfig(val);
       }
     }
-  },
-  mounted () {
-    this.initSortable();
   },
   methods: {
     /**
@@ -241,19 +156,17 @@ export default {
       };
     },
     /**
-     * 弹窗打开:初始化上半区(字段元数据 / 条件树 / 视图名)与排序项,
+     * 弹窗打开:初始化上半区(字段元数据 / 条件树 / 视图名 / 排序项),
      * 编辑既有视图时还要把该视图已保存的表格配置拉回来。
+     *
+     * <p>排序项不需要在这里再取一份 —— 上半区继承自 lib 标准组件,
+     * resetState() 已经把视图已保存的排序回填进它的 sortList,
+     * 界面上看到的排序区就是那一份(数据源唯一)。</p>
      */
     async onOpened () {
       const qb = this.$refs.queryBlock;
       if (qb) {
         await qb.resetState();
-        // 候选排序字段:后端字段元数据(不受表格设置影响)。
-        // 放在 data 里而不是 computed 里直接取 qb.fields —— this.$refs 不是响应式的,
-        // computed 会在 ref 就绪前算一次并缓存住,字段加载完就不会再更新了。
-        this.fieldOptions = ((qb && qb.fields) || []).slice();
-        // 已保存视图的排序列表:优先 sortJson(多字段),历史数据回落到旧的单字段。
-        this.sortList = qb.getSortList();
       }
       if (this.activePresetId) {
         await this.loadTableConfig(this.activePresetId);
@@ -352,67 +265,9 @@ export default {
       }
     },
     /**
-     * 排序字段的中文名(取不到时退回字段名本身)。
-     * @param {String} fieldKey
-     * @returns {String}
-     */
-    fieldLabel (fieldKey) {
-      const hit = this.fieldOptions.find(f => f && f.key === fieldKey);
-      return hit ? hit.label : fieldKey;
-    },
-    /**
-     * 添加排序字段(PRD:默认升序)。
-     *
-     * <p>候选字段来自「添加排序字段」下拉,已剔除已参与排序的字段与虚拟字段【序号】;
-     * 这里再兜一层重复校验,防止同一个字段被加入两次。</p>
-     *
-     * @param {String} fieldKey
-     */
-    addSortField (fieldKey) {
-      if (!fieldKey) return;
-      if (this.sortList.some(item => item.field === fieldKey)) return;
-      this.sortList.push({ field: fieldKey, order: 'asc' });
-    },
-    removeSortField (idx) {
-      this.sortList.splice(idx, 1);
-    },
-    /**
-     * 排序字段拖拽调整次序(最终排序时次序靠前的字段先排)。
-     */
-    initSortable () {
-      const el = this.$refs.sortListRef;
-      if (!el) return;
-      if (this.sortable) this.sortable.destroy();
-      this.sortable = new Sortable(el, {
-        animation: 150,
-        ghostClass: 'sortable-ghost',
-        handle: '.pvs__sort-handle',
-        onEnd: (evt) => {
-          const { oldIndex, newIndex } = evt;
-          if (oldIndex === newIndex) return;
-          const moved = this.sortList.splice(oldIndex, 1)[0];
-          this.sortList.splice(newIndex, 0, moved);
-        }
-      });
-    },
-    /**
-     * 校验排序项:字段必填 + 已选字段必须选排序方向。
-     */
-    validateSortList () {
-      const summary = [];
-      this.sortList.forEach((item, idx) => {
-        if (!item.field) {
-          summary.push(`排序第 ${idx + 1} 行:请选择字段`);
-        } else if (!item.order) {
-          summary.push(`排序第 ${idx + 1} 行:请选择排序方向`);
-        }
-      });
-      return summary;
-    },
-    /**
      * 保存入口。
      *
-     * <p>校验复用上半区继承来的 validateTree;视图落库复用其 buildAndSave;
+     * <p>校验复用上半区继承来的 validateTree / validateSort;视图落库复用其 buildAndSave;
      * 「自定义表格」的配置另外落到 userDefineTable(按视图 id 关联)。</p>
      *
      * <p>保存流程:<b>校验 → 落库(视图 + 表格配置)→ 交出 save 事件并关闭弹窗</b>。
@@ -428,23 +283,18 @@ export default {
       const summary = [];
       if (!name) summary.push('请输入视图名称');
       summary.push(...qb.validateTree(qb.workingTree).summary);
-      summary.push(...this.validateSortList());
+      // 排序校验也用 lib 标准组件的(批量多字段,逐行校验)
+      summary.push(...qb.validateSort().summary);
       if (summary.length > 0) {
         this.errorSummary = summary;
         return;
       }
       this.errorSummary = [];
 
-      // 多字段排序 → 后端新字段 sortJson(需求 LP262002 7.1.2.2)。
-      // 同时清空上半区继承来的单字段排序:两套字段不并存,
-      // 读取侧优先用 sortJson,历史数据(没有 sortJson)才回落到旧的 sortField/sortOrder。
-      // 空列表序列化成 "[]" 而不是空串 —— 空串会被后端当成「没传」而回落到旧字段,
-      // 导致「清空排序」不生效。
-      qb.presetSortJson = toSortJson(this.sortList);
-      qb.workingSort = { field: null, order: null };
-
       this.applying = true;
       try {
+        // 视图落库:排序由 lib 组件的 buildAndSave 统一序列化成 sortJson 发给后端
+        // (只发新字段,不双写旧的 sortField / sortOrder)。
         const newId = await qb.buildAndSave(qb.currentPresetId, name);
         if (!newId) {
           this.$message.error('保存视图失败');
@@ -461,7 +311,7 @@ export default {
           id: newId,
           viewName: name,
           conditionTree: qb.workingTree,
-          sortFields: this.sortList.map(item => ({
+          sortFields: (qb.sortList || []).map(item => ({
             column: item.field,
             sort: item.order ? item.order.toUpperCase() : ''
           })),
@@ -473,9 +323,6 @@ export default {
         this.applying = false;
       }
     }
-  },
-  beforeDestroy () {
-    if (this.sortable) this.sortable.destroy();
   }
 };
 </script>
@@ -500,59 +347,6 @@ export default {
     color: #606266;
     font-size: 14px;
     margin-bottom: 12px;
-  }
-  &__tip {
-    color: #909399;
-    font-size: 12px;
-    margin-top: 6px;
-  }
-  &__sort {
-    &-list {
-      margin-bottom: 4px;
-    }
-    &-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-    &-handle {
-      cursor: move;
-      color: #909399;
-      flex: none;
-    }
-    // 字段名:撑开中间空间,把升降序与删除按钮推到右侧(与 PRD 原型一致)
-    &-name {
-      flex: 1;
-      min-width: 0;
-      color: #606266;
-      font-size: 13px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    &-remove {
-      color: #909399;
-      font-size: 16px;
-      padding: 0;
-      &:hover {
-        color: var(--leap-color-danger);
-      }
-    }
-    // 候选字段下拉:字段多时需要滚动条(PRD)
-    &-candidates {
-      max-height: 200px;
-      overflow-y: auto;
-      min-width: 160px;
-      &::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-      }
-      &::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.2);
-        border-radius: 3px;
-      }
-    }
   }
 }
 </style>

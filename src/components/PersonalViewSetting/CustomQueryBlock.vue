@@ -6,8 +6,12 @@
        于是原组件的弹窗外壳与自带的「取消 / 保存」按钮都不再出现,
        逻辑与交互完全复用,零模板复制。
 
+  <b>排序区不再另起一套</b>:批量多字段排序(需求 LP262002 7.1.2.2)是 lib
+  标准组件 CustomQueryDialog 自带的能力(与列表页用的弹窗完全一致),
+  这里直接继承使用,不重复实现,也不隐藏它。
+
   父组件通过 ref 访问本组件实例,可直接读写继承来的状态
-  (viewName / workingTree / workingSort)并调用继承来的方法
+  (viewName / workingTree / sortList)并调用继承来的方法
   (validateTree / validateSort / buildAndSave)。
 -->
 <script>
@@ -20,18 +24,6 @@ export default {
   components: {
     // 覆盖父组件模板里的 <el-dialog>,使其渲染为行内容块
     ElDialog: InlineDialog
-  },
-  props: {
-    /**
-     * 隐藏原组件自带的「排序」区(单字段)。
-     *
-     * <p>PRD 的自定义排序要求支持多字段 + 拖拽调整次序,
-     * 由外层组件实现,故这里把继承来的单字段排序区隐藏,避免出现两套排序 UI。</p>
-     */
-    hideSort: {
-      type: Boolean,
-      default: false
-    }
   },
   watch: {
     /**
@@ -49,10 +41,6 @@ export default {
     this.dialogVisible = true;
   },
   mounted () {
-    if (this.hideSort) {
-      // 原组件的排序区在 .c-cqd__sort,隐藏后由外层的多字段排序区承担
-      this.$el.classList.add('pvs-hide-inherited-sort');
-    }
     // 合并弹窗不做性能测试(保存即生效),隐藏继承来的「性能测试」按钮
     this.$el.classList.add('pvs-hide-perf-test');
   },
@@ -62,15 +50,13 @@ export default {
      * 父组件在弹窗打开时调用。
      *
      * <p>批量排序(需求 LP262002 7.1.2.2)相关状态一并重置:
-     * {@code presetSortJson} 是「保存时要带给后端的排序列表」,
-     * {@code presetSortList} 是「从视图详情读回来的排序列表」。</p>
+     * {@code sortList} 是「当前排序项列表」,既是编辑时的数据源,
+     * 也是保存时要序列化成 sortJson 的内容。</p>
      */
     async resetState () {
       this.dialogVisible = true;
       this.workingTree = this.makeInitialTree();
-      this.workingSort = this.makeInitialSort();
-      this.presetSortJson = '';
-      this.presetSortList = [];
+      this.sortList = this.makeInitialSortList();
       this.errorSummary = [];
       this.viewName = '';
       this.currentPresetId = this.activePresetId || null;
@@ -89,7 +75,7 @@ export default {
      * @returns {Array<Object>}
      */
     getSortList () {
-      return (this.presetSortList || []).map(item => ({ field: item.field, order: item.order }));
+      return (this.sortList || []).map(item => ({ field: item.field, order: item.order }));
     }
   }
 };
@@ -97,9 +83,6 @@ export default {
 
 <style lang="scss">
 /* 非 scoped:需要作用到继承自 CustomQueryDialog 的内部元素 */
-.pvs-hide-inherited-sort .c-cqd__sort {
-  display: none;
-}
 /* 合并弹窗不做性能测试:隐藏继承来的「性能测试」按钮(在 .c-cqd__presets 里) */
 .pvs-hide-perf-test .c-cqd__presets .el-button {
   display: none;
