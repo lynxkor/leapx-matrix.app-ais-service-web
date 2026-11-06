@@ -670,6 +670,12 @@ export default {
       } else if (row.businessType === 'SPARE_PART_PURCHASE' && row.businessNoType !== 'so') {
         path = '/sparepart/warehouse/oemOutboundOrder/edit';
         type = 'oemOutboundOrder';
+      } else if (row.businessType === 'PRODUCT_PURCHASE') {
+        window.open(`/serviceProduct/serviceProductOrder/wholesaleOrder?wholesaleOrderNo=${encodeURIComponent(row.businessNo)}`, '_blank');
+        return;
+      } else if (row.businessType === 'PRODUCT_RETURN') {
+        window.open(`/serviceProduct/serviceProductOrder/wholesaleOrderReturn?wholesaleReturnNo=${encodeURIComponent(row.businessNo)}`, '_blank');
+        return;
       } else {
         return;
       }

@@ -782,6 +782,12 @@ export default {
       } else if (row.bizType === 'REBATE_DEDUCTION') {
         path = '/sparepart/fund/accountOperateDeductionApply/edit';
         type = 'accountOperateDeductionApply';
+      } else if (row.bizType === 'PRODUCT_PURCHASE') {
+        window.open(`/serviceProduct/serviceProductOrder/wholesaleOrder?wholesaleOrderNo=${encodeURIComponent(row.bizNo)}`, '_blank');
+        return;
+      } else if (row.bizType === 'PRODUCT_RETURN') {
+        window.open(`/serviceProduct/serviceProductOrder/wholesaleOrderReturn?wholesaleReturnNo=${encodeURIComponent(row.bizNo)}`, '_blank');
+        return;
       } else {
         return;
       }
