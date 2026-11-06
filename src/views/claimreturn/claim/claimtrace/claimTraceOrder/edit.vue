@@ -388,7 +388,8 @@ export default {
     },
     detailButtons () {
       if (this.isEditing) return [];
-      return getDetailVisibleButtons(this.form.traceStatus);
+      // 传入已追溯金额：门店同意/申诉拒绝状态下按金额=0 判定作废按钮可见性（F9）
+      return getDetailVisibleButtons(this.form.traceStatus, this.form.tracedAmount);
     },
     // 追溯凭证是否可编辑：仅主机厂账号在【草稿/已驳回/申诉中】状态下可上传/删除/编辑
     traceCertEditable () {
