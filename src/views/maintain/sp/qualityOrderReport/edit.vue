@@ -1021,7 +1021,7 @@ export default {
           { required: true, message: '请输入基本车型', trigger: 'change' }
         ],
         iviVersion: [
-          { required: true, message: '请输入车机版本号', trigger: 'blur' },
+          { required: false, message: '请输入车机版本号', trigger: 'blur' },
           { max: 100, message: '车机版本号最多100个字符', trigger: 'blur' }
         ],
         mileage: [
