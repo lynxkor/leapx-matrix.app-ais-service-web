@@ -65,6 +65,7 @@
 
 <script>
 import { submitAudit, batchSubmitForAudit } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
+import { notifyBatchResult } from '../../../warrantyapply/BatchResultHelper';
 import { uploadFile, deleteFile, addOrUpdateFile, getFileList, getByCode } from '@/libs/api/attachment/index';
 import { isFileType } from '@/libs/utils/file.js';
 import AisUpload from '@/libs/components/AisAttachment/AisUpload/index.vue';
@@ -251,8 +252,9 @@ export default {
             ids: this.traceOrderIds,
             traceDesc: this.form.traceDesc,
             attachFileList: allFiles
-          }).then(() => {
-            this.$message.success('批量审核下发成功');
+          }).then((res) => {
+            // 部分成功口径（REQ-2026101316421956）：有失败时弹明细（追溯单号），全成功提示成功
+            notifyBatchResult(this, res, '下发');
             this.close();
             this.$emit('success');
           }).finally(() => {

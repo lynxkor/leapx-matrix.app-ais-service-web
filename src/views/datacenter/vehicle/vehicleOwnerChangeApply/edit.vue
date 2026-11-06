@@ -242,7 +242,7 @@
               <el-form-item v-if="form.businessType === BUSINESS_TYPE.SECOND_HAND"  label="变更后车主证件类型：" prop="targetIdType">
                 <fetch-select
                   :request="fetchOptions"
-                  enumCode="vehretail_id_card_type"
+                  enumCode="vehicle_profile_id_type"
                   v-model="form.targetIdType"
                   placeholder="请选择"
                   clearable

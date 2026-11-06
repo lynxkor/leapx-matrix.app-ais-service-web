@@ -155,6 +155,22 @@
                       disabled
                     />
                   </el-form-item>
+                  <el-form-item label="车系：" prop="vehSeriesName">
+                    <el-input
+                      placeholder="根据VIN自动带出"
+                      v-model="form.vehSeriesName"
+                      clearable
+                      disabled
+                    />
+                  </el-form-item>
+                  <el-form-item label="年款：" prop="vehYearTypeName">
+                    <el-input
+                      placeholder="根据VIN自动带出"
+                      v-model="form.vehYearTypeName"
+                      clearable
+                      disabled
+                    />
+                  </el-form-item>
                   <el-form-item label="里程数（KM)：" prop="mileage">
                     <el-input
                       placeholder="请输入"
@@ -177,6 +193,14 @@
                       v-model="form.motorSerialNumber"
                       clearable
                       disabled
+                    />
+                  </el-form-item>
+                  <el-form-item label="车机版本号：" prop="iviVersion">
+                    <el-input
+                      placeholder="请输入"
+                      v-model="form.iviVersion"
+                      clearable
+                      maxlength="100"
                     />
                   </el-form-item>
                   <el-form-item label="VRT名称：" prop="vrtName">
@@ -272,6 +296,12 @@
                   <el-form-item label="基本车型：" prop="vehModelName">
                     <el-link type="success" :href="`/sales/datacenter/materials/vehicleModel/edit?id=${form.vehModelId}`" target="_blank">{{ form.vehModelName }}</el-link>
                   </el-form-item>
+                  <el-form-item label="车系：" prop="vehSeriesName">
+                    {{ form.vehSeriesName }}
+                  </el-form-item>
+                  <el-form-item label="年款：" prop="vehYearTypeName">
+                    {{ form.vehYearTypeName }}
+                  </el-form-item>
                   <el-form-item label="里程数（KM)：" prop="mileage">
                     {{ form.mileage }}
                   </el-form-item>
@@ -280,6 +310,9 @@
                   </el-form-item>
                   <el-form-item label="电机序列号：" prop="motorSerialNumber">
                     {{ form.motorSerialNumber }}
+                  </el-form-item>
+                  <el-form-item label="车机版本号：" prop="iviVersion">
+                    {{ form.iviVersion }}
                   </el-form-item>
                   <el-form-item label="VRT名称：" prop="vrtName">
                     {{ form.vrtName }}
@@ -773,6 +806,11 @@ const defaultForm = {
   applicantTel: '',
   vehProfileVin: '',
   vehModelName: '',
+  vehSeriesId: '',
+  vehSeriesName: '',
+  vehYearTypeId: '',
+  vehYearTypeName: '',
+  iviVersion: '',
   powerBatteryNumber: '',
   motorSerialNumber: '',
   mileage: '',
@@ -981,6 +1019,10 @@ export default {
         ],
         vehModelName: [
           { required: true, message: '请输入基本车型', trigger: 'change' }
+        ],
+        iviVersion: [
+          { required: true, message: '请输入车机版本号', trigger: 'blur' },
+          { max: 100, message: '车机版本号最多100个字符', trigger: 'blur' }
         ],
         mileage: [
           { required: true, message: '请输入里程数（KM)', trigger: 'change' }
@@ -1268,6 +1310,10 @@ export default {
         this.form.vehProfileId = record.vehProfileId;
         this.form.vehModelName = record.vehModelName;
         this.form.vehModelId = record.vehModelId;
+        this.form.vehSeriesId = record.vehSeriesId;
+        this.form.vehSeriesName = record.vehSeriesName;
+        this.form.vehYearTypeId = record.vehYearTypeId;
+        this.form.vehYearTypeName = record.vehYearTypeName;
         this.form.mileage = record.mileage;
         this.form.powerBatteryNumber = record.batterySerialNumber;
         this.form.motorSerialNumber = record.motorSerialNumber;
@@ -1287,6 +1333,10 @@ export default {
         this.form.vehProfileId = record.id;
         this.form.vehModelName = record.vehicleModelName;
         this.form.vehModelId = record.vehicleModelId;
+        this.form.vehSeriesId = record.vehicleSeriesId;
+        this.form.vehSeriesName = record.vehicleSeriesName;
+        this.form.vehYearTypeId = record.vehicleYearId;
+        this.form.vehYearTypeName = record.vehicleYearName;
         this.form.mileage = record.mileage;
         this.form.powerBatteryNumber = record.batterySerialNumber;
         this.form.motorSerialNumber = record.motorSerialNumber;
