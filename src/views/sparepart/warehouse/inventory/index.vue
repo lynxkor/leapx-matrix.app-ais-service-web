@@ -203,6 +203,7 @@ import TagInput from '@/libs/components/TagInput';
 import TransferDialog from './TransferDialog.vue';
 import LaunchDialog from './LaunchDialog.vue';
 import ShelvesDialog from './ShelvesDialog.vue';
+import customViewMixin from '@/libs/mixins/customView';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -223,7 +224,7 @@ const mockConfig = {
 };
 
 export default {
-  mixins: [responsiveSearchForm, permissions, commonMixins],
+  mixins: [responsiveSearchForm, permissions, commonMixins, customViewMixin],
   components: {
     PageSearchAction,
     LPVxeTable,
@@ -426,9 +427,11 @@ export default {
       this.getData();
     },
     onReset () {
+      // 清除个人视图状态(选中/清空视图都会回到普通查询)
+      this.resetCustomView();
       this.form = { ...defaultForm };
       this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      this.optionObj.form.size = pageSize;
       this.getData();
     },
     exportExcel () {
@@ -438,6 +441,12 @@ export default {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
+      // 通用导出微服务回调后端分页接口时不会自动补 pageNum/pageSize,
+      // 这里主动补上,否则自定义视图分支只会导出默认页数据。
+      reqParams.pageNum = reqParams.pageNum || 1;
+      reqParams.pageSize = reqParams.pageSize || 99999;
+      // 携带当前个人视图,导出结果与页面视图条件/排序保持一致
+      reqParams.viewId = this.activePresetId || null;
       exportTable({
         businessType: '门店备件库存',
         dataFetchPath: 'sp/web/warehouse/inventory/page',
@@ -465,6 +474,8 @@ export default {
       });
     },
     getData () {
+      // 视图锁定(有 activePresetId)时交给 mixin 走 executeQuery,否则走业务列表查询
+      if (this.fetchByCustomView()) return;
       this.loading = true;
       this.selectionList = [];
       console.log('类型' + this.$route.query.type);
@@ -481,6 +492,14 @@ export default {
         }).finally(() => {
           this.loading = false;
         });
+    },
+    // ---- customViewMixin 字段适配 ----
+    /** 视图取数结果 → 表格行(注入行级 deleteLoading,与业务列表保持一致) */
+    customViewListAdapter (records) {
+      return (records || []).map(item => ({
+        ...item,
+        deleteLoading: false
+      }));
     },
     // 需要防抖场景时使用
     debouncedGetData: debounce(function () {

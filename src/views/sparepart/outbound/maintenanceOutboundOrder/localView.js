@@ -18,24 +18,6 @@
  */
 
 /**
- * 视图的表格配置在服务端的存储键。
- *
- * <p>视图本身存在后端视图表(只有 name/条件树/排序),没有表格配置字段;
- * 表格配置走公共的用户自定义表格接口(userDefineTable),按 tableCode 存取。</p>
- *
- * <p>用「业务键 + 视图 id」组合,保证每个视图一份独立的表格配置,
- * 且不会与 design 包表格设置(按页面 tableCode 存)互相覆盖。
- * PersonalViewSetting 与业务页面都从这里取,避免两处各写一份规则。</p>
- *
- * @param {String} bizKey 业务键
- * @param {String} viewId 视图 id
- * @returns {String}
- */
-export function viewTableConfigCode (bizKey, viewId) {
-  return `${bizKey}__pvs__${viewId}`;
-}
-
-/**
  * 字段名转换:后端字段元数据用下划线(spare_part_code),
  * 而前端明细行用驼峰(sparePartCode)。筛选/排序前需做一次映射。
  * @param {String} fieldName
@@ -166,6 +148,26 @@ function toNumber (value) {
 }
 
 /**
+ * 「关联字段条件被前端本地求值跳过」的告警去重集合。
+ *
+ * 明细表视图的筛选/排序是在前端本地做的(后端 executeQuery 解析不了明细表),
+ * 而关联对象的条件(查关联表维度 → 结果集 IN 主表)只有后端能做,
+ * 本地只能跳过 —— 跳过后该条件在这张视图里不生效,控制台留一条线索便于排查。
+ */
+const warnedRelationConditions = new Set();
+
+function warnRelationConditionSkipped (cond) {
+  const key = `${cond.field}|${cond.fieldRelation}`;
+  if (warnedRelationConditions.has(key)) return;
+  warnedRelationConditions.add(key);
+  console.warn(
+    '[PersonalView] 关联字段条件在前端本地求值中被跳过(该条件不会在本视图生效):',
+    cond.field,
+    cond.fieldRelation
+  );
+}
+
+/**
  * 判断单条条件是否命中一行数据。
  * @param {Object} row 行数据
  * @param {Object} cond 条件行 {field, operator, value}
@@ -173,6 +175,16 @@ function toNumber (value) {
  */
 export function matchCondition (row, cond) {
   if (!cond || !cond.field) return true;
+  // 关联字段(条件行带 fieldRelation):条件值是「关联表某维度的编码」,
+  // 而行数据里该字段存的是它自身的值(如门店编码),两者不是一个域,
+  // 前端拿行字段跟维度编码比必然对不上 —— 直接拿维度编码去比会把整张表
+  // 过滤成空,比不比还糟。
+  // 这类条件只能由后端处理(查关联表 → 结果集 IN 主表);
+  // 单据明细表这类「前端本地求值」的场景只能跳过,跳过时留一条告警线索。
+  if (cond.fieldRelation) {
+    warnRelationConditionSkipped(cond);
+    return true;
+  }
   const operator = cond.operator;
   const raw = cond.value;
   const field = resolveRowField(row, cond.field);

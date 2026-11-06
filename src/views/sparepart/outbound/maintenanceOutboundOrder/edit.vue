@@ -95,15 +95,11 @@
               <div class="common-section-header__title">
                 <h2>出库明细信息</h2>
                 <CustomView
+                  v-bind="viewStandardProps"
                   :biz-key="viewBizKey"
                   :active-preset-id.sync="activeViewId"
                   :value="viewConditionTree"
                   :sort-columns="viewSortColumns"
-                  trigger-text="系统视图"
-                  :dialog-component="viewDialogComponent"
-                  :dialog-props="viewDialogProps"
-                  local-apply
-                  enable-default-view
                   @copy="onViewCopy"
                   @change="onViewChange"
                   @save="onViewSave"
@@ -183,12 +179,12 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 import RepairDialog from './RepairDialog.vue';
 import CustomView from '@/libs/components/CustomView/index.vue';
-import PersonalViewSetting from '@/components/PersonalViewSetting/index.vue';
 import { executeQuery } from '@/libs/api/customView/customQueryView';
+import { viewTableConfigCode } from '@/libs/components/CustomView/tableConfig';
+import { standardViewOptions } from '@/libs/components/CustomView/viewConfig';
 import {
-  applyTableConfig,
-  viewTableConfigCode
-} from '@/components/PersonalViewSetting/localView';
+  applyTableConfig
+} from './localView';
 
 // 个人视图的业务键:后端已为该 bizKey 配置好出库明细的字段元数据
 // (customViewMain.path = /sp/web/maintenance/maintenanceOutboundOrderDetail/page)
@@ -272,35 +268,14 @@ export default {
       return VIEW_BIZ_KEY;
     },
     /**
-     * 传给「个人视图设置」弹窗的 props。
+     * 个人视图标准 props —— 与全局 AisPageTitle 共用 lib 的同一份配置出口。
      *
-     * <p>config: 当前明细表的列定义 —— 弹窗里的「自定义显示列」据此渲染可勾选项。
-     * showBaseSettings: EditTable 写死了 show-overflow 与行高,不支持折行/紧凑度,故隐藏。</p>
+     * <p>本页能拿到明细表列定义,故传 columns 开启弹窗的「自定义表格」合并模式;
+     * 明细表后端通用查询不可用,视图在本地过滤/排序,故 localApply = true。
+     * 这两项是本页与列表页唯一允许的差异,其余配置完全一致。</p>
      */
-    viewDialogProps () {
-      return {
-        config: {
-          autoWrap: false,
-          layout: 3,
-          isOperateFixed: true,
-          columnConfig: this.columns.map(col => ({
-            props: col.field,
-            label: col.title,
-            visible: true,
-            disabled: false,
-            type: ''
-          }))
-        },
-        showBaseSettings: false
-      };
-    },
-    /**
-     * 「新增/编辑视图」弹窗组件。
-     * 标准 CustomView 通过 dialog-component 入参接收,默认用内置的
-     * CustomQueryDialog(仅自定义条件查询),这里换成合并后的「个人视图设置」。
-     */
-    viewDialogComponent () {
-      return PersonalViewSetting;
+    viewStandardProps () {
+      return standardViewOptions({ columns: this.columns, localApply: true });
     }
   },
   watch: {
@@ -703,7 +678,7 @@ export default {
     },
     /**
      * 读取视图已保存的表格配置(列显隐/顺序)。
-     * 与 PersonalViewSetting 使用同一套存储键规则。
+     * 与视图弹窗(lib 的 CustomQueryDialog 合并模式)使用同一套存储键规则。
      * @param {String} viewId
      */
     async loadViewTableConfig (viewId) {
