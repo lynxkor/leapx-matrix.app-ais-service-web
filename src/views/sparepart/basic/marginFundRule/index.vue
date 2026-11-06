@@ -354,9 +354,10 @@ export default {
             buttons: [{
               name: '编辑',
               click: (rowIndex, row) => {
+                // 从列表页「编辑」按钮进入，直接进入可编辑状态（与 spareSupplyCategory / purchaseReminder 等模块保持一致）
                 this.$router.push({
                   path: '/sparepart/basic/marginFundRule/edit',
-                  query: { id: row.id }
+                  query: { id: row.id, isEditing: true }
                 });
               },
               type: 'info'
