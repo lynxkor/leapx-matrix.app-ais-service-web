@@ -335,6 +335,18 @@ export default {
       },
       // TIPS: 复杂的表格输入项，参考 /dealerTeam/edit.vue
       columns: [
+        // 序号是后端计算的虚拟字段:(pageNum-1)*pageSize+行序,分页连续
+        // (每页 10 条时第 2 页首行为 11),前端只负责展示,不再自行编号。
+        {
+          field: 'rowIndex',
+          title: '序号',
+          width: '5%',
+        },
+        {
+          field: 'createTime',
+          title: '创建时间',
+          width: '10%',
+        },
         {
           field: 'sparePartCode',
           title: '备件编码',
@@ -407,6 +419,18 @@ export default {
         },
       ],
       columnsTl: [
+        // 序号是后端计算的虚拟字段:(pageNum-1)*pageSize+行序,分页连续
+        // (每页 10 条时第 2 页首行为 11),前端只负责展示,不再自行编号。
+        {
+          field: 'rowIndex',
+          title: '序号',
+          width: '5%',
+        },
+        {
+          field: 'createTime',
+          title: '创建时间',
+          width: '10%',
+        },
         {
           field: 'sparePartCode',
           title: '备件编码',
