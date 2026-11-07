@@ -139,8 +139,9 @@
             filterable
           />
         </el-form-item>
-        <!-- 【LP260102】新增字段：门店账号的可见性由后端置空实现，前端不做隐藏 -->
-        <el-form-item label="分库是否备货">
+        <!-- 【LP260102】新增字段的搜索条件：门店账号隐藏（oem=true 为厂端账号，
+             由 getLoginUser() 的 accountFlag 取反得到；后端仍会清空门店传入的筛选条件做兜底） -->
+        <el-form-item label="分库是否备货" v-if="oem">
           <fetch-select
             :request="fetchOptions"
             enumCode="BooleanEnum"
@@ -151,7 +152,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="是否EOP产品">
+        <el-form-item label="是否EOP产品" v-if="oem">
           <fetch-select
             :request="fetchOptions"
             enumCode="BooleanEnum"
@@ -162,7 +163,7 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="是否一次性备货">
+        <el-form-item label="是否一次性备货" v-if="oem">
           <fetch-select
             :request="fetchOptions"
             enumCode="BooleanEnum"
