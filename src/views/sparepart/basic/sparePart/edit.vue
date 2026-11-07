@@ -372,7 +372,8 @@
                     <el-radio label="0">否</el-radio>
                   </el-radio-group>
                 </el-form-item>
-                <el-form-item label="分库是否备货" prop="subLibraryStockIs">
+                <!-- 【LP260102】新增字段：门店账号不可见、不可编辑（前端隐藏 + 后端置空并丢弃请求值，双保险） -->
+                <el-form-item label="分库是否备货" prop="subLibraryStockIs" v-if="oem">
                   <el-radio-group
                     :disabled="!permissions.has('AISPART-sparePart-purchaseImport')"
                     v-model="form.subLibraryStockIs">
@@ -380,7 +381,7 @@
                     <el-radio label="0">否</el-radio>
                   </el-radio-group>
                 </el-form-item>
-                <el-form-item label="是否EOP产品" prop="eopProductIs">
+                <el-form-item label="是否EOP产品" prop="eopProductIs" v-if="oem">
                   <el-radio-group
                     :disabled="!permissions.has('AISPART-sparePart-purchaseImport')"
                     v-model="form.eopProductIs">
@@ -388,7 +389,7 @@
                     <el-radio label="0">否</el-radio>
                   </el-radio-group>
                 </el-form-item>
-                <el-form-item label="是否一次性备货" prop="oneTimeStockIs">
+                <el-form-item label="是否一次性备货" prop="oneTimeStockIs" v-if="oem">
                   <el-radio-group
                     :disabled="!permissions.has('AISPART-sparePart-purchaseImport')"
                     v-model="form.oneTimeStockIs">
@@ -558,13 +559,13 @@
                 <el-form-item label="是否关键件：">
                   {{ form.keyPartIs === '1' ? '是' : '否' }}
                 </el-form-item>
-                <el-form-item label="分库是否备货：">
+                <el-form-item label="分库是否备货：" v-if="oem">
                   {{ form.subLibraryStockIsLabel }}
                 </el-form-item>
-                <el-form-item label="是否EOP产品：">
+                <el-form-item label="是否EOP产品：" v-if="oem">
                   {{ form.eopProductIsLabel }}
                 </el-form-item>
-                <el-form-item label="是否一次性备货：">
+                <el-form-item label="是否一次性备货：" v-if="oem">
                   {{ form.oneTimeStockIsLabel }}
                 </el-form-item>
                 <el-form-item label="国内包装前长(mm)：">
