@@ -104,6 +104,7 @@
                   @change="onViewChange"
                   @save="onViewSave"
                   @ready="onViewReady"
+                  @refresh="onViewRefresh"
                 />
               </div>
             </div>
@@ -272,11 +273,18 @@ export default {
      * 个人视图标准 props —— 与全局 AisPageTitle 共用 lib 的同一份配置出口。
      *
      * <p>本页能拿到明细表列定义,故传 columns 开启弹窗的「自定义表格」合并模式;
-     * 明细表后端通用查询不可用,视图在本地过滤/排序,故 localApply = true。
-     * 这两项是本页与列表页唯一允许的差异,其余配置完全一致。</p>
+     * 明细表后端通用查询不可用,视图在本地过滤/排序,故 localApply = true;
+     * 保存视图后不自动切换视图(autoApplyAfterSave = false)——
+     * 正在用视图 A 时编辑了视图 B,保存 B 不该把当前选择抢走,
+     * 视图是否生效由用户自己在下拉里点选决定。
+     * 这三项是本页与列表页唯一允许的差异,其余配置完全一致。</p>
      */
     viewStandardProps () {
-      return standardViewOptions({ columns: this.columns, localApply: true });
+      return standardViewOptions({
+        columns: this.columns,
+        localApply: true,
+        autoApplyAfterSave: false
+      });
     }
   },
   watch: {
@@ -604,11 +612,13 @@ export default {
      *        不传 = 当前选中的视图(this.activeViewId);
      *        传 null = 明确指定系统视图;
      *        传 id = 指定该个人视图(视图刚保存、选中态还没同步过来时用)
+     * @param {Boolean} [force] 强制刷新:跳过「同一视图已加载」的去重。
+     *        重复点击当前视图时用(视图没变,但数据要重查)
      */
-    async refreshCollarByView (viewId) {
+    async refreshCollarByView (viewId, force) {
       if (!this._id || !this.viewReady) return;
       const targetId = viewId === undefined ? (this.activeViewId || null) : (viewId || null);
-      if (this.loadedViewId === targetId) return;
+      if (!force && this.loadedViewId === targetId) return;
       // 先占位再请求:避免并发触发(如 change 与 ready 几乎同时到达)时重复请求
       this.loadedViewId = targetId;
       // 视图变了回到第 1 页(与取数绑定:没取数就不重置页码)
@@ -638,6 +648,18 @@ export default {
       // 这里再兜一次,保证取数用的视图 id 与后端解析出的默认视图一致)
       this.activeViewId = resolvedId;
       this.refreshCollarByView(resolvedId);
+    },
+    /**
+     * 重新应用当前选中的视图(下拉里重复点击已选中的视图时触发)。
+     *
+     * <p>CustomView 对「重复点击当前视图」走 refresh 通道(activePresetId 不变,
+     * 不会再发 change 事件),这里必须接住,否则提示「已刷新视图」却没有任何请求。</p>
+     *
+     * <p>视图没变,但数据要按该视图重新查一遍 —— 强制刷新,
+     * 跳过 refreshCollarByView 的「同一视图已加载」去重。</p>
+     */
+    onViewRefresh () {
+      this.refreshCollarByView(this.activeViewId, true);
     },
     pageSizeChange (pageSize) {
       this.collarParams.pageSize = pageSize;
@@ -749,18 +771,23 @@ export default {
     },
     /**
      * 个人视图保存成功。
-     * 视图与表格配置均已落库,这里应用表格配置并刷新明细。
+     * 视图与表格配置均已落库,这里按「保存的是不是当前视图」分别处理。
      *
-     * <p>save 事件先于「切换选中视图」抛出,此刻 activeViewId 还是旧值,
-     * 故用 payload.id(新视图 id)直接取数,避免先发一次「旧视图/系统视图」的请求。</p>
+     * <p>①保存的正是<b>当前选中的视图</b> —— 条件/列配置可能变了:
+     * 应用新的列配置,列表由随后的 refresh 通道(见 onViewRefresh)按新条件强制重查。</p>
      *
-     * <p>取数走 refreshCollarByView:它会按视图 id 去重,后续「切换选中视图」
-     * 再次触发时不会重复请求。</p>
+     * <p>②保存的是<b>另一个视图</b> —— 当前选择、当前列配置、当前列表都不动:
+     * 视图配置已落库,是否生效由用户自己在下拉里点选决定
+     * (autoApplyAfterSave = false,lib 也不会自动切换到刚保存的视图)。</p>
+     *
+     * @param {Object} payload {id, tableConfig}
      */
     async onViewSave (payload) {
-      this.viewTableConfig = (payload && payload.tableConfig) || null;
-      this.resetSelection();
-      await this.refreshCollarByView(payload && payload.id);
+      const savedId = payload && payload.id;
+      if (savedId && savedId === this.activeViewId) {
+        this.viewTableConfig = (payload && payload.tableConfig) || null;
+        this.resetSelection();
+      }
     },
     /**
      * 清空勾选状态。
