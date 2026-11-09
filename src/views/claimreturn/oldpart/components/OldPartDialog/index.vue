@@ -149,7 +149,7 @@
           <vxe-column field="oemStatusLabel" title="主机厂库存状态" width="140" />
           <vxe-column v-if="type !== 'destroy'" field="oemCheckTime" title="主机厂验收时间" width="180" />
           <vxe-column field="returnTypeLabel" title="旧件返回类型" width="120" />
-          <vxe-column field="remark" title="备注" width="120" />
+          <vxe-column field="remark" title="备注" width="120" show-overflow />
           <vxe-column v-if="type !== 'destroy'" field="checkRemark" title="验收备注" width="120" />
         </vxe-table>
         <el-pagination
