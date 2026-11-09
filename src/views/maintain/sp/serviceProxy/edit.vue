@@ -160,7 +160,7 @@
 
 <script>
 import { getDetail, addOrUpdate, precheck, addStatement, cancelStatement, cancelFinal, getSpRemindInfo, isVehRetention, addVehRetentionList, resendSignSms } from '@/api/maintain/sp/serviceProxy/index';
-import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum, CurrentSituationEnum, CustomerTypeEnum, ConfirmFaultEnum, CurrentFaultEnum } from './constant';
+import { RepairOrderStatusEnum, BusinessTypeEnum, RemindInfoTypeEnum, CurrentSituationEnum, CustomerTypeEnum, ConfirmFaultEnum, CurrentFaultEnum, WorkRecordStatusEnum } from './constant';
 import EditPageLayout from '@/libs/components/EditPageLayout';
 import NavTop from './components/NavTop';
 import { getEnum } from '@/api/common';
@@ -414,13 +414,14 @@ export default {
     hasDispatchedItems () {
       return this.form?.workRecordRespList?.some(item => item.isDispatch === 1);
     },
-    // 是否存在已派工未开始的维修项目
+    // 是否存在已派工未开始的维修项目（按 status 判断，与 H5 及后端 startWork 校验口径一致；
+    // 不能用 !timeSpend 推断——未开始记录若残留 timeSpend 会导致按钮不显示）
     hasDispatchedNotStartedItems () {
-      return this.form?.workRecordRespList?.some(item => item.isDispatch === 1 && !item.timeSpend);
+      return this.form?.workRecordRespList?.some(item => item.isDispatch === 1 && item.status === WorkRecordStatusEnum.NOT_STARTED);
     },
     // 是否存在作业中的维修项目
     hasWorkingItems () {
-      return this.form?.workRecordRespList?.some(item => item.isDispatch === 1 && item.timeSpend && !item.finishAt);
+      return this.form?.workRecordRespList?.some(item => item.isDispatch === 1 && item.status === WorkRecordStatusEnum.IN_PROGRESS);
     },
     // 是否存在已经领料但是未全部退料的维修备件记录且未结算
     hasRepairItems () {

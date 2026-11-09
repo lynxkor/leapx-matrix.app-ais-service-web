@@ -9,13 +9,9 @@
       class="ais-search-form"
     >
       <el-form-item label="保修月度">
-        <el-date-picker
-          v-model="form.month"
-          type="month"
-          format="yyyyMM"
-          value-format="yyyyMM"
-          placeholder="请选择"
-          clearable
+        <tag-input
+          v-model="form.monthList"
+          placeholder="请输入6位年月，如202609"
         />
       </el-form-item>
       <el-form-item label="公司编码/名称">
@@ -71,6 +67,7 @@ import debounce from 'lodash.debounce';
 import moment from 'moment';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
+import TagInput from '@/libs/components/TagInput';
 import { getAcceptedDetailReport } from '@/api/claimreturn/claim/warrantysettle/acceptedDetailReport';
 import { getTableConfig, exportTable, getSparePartCompany } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -81,7 +78,7 @@ import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
-  month: moment().subtract(1, 'month').format('YYYYMM'),
+  monthList: [moment().subtract(1, 'month').format('YYYYMM')],
   parentOrgCodeList: '',
   dealerCodeList: [],
 };
@@ -98,6 +95,7 @@ export default {
     LPVxeTable,
     FetchSelect,
     DealerSelect,
+    TagInput,
   },
   data () {
     return {
@@ -250,7 +248,7 @@ export default {
     },
     validateForm () {
       const data = this.getFormData();
-      if (!data.month && !data.parentOrgCodeList && !data.dealerCodeList) {
+      if (!data.monthList?.length && !data.parentOrgCodeList && !data.dealerCodeList) {
         this.$message.error('查询条件不允许全部为空');
         return false;
       }
