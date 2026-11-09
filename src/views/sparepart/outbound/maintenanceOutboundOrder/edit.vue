@@ -103,6 +103,7 @@
                   @copy="onViewCopy"
                   @change="onViewChange"
                   @save="onViewSave"
+                  @ready="onViewReady"
                 />
               </div>
             </div>
@@ -282,8 +283,11 @@ export default {
     _id: {
       handler (val) {
         if (val) {
-          this.getCollar();
+          // 退料明细与视图无关,直接取数
           this.getOut();
+          // 出库明细取数要先等「默认视图」解析出来(见 refreshCollarByView),
+          // 否则首屏会先发一次 page 接口,再被默认个人视图刷新覆盖
+          this.refreshCollarByView();
         }
       },
       immediate: true
@@ -319,6 +323,12 @@ export default {
       },
       // 当前选中的个人视图 id(null = 系统视图)
       activeViewId: null,
+      // 视图列表是否已就绪(即「默认视图」已解析出来)。
+      // 就绪前不发明细取数请求,避免先走 page 接口再被个人视图刷新覆盖
+      viewReady: false,
+      // 当前表格数据对应的视图 id(null = 系统视图;undefined = 还没加载过)。
+      // 用于「视图驱动的刷新」去重,同一视图不重复发请求
+      loadedViewId: undefined,
       // 当前视图的表格配置(列显隐/顺序)
       viewTableConfig: null,
       // 当前视图的筛选条件树
@@ -552,7 +562,8 @@ export default {
      *        保存后立即刷新时用,避免「视图 id 还没同步过来就发了旧请求」。
      */
     async getCollar (viewId) {
-      const activeId = viewId || this.activeViewId;
+      // viewId 不传 = 用当前选中的视图;传 null = 明确按系统视图取数
+      const activeId = viewId === undefined ? this.activeViewId : (viewId || null);
       if (activeId) {
         // 通用视图查询:viewId + tabCode(当前单据 ID)
         const res = await executeQuery({
@@ -572,6 +583,61 @@ export default {
       });
       this.tableData = (res && res.records) || [];
       this.collarParams.total = (res && res.total) || 0;
+    },
+    /**
+     * 按「生效视图」刷新出库明细。
+     *
+     * <p>首屏不能直接取数:默认视图尚未解析时只能走明细分页接口,
+     * 等个人视图列表回来后又要按视图重查一次 —— 会出现「先进页面就请求一次
+     * page 接口,列表拿到后又被个人视图刷新覆盖」的重复请求与画面闪动。</p>
+     *
+     * <p>因此取数时机交给 {@link onViewReady}(视图列表就绪)统一触发:
+     * 生效视图是系统视图 → 明细分页接口;是个人视图 → executeQuery。</p>
+     *
+     * <p>本方法是「视图驱动的刷新」唯一入口:
+     * ①视图未就绪(viewReady=false)时直接跳过,交给 onViewReady 触发 —— 首屏只发一次请求;
+     * ②同一视图的数据已经加载过(loadedViewId)时跳过,避免「change + ready」
+     * 两个事件都指向同一视图时重复请求;
+     * ③单据 id 与视图两者都就绪才取数,谁先到谁触发。</p>
+     *
+     * @param {String} [viewId] 生效视图 id:
+     *        不传 = 当前选中的视图(this.activeViewId);
+     *        传 null = 明确指定系统视图;
+     *        传 id = 指定该个人视图(视图刚保存、选中态还没同步过来时用)
+     */
+    async refreshCollarByView (viewId) {
+      if (!this._id || !this.viewReady) return;
+      const targetId = viewId === undefined ? (this.activeViewId || null) : (viewId || null);
+      if (this.loadedViewId === targetId) return;
+      // 先占位再请求:避免并发触发(如 change 与 ready 几乎同时到达)时重复请求
+      this.loadedViewId = targetId;
+      // 视图变了回到第 1 页(与取数绑定:没取数就不重置页码)
+      this.collarParams.current = 1;
+      try {
+        await this.getCollar(targetId);
+      } catch (e) {
+        // 取数失败:解除占用,允许下次重试(错误提示由 axios 拦截器给出)
+        this.loadedViewId = undefined;
+      }
+    },
+    /**
+     * 视图列表就绪(默认视图已解析)。
+     *
+     * <p>payload.activePresetId = 生效视图 id:null = 系统视图,非空 = 默认个人视图。</p>
+     *
+     * <p>这是首屏取数的触发点:系统视图走明细分页接口,个人视图走 executeQuery。
+     * CustomView 每次刷新视图列表(打开下拉、复制/删除视图等)都会抛这个事件,
+     * 后续由 refreshCollarByView 按「视图是否变化」决定要不要重新取数。</p>
+     *
+     * @param {Object} payload {activePresetId}
+     */
+    onViewReady (payload) {
+      this.viewReady = true;
+      const resolvedId = (payload && payload.activePresetId) || null;
+      // 生效视图与本地选中态对齐(默认视图自动选中时,状态已由 CustomView 同步过来,
+      // 这里再兜一次,保证取数用的视图 id 与后端解析出的默认视图一致)
+      this.activeViewId = resolvedId;
+      this.refreshCollarByView(resolvedId);
     },
     pageSizeChange (pageSize) {
       this.collarParams.pageSize = pageSize;
@@ -636,6 +702,9 @@ export default {
      *
      * <p>表格配置不在 change 事件里,需另行按视图 id 读取。</p>
      *
+     * <p>取数统一交给 {@link refreshCollarByView}:它按「生效视图是否变化」判断要不要重新取数,
+     * 首屏(视图未就绪)与「change + ready 指向同一视图」这两种情况都不会重复请求。</p>
+     *
      * @param {Object} payload {conditions, sortColumns, activePresetId}
      */
     async onViewChange (payload) {
@@ -645,8 +714,8 @@ export default {
         this.viewConditionTree = null;
         this.viewSortColumns = [];
         this.resetViewTableConfig();
-        this.collarParams.current = 1;
-        await this.getCollar();
+        this.resetSelection();
+        this.refreshCollarByView(null);
         return;
       }
       this.viewConditionTree = (payload && payload.conditions) || null;
@@ -654,8 +723,7 @@ export default {
       // 表格配置与视图分开存储,按视图 id 读取
       this.viewTableConfig = await this.loadViewTableConfig(activePresetId);
       this.resetSelection();
-      this.collarParams.current = 1;
-      await this.getCollar();
+      this.refreshCollarByView(activePresetId);
     },
     /**
      * 复制视图成功后,把原视图的表格配置一并复制给新视图。
@@ -685,12 +753,14 @@ export default {
      *
      * <p>save 事件先于「切换选中视图」抛出,此刻 activeViewId 还是旧值,
      * 故用 payload.id(新视图 id)直接取数,避免先发一次「旧视图/系统视图」的请求。</p>
+     *
+     * <p>取数走 refreshCollarByView:它会按视图 id 去重,后续「切换选中视图」
+     * 再次触发时不会重复请求。</p>
      */
     async onViewSave (payload) {
       this.viewTableConfig = (payload && payload.tableConfig) || null;
       this.resetSelection();
-      this.collarParams.current = 1;
-      await this.getCollar(payload && payload.id);
+      await this.refreshCollarByView(payload && payload.id);
     },
     /**
      * 清空勾选状态。
