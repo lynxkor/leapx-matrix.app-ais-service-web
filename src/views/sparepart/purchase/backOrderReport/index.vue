@@ -69,6 +69,7 @@
         v-if="canList"
         v-model="show"
         is-expandable
+        :view-scope="activeName"
         :loading="loading"
         @submit="onSubmit"
         @reset="onReset"
@@ -275,7 +276,7 @@ export default {
         optionObj = this.optionObjSpareParts;
       }
       optionObj.form.page = 1;
-      this.getData();
+      this.debouncedGetData();
     },
     onReset () {
       this.form = { ...defaultForm };
@@ -287,7 +288,7 @@ export default {
       }
       optionObj.form.page = 1;
       optionObj.form.pageSize = pageSize;
-      this.getData();
+      this.debouncedGetData();
     },
     exportExcel () {
       this.exportLoading = true;
@@ -466,7 +467,7 @@ export default {
     handleClick (item) {
       this.activeName = item.name;
       this.form = { ...defaultForm };
-      this.getData();
+      this.debouncedGetData();
     },
     // 从首页点击分类名称跳转到备件分组tab并默认查询该分类
     async switchToSpareParts (row) {
