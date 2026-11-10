@@ -338,9 +338,10 @@ export default {
   methods: {
     loadAttachmentList (signChannel) {
       if (!this.id) return;
-      // 线下（纸质）签字不产生签名图片，避免打印时带出上一次线上签字的历史签名
+      // 线下（纸质）签字不产生签名图片，签字日期也需留空，避免打印时带出上一次线上签字的历史签名/日期
       if (Number(signChannel) === 40) {
         this.signUrl = '';
+        this.$set(this.info, 'signCompletedOn', '');
         return;
       }
       getFileList({ businessId: this.id, attachType: '制单签字' }).then(res => {
