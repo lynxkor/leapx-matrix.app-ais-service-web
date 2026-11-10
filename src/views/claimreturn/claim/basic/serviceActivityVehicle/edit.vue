@@ -61,6 +61,12 @@
                     <span v-else>{{ form.vin }}</span>
 
                   </el-form-item>
+                  <!-- 车牌号由后端脱敏返回，此处直接展示，不做前端解密 -->
+                  <el-form-item label="车型：">{{ form.vehicleModelName }}</el-form-item>
+                  <el-form-item label="车牌号：">{{ form.vehiclePlateNo }}</el-form-item>
+                  <el-form-item label="年款：">{{ form.vehicleYearName }}</el-form-item>
+                  <el-form-item label="制造日期：">{{ form.manufacturingDate }}</el-form-item>
+                  <el-form-item label="销售日期：">{{ form.salesDate }}</el-form-item>
                   <el-form-item label="计划实施门店名称：" prop="plannedDealerCode">
                     <dealer-select
                       :disabled="form.finished==='1'"
@@ -100,6 +106,12 @@
                   <el-form-item label="VIN：" prop="vin">
                     {{ form.vin }}
                   </el-form-item>
+                  <!-- 车牌号由后端脱敏返回，此处直接展示，不做前端解密 -->
+                  <el-form-item label="车型：">{{ form.vehicleModelName }}</el-form-item>
+                  <el-form-item label="车牌号：">{{ form.vehiclePlateNo }}</el-form-item>
+                  <el-form-item label="年款：">{{ form.vehicleYearName }}</el-form-item>
+                  <el-form-item label="制造日期：">{{ form.manufacturingDate }}</el-form-item>
+                  <el-form-item label="销售日期：">{{ form.salesDate }}</el-form-item>
                   <el-form-item label="计划实施门店名称：" prop="plannedDealerName">
                     {{ form.plannedDealerName }}
                   </el-form-item>
@@ -155,6 +167,12 @@ const defaultForm = {
   activityId: '',
   activityCode: '',
   vin: '',
+  // 车辆信息（详情接口返回，只读展示）
+  vehicleModelName: '',
+  vehiclePlateNo: '',
+  vehicleYearName: '',
+  manufacturingDate: '',
+  salesDate: '',
   activityName: '',
   activityType: '',
   activityStatus: '',

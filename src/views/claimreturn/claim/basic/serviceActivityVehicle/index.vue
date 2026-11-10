@@ -350,12 +350,6 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'vehicleModelName', label: '车型', visible: true, width: 200 },
-          // 车牌号由后端脱敏返回，此处直接展示，不做前端解密
-          { props: 'vehiclePlateNo', label: '车牌号', visible: true, width: 200 },
-          { props: 'vehicleYearName', label: '年款', visible: true, width: 200 },
-          { props: 'manufacturingDate', label: '制造日期', visible: true, width: 200 },
-          { props: 'salesDate', label: '销售日期', visible: true, width: 200 },
           { props: 'activityName', label: '活动名称', visible: true, width: 200, centralized: true },
           { props: 'activityTypeLabel', label: '活动类型', visible: true, width: 200, centralized: true },
           { props: 'activityStatusLabel', label: '活动状态', visible: true, width: 200 },
