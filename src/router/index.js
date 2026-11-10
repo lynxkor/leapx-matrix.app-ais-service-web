@@ -1422,9 +1422,7 @@ const routes = [
         name: '门店备件库存',
         keepAlive: true,
         customViewBizKey: 'sparepartInventory',
-        customViewResourceTag: 'AISPART-inventory-customView',
-        // 与维修出库详情共用 lib 的标准个人视图配置(下拉文案/默认视图能力)
-        customViewStandard: true
+        customViewResourceTag: 'AISPART-inventory-customView'
       }
     }, {
       path: '/sparepart/warehouse/inventory/edit',
