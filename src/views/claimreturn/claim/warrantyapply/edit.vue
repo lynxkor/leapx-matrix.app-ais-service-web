@@ -14,7 +14,7 @@
     <template #extraButtons>
       <el-button :loading="printLoading" size="small" @click="handlePrint">打印标签</el-button>
       <el-button size="small" @click="handleViewRights">查看权益</el-button>
-      <el-button size="small" @click="handleViewWarrantyWarning">保修预警信息</el-button>
+      <el-button v-if="isOem" size="small" @click="handleViewWarrantyWarning">保修预警信息</el-button>
       <el-button v-if="canApplyReject && (isPendingCurrentUserReview || form.applyStatus === APPLY_STATUS.APPROVED)" size="small" @click="handleReject(true)">申请驳回</el-button>
       <el-button v-if="canWithdraw && WITHDRAWABLE_STATUSES.includes(form.applyStatus)" size="small" @click="handleWithdraw">撤回</el-button>
       <el-button v-if="canDeny && (isPendingCurrentUserReview || form.applyStatus === APPLY_STATUS.APPROVED)" plain size="small" @click="handleDeny">拒赔</el-button>
@@ -785,6 +785,7 @@ import {
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
+import { loginUserGet } from '@/libs/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -1073,6 +1074,8 @@ export default {
       canWithdraw: false,
       canDeny: false,
       canCancel: false,
+      // 是否主机厂账号（accountFlag=false 为主机厂，true 为门店），控制【保修预警信息】按钮仅厂端可见
+      isOem: false,
       printLoading: false,
       // 当前活动方案的"是否允许修改旧件"(1=是,0=否),用于控制备件明细的旧件编码列是否禁用
       allowModifyOldPart: '',
@@ -1107,6 +1110,10 @@ export default {
     this.canWithdraw = this.permissions.has(`${this.moduleKey}-withdraw`);
     this.canDeny = this.permissions.has(`${this.moduleKey}-deny`);
     this.canCancel = this.permissions.has(`${this.moduleKey}-cancel`);
+    // 获取当前登录账号类型：【保修预警信息】按钮仅厂端展示（写法参考 claimTraceOrder/edit.vue）
+    loginUserGet().then(data => {
+      this.isOem = !data.accountFlag;
+    });
   },
   mounted () {
     console.log('[DEBUG] warrantyAuditList mounted', this.permissions);
