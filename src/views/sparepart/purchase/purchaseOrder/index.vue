@@ -158,6 +158,7 @@
         v-if="canList"
         v-model="show"
         is-expandable
+        :view-scope="activeName"
         :loading="loading"
         @submit="onSubmit"
         @reset="onReset"
@@ -761,7 +762,7 @@ export default {
         optionObj = this.optionObjSign;
       }
       optionObj.form.page = 1;
-      this.getData();
+      this.debouncedGetData();
     },
     onReset () {
       // 注意：不要整体替换 this.form —— 会丢失 Vue 2 响应性，导致子组件 watch 失效。
@@ -777,7 +778,7 @@ export default {
       }
       optionObj.form.page = 1;
       optionObj.form.size = 20;
-      this.getData();
+      this.debouncedGetData();
     },
     exportExcel () {
       this.exportLoading = true;

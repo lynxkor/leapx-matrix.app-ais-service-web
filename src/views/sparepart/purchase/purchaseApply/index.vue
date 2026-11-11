@@ -195,6 +195,7 @@
         v-if="canList"
         v-model="show"
         is-expandable
+        :view-scope="activeName"
         :loading="loading"
         @submit="onSubmit"
         @reset="onReset"
@@ -795,7 +796,7 @@ export default {
     onSubmit () {
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
-      this.getData();
+      this.debouncedGetData();
     },
     onReset () {
       // 备件列表 tab：默认创建时间 = 最近一个月
@@ -806,7 +807,7 @@ export default {
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       optionObj.form.size = pageSize;
-      this.getData();
+      this.debouncedGetData();
     },
     exportExcel () {
       this.exportLoading = true;
@@ -944,7 +945,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null || data[key].length === 0) {
+        if (data[key] === '' || data[key] === null || data[key]?.length === 0) {
           delete data[key];
         }
       });
