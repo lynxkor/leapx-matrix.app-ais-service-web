@@ -26,6 +26,7 @@
 
 <script>
 import { cancelOrder, batchCancel } from '@/api/claimreturn/claim/claimtrace/claimTraceOrder/index';
+import { notifyBatchResult } from '../../../warrantyapply/BatchResultHelper';
 
 export default {
   name: 'CancelOrderDialog',
@@ -81,8 +82,9 @@ export default {
           batchCancel({
             ids: this.traceOrderIds,
             cancelDesc: this.form.cancelDesc
-          }).then(() => {
-            this.$message.success('批量作废成功');
+          }).then((res) => {
+            // 部分成功口径（REQ-2026101316421956）：有失败时弹明细（追溯单号），全成功提示成功
+            notifyBatchResult(this, res, '作废');
             this.close();
             this.$emit('success');
           }).finally(() => {

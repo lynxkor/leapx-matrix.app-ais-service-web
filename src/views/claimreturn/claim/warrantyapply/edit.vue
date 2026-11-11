@@ -1130,7 +1130,7 @@ export default {
         codeOrNameLike: query,
         serviceProxyId: this.form.serviceProxyId,
         createTimeStart: dateStr,
-        applyStatusList: ['30', '50'],
+        applyStatusList: ['20', '30', '40'],
       });
     },
     onReportChange (val, row) {

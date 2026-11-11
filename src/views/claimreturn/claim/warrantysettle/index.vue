@@ -48,8 +48,11 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="月度">
-          <el-input v-model="form.month" placeholder="请输入" clearable/>
+        <el-form-item label="保修月度">
+          <tag-input
+            v-model="form.monthList"
+            placeholder="请输入6位年月，如202609"
+          />
         </el-form-item>
         <el-form-item label="门店状态">
           <fetch-select
@@ -146,8 +149,11 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="月度">
-          <el-input v-model="form.month" placeholder="请输入" clearable/>
+        <el-form-item label="保修月度">
+          <tag-input
+            v-model="form.monthList"
+            placeholder="请输入6位年月，如202609"
+          />
         </el-form-item>
         <el-form-item label="门店状态">
           <fetch-select
@@ -260,8 +266,11 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="月度">
-          <el-input v-model="form.month" placeholder="请输入" clearable/>
+        <el-form-item label="保修月度">
+          <tag-input
+            v-model="form.monthList"
+            placeholder="请输入6位年月，如202609"
+          />
         </el-form-item>
         <el-form-item label="门店状态">
           <fetch-select
@@ -377,8 +386,11 @@
             filterable
           />
         </el-form-item>
-        <el-form-item label="月度">
-          <el-input v-model="form.month" placeholder="请输入" clearable/>
+        <el-form-item label="保修月度">
+          <tag-input
+            v-model="form.monthList"
+            placeholder="请输入6位年月，如202609"
+          />
         </el-form-item>
         <el-form-item label="门店状态">
           <fetch-select
@@ -582,7 +594,7 @@ function getDefaultCreateTime () {
 const defaultForm = {
   settleCodeList: [],
   dealerCodeList: [],
-  month: '',
+  monthList: [],
   dealerNameList: [],
   storeStatusList: [],
   settleStatusList: [],
