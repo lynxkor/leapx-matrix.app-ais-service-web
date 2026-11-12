@@ -202,7 +202,8 @@ table th {
 .print-footer {
   display: flex;
   justify-content: space-between;
-  padding: 24px 8px 0;
+  /* 右侧留白，给"签字日期"手写留空间 */
+  padding: 24px 60px 0 8px;
   font-size: 13px;
 }
 </style>

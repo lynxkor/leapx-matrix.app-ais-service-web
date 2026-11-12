@@ -10,11 +10,7 @@
       class="ais-search-form"
     >
       <el-form-item label="旧件唯一码">
-        <el-input
-          placeholder="请输入"
-          v-model="form.oldPartUniqueCode"
-          clearable
-        />
+        <tag-input v-model="form.oldPartUniqueCodeList" placeholder="请输入旧件唯一码" />
       </el-form-item>
       <el-form-item label="接车施工单">
         <el-input
@@ -311,7 +307,7 @@ import { loginUserGet } from '@/libs/api/common';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  oldPartUniqueCode: '',
+  oldPartUniqueCodeList: [],
   serviceProxyNo: '',
   warrantyNoList: [],
   oldPartDestroyOrderNo: '',
