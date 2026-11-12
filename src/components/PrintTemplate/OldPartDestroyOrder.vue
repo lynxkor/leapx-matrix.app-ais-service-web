@@ -203,7 +203,7 @@ table th {
   display: flex;
   justify-content: space-between;
   /* 右侧留白，给"签字日期"手写留空间 */
-  padding: 24px 60px 0 8px;
+  padding: 24px 130px 0 8px;
   font-size: 13px;
 }
 </style>
