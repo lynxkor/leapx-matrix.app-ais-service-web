@@ -88,7 +88,7 @@ export default {
       const m = (this.form.createTime || '').split(' ')[0].split('-')[1] || '';
       return String(Number(m));
     },
-    // 保修类型分组（已排序数据按类型连续切分）
+    // 保修类型分组（已排序数据按类型连续切分），组内按【零件编码+零件单价】合并，数量累加
     groupedRows () {
       const groups = [];
       let current = null;
@@ -97,7 +97,13 @@ export default {
           current = { typeName: row.repairItemTypeName, rows: [] };
           groups.push(current);
         }
-        current.rows.push(row);
+        const merged = current.rows.find((r) =>
+          r.oldPartCode === row.oldPartCode && r.partUnitPrice === row.partUnitPrice);
+        if (merged) {
+          merged.oldPartQuantity = (Number(merged.oldPartQuantity) + Number(row.oldPartQuantity || 0)).toFixed(2);
+        } else {
+          current.rows.push({ ...row, oldPartQuantity: Number(row.oldPartQuantity || 0).toFixed(2) });
+        }
       });
       return groups;
     },

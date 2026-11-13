@@ -10,6 +10,7 @@
     @change="handleRepairItem"
     value-key="id"
     label-key="name"
+    sub-label-key="code"
   />
 </template>
 <script>
