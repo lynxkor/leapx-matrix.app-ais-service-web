@@ -3058,6 +3058,24 @@ const routes = [
         name: '门店产值报表',
         keepAlive: true
       }
+    }, {
+      path: '/sparepart/basic/marginFundRule',
+      name: 'marginFundRule',
+      component: () => import('@/views/sparepart/basic/marginFundRule/index.vue'),
+
+      meta: {
+        name: '预留金使用规则设置',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/marginfundrule/edit',
+      name: 'marginFundRuleEdit',
+      component: () => import('@/views/sparepart/basic/marginFundRule/edit.vue'),
+
+      meta: {
+        name: '预留金使用规则设置详情',
+        noResourceUrl: 'true'
+      }
     }]
   }
 ];
