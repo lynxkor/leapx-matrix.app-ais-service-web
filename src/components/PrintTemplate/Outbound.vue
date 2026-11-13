@@ -141,6 +141,12 @@ export default {
         oemOutboundOrderId: this.id, // 主机厂出库单ID
         pageSize: 5000,
         pageNum: 1,
+        // 排序（按需求）：零件单价倒序 → 添加时间倒序，与出库单明细页口径一致，末位 id 兜底
+        sortColumns: [
+          { column: 'part_unit_price', sort: 'DESC' },
+          { column: 'update_time', sort: 'DESC' },
+          { column: 'id', sort: 'DESC' }
+        ]
       }).then((res) => {
         this.tableData = res.records;
         this.total_oldPartQuantity = this.tableData.reduce((val, cur) => {

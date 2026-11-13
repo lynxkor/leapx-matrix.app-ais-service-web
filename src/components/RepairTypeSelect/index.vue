@@ -29,10 +29,20 @@ export default {
   },
   methods: {
     repairItemTypeRemote (query) {
-      return repairGetList({
-        nameLike: query,
-        pageSize: 20,
-        pageNum: 1,
+      return new Promise((resolve, reject) => {
+        repairGetList({
+          nameLike: query,
+          pageSize: 20,
+          pageNum: 1,
+          categorys: ['20'],
+        }).then(res => {
+          // 与保修申请单列表页口径一致：仅保留结算类型为 保修/合同 的维修项目类型
+          const data = res.records?.filter(item => ['保修', '合同'].includes(item.checkoutTypeName));
+          resolve(data);
+        }).catch(err => {
+          console.error(err);
+          resolve([]);
+        });
       });
     },
     // 维修类型
