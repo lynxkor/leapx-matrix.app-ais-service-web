@@ -521,6 +521,8 @@ export default {
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    // LP261720 首次进入默认创建时间 = 最近一个月（与重置一致）
+    this.form.createTime = this.getLastMonthRange();
     this.getData();
   },
   methods: {
@@ -688,7 +690,13 @@ export default {
       const optionObj = this.getOptionObj();
       // LP261720 全部备件页签走明细视图接口
       const fetchApi = this.activeName === 'allSpareParts' ? pageDetailView : getList;
-      fetchApi({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
+      const formData = this.getFormData();
+      if (formData === null) {
+        // 校验不过（默认条件不全空/半年跨度）中断查询
+        this.loading = false;
+        return;
+      }
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           optionObj.dataList = (res?.records || []).map(item => {
             return {

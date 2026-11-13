@@ -606,6 +606,8 @@ export default {
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    // LP261720 首次进入默认创建时间 = 最近一个月（与重置一致）
+    this.form.createTime = this.getLastMonthRange();
     this.getData();
   },
   methods: {
@@ -706,10 +708,8 @@ export default {
       this.getData();
     },
     onReset () {
-      // 全部备件页签：默认创建时间 = 最近一个月
-      const extraDefaults = this.activeName === 'allSpareParts'
-        ? { createTime: this.getLastMonthRange() }
-        : {};
+      // LP261720 两个页签默认创建时间 = 最近一个月（需求：区间默认最近一个月，最长跨度半年）
+      const extraDefaults = { createTime: this.getLastMonthRange() };
       this.form = { ...defaultForm, ...extraDefaults };
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
@@ -772,7 +772,13 @@ export default {
       const optionObj = this.getOptionObj();
       // LP261720 全部备件页签走明细视图接口
       const fetchApi = this.activeName === 'allSpareParts' ? pageDetailView : getList;
-      fetchApi({ ...this.getFormData(), pageNum: optionObj.form.page, pageSize: optionObj.form.size })
+      const formData = this.getFormData();
+      if (formData === null) {
+        // 校验不过（默认条件不全空/半年跨度）中断查询
+        this.loading = false;
+        return;
+      }
+      fetchApi({ ...formData, pageNum: optionObj.form.page, pageSize: optionObj.form.size })
         .then(res => {
           const records = res?.records || [];
           optionObj.dataList = records.map(item => {
@@ -846,13 +852,12 @@ export default {
       data.sortColumns = this.sortColumns;
 
       // LP261720 全部备件页签默认条件校验
-      // 【差异单号】【盘点单号】【订单创建时间】不允许全部为空
+      // 【差异单号】【订单创建时间】不允许全部为空
       if (this.activeName === 'allSpareParts') {
         const hasCode = !!(data.codeList && data.codeList.length);
-        const hasStockTakingCode = !!(data.stockTakingCodeList && data.stockTakingCodeList.length);
         const hasCreateTime = !!(data.createTimeStart && data.createTimeEnd);
-        if (!hasCode && !hasStockTakingCode && !hasCreateTime) {
-          this.$message.warning('请至少填写【差异单号】【盘点单号】【订单创建时间】中的任意一个');
+        if (!hasCode && !hasCreateTime) {
+          this.$message.warning('请至少填写【差异单号】【订单创建时间】中的任意一个');
           return null;
         }
         // 订单创建时间跨度校验（不超过半年）
