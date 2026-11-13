@@ -28,6 +28,7 @@
               :params="row.locationName"
               placeholder="请输入库位名称"
               clearable
+              @change="onLocationChange($event, row)"
             />
           </template>
         </vxe-column>
@@ -118,6 +119,17 @@ export default {
     // 库位联想：限当前行的收货仓库
     async searchLocation (query, warehouseId) {
       return locationList({ codeOrName: query || '', warehouseId: warehouseId });
+    },
+    // LP261751 联动默认：任一行选了库位，同一收货仓库下库位为空的其他行立即填充相同值
+    onLocationChange (val, row) {
+      if (!val || !row.receiveWarehouseId) {
+        return;
+      }
+      this.tableData.forEach(other => {
+        if (other !== row && other.receiveWarehouseId === row.receiveWarehouseId && !other.form.locationName) {
+          other.form.locationName = val;
+        }
+      });
     },
     // 批量签收：同一收货仓库下库位为空的行默认沿用已填库位
     fillDefaultLocationName () {
