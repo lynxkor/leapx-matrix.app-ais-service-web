@@ -77,11 +77,12 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem } from '@/api/excelManagement/commonDataProcessExcelTask/index';
+import { getList, deleteItem, enableItem, commonExportRetry } from '@/api/excelManagement/commonDataProcessExcelTask/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum } from '@/api/common';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import commonMixins from '@/libs/mixins/commonMixins';
+import permissions from '@/libs/mixins/permissions';
 import FetchSelect from '@/libs/components/FetchSelect/index.vue';
 import { downloadExcel } from '@/utils/index.js';
 import { refreshFileAuthUrl } from '@/api/file/fileDetail';
@@ -100,7 +101,7 @@ const mockConfig = {
 };
 
 export default {
-  mixins: [commonMixins],
+  mixins: [permissions, commonMixins],
 
   components: {
     FetchSelect,
@@ -110,12 +111,14 @@ export default {
   },
   data () {
     return {
-      pageTitle: 'Excel导出任务',
+      pageTitle: '导出任务',
       pageType: 'list',
+      moduleKey: 'AISMC-commonDataProcessExcelTask',
       form: {
         ...defaultForm
       },
       selectionList: [],
+      retrySubmitting: false,
       taskStatusOptions: [
         { code: 0, message: '导出中' },
         { code: 1, message: '导出完成' },
@@ -168,11 +171,36 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'taskStatusLabel', label: '任务状态', visible: true, width: 200 },
+          {
+            props: 'taskStatusLabel',
+            label: '任务状态',
+            visible: true,
+            width: 200
+          },
+          { props: 'exportedRows', label: '行数', visible: true, width: 200, formatter: (row) => (row.exportedRows ?? '-') },
+          { props: 'retryCount', label: '重试次数', visible: true, width: 200, formatter: (row) => (row.retryCount ?? '-') },
           { props: 'importRemark', label: '描述', visible: true, width: 200 },
-          { props: 'creatorName', label: '创建者', visible: true, width: 200 },
+          { props: 'creatorName', label: '创建人', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 }
+          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          {
+            props: 'operate',
+            label: '操作',
+            type: 'operate',
+            visible: true,
+            fixed: 'right',
+            width: 100,
+            buttons: [{
+              name: '重试',
+              // 展示条件：导出失败（taskStatus===2）且后端 canRetry（本人或超管&&参数可还原，后端计算）
+              // 展示条件：导出失败（taskStatus===2）+ 重试权限码；能否重试（本人或超管/参数可还原/频率/状态）由后端点击时权威判断，失败透传报错
+              show: (row) => row.taskStatus === 2 && this.permissions.has(`${this.moduleKey}-exportRetry`),
+              click: (rowIndex, row) => {
+                this.handleRetry(row);
+              },
+              type: 'primary'
+            }]
+          }
         ],
         total: 0
       },
@@ -387,7 +415,8 @@ export default {
       }).then(res => {
         if (res) {
           // console.log(res);
-          downloadExcel(res.authFileUrl, fileName || '导出文件.xlsx');
+          // 文件名优先取换签接口返回的 originalFilename（=文件服务原始上传名，与同步导出 window.location.href 下载名一致）
+          downloadExcel(res.authFileUrl, res.originalFilename || fileName || '导出文件.xlsx');
         } else {
           this.$message({
             type: 'warning',
@@ -395,6 +424,27 @@ export default {
           });
         }
       });
+    },
+    // 重试导出任务：后端纯异步（点击即返回，任务转"处理中"），不做同步等待
+    // 成功→提示 + 立即刷新列表；报错→axios 全局拦截器统一 toast（response.msg），此处不再重复提示
+    // 权限资源化：重试按钮展示与权限码绑定（moduleKey + '-exportRetry'），上线时随资源权限 SQL 初始化（t3 交付），并按需求第八章初始化给所有角色
+    async handleRetry (row) {
+      if (this.retrySubmitting) {
+        return;
+      }
+      this.retrySubmitting = true;
+      try {
+        await commonExportRetry({ taskId: row.id });
+        this.$message({
+          type: 'success',
+          message: '重试已提交，任务处理中'
+        });
+      } catch (error) {
+        // 报错已由全局拦截器 toast，此处静默（避免同一报错出现两次）
+      } finally {
+        this.retrySubmitting = false;
+        this.getData();
+      }
     }
   }
 };

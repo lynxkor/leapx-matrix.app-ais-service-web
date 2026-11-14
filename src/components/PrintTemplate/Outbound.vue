@@ -76,7 +76,7 @@
     <div style=" text-align:left">
       <h3>签字栏：</h3>
     </div>
-    <div style="text-align: left; font-size: 10px; margin-bottom: 2px;">
+    <div style="text-align: left; font-size: 14px; margin-bottom: 2px;">
       <span style="font-size: 12pt;color: black;">本出库单一式四联，第一联服务部，第二联质量部，第三联供应链，第四联供应商</span>
     </div>
     <div style="margin-bottom:50px;">

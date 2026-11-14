@@ -151,8 +151,7 @@ export default {
 
 <style scoped>
 table.gridtable {
-    font-family: verdana, arial, sans-serif;
-    font-size: 11px;
+    font-size: 14px;
     color: #333333;
     border-width: 1px;
     border-color: #b4a6a6;
@@ -185,8 +184,7 @@ table.gridtable td {
     border-width: 1px;
     padding: 10px;
     border-bottom-width: 0px;
-    font-family: verdana, arial, sans-serif;
-    font-size: 11px
+    font-size: 14px
 }
 
 .pageTitle h2 {

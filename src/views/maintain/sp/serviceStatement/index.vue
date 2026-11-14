@@ -34,6 +34,34 @@
       <el-form-item label="车牌号">
         <tag-input v-model="form.carPlateList" placeholder="请输入" />
       </el-form-item>
+      <el-form-item label="车系" v-show="this.visibleCount === 3 || show">
+        <list-select
+          listUrl="/datacenter/web/materials/vehicleSeries/list"
+          placeholder="请选择"
+          v-model="form.vehSeriesIdList"
+          query-key="seriesNameLike"
+          clearable
+          collapseTags
+          auto-load-options
+          no-param-load
+          multiple
+          filterable
+          :params="{}"
+        />
+      </el-form-item>
+      <el-form-item label="车型" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+          :remote-method="getVehicleModelList"
+          remote
+          v-model="form.vehModelIdList"
+          placeholder="请输入"
+          labelKey="name"
+          valueKey="id"
+          clearable
+          multiple
+          filterable
+        />
+      </el-form-item>
       <el-form-item label="门店" v-show="this.visibleCount === 3 || show">
         <dealer-select v-model="form.dealerCodes" multiple />
       </el-form-item>
@@ -327,6 +355,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
 import DealerSelect from '@/components/dealer-select';
 import FetchSelect from '@/libs/components/FetchSelect';
+import ListSelect from '@/libs/components/list-select';
 import TagInput from '@/libs/components/TagInput';
 import moment from 'moment';
 
@@ -336,6 +365,8 @@ const defaultForm = {
   serviceProxyCodeList: [],
   vehProfileVinList: [],
   carPlateList: [],
+  vehSeriesIdList: [],
+  vehModelIdList: [],
   createReStatement: '',
   statementStatus: '',
   statementStatusList: [],
@@ -366,6 +397,7 @@ export default {
     Upload,
     DealerSelect,
     FetchSelect,
+    ListSelect,
     TagInput
   },
   data () {
@@ -485,6 +517,8 @@ export default {
             width: 200,
           },
           { props: 'carPlate', label: '车牌号', visible: true, width: 200, mask: true, getValue: (row) => getDecrypt(row.id, 'carPlate') },
+          { props: 'vehSeriesName', label: '车系', visible: true, width: 200 },
+          { props: 'vehModelName', label: '车型', visible: true, width: 200 },
           {
             props: 'dealerName',
             label: '门店名称',
@@ -896,6 +930,10 @@ export default {
       }
       // 转换statementStatusList
       data.statementStatusList = this.form.statementStatusList.map((item) => +item);
+      // 枚举多选字段统一转整型（fetch-select 返回字符串 code）
+      ['accountTypeList', 'isPushVisitResultList', 'dataSourceList', 'signChannelList', 'signStatusList'].forEach((key) => {
+        data[key] = (this.form[key] || []).map((item) => +item);
+      });
       data.sortColumns = this.sortColumns;
       return data;
     },

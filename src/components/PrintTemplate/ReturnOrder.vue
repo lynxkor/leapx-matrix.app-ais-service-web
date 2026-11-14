@@ -180,8 +180,7 @@ export default {
 }
 
 table {
-  font-family: verdana, arial, sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   color: #333333;
   border-width: 1px;
   border-color: #666666;

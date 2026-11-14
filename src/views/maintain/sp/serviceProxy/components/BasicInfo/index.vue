@@ -182,6 +182,14 @@
             disabled
           />
         </el-form-item>
+        <el-form-item label="车系：" prop="vehSeriesName">
+          <el-input
+            placeholder="请输入"
+            v-model="form.vehSeriesName"
+            clearable
+            disabled
+          />
+        </el-form-item>
         <el-form-item label="基本车型：" prop="vehModelName">
           <el-input
             placeholder="请输入"
@@ -527,6 +535,9 @@
         <el-form-item label="绑车人用户ID：" prop="bindingUserId">
           {{ form.bindingUserId }}
         </el-form-item>
+        <el-form-item label="车系：" prop="vehSeriesName">
+          <el-link type="success" :href="`/sales/datacenter/materials/vehicleseries/edit?id=${form.vehSeriesId}`" target="_blank">{{ form.vehSeriesName }}</el-link>
+        </el-form-item>
         <el-form-item label="基本车型：" prop="vehModelName">
           <el-link type="success" :href="`/sales/datacenter/materials/vehicleModel/edit?id=${form.vehModelId}`" target="_blank">{{ form.vehModelName }}</el-link>
         </el-form-item>
@@ -854,6 +865,8 @@ export default {
             motorSerialNumber: record.motorSerialNumber, // 电机序列号
             batteryModel: record.batteryModel, // 电池型号
             batterySerialNumber: record.batterySerialNumber, // 电池序列号
+            vehSeriesId: record.vehicleSeriesId, // 基本车系
+            vehSeriesName: record.vehicleSeriesName, // 基本车系
             vehModelId: record.vehicleModelId, // 基本车型
             vehModelName: record.vehicleModelName, // 基本车型
             vehRegisteredModelId: record.carSaleSversionId, // 公告车型

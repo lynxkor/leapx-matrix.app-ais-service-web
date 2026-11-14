@@ -533,6 +533,13 @@ export default {
     onPartSaved () {
       this.$emit('part-saved');
     },
+    // 供父组件（方案信息）调用：方案保存成功后刷新零件列表
+    refreshPartTable () {
+      const partTable = this.$refs.partTable;
+      if (partTable && typeof partTable.getDetailPageApi === 'function') {
+        partTable.getDetailPageApi();
+      }
+    },
   }
 };
 

@@ -187,6 +187,16 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="合作类型">
+                 <fetch-select
+                    :request="fetchOptions"
+                    enumCode="ws_cooperation_type"
+                    v-model="form.cooperationType"
+                    placeholder="请选择"
+                    clearable
+                    filterable
+                  />
+        </el-form-item>
       </template>
       <page-search-action
         v-model="show"
@@ -353,7 +363,8 @@ export default {
           { props: 'partPhone', label: '备件收货人手机', visible: true, width: 140 },
           { props: 'partArea', label: '备件收货省市区', visible: true, width: 140 },
           { props: 'partAddress', label: '备件收货地', visible: true, width: 200 },
-          { props: 'isAllowedThirdDelivered', label: '是否允许第三方收货', visible: true, width: 140 }
+          { props: 'isAllowedThirdDelivered', label: '是否允许第三方收货', visible: true, width: 140 },
+          { props: 'cooperationTypeLabel', label: '合作类型', visible: true, width: 140 },
         ],
         total: 0
       }

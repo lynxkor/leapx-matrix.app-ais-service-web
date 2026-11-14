@@ -74,6 +74,108 @@
             clearable
           />
         </el-form-item>
+        <el-form-item label="车系">
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleSeries/list"
+            placeholder="请选择"
+            v-model="form.vehSeriesId"
+            query-key="seriesNameLike"
+            auto-load-options
+            no-param-load
+            clearable
+            filterable
+            :params="{}"
+            @change="handleSeriesChange"
+          />
+        </el-form-item>
+        <el-form-item label="车型">
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleModel/list"
+            placeholder="请选择"
+            v-model="form.vehModelId"
+            query-key="modelNameLike"
+            auto-load-options
+            collapseTags
+            clearable
+            filterable
+            :params="{seriesIdList: form.vehSeriesId ? [form.vehSeriesId] : []}"
+            @change="handleModelChange"
+          />
+        </el-form-item>
+        <el-form-item label="年款">
+          <list-select
+            listUrl="/datacenter/web/materials/vehicleYearType/list"
+            placeholder="请选择"
+            v-model="form.vehYearTypeId"
+            query-key="yearTypeNameLike"
+            collapseTags
+            auto-load-options
+            no-param-load
+            clearable
+            filterable
+            :params="{}" />
+        </el-form-item>
+        <el-form-item label="主因零部件">
+          <el-input
+            placeholder="零件编码或名称"
+            v-model="form.causePartCodeOrNameLike"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="车机版本号">
+          <el-input
+            placeholder="请输入"
+            v-model="form.iviVersionLike"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="VRT名称">
+          <fetch-select
+            filterable
+            clearable
+            remote
+            reserve-keyword
+            v-model="form.vrtId"
+            :remote-method="listVrt"
+            value-key="id"
+            label-key="name"
+          />
+        </el-form-item>
+        <el-form-item label="VFG名称">
+          <fetch-select
+            filterable
+            clearable
+            remote
+            reserve-keyword
+            v-model="form.vfgId"
+            :remote-method="listVfg"
+            value-key="id"
+            label-key="name"
+          />
+        </el-form-item>
+        <el-form-item label="CCC名称">
+          <fetch-select
+            filterable
+            clearable
+            remote
+            reserve-keyword
+            v-model="form.cccId"
+            :remote-method="listCcc"
+            value-key="id"
+            label-key="cccName"
+          />
+        </el-form-item>
+        <el-form-item label="首次提交审核时间">
+          <el-date-picker
+            v-model="form.firstApplicationTime"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="yyyy-MM-dd"
+            align="right"
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -131,6 +233,10 @@ import PageSearchAction from '@/libs/components/AisPageSearchAction';
 import { getList, deleteItem, enableItem, getDecrypt } from '@/api/maintain/sp/qualityOrderReport/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
+import ListSelect from '@/libs/components/list-select/index.vue';
+import { vfglist } from '@/api/claimreturn/claim/basic/vfg';
+import { vrtlist } from '@/api/claimreturn/claim/basic/vrt';
+import { getList as ccclist } from '@/api/claimreturn/claim/basic/ccc';
 import Upload from '@/libs/components/UploadDialog';
 import { YES_NO_ENUM } from '@/libs/constants';
 import responsiveSearchForm from '@/libs/mixins/responsive';
@@ -150,6 +256,15 @@ const defaultForm = {
   serviceCenterName: '',
   serviceCenterCode: '',
   vehProfileVin: '',
+  vehSeriesId: '',
+  vehModelId: '',
+  vehYearTypeId: '',
+  causePartCodeOrNameLike: '',
+  iviVersionLike: '',
+  vrtId: '',
+  vfgId: '',
+  cccId: '',
+  firstApplicationTime: [],
 };
 
 const pageSize = 20;
@@ -163,6 +278,7 @@ export default {
     PageSearchAction,
     LPVxeTable,
     FetchSelect,
+    ListSelect,
     EditPage,
     Upload
   },
@@ -271,8 +387,11 @@ export default {
               type: 'primary'
             }]
           },
+          { props: 'vehSeriesName', label: '车系', visible: true, width: 150 },
+          { props: 'vehYearTypeName', label: '年款', visible: true, width: 150 },
           { props: 'powerBatteryNumber', label: '电池序列号', visible: true, width: 200 },
           { props: 'motorSerialNumber', label: '电机序列号', visible: true, width: 200 },
+          { props: 'iviVersion', label: '车机版本号', visible: true, width: 200 },
           { props: 'mileage', label: '里程数（KM)', visible: true, width: 200, align: 'right', headerAlign: 'right' },
           { props: 'salesDate', label: '销售日期', visible: true, width: 200 },
           { props: 'repairDate', label: '维修时间', visible: true, width: 200 },
@@ -509,6 +628,13 @@ export default {
           data.createTimeEnd = this.form.createTime[1];
         }
       }
+      if (this.form.firstApplicationTime) {
+        delete data.firstApplicationTime;
+        if (this.form.firstApplicationTime.length > 1) {
+          data.firstApplicationTimeStart = `${this.form.firstApplicationTime[0]} 00:00:00`;
+          data.firstApplicationTimeEnd = `${this.form.firstApplicationTime[1]} 23:59:59`;
+        }
+      }
       // 排序字段
       data.sortColumns = this.sortColumns;
       return data;
@@ -579,6 +705,24 @@ export default {
       } catch (error) {
         console.error('Error fetching series list:', error);
       }
+    },
+    // 车系变化时联动清空车型、年款
+    handleSeriesChange () {
+      this.form.vehModelId = '';
+      this.form.vehYearTypeId = '';
+    },
+    // 车型变化时联动清空年款
+    handleModelChange () {
+      this.form.vehYearTypeId = '';
+    },
+    listVrt (query) {
+      return vrtlist({ vrtNameLike: query });
+    },
+    listVfg (query) {
+      return vfglist({ vfgNameLike: query, vrtId: this.form.vrtId });
+    },
+    listCcc (query) {
+      return ccclist({ cccNameLike: query, vfgId: this.form.vfgId });
     },
     getAccountFlag () {
       loginUserGet().then(res => {

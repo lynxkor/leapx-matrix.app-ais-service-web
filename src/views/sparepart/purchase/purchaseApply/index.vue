@@ -195,6 +195,7 @@
         v-if="canList"
         v-model="show"
         is-expandable
+        :view-scope="activeName"
         :loading="loading"
         @submit="onSubmit"
         @reset="onReset"
@@ -446,6 +447,9 @@ export default {
           { props: 'purchaseOrderTypeLabel', label: '订单类型', visible: true, width: 120 },
           { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
           { props: 'orderStatusLabel', label: '订单状态', visible: true, width: 120 },
+          { props: 'useMarginFundIsLabel', label: '是否使用预留资金', visible: true, width: 150 },
+          { props: 'originalMonthlyUseCount', label: '月使用次数', visible: true, width: 110 },
+          { props: 'originalMarginFundRuleRemark', label: '预留资金使用规则备注', visible: true, width: 200 },
           {
             props: 'backOrderCode',
             label: '缺货单号',
@@ -792,7 +796,7 @@ export default {
     onSubmit () {
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
-      this.getData();
+      this.debouncedGetData();
     },
     onReset () {
       // 备件列表 tab：默认创建时间 = 最近一个月
@@ -803,7 +807,7 @@ export default {
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       optionObj.form.size = pageSize;
-      this.getData();
+      this.debouncedGetData();
     },
     exportExcel () {
       this.exportLoading = true;
@@ -877,8 +881,14 @@ export default {
         .then(res => {
           console.log(res);
           optionObj.dataList = (res?.records || []).map(item => {
+            // 是否使用预留资金：后端未回填 Label 时前端兜底（null/未使用按「否」展示）
+            let useMarginFundIsLabel = item.useMarginFundIsLabel;
+            if (!useMarginFundIsLabel) {
+              useMarginFundIsLabel = item.useMarginFundIs === '1' ? '是' : '否';
+            }
             return {
               ...item,
+              useMarginFundIsLabel,
               deleteLoading: false
             };
           });
@@ -935,7 +945,7 @@ export default {
       const data = { ...this.form };
 
       Object.keys(this.form).forEach(key => {
-        if (data[key] === '' || data[key] === null || data[key].length === 0) {
+        if (data[key] === '' || data[key] === null || data[key]?.length === 0) {
           delete data[key];
         }
       });
