@@ -163,6 +163,7 @@
         v-if="canList"
         v-model="show"
         is-expandable
+        :view-scope="activeName"
         :loading="loading"
         @submit="onSubmit"
         @reset="onReset"
@@ -197,7 +198,7 @@
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
       >
-        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+        <EditPage slot="centralizedViewSlot" :key="`order_${clickItemId}`" :id="clickItemId"/>
       </LPVxeTable>
     </div>
     <div
@@ -218,7 +219,7 @@
         @handleSelect="handleSelectionChange"
         @listSelect="handleListSelect"
       >
-        <EditPage slot="centralizedViewSlot" :id="clickItemId"/>
+        <EditPage slot="centralizedViewSlot" :key="`all_${clickItemId}`" :id="clickItemId"/>
       </LPVxeTable>
     </div>
     <!-- TIPS: 填入项目id即可 -->
@@ -562,7 +563,8 @@ export default {
   },
   methods: {
     handleListSelect (row) {
-      this.clickItemId = row.id;
+      // 全部备件 tab 行为明细维度，row.id 是明细 id，需取 maintenanceOutboundOrderId
+      this.clickItemId = row.maintenanceOutboundOrderId || row.id;
     },
     getOptionObj () {
       if (this.activeName === 'homePage') {
@@ -597,7 +599,7 @@ export default {
     onSubmit () {
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
-      this.getData();
+      this.debouncedGetData();
     },
     onReset () {
       // 全部备件 tab：默认创建时间 = 最近一个月
@@ -610,7 +612,7 @@ export default {
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       optionObj.form.size = pageSize;
-      this.getData();
+      this.debouncedGetData();
     },
     // 全部备件 tab：默认「最近一个月」的时间区间
     getLastMonthRange () {

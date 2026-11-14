@@ -132,21 +132,6 @@ export default {
       return [];
     },
     async submit () {
-      // 校验是否存在重复的 purchaseOrderId 和 claimType 组合
-      const duplicateCheck = {};
-      const hasDuplicate = this.tableData.some(row => {
-        const key = `${row.purchaseOrderId}-${row.form.claimType}`;
-        if (duplicateCheck[key]) {
-          return true; // 发现重复
-        }
-        duplicateCheck[key] = true;
-        return false;
-      });
-
-      if (hasDuplicate) {
-        this.$message.warning('相同的采购订单号存在相同的索赔类型，请修改后再提交！');
-        return;
-      }
       // 效验索赔类型不能为空
       const invalidClaimType = this.tableData.some(row => {
         return !row.form.claimType;

@@ -32,3 +32,6 @@ export function validateBatchStatus (selectionList, allowedStatuses, actionName)
   }
   return { valid: true };
 }
+
+// 自定义视图仅支持查询保修申请主表的页签;值即传给后端的 tabCode(无固定条件的页签传空)
+export const CUSTOM_VIEW_TAB_CODES = { all: '', manager: 'manager', gm: 'gm' };

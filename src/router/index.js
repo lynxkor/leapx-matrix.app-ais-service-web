@@ -2029,6 +2029,24 @@ const routes = [
         noResourceUrl: 'true'
       }
     }, {
+      path: '/maintain/basic/newCarQualityConfig',
+      name: 'newCarQualityConfig',
+      component: () => import('@/views/maintain/basic/newCarQualityConfig/index.vue'),
+
+      meta: {
+        name: '新车质量反馈设置',
+        keepAlive: true
+      }
+    }, {
+      path: '/maintain/basic/newCarQualityConfig/edit',
+      name: 'newCarQualityConfigEdit',
+      component: () => import('@/views/maintain/basic/newCarQualityConfig/edit.vue'),
+
+      meta: {
+        name: '新车质量反馈设置详情',
+        noResourceUrl: 'true'
+      }
+    }, {
       path: '/claimreturn/claim/basic/warrantyHourSetting',
       name: 'warrantyHourSetting',
       component: () => import('@/views/claimreturn/claim/basic/warrantyHourSetting/index.vue'),
@@ -3037,6 +3055,24 @@ const routes = [
       meta: {
         name: '门店产值报表',
         keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/marginFundRule',
+      name: 'marginFundRule',
+      component: () => import('@/views/sparepart/basic/marginFundRule/index.vue'),
+
+      meta: {
+        name: '预留金使用规则设置',
+        keepAlive: true
+      }
+    }, {
+      path: '/sparepart/basic/marginfundrule/edit',
+      name: 'marginFundRuleEdit',
+      component: () => import('@/views/sparepart/basic/marginFundRule/edit.vue'),
+
+      meta: {
+        name: '预留金使用规则设置详情',
+        noResourceUrl: 'true'
       }
     }]
   }

@@ -158,6 +158,7 @@
         v-if="canList"
         v-model="show"
         is-expandable
+        :view-scope="activeName"
         :loading="loading"
         @submit="onSubmit"
         @reset="onReset"
@@ -576,7 +577,8 @@ export default {
           { props: 'purchaseAmount', label: '采购金额', visible: true, align: 'right', width: 120 },
           { props: 'cashUnitPrice', label: '现金单价', visible: true, align: 'right', width: 120 },
           { props: 'cashAmount', label: '现金金额', visible: true, align: 'right', width: 120 },
-          { props: 'detailRemark', label: '备注', visible: true, width: 200 },
+          { props: 'remark', label: '订单备注', visible: true, width: 200 },
+          { props: 'detailRemark', label: '明细备注', visible: true, width: 200 },
           { props: 'originalPriceCouponId', label: '原价券', visible: true, width: 200 },
           { props: 'shippingTime', label: '发货时间', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
@@ -670,7 +672,8 @@ export default {
               type: 'primary'
             }]
           },
-          { props: 'detailRemark', label: '备注', visible: true, width: 200 },
+          { props: 'remark', label: '订单备注', visible: true, width: 200 },
+          { props: 'detailRemark', label: '明细备注', visible: true, width: 200 },
           {
             props: 'sparePartCode',
             label: '备件编码',
@@ -759,7 +762,7 @@ export default {
         optionObj = this.optionObjSign;
       }
       optionObj.form.page = 1;
-      this.getData();
+      this.debouncedGetData();
     },
     onReset () {
       // 注意：不要整体替换 this.form —— 会丢失 Vue 2 响应性，导致子组件 watch 失效。
@@ -775,7 +778,7 @@ export default {
       }
       optionObj.form.page = 1;
       optionObj.form.size = 20;
-      this.getData();
+      this.debouncedGetData();
     },
     exportExcel () {
       this.exportLoading = true;

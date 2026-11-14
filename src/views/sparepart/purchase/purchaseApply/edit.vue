@@ -229,6 +229,15 @@
                 <el-form-item label="返利可用资金：" prop="rebateAvailableAmount">
                   {{ form.rebateAvailableAmount }}
                 </el-form-item>
+                <el-form-item label="是否使用预留资金：" prop="useMarginFundIs">
+                  {{ form.useMarginFundIsLabel || (form.useMarginFundIs === '1' ? '是' : form.useMarginFundIs === '0' ? '否' : '否') }}
+                </el-form-item>
+                <el-form-item label="月使用次数：" prop="originalMonthlyUseCount">
+                  {{ form.originalMonthlyUseCount }}
+                </el-form-item>
+                <el-form-item label="预留资金使用规则备注：" prop="originalMarginFundRuleRemark">
+                  {{ form.originalMarginFundRuleRemark }}
+                </el-form-item>
               </el-form>
 
               <div class="common-title" v-show="!(isEditing || !_id)">其他信息</div>

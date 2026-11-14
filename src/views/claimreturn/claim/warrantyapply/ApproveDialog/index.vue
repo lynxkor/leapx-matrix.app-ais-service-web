@@ -88,7 +88,20 @@ export default {
           approvalRemark: this.form.approvalRemark,
         }).then(res => {
           this.close();
-          notifyBatchResult(this, res, '同意');
+          // 单条审核：直接展示后端业务提示（如：当前车辆为新上市车型，必须上传质量反馈报告）
+          // 批量审核：保持原有失败条数 + 失败ID 提示（批量存在部分成功/部分失败）
+          const isSingle = (this.approveIds || []).length === 1;
+          const failMsg = isSingle && res?.failedCount > 0
+            ? res?.failedMessages?.[this.approveIds[0]]
+            : '';
+          if (failMsg) {
+            this.$alert(failMsg, '同意失败', {
+              confirmButtonText: '知道了',
+              customClass: 'batch-result-msgbox',
+            }).catch(() => { /* 用户关闭，无操作 */ });
+          } else {
+            notifyBatchResult(this, res, '同意');
+          }
           this.$emit('success');
         }).finally(() => {
           this.submitLoading = false;
