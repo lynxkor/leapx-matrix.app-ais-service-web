@@ -84,7 +84,7 @@
                       clearable
                     />
                   </el-form-item>
-                  <!-- <el-form-item label="保证资金：" prop="marginAmount">
+                  <!-- <el-form-item label="预留资金：" prop="marginAmount">
                     <el-input
                       placeholder="请输入"
                       v-model="form.marginAmount"
@@ -232,7 +232,7 @@
                   <el-form-item label="冻结资金：" prop="frozenAmount">
                     {{ form.frozenAmount }}
                   </el-form-item>
-                  <!-- <el-form-item label="保证资金：" prop="marginAmount">
+                  <!-- <el-form-item label="预留资金：" prop="marginAmount">
                     {{ form.marginAmount }}
                   </el-form-item> -->
                   <el-form-item label="账户总额：" prop="totalAmount">

@@ -412,10 +412,11 @@
       <el-tab-pane label="全部订单" name="all" />
       <el-tab-pane label="保修经理订单" name="manager" />
       <el-tab-pane label="总经理订单" name="gm" />
-      <el-tab-pane label="备件清单" name="parts" />
-      <el-tab-pane label="工时清单" name="workhours" />
-      <el-tab-pane label="其他清单" name="other" />
-      <el-tab-pane label="审批记录" name="approval" />
+      <!-- 后四个页签查的是明细表,选中自定义视图后不可用 -->
+      <el-tab-pane label="备件清单" name="parts" :disabled="!!activePresetId" />
+      <el-tab-pane label="工时清单" name="workhours" :disabled="!!activePresetId" />
+      <el-tab-pane label="其他清单" name="other" :disabled="!!activePresetId" />
+      <el-tab-pane label="审批记录" name="approval" :disabled="!!activePresetId" />
     </el-tabs>
     <div
       class="ais-table-c"
@@ -496,6 +497,7 @@ import {
   PENDING_REVIEW_STATUSES,
   WITHDRAWABLE_STATUSES,
   validateBatchStatus,
+  CUSTOM_VIEW_TAB_CODES,
 } from './constants';
 import {
   getTableConfig, tableAddOrUpdate, getEnum,
@@ -690,6 +692,14 @@ export default {
     };
   },
   computed: {
+    // 当前页签允许使用自定义视图(仅查询主表的三个页签)
+    customViewAllowed () {
+      return Object.prototype.hasOwnProperty.call(CUSTOM_VIEW_TAB_CODES, this.activeTab);
+    },
+    // 当前页签传给后端的标识;空串表示无页签固定条件
+    customViewTabCode () {
+      return CUSTOM_VIEW_TAB_CODES[this.activeTab] || '';
+    },
     optionObj () {
       if (this.activeTab === 'parts') return this.optionObjParts;
       if (this.activeTab === 'workhours') return this.optionObjWorkhours;
@@ -1601,6 +1611,12 @@ export default {
       };
     },
   },
+  watch: {
+    activePresetId (val) {
+      // 选中视图后仅前三个页签可用;停留在明细页签时自动回到第一个页签
+      if (val && !this.customViewAllowed) this.activeTab = 'all';
+    },
+  },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     // 保修预警提醒弹窗跳转: 从 URL query 读取 applyNoList, 清空其他查询条件
@@ -1966,6 +1982,10 @@ export default {
       this.getData();
     }, 300),
     // ---- customViewMixin 字段适配(本页用 tableForm/tableDataList/tableTotal,非默认 optionObj 命名) ----
+    /** 视图查询附带页签标识,后端据此叠加页签固定条件 */
+    customViewQueryParams () {
+      return { tabCode: this.customViewTabCode };
+    },
     /** 分页对象引用(读写同一份,保持单一来源) */
     _cvPager () {
       return this.tableForm;
@@ -2147,6 +2167,10 @@ export default {
       } else if (this.activeTab === 'gm') {
         data.isGeneralManagerApproval = 1;
       }
+
+      // 页签标识:随查询条件一起缓存到 sessionStorage,供 edit.vue 的「下一条」复用。
+      // 视图查询路径由 mixin 另行携带,这里存的是普通列表路径的同一份标识。
+      data.tabCode = this.customViewTabCode;
 
       return data;
     },

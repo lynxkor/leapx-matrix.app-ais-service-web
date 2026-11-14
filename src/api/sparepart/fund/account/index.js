@@ -68,3 +68,11 @@ export function frozenPage (data) {
 export function detailPage (data) {
   return api.jsonPost(prefix + 'detailPage', data);
 }
+
+/**
+ * 备件现金账户 - 调整预留资金额度
+ * @param {Object} data { idList: Array<String>, newMarginQuota: Number, marginQuotaRemark?: String }
+ */
+export function adjustMarginQuota (data) {
+  return api.jsonPost(prefix + 'adjustMarginQuota', data);
+}
