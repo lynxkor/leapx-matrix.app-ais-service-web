@@ -728,7 +728,12 @@ export default {
     },
     exportExcel () {
       this.exportLoading = true;
-      const reqParams = this.getFormData() || {};
+      // LP261720 校验不过（默认条件不全空/半年跨度）中断导出，不绕过
+      const reqParams = this.getFormData();
+      if (reqParams === null) {
+        this.exportLoading = false;
+        return;
+      }
       if (this.selectionList.length > 0) {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
