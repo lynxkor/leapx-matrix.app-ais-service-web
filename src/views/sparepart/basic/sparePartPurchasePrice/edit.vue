@@ -10,6 +10,7 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :dataTransform="dataTransform"
         :showEditBtn="true"
       >
         <template #status>
@@ -75,11 +76,12 @@
                   <el-input v-model="form.sparePartName" placeholder="请输入" clearable disabled />
                 </el-form-item>
                 <el-form-item label="采购价格：" prop="dealerPurchasePrice" v-if="form.pricingModel != 'dealerPriceRatio'">
-                  <el-input
-                    type="number"
-                    placeholder="请输入"
+                  <el-input-number
                     v-model="form.dealerPurchasePrice"
-                    clearable
+                    :precision="2"
+                    :step="0.01"
+                    :controls="false"
+                    placeholder="请输入"
                     :disabled="!canEditPurchasePrice"
                   />
                 </el-form-item>
@@ -182,7 +184,8 @@ const defaultForm = {
   sparePartCode: '',
   sparePartName: '',
   pricingModel: 'standardPrice',
-  dealerPurchasePrice: '',
+  // 数字输入框（el-input-number）不能使用空字符串作为默认值，否则会被自动转换为 0
+  dealerPurchasePrice: undefined,
   dealerCode: '',
   dealerName: '',
   adjustmentRatio: '',
@@ -254,6 +257,16 @@ export default {
       }
       return {};
     },
+    // 详情数据转换：采购价格为空的存量数据转为 undefined，避免数字输入框把 null 当成 0 显示
+    dataTransform (data) {
+      if (!data) {
+        return data;
+      }
+      return {
+        ...data,
+        dealerPurchasePrice: data.dealerPurchasePrice === null || data.dealerPurchasePrice === undefined ? undefined : data.dealerPurchasePrice
+      };
+    },
     submitRequest () {
       return addOrUpdate({ id: this.form.id, ...this.form });
     },
@@ -267,7 +280,7 @@ export default {
         return;
       }
       if (!this.canEditPurchasePrice && this.form.dealerPurchasePrice) {
-        this.form.dealerPurchasePrice = '';
+        this.form.dealerPurchasePrice = undefined;
       }
     },
     async getDealerList (query) {
