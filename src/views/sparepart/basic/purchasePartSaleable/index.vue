@@ -371,7 +371,7 @@ export default {
       }).then(async res => {
         if (res && res.excelUrl) {
           try {
-            await downloadExcel(res.excelUrl, '新页面.xlsx');
+            await downloadExcel(res.excelUrl, '订单类型采购备件设置导出.xlsx');
           } catch (error) {
             this.$message({
               type: 'error',
