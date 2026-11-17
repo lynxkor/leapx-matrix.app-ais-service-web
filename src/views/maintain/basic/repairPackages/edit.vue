@@ -556,12 +556,12 @@ export default {
     },
     // 适配车型接口
     async getModelList () {
-      const res = await getModel({ repairPackagesId: this._id  , pageSize: 5000});
+      const res = await getModel({ repairPackagesId: this._id, pageSize: 5000 });
       this.tableDataModel = res.records || [];
     },
     // 维修项目套餐列表
     async getProjectPackage () {
-      const res = await getPackagesItem({ repairPackagesId: this._id  , pageSize: 5000});
+      const res = await getPackagesItem({ repairPackagesId: this._id, pageSize: 5000 });
       this.tableData = res.records || [];
       // 计算项目金额
       this.itemAmount = 0;

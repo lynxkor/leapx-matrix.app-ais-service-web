@@ -460,11 +460,32 @@ export default {
     };
   },
   created () {
+    // 保修预警提醒弹窗跳转: 从 URL query 读取 partCodeList, 清空其他查询条件
+    this.applyWarningSearchParams();
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getLoginUser();
     this.getData();
   },
   methods: {
+    /**
+     * 保修预警提醒弹窗跳转: 从 URL query 读取 partCodeList, 清空其他查询条件
+     */
+    applyWarningSearchParams () {
+      const query = this.$route.query || {};
+      const param = query.partCodeList;
+      if (!param) return;
+      const partCodeList = (typeof param === 'string' ? param.split(',') : param)
+        .filter(x => x && String(x).trim());
+      if (partCodeList.length === 0) return;
+      // 重置 form 为 defaultForm（模块级常量，不受 mixin data 合并影响）
+      // 然后仅保留 partCodeList，其他字段用默认值
+      this.form = { ...defaultForm, partCodeList };
+      // TagInput 内部 tagList 只在 value 变化时同步, created 中的同步赋值不会回显;
+      // 挂载后再赋新数组引用触发 watcher, 让零件编码查询条件正常回显.
+      this.$nextTick(() => {
+        this.form = { ...this.form, partCodeList: partCodeList.slice() };
+      });
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },
@@ -733,6 +754,7 @@ export default {
         this.$message.success(`${actionName}成功!`);
         this.getData(); // 刷新列表
       } catch (error) {
+        this.$message.error(`${actionName}失败: ${error?.message || '请稍后重试'}`);
       }
     },
 
