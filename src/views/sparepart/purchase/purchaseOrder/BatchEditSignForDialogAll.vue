@@ -162,23 +162,9 @@ export default {
       if (!val || !row.receiveWarehouseId) {
         return;
       }
-      (this.$refs.workTable ? this.$refs.workTable.getCheckboxRecords() : this.tableData).concat(this.tableData).forEach(other => {
+      this.tableData.forEach(other => {
         if (other !== row && other.receiveWarehouseId === row.receiveWarehouseId && other.form && !other.form.locationName) {
           other.form.locationName = val;
-        }
-      });
-    },
-    // 批量签收：同一收货仓库下库位为空的行默认沿用已填库位
-    fillDefaultLocationName (rows) {
-      const warehouseFilled = {};
-      rows.forEach(row => {
-        if (row.form.locationName && row.receiveWarehouseId && !warehouseFilled[row.receiveWarehouseId]) {
-          warehouseFilled[row.receiveWarehouseId] = row.form.locationName;
-        }
-      });
-      rows.forEach(row => {
-        if (!row.form.locationName && row.receiveWarehouseId && warehouseFilled[row.receiveWarehouseId]) {
-          row.form.locationName = warehouseFilled[row.receiveWarehouseId];
         }
       });
     },
@@ -197,7 +183,6 @@ export default {
         this.$message.warning('签收数量必须大于 0，请修改后再提交！');
         return;
       }
-      this.fillDefaultLocationName(checkedRows);
       const params = {
         purchaseOrderSignList: checkedRows.map(item => ({
           purchaseOrderDetailId: item.id,

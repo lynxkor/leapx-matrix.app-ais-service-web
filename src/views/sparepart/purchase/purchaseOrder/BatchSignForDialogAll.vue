@@ -120,7 +120,7 @@ export default {
     async searchLocation (query, warehouseId) {
       return locationList({ codeOrName: query || '', warehouseId: warehouseId });
     },
-    // LP261751 联动默认：任一行选了库位，同一收货仓库下库位为空的其他行立即填充相同值
+    // LP261751 联动默认：任一行选了库位，同一收货仓库下库位为空的其他行立即填充相同值（仅展示辅助，用户可清空；后端不为空行兜底）
     onLocationChange (val, row) {
       if (!val || !row.receiveWarehouseId) {
         return;
@@ -128,20 +128,6 @@ export default {
       this.tableData.forEach(other => {
         if (other !== row && other.receiveWarehouseId === row.receiveWarehouseId && !other.form.locationName) {
           other.form.locationName = val;
-        }
-      });
-    },
-    // 批量签收：同一收货仓库下库位为空的行默认沿用已填库位
-    fillDefaultLocationName () {
-      const warehouseFilled = {};
-      this.tableData.forEach(row => {
-        if (row.form.locationName && row.receiveWarehouseId && !warehouseFilled[row.receiveWarehouseId]) {
-          warehouseFilled[row.receiveWarehouseId] = row.form.locationName;
-        }
-      });
-      this.tableData.forEach(row => {
-        if (!row.form.locationName && row.receiveWarehouseId && warehouseFilled[row.receiveWarehouseId]) {
-          row.form.locationName = warehouseFilled[row.receiveWarehouseId];
         }
       });
     },
@@ -155,7 +141,6 @@ export default {
         this.$message.warning('签收数量必须大于 0，请修改后再提交！');
         return;
       }
-      this.fillDefaultLocationName();
       //  构建参数
       const params = {
         purchaseOrderSignList: this.tableData.map(item => ({
