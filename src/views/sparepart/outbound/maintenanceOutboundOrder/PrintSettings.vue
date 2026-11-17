@@ -5,7 +5,6 @@
                 <div class="print-setting-row">
                     <fetch-select class="print-setting-select" :options="rangeOptions"
                         v-model="form.defaultPrintRange" placeholder="请选择" clearable filterable
-                        :disabled="lockSource === 'sort'"
                         @change="handleRangeChange" />
                     <fetch-select v-if="showViewSelect" class="print-setting-select print-setting-select--view" :options="viewOptions"
                         v-model="form.customViewId" placeholder="请选择个人视图" clearable filterable
@@ -15,7 +14,6 @@
             <el-form-item label="排序">
                 <fetch-select class="print-setting-select" :options="sortOptions"
                     v-model="form.sortOrder" placeholder="请选择" clearable filterable
-                    :disabled="lockSource === 'range'"
                     @change="handleSortChange" />
             </el-form-item>
         </el-form>
@@ -62,16 +60,13 @@ export default {
       // 默认打印范围选项 [{ code, message }]
       rangeOptions: [],
       // 排序选项 [{ code, message }]
-      sortOptions: [],
-      // 联动锁定来源:'range'=范围选了个人视图(排序锁定) 'sort'=排序选了个人视图(范围锁定) ''=未锁定
-      lockSource: '',
-      // 锁定前用户原本选的排序/范围，解锁时恢复（而不是清空）
-      prevSortOrder: '',
-      prevRange: ''
+      sortOptions: []
     };
   },
   computed: {
-    // 任一项选了「按个人视图」都需要选择具体视图(两个维度共用同一个 customViewId)
+    // 「默认打印范围」与「排序」是两个独立维度(2026-11-17 取消联动):
+    //   范围决定打印哪些行,排序决定行怎么排;任一项选了「按个人视图」都需要选择具体视图
+    //   (两个维度共用同一个 customViewId)
     showViewSelect () {
       return this.form.defaultPrintRange === PERSONAL_VIEW_CODE
         || this.form.sortOrder === PERSONAL_VIEW_CODE;
@@ -91,21 +86,7 @@ export default {
       await this.loadEnumOptions();
       const res = await getCurrentUserSet();
       this.form = res || {};
-      // 归一化存量配置：任一维度为「按个人视图」时，两维度保持一致(与后端一致:
-      // sort=4 时打印范围实际由视图条件决定)，并锁定联动来源
-      if (this.form.defaultPrintRange === PERSONAL_VIEW_CODE) {
-        this.lockSource = 'range';
-        // 备份锁定前的排序，取消个人视图时可恢复
-        this.prevSortOrder = this.form.sortOrder === PERSONAL_VIEW_CODE ? '' : (this.form.sortOrder || '');
-        this.form.sortOrder = PERSONAL_VIEW_CODE;
-      } else if (this.form.sortOrder === PERSONAL_VIEW_CODE) {
-        this.lockSource = 'sort';
-        // 备份锁定前的打印范围
-        this.prevRange = this.form.defaultPrintRange === PERSONAL_VIEW_CODE ? '' : (this.form.defaultPrintRange || '');
-        this.form.defaultPrintRange = PERSONAL_VIEW_CODE;
-      } else {
-        this.lockSource = '';
-      }
+      // 不做任何归一化/强制联动:范围与排序各自独立,原样回显后端存的值
       if (this.showViewSelect) {
         // 必须等 form.customViewId 填好后再拉视图列表：
         // 列表拉回来后要按 id 匹配出视图名做回显，先拉列表会匹配不到
@@ -173,41 +154,23 @@ export default {
       // 两条路都拿不到 → 占位文案（至少让用户知道自己配过一个视图）
       this.viewOptions = [{ id: savedViewId, viewName: '视图已删除或无权限' }, ...this.viewOptions];
     },
-    // 默认打印范围变更：选「按个人视图」→ 排序固定显示「按个人视图」；取消 → 解锁并恢复排序原值
+    // 默认打印范围变更：选「按个人视图」→ 拉取个人视图列表(不做联动、不锁排序)
     handleRangeChange (val) {
       if (val === PERSONAL_VIEW_CODE) {
-        this.lockSource = 'range';
-        // 记住锁定前的排序，取消个人视图时恢复
-        this.prevSortOrder = this.form.sortOrder === PERSONAL_VIEW_CODE ? this.prevSortOrder : this.form.sortOrder;
-        this.form.sortOrder = PERSONAL_VIEW_CODE;
         this.loadViewOptions();
-      } else {
-        this.lockSource = '';
-        if (this.form.sortOrder === PERSONAL_VIEW_CODE) {
-          this.form.sortOrder = this.prevSortOrder || '';
-        }
       }
     },
-    // 排序变更：选「按个人视图」→ 默认打印范围固定显示「按个人视图」；取消 → 解锁并恢复范围原值
+    // 排序变更：选「按个人视图」→ 拉取个人视图列表(不做联动、不锁范围)
     handleSortChange (val) {
       if (val === PERSONAL_VIEW_CODE) {
-        this.lockSource = 'sort';
-        // 记住锁定前的打印范围，取消个人视图时恢复
-        this.prevRange = this.form.defaultPrintRange === PERSONAL_VIEW_CODE ? this.prevRange : this.form.defaultPrintRange;
-        this.form.defaultPrintRange = PERSONAL_VIEW_CODE;
         this.loadViewOptions();
-      } else {
-        this.lockSource = '';
-        if (this.form.defaultPrintRange === PERSONAL_VIEW_CODE) {
-          this.form.defaultPrintRange = this.prevRange || '';
-        }
       }
     },
     close () {
       this.$emit('close');
     },
     async submit () {
-      // 选了「按个人视图」必须选定具体视图
+      // 选了「按个人视图」必须选定具体视图(范围或排序任一为「按个人视图」)
       if (this.showViewSelect && !this.form.customViewId) {
         this.$message.warning('请选择个人视图');
         return;
