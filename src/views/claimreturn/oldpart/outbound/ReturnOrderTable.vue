@@ -185,6 +185,11 @@ export default {
           width: '160',
         },
         {
+          field: 'partUnitPrice',
+          title: '零件单价',
+          width: '120',
+        },
+        {
           field: 'oldPartSupplierName',
           title: '零件供应商',
           width: '160',
@@ -245,7 +250,9 @@ export default {
         oemOutboundOrderId: this._id, // 主机厂出库单ID
         pageSize: this.pageSize,
         pageNum: this.current,
+        // 排序（按需求）：零件单价倒序 → 添加时间倒序（update_time=关联进出库单的时间，与回运单明细口径一致），末位 id 兜底保证分页稳定
         sortColumns: [
+          { column: 'part_unit_price', sort: 'DESC' },
           { column: 'update_time', sort: 'DESC' },
           { column: 'id', sort: 'DESC' }
         ]

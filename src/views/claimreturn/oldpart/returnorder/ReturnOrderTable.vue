@@ -174,6 +174,11 @@ export default {
           width: '160',
         },
         {
+          field: 'partUnitPrice',
+          title: '零件单价',
+          width: '120',
+        },
+        {
           field: 'partCode',
           title: '零件编码',
           width: '160',
@@ -219,7 +224,9 @@ export default {
         returnOrderId: this._id,
         pageSize: this.pageSize,
         pageNum: this.current,
+        // 排序（按需求）：零件单价倒序 → 添加时间倒序，末位 id 兜底保证分页稳定
         sortColumns: [
+          { column: 'part_unit_price', sort: 'DESC' },
           { column: 'update_time', sort: 'DESC' },
           { column: 'id', sort: 'DESC' },
         ],

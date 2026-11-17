@@ -26,12 +26,15 @@
           </span>
         </template>
         <template #extraButtons>
-          <template v-if="form.returnStatus==='10'">
-            <el-button v-if="canDelete && !isDealer" @click="onRemove" size="small" :loading="deleteLoading">删除</el-button>
-            <el-button v-if="!isDealer" @click="onNext" type="primary" plain size="small" :loading="publishLoading">下发</el-button>
+          <template v-if="form.returnStatus==='10' || form.returnStatus==='20'">
+            <el-tooltip v-if="canDelete && !isDealer && existTableData" content="需先移除明细后才能删除" placement="top">
+              <el-button size="small" disabled>删除</el-button>
+            </el-tooltip>
+            <el-button v-if="canDelete && !isDealer && !existTableData" @click="onRemove" size="small" :loading="deleteLoading">删除</el-button>
+            <el-button v-if="form.returnStatus==='10' && !isDealer" @click="onNext" type="primary" plain size="small" :loading="publishLoading">下发</el-button>
           </template>
           <template v-if="form.returnStatus==='20'">
-            <el-button v-if="isDealer" @click="onOutbound" size="small" :loading="outboundLoading">回运出库</el-button>
+            <el-button @click="onOutbound" size="small" :loading="outboundLoading">回运出库</el-button>
           </template>
           <template v-if="form.returnStatus==='30'">
             <el-button v-if="!isDealer" @click="onSign" size="small" :loading="signLoading">签收</el-button>
