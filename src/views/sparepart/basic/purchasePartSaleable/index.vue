@@ -279,13 +279,6 @@ export default {
                   }
                 });
               },
-              show: (row) => {
-                // 「按门店」场景下，【是否可售】为否的记录不允许编辑
-                if (row.mode === '2' && row.saleableIs === '0') {
-                  return false;
-                }
-                return true;
-              },
               type: 'info'
             }, {
               name: '删除',

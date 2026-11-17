@@ -10,6 +10,7 @@
         :form.sync="form"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :dataTransform="dataTransform"
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
@@ -82,7 +83,7 @@
                   </el-form-item>
                 </template>
 
-                <!-- 按门店模式：门店编码/名称，是否可售固定为否 -->
+                <!-- 按门店模式：可编辑【订单类型】【门店编码】【备注】；【是否可售】固定为否且不可编辑 -->
                 <template v-else>
                   <el-form-item label="门店编码：" prop="dealerCode">
                     <fetch-select
@@ -96,7 +97,6 @@
                       clearable
                       collapseTags
                       filterable
-                      :disabled="isEdit"
                       @change="handleDealerChange"
                     />
                   </el-form-item>
@@ -104,6 +104,15 @@
                     <el-input
                       v-model="form.dealerName"
                       clearable
+                      :disabled="true"
+                    />
+                  </el-form-item>
+                  <el-form-item label="是否可售：" prop="saleableIs">
+                    <fetch-select
+                      :request="fetchOptions"
+                      enumCode="BooleanEnum"
+                      v-model="form.saleableIs"
+                      placeholder="请选择"
                       :disabled="true"
                     />
                   </el-form-item>
@@ -146,6 +155,9 @@
                   </el-form-item>
                   <el-form-item label="门店名称：" prop="dealerName">
                     {{ form.dealerName }}
+                  </el-form-item>
+                  <el-form-item label="是否可售：" prop="saleableIs">
+                    {{ form.saleableIsLabel }}
                   </el-form-item>
                 </template>
                 <el-form-item label="备注：" prop="remark">
@@ -220,7 +232,7 @@ export default {
     _id () {
       return this.id || this.$route.query.id || this.form.id;
     },
-    // 是否处于编辑（有 id）状态，用于控制模式/订单类型/门店不可改
+    // 是否处于编辑（有 id）状态，用于控制【模式】不可改
     isEdit () {
       return !!this._id;
     }
@@ -297,7 +309,19 @@ export default {
       }
     },
     submitRequest () {
-      return addOrUpdate({ ...this.form });
+      const form = { ...this.form };
+      // 按门店模式：【是否可售】固定为否，不随前端传值
+      if (form.mode === '2') {
+        form.saleableIs = '0';
+      }
+      return addOrUpdate(form);
+    },
+    // 详情数据转换：按门店模式下【是否可售】固定为否且不可编辑（兼容库中历史空值）
+    dataTransform (data) {
+      if (data && data.mode === '2') {
+        return { ...data, saleableIs: '0' };
+      }
+      return data;
     },
     // 打开侧边栏
     openPane () {
