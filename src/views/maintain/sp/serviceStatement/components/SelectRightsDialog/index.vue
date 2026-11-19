@@ -15,12 +15,6 @@
           <vxe-column type="checkbox" width="60" align="center" />
           <vxe-column field="useId" title="权益ID" width="250" show-overflow="tooltip" />
           <vxe-column field="rightsName" title="权益名称" width="200" show-overflow="tooltip" />
-          <vxe-column field="grantSource" title="权益来源" width="110" align="center">
-            <template #default="{ row }">
-              {{ row.grantSourceLabel || '-' }}
-            </template>
-          </vxe-column>
-          <vxe-column field="grantOrderId" title="权益订单号" width="180" show-overflow="tooltip" />
           <vxe-column field="cardTypeLabel" title="卡券类型" width="120" align="center" />
           <vxe-column field="applicableMaintenanceType" title="适用维修类型" width="120" align="center">
             <template #default="{ row }">
