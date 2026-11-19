@@ -521,8 +521,10 @@ export default {
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
-    // LP261720 首次进入默认创建时间 = 最近一个月（与重置一致）
-    this.form.createTime = this.getLastMonthRange();
+    // LP261720 仅全部备件页签默认近一月（进入时即默认，全部订单页签保持既有行为无默认时间）
+    if (this.activeName === 'allSpareParts') {
+      this.form.createTime = this.getLastMonthRange();
+    }
     this.getData();
   },
   methods: {
@@ -624,7 +626,7 @@ export default {
       this.getData();
     },
     onReset () {
-      // 全部备件页签：默认创建时间 = 最近一个月
+      // LP261720 仅全部备件页签默认创建时间 = 最近一个月；全部订单页签保持既有行为（无默认时间）
       const extraDefaults = this.activeName === 'allSpareParts'
         ? { createTime: this.getLastMonthRange() }
         : {};
