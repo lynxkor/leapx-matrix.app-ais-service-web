@@ -364,10 +364,35 @@
                 <el-form-item label="保修是否拆分" prop="maintenanceSplitQuantityIs">
                   {{ form.maintenanceSplitQuantityIsLabel }}
                 </el-form-item>
-                <el-form-item label="是否关键件" prop="keyPartIs">
+<el-form-item label="是否关键件" prop="keyPartIs">
                   <el-radio-group
                   :disabled="!(permissions.has('AISPART-sparePart-salesImport') || permissions.has('AISPART-sparePart-purchaseImport'))"
                   v-model="form.keyPartIs">
+                    <el-radio label="1">是</el-radio>
+                    <el-radio label="0">否</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <!-- 【LP260102】新增字段：门店账号不可见、不可编辑（前端隐藏 + 后端置空并丢弃请求值，双保险） -->
+                <el-form-item label="分库是否备货" prop="subLibraryStockIs" v-if="oem">
+                  <el-radio-group
+                    :disabled="!permissions.has('AISPART-sparePart-purchaseImport')"
+                    v-model="form.subLibraryStockIs">
+                    <el-radio label="1">是</el-radio>
+                    <el-radio label="0">否</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <el-form-item label="是否EOP产品" prop="eopProductIs" v-if="oem">
+                  <el-radio-group
+                    :disabled="!permissions.has('AISPART-sparePart-purchaseImport')"
+                    v-model="form.eopProductIs">
+                    <el-radio label="1">是</el-radio>
+                    <el-radio label="0">否</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <el-form-item label="是否一次性备货" prop="oneTimeStockIs" v-if="oem">
+                  <el-radio-group
+                    :disabled="!permissions.has('AISPART-sparePart-purchaseImport')"
+                    v-model="form.oneTimeStockIs">
                     <el-radio label="1">是</el-radio>
                     <el-radio label="0">否</el-radio>
                   </el-radio-group>
@@ -534,6 +559,15 @@
                 <el-form-item label="是否关键件：">
                   {{ form.keyPartIs === '1' ? '是' : '否' }}
                 </el-form-item>
+                <el-form-item label="分库是否备货：" v-if="oem">
+                  {{ form.subLibraryStockIsLabel }}
+                </el-form-item>
+                <el-form-item label="是否EOP产品：" v-if="oem">
+                  {{ form.eopProductIsLabel }}
+                </el-form-item>
+                <el-form-item label="是否一次性备货：" v-if="oem">
+                  {{ form.oneTimeStockIsLabel }}
+                </el-form-item>
                 <el-form-item label="国内包装前长(mm)：">
                   {{ form.domesticPrePackageLengthMm }}
                 </el-form-item>
@@ -698,6 +732,9 @@ const defaultForm = {
   needRepackIs: '',
   expressAvailableIs: '',
   traceableIs: '',
+  subLibraryStockIs: '',
+  eopProductIs: '',
+  oneTimeStockIs: '',
   boTransferIs: '',
   retailIs: '',
   technicalIs: '',
