@@ -35,3 +35,12 @@ export function validateBatchStatus (selectionList, allowedStatuses, actionName)
 
 // 自定义视图仅支持查询保修申请主表的页签;值即传给后端的 tabCode(无固定条件的页签传空)
 export const CUSTOM_VIEW_TAB_CODES = { all: '', manager: 'manager', gm: 'gm' };
+
+// LP261855 套餐类型文本映射（PackageTypeEnum：10维修/20权益/30商城/40免保/50技术服务活动）
+export const PACKAGE_TYPE_TEXT = {
+  10: '维修套餐',
+  20: '权益套餐',
+  30: '商城订单',
+  40: '免保项目',
+  50: '技术服务活动'
+};

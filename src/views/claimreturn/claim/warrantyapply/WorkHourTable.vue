@@ -31,6 +31,16 @@
     <vxe-column field="workHour" title="工时数"></vxe-column>
     <vxe-column field="workHourUnitPrice" title="工时单价"></vxe-column>
     <vxe-column field="totalCostAmount" title="总金额"></vxe-column>
+    <!-- LP261855 套餐核销 5 列（与列表页签口径一致） -->
+    <vxe-column field="packageType" title="套餐类型" width="110">
+      <template #default="{ row }">
+        {{ packageTypeText(row) }}
+      </template>
+    </vxe-column>
+    <vxe-column field="packageCode" title="套餐代码" width="150"></vxe-column>
+    <vxe-column field="packageName" title="套餐名称" width="150"></vxe-column>
+    <vxe-column field="mallOrderNo" title="商城订单号" width="170"></vxe-column>
+    <vxe-column field="rightsOrderSourceLabel" title="权益订单来源" width="120"></vxe-column>
     <vxe-column field="remark" title="备注">
       <template #default="{ row, rowIndex }">
         <el-input
@@ -104,6 +114,7 @@
 <script>
 
 import { cloneDeep } from 'lodash';
+import { PACKAGE_TYPE_TEXT } from './constants';
 import { warrantyApplyWorkhourPage, warrantyApplyWorkhourDelete, warrantyApplyWorkhourUpdate } from '@/api/claimreturn/claim/warrantyapply/warrantyApplyWorkhour';
 
 export default {
@@ -152,6 +163,10 @@ export default {
   beforeDestroy () {
   },
   methods: {
+    // LP261855 套餐类型文本映射
+    packageTypeText (row) {
+      return PACKAGE_TYPE_TEXT[row.packageType] || '';
+    },
     // 表格数据
     getDetailPageApi () {
       warrantyApplyWorkhourPage({
