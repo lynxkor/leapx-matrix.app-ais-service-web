@@ -72,7 +72,9 @@ export default {
     },
     async fetchOptions (code) {
       if (code) {
-        return getEnum(code);
+        const res = await getEnum(code);
+        // 「按个人视图」(code=4)仅维修出库打印设置支持，零售打印设置过滤掉
+        return (res || []).filter(item => item.code !== '4');
       }
       return [];
     },

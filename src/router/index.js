@@ -1420,7 +1420,9 @@ const routes = [
 
       meta: {
         name: '门店备件库存',
-        keepAlive: true
+        keepAlive: true,
+        customViewBizKey: 'sparepartInventory',
+        customViewResourceTag: 'AISPART-inventory-customView'
       }
     }, {
       path: '/sparepart/warehouse/inventory/edit',

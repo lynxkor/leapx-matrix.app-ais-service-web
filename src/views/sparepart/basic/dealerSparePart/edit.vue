@@ -11,6 +11,7 @@
         :originalForm.sync="originalForm"
         :submitRequest="submitRequest"
         :detailRequest="detailRequest"
+        :dataTransform="dataTransform"
       >
         <template #status>
           <!-- 支持primary,warning,success,danger等状态 -->
@@ -73,11 +74,12 @@
                   {{ form.dealerName  }}
                 </el-form-item>
                 <el-form-item label="采购价格：" prop="purchasePrice">
-                  <el-input
+                  <el-input-number
                     placeholder="请输入"
-                    type="number"
                     v-model="form.purchasePrice"
-                    clearable
+                    :precision="2"
+                    :step="0.01"
+                    :controls="false"
                   />
                 </el-form-item>
                 <el-form-item label="销售价格：" prop="salePrice">
@@ -223,7 +225,8 @@ const defaultForm = {
   minOrderQuantity: '',
   baseUnit: '',
   supplierMinOrderQuantity: '',
-  purchasePrice: '',
+  // 数字输入框（el-input-number）不能使用空字符串作为默认值，否则会被自动转换为 0
+  purchasePrice: undefined,
   salePrice: '',
   partsEngineer: '',
   sparePartSupplierRespList: '',
@@ -328,6 +331,16 @@ export default {
       if (id) {
         return getDetail(id);
       }
+    },
+    // 详情数据转换：采购价格为空的存量数据转为 undefined，避免数字输入框把 null 当成 0 显示
+    dataTransform (data) {
+      if (!data) {
+        return data;
+      }
+      return {
+        ...data,
+        purchasePrice: data.purchasePrice === null || data.purchasePrice === undefined ? undefined : data.purchasePrice
+      };
     },
     submitRequest () {
       return addOrUpdateDealer({ ...this.form });
