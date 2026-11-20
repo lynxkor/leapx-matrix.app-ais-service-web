@@ -782,6 +782,7 @@ import {
   PENDING_REVIEW_STATUSES,
   WITHDRAWABLE_STATUSES,
 } from './constants';
+import { buildApplyListHref } from './warningQueryCache';
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
@@ -1310,9 +1311,19 @@ export default {
     },
     /**
      * 保修单列表链接: 批量带入 applyNoList 过滤
+     * <p>
+     * 单号数超过 50 时 URL 会撑爆网关请求行 (Nginx/Tomcat 默认 8KB 上限, 实测 511 个单号直接 414),
+     * 改走 warningQueryCache: 单号列表写 localStorage, URL 只带 warnKey 短 key;
+     * 小列表保持原自描述 URL. 本方法在模板里被调用 (查看更多 :href=), 每次重渲染都会执行,
+     * 内部按数组引用做 WeakMap memo, 同一列表只生成一次 key, 避免反复写 localStorage.
+     * </p>
      */
     getApplyListHref (applyNos) {
-      return `/service/claimreturn/claim/warrantyApply?applyNoList=${applyNos.map(encodeURIComponent).join(',')}`;
+      if (!this._applyListHrefCache) this._applyListHrefCache = new WeakMap();
+      if (!this._applyListHrefCache.has(applyNos)) {
+        this._applyListHrefCache.set(applyNos, buildApplyListHref('/service/claimreturn/claim/warrantyApply', applyNos));
+      }
+      return this._applyListHrefCache.get(applyNos);
     },
     /**
      * 施工单详情链接: 优先用 id, 降级到 proxyNo 跳列表页查询 (参考 BXYJ006-008 applyNos 实现)
