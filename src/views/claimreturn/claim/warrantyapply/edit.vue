@@ -129,6 +129,16 @@
                 placeholder="选择日期时间">
               </el-date-picker>
             </el-form-item>
+            <el-form-item label="保修结算时间：" prop="warrantySettleTime">
+              <el-date-picker
+                v-model="form.warrantySettleTime"
+                type="datetime"
+                format="yyyy-MM-dd HH:mm:ss"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                disabled
+                placeholder="选择日期时间">
+              </el-date-picker>
+            </el-form-item>
             <el-form-item label="索赔追溯单：" prop="claimTrackNo">
               <el-input placeholder="" v-model="form.claimTrackNo" clearable disabled />
             </el-form-item>
@@ -197,6 +207,9 @@
             </el-form-item>
             <el-form-item label="保修付款时间：" prop="paymentTime">
               {{ form.paymentTime }}
+            </el-form-item>
+            <el-form-item label="保修结算时间：" prop="warrantySettleTime">
+              {{ form.warrantySettleTime }}
             </el-form-item>
             <el-form-item label="索赔追溯单：" prop="claimTrackNo">
               <el-link type="success" :href="`/service/claimreturn/claim/claimtrace/claimTraceOrder/edit?id=${form.claimTrackId}`" target="_blank">{{ form.claimTrackNo }}</el-link>
@@ -866,6 +879,8 @@ const defaultForm = {
   errorCodeId: '',
   errorContent: '',
   paymentTime: '',
+  // LP261855 保修结算时间（只读，生成结算通知书置已结算时写入）
+  warrantySettleTime: '',
   claimTrackId: '',
   claimTrackNo: '',
   vin: '',

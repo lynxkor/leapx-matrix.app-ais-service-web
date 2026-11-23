@@ -259,6 +259,56 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
+      <!-- LP261855 保修结算时间：各页签共用（主表 wa.warranty_settle_time 区间过滤） -->
+      <el-form-item label="保修结算时间：">
+        <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+          v-model="form.warrantySettleTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
+      </template>
+      <!-- LP261855 套餐 5 查询条件：仅备件/工时/其他明细页签显示 -->
+      <template v-if="show && ['parts', 'workhours', 'other'].includes(activeTab)">
+        <el-form-item label="套餐类型：">
+          <el-select v-model="form.packageTypeList" placeholder="请选择套餐类型" clearable multiple collapse-tags>
+            <el-option label="维修套餐" :value="10" />
+            <el-option label="权益套餐" :value="20" />
+            <el-option label="商城订单" :value="30" />
+            <el-option label="免保项目" :value="40" />
+            <el-option label="技术服务活动" :value="50" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="套餐代码：">
+          <tag-input v-model="form.packageCodeList" placeholder="请输入套餐代码（单个模糊/多个精确）" />
+        </el-form-item>
+        <el-form-item label="套餐名称：">
+          <tag-input v-model="form.packageNameList" placeholder="请输入套餐名称（单个模糊/多个精确）" />
+        </el-form-item>
+        <el-form-item label="商城订单号：">
+          <tag-input v-model="form.mallOrderNoList" placeholder="请输入商城订单号（单个模糊/多个精确）" />
+        </el-form-item>
+        <el-form-item label="权益订单来源：">
+          <el-select v-model="form.rightsOrderSourceList" placeholder="请选择权益订单来源" clearable multiple collapse-tags>
+            <el-option label="未知" :value="0" />
+            <el-option label="销服" :value="1" />
+            <el-option label="零跑商城" :value="2" />
+            <el-option label="GMS" :value="3" />
+            <el-option label="零小跑" :value="4" />
+            <el-option label="吉诺" :value="5" />
+            <el-option label="BBC商城" :value="6" />
+            <el-option label="业务协同平台" :value="7" />
+            <el-option label="B端虚拟商城" :value="8" />
+            <el-option label="E10审批中心" :value="9" />
+            <el-option label="OA" :value="10" />
+          </el-select>
+        </el-form-item>
       </template>
       <!-- 备件清单专属搜索条件(仅备件清单页签展开时显示) -->
       <template v-if="show && activeTab === 'parts'">
@@ -588,6 +638,13 @@ const defaultForm = {
   // 其他清单专属查询字段
   otherCodeList: [],
   otherName: '',
+  // LP261855 套餐/商城订单/权益来源/结算时间 查询字段（跨页签共用；单值模糊/多值精确）
+  warrantySettleTime: '',
+  packageTypeList: [],
+  packageCodeList: [],
+  packageNameList: [],
+  mallOrderNoList: [],
+  rightsOrderSourceList: [],
   // 审批记录专属查询字段
   approverUserIdList: [],
   logApprovalTime: '',
@@ -853,6 +910,7 @@ export default {
           { props: 'troubleshootingFlow', label: '故障排查流程', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+          { props: 'warrantySettleTime', label: '保修结算时间', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
@@ -1138,6 +1196,12 @@ export default {
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
           { props: 'isMainPartLabel', label: '是否主因', visible: true, width: 100, align: 'center' },
           { props: 'oldPartUniqueCode', label: '旧件唯一码', visible: true, width: 180 },
+          { props: 'warrantySettleTime', label: '保修结算时间', visible: true, width: 200 },
+          { props: 'packageTypeLabel', label: '套餐类型', visible: true, width: 120 },
+          { props: 'packageCode', label: '套餐代码', visible: true, width: 180 },
+          { props: 'packageName', label: '套餐名称', visible: true, width: 200 },
+          { props: 'mallOrderNo', label: '商城订单号', visible: true, width: 200 },
+          { props: 'rightsOrderSourceLabel', label: '权益订单来源', visible: true, width: 140 },
           {
             props: 'partCode',
             label: '备件编码',
@@ -1318,6 +1382,12 @@ export default {
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
           { props: 'isMainItemLabel', label: '是否主因', visible: true, width: 120, align: 'center' },
+          { props: 'warrantySettleTime', label: '保修结算时间', visible: true, width: 200 },
+          { props: 'packageTypeLabel', label: '套餐类型', visible: true, width: 120 },
+          { props: 'packageCode', label: '套餐代码', visible: true, width: 180 },
+          { props: 'packageName', label: '套餐名称', visible: true, width: 200 },
+          { props: 'mallOrderNo', label: '商城订单号', visible: true, width: 200 },
+          { props: 'rightsOrderSourceLabel', label: '权益订单来源', visible: true, width: 140 },
           {
             props: 'repairItemCode',
             label: '工时代码',
@@ -1469,6 +1539,12 @@ export default {
           { props: 'otherCode', label: '其他代码', visible: true, width: 200 },
           { props: 'otherName', label: '其他名称', visible: true, width: 200 },
           { props: 'totalCostAmount', label: '其他明细总金额', visible: true, width: 160, align: 'right' },
+          { props: 'warrantySettleTime', label: '保修结算时间', visible: true, width: 200 },
+          { props: 'packageTypeLabel', label: '套餐类型', visible: true, width: 120 },
+          { props: 'packageCode', label: '套餐代码', visible: true, width: 180 },
+          { props: 'packageName', label: '套餐名称', visible: true, width: 200 },
+          { props: 'mallOrderNo', label: '商城订单号', visible: true, width: 200 },
+          { props: 'rightsOrderSourceLabel', label: '权益订单来源', visible: true, width: 140 },
           { props: 'remark', label: '其他明细备注', visible: true, width: 200 }
         ],
         total: this.tableTotal
@@ -1600,6 +1676,7 @@ export default {
           { props: 'vehicleYearName', label: '年款', visible: true, width: 120 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+          { props: 'warrantySettleTime', label: '保修结算时间', visible: true, width: 200 },
           { props: 'approverUserName', label: '日志审批人', visible: true, width: 160 },
           { props: 'logApprovalTime', label: '日志审批时间', visible: true, width: 200 },
           { props: 'logApprovalResultLabel', label: '日志审批结果', visible: true, width: 140 },
@@ -1925,6 +2002,7 @@ export default {
       if (!this.validateDateSpan(this.form.warrantyStartdate, '保修开始日期')) return;
       if (!this.validateDateSpan(this.form.repairStartTime, '维修开始日期')) return;
       if (!this.validateDateSpan(this.form.updateTime, '订单修改时间')) return;
+      if (!this.validateDateSpan(this.form.warrantySettleTime, '保修结算时间')) return;
       if (!this.validateDateSpan(this.form.logApprovalTime, '日志审批时间')) return;
 
       sessionStorage.setItem(SEARCH_PARAMS_KEY, JSON.stringify(this.getFormData()));
@@ -2077,6 +2155,16 @@ export default {
           data.updateTimeEnd = this.form.updateTime[1];
         }
       }
+      // LP261855 保修结算时间区间拆分
+      if (this.form.warrantySettleTime) {
+        delete data.warrantySettleTime;
+        if (this.form.warrantySettleTime.length > 1) {
+          data.warrantySettleTimeStart = this.form.warrantySettleTime[0];
+          data.warrantySettleTimeEnd = this.form.warrantySettleTime[1];
+        }
+      }
+
+      // LP261855 套餐名称改为 packageNameList（单值模糊/多值精确），后端直接消费，无需映射
 
       // 备件清单专属字段映射
       if (this.form.partName) {
@@ -2122,6 +2210,12 @@ export default {
       // 其他清单/审批记录专用：门店名称（精确多选）
       // partsPage/workhourPage 使用 dealerNameLike（模糊），与 dealerNameList 共存
       // 此处直接传递 dealerNameList，不做转换
+
+      // LP261855 套餐 5 字段仅明细页签(parts/workhours/other)传递，主表/审批页签不传
+      const packageOnlyKeys = ['packageTypeList', 'packageCodeList', 'packageNameList', 'mallOrderNoList', 'rightsOrderSourceList'];
+      if (!['parts', 'workhours', 'other'].includes(this.activeTab)) {
+        packageOnlyKeys.forEach(key => delete data[key]);
+      }
 
       // 按页签过滤专属参数，防止跨页签参数泄漏导致 SQL 报错
       const partsOnlyKeys = [

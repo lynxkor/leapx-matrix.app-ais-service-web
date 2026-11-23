@@ -78,6 +78,16 @@
       <vxe-column field="partUnitPrice" title="零件单价" width="120"></vxe-column>
       <vxe-column field="managementRate" title="管理费率%" width="120"></vxe-column>
       <vxe-column field="totalCostAmount" title="总金额" width="120"></vxe-column>
+      <!-- LP261855 套餐核销 5 列（与列表页签口径一致） -->
+      <vxe-column field="packageType" title="套餐类型" width="110">
+        <template #default="{ row }">
+          {{ packageTypeText(row) }}
+        </template>
+      </vxe-column>
+      <vxe-column field="packageCode" title="套餐代码" width="150"></vxe-column>
+      <vxe-column field="packageName" title="套餐名称" width="150"></vxe-column>
+      <vxe-column field="mallOrderNo" title="商城订单号" width="170"></vxe-column>
+      <vxe-column field="rightsOrderSourceLabel" title="权益订单来源" width="120"></vxe-column>
       <vxe-column field="remark" title="备注" min-width="150">
         <template #default="{ row, rowIndex }">
           <el-input
@@ -150,6 +160,7 @@
 
 <script>
 import { cloneDeep } from 'lodash';
+import { PACKAGE_TYPE_TEXT } from './constants';
 import { warrantyApplyPartPage, warrantyApplyPartDelete, warrantyApplyPartUpdate } from '@/api/claimreturn/claim/warrantyapply/warrantyApplyPart';
 import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
 import FetchSelect from '@/libs/components/FetchSelect';
@@ -205,6 +216,10 @@ export default {
   },
   beforeDestroy () {},
   methods: {
+    // LP261855 套餐类型文本映射
+    packageTypeText (row) {
+      return PACKAGE_TYPE_TEXT[row.packageType] || '';
+    },
     // 表格数据
     getDetailPageApi () {
       warrantyApplyPartPage({
