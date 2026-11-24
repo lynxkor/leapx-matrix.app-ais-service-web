@@ -27,6 +27,34 @@
             filterable
             />
       </el-form-item>
+      <el-form-item label="门店名称" v-show="this.visibleCount === 3 || show">
+        <fetch-select
+            :remote-method="getDealerList"
+            remote
+            v-model="form.dealerNameList"
+            placeholder="请选择"
+            labelKey="orgName"
+            valueKey="orgName"
+            subLabelKey="orgCode"
+            clearable
+            multiple
+            collapseTags
+            filterable
+            />
+      </el-form-item>
+      <!-- ===== LP261720 明细级条件 ===== -->
+      <el-form-item label="备件编码" v-show="this.visibleCount === 3 || show">
+        <tag-input v-model="form.sparePartCodeList" placeholder="请输入" />
+      </el-form-item>
+      <el-form-item label="备件名称" v-show="this.visibleCount === 3 || show">
+        <el-input placeholder="请输入" v-model="form.sparePartName" clearable />
+      </el-form-item>
+      <el-form-item label="wms备注" v-show="this.visibleCount === 3 || show">
+        <el-input placeholder="请输入" v-model="form.wmsRemark" clearable />
+      </el-form-item>
+      <el-form-item label="明细备注" v-show="this.visibleCount === 3 || show">
+        <el-input placeholder="请输入" v-model="form.detailRemark" clearable />
+      </el-form-item>
       <el-form-item label="备件仓库"  v-show="this.visibleCount === 3 || show">
         <fetch-select
           :remote-method="getWarehouse"
@@ -155,7 +183,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
-import { getList, deleteItem, enableItem, returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderReject, returnExceptionInbound } from '@/api/sparepart/return/returnOrder/index';
+import { deleteItem, enableItem, returnOrderCancel, returnOrderAgree, returnOrderRevoke, returnOrderReject, returnExceptionInbound, pageExceptionDetailView } from '@/api/sparepart/return/returnOrder/index';
 import { getTableConfig, tableAddOrUpdate, exportTable, getEnum, listOrgStoreInfoByParam, listWarehouse } from '@/api/common';
 import FetchSelect from '@/libs/components/FetchSelect';
 import Upload from '@/libs/components/UploadDialog';
@@ -168,16 +196,20 @@ import TagInput from '@/libs/components/TagInput';
 import EditPage from './edit.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  code: '',
-  dealerCode: '',
-  warehouseId: '',
-  returnReason: '',
-  returnStatus: '',
+  codeList: [],
+  dealerCodeList: null,
+  dealerNameList: null,
+  warehouseIdList: null,
+  warehousingStatusList: null,
   deliveryTime: '',
-  remark: '',
+  returnCompleteTime: '',
   createTime: '',
   updateTime: '',
-  warehousingStatusList: [],
+  // ===== LP261720 明细级条件 =====
+  sparePartCodeList: [],
+  sparePartName: '',
+  wmsRemark: '',
+  detailRemark: '',
 };
 
 const pageSize = 20;
@@ -223,7 +255,7 @@ export default {
         dataProp: [
           {
             props: 'code',
-            label: '备件退货单号',
+            label: '退货单号',
             visible: true,
             width: 200,
             fixed: 'left',
@@ -232,7 +264,7 @@ export default {
                 this.$router.push({
                   path: '/sparepart/return/returnExceptionalOrder/edit',
                   query: {
-                    id: row.id
+                    id: row.returnOrderId || row.id
                   }
                 });
               },
@@ -256,8 +288,14 @@ export default {
           { props: 'warehousingStatusLabel', label: '入库状态', visible: true, width: 120 },
           { props: 'deliveryTime', label: '发货时间', visible: true, width: 200 },
           { props: 'returnCompleteTime', label: '退货完成时间', visible: true, width: 200 },
-          { props: 'createTime', label: '创建时间', visible: true, width: 200 },
-          { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
+          { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
+          { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+          { props: 'sparePartCode', label: '备件编码', visible: true, width: 180, buttons: [{ click: (rowIndex, row) => { this.$router.push({ path: '/sparepart/basic/sparePart/edit', query: { id: row.sparePartId } }); }, type: 'primary' }] },
+          { props: 'sparePartName', label: '备件名称', visible: true, width: 200 },
+          { props: 'backQty', label: '缺货数量', visible: true, width: 120, align: 'right' },
+          { props: 'unqualifiedQty', label: '不合格数量', visible: true, width: 120, align: 'right' },
+          { props: 'wmsRemark', label: 'wms备注', visible: true, width: 200 },
+          { props: 'detailRemark', label: '明细备注', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
@@ -285,14 +323,14 @@ export default {
     this.getData();
   },
   methods: {
-    // 提交
+    // 提交（明细行上操作，入库按退货单维度）
     async handleSubmit (val) {
       this.$confirm('确认入库吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(async () => {
-        await returnExceptionInbound({ id: val.id });
+        await returnExceptionInbound({ id: val.returnOrderId || val.id });
         this.$message.success('入库成功!');
         this.getData();
       }).catch(() => {});
@@ -346,8 +384,8 @@ export default {
         reqParams.ids = ids;
       };
       exportTable({
-        businessType: '备件退货单',
-        dataFetchPath: 'sp/web/purchase/returnOrder/page',
+        businessType: '备件退货异常订单',
+        dataFetchPath: 'sp/web/purchase/returnOrder/pageExceptionDetailView',
         reqParams,
         titleMap: Object.fromEntries(this.$refs.tableRef.getVisibleCols()),
         httpMethod: 'POST'
@@ -375,9 +413,9 @@ export default {
       this.loading = true;
       this.selectionList = [];
 
-      getList({ ...this.getFormData(), exceptionDetail: true, pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
+      // LP261720 切换到退货异常订单明细视图接口（固定条件：入库状态≠无需入库）
+      pageExceptionDetailView({ ...this.getFormData(), pageNum: this.optionObj.form.page, pageSize: this.optionObj.form.size })
         .then(res => {
-          console.log(res);
           this.optionObj.dataList = res.records.map(item => {
             return {
               ...item,

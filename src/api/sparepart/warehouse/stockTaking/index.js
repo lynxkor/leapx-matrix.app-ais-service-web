@@ -13,6 +13,14 @@ export function getList (data) {
 };
 
 /**
+ * LP261720 全部备件明细视图分页查询（明细关联盘点单/备件主数据）
+ * @param {Object} data
+ */
+export function pageDetailView (data) {
+  return api.jsonPost(prefix + 'pageDetailView', data);
+};
+
+/**
  * 新增或修改
  * @param {Object} data
  */

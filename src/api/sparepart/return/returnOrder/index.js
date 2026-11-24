@@ -13,6 +13,14 @@ export function getList (data) {
 };
 
 /**
+ * LP261720 备件退货异常订单视图分页查询（明细维度，固定条件：入库状态≠无需入库）
+ * @param {Object} data
+ */
+export function pageExceptionDetailView (data) {
+  return api.jsonPost(prefix + 'pageExceptionDetailView', data);
+};
+
+/**
  * 新增或修改
  * @param {Object} data
  */
