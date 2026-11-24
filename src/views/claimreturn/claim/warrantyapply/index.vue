@@ -43,6 +43,29 @@
           filterable
         />
       </el-form-item>
+      <!-- 保修预警信息（多选，BXYJ001-BXYJ010 预警规则编码；与后端 wa.warranty_warning_msg 过滤配套） -->
+      <el-form-item label="保修预警信息：">
+        <el-select
+          v-model="form.warningCodeList"
+          placeholder="请选择保修预警信息"
+          clearable
+          multiple
+          filterable
+          collapse-tags
+          style="width: 100%"
+        >
+          <el-option label="重复维修预警" value="BXYJ001" />
+          <el-option label="车主信息不一致预警" value="BXYJ002" />
+          <el-option label="系统车辆用途预警" value="BXYJ003" />
+          <el-option label="行驶证车辆用途预警" value="BXYJ004" />
+          <el-option label="车牌号预警" value="BXYJ005" />
+          <el-option label="不同车重复附件预警" value="BXYJ006" />
+          <el-option label="不同周期重复附件预警" value="BXYJ007" />
+          <el-option label="不同店重复附件预警" value="BXYJ008" />
+          <el-option label="事故维修预警" value="BXYJ009" />
+          <el-option label="过度更换零件预警" value="BXYJ010" />
+        </el-select>
+      </el-form-item>
       <el-form-item label="施工单号：">
         <tag-input v-model="form.serviceProxyNoList" placeholder="请输入施工单号" />
       </el-form-item>
@@ -236,6 +259,56 @@
           end-placeholder="结束日期"
         />
       </el-form-item>
+      <!-- LP261855 保修结算时间：各页签共用（主表 wa.warranty_settle_time 区间过滤） -->
+      <el-form-item label="保修结算时间：">
+        <el-date-picker
+          :default-time="['00:00:00', '23:59:59']"
+          v-model="form.warrantySettleTime"
+          type="daterange"
+          unlink-panels
+          :picker-options="pickerOptions"
+          range-separator="至"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
+      </template>
+      <!-- LP261855 套餐 5 查询条件：仅备件/工时/其他明细页签显示 -->
+      <template v-if="show && ['parts', 'workhours', 'other'].includes(activeTab)">
+        <el-form-item label="套餐类型：">
+          <el-select v-model="form.packageTypeList" placeholder="请选择套餐类型" clearable multiple collapse-tags>
+            <el-option label="维修套餐" :value="10" />
+            <el-option label="权益套餐" :value="20" />
+            <el-option label="商城订单" :value="30" />
+            <el-option label="免保项目" :value="40" />
+            <el-option label="技术服务活动" :value="50" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="套餐代码：">
+          <tag-input v-model="form.packageCodeList" placeholder="请输入套餐代码（单个模糊/多个精确）" />
+        </el-form-item>
+        <el-form-item label="套餐名称：">
+          <tag-input v-model="form.packageNameList" placeholder="请输入套餐名称（单个模糊/多个精确）" />
+        </el-form-item>
+        <el-form-item label="商城订单号：">
+          <tag-input v-model="form.mallOrderNoList" placeholder="请输入商城订单号（单个模糊/多个精确）" />
+        </el-form-item>
+        <el-form-item label="权益订单来源：">
+          <el-select v-model="form.rightsOrderSourceList" placeholder="请选择权益订单来源" clearable multiple collapse-tags>
+            <el-option label="未知" :value="0" />
+            <el-option label="销服" :value="1" />
+            <el-option label="零跑商城" :value="2" />
+            <el-option label="GMS" :value="3" />
+            <el-option label="零小跑" :value="4" />
+            <el-option label="吉诺" :value="5" />
+            <el-option label="BBC商城" :value="6" />
+            <el-option label="业务协同平台" :value="7" />
+            <el-option label="B端虚拟商城" :value="8" />
+            <el-option label="E10审批中心" :value="9" />
+            <el-option label="OA" :value="10" />
+          </el-select>
+        </el-form-item>
       </template>
       <!-- 备件清单专属搜索条件(仅备件清单页签展开时显示) -->
       <template v-if="show && activeTab === 'parts'">
@@ -376,6 +449,7 @@
     </el-form>
     <div class="ais-actions">
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
+      <el-button v-if="noReturnRuleView" size="small" @click="handleNoReturnRuleClick">不返件规则配置</el-button>
       <template v-if="activeTab !== 'parts' && activeTab !== 'workhours' && activeTab !== 'other' && activeTab !== 'approval'">
         <el-button v-if="withdraw" size="small" @click="handleWithdraw">批量撤回</el-button>
         <el-button v-if="reject" size="small" @click="handleReject">批量驳回</el-button>
@@ -388,10 +462,11 @@
       <el-tab-pane label="全部订单" name="all" />
       <el-tab-pane label="保修经理订单" name="manager" />
       <el-tab-pane label="总经理订单" name="gm" />
-      <el-tab-pane label="备件清单" name="parts" />
-      <el-tab-pane label="工时清单" name="workhours" />
-      <el-tab-pane label="其他清单" name="other" />
-      <el-tab-pane label="审批记录" name="approval" />
+      <!-- 后四个页签查的是明细表,选中自定义视图后不可用 -->
+      <el-tab-pane label="备件清单" name="parts" :disabled="!!activePresetId" />
+      <el-tab-pane label="工时清单" name="workhours" :disabled="!!activePresetId" />
+      <el-tab-pane label="其他清单" name="other" :disabled="!!activePresetId" />
+      <el-tab-pane label="审批记录" name="approval" :disabled="!!activePresetId" />
     </el-tabs>
     <div
       class="ais-table-c"
@@ -447,6 +522,7 @@
       :vehicleProfileId="vehicleProfileId"
       :id="rowId"
     />
+    <NoReturnRuleDialog :visible.sync="noReturnRuleDialogVisible" />
   </div>
 </template>
 
@@ -454,6 +530,7 @@
 import debounce from 'lodash.debounce';
 import LPVxeTable from '@leapmotor/design/packages/table/index.vue';
 import PageSearchAction from '@/libs/components/AisPageSearchAction';
+import NoReturnRuleDialog from './NoReturnRuleDialog.vue';
 import {
   getList,
   getPartList,
@@ -470,6 +547,7 @@ import {
   PENDING_REVIEW_STATUSES,
   WITHDRAWABLE_STATUSES,
   validateBatchStatus,
+  CUSTOM_VIEW_TAB_CODES,
 } from './constants';
 import {
   getTableConfig, tableAddOrUpdate, getEnum,
@@ -506,10 +584,17 @@ function getDefaultCreateTime () {
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   applyNo: '',
+  // ⚠️ 多选字段必须显式声明 (空数组), 否则 Vue 2 响应式不会观测到后续赋值
+  applyNoList: [],
   vin: '',
+  vinList: [],
   alarmLevel: '',
+  // 保修预警信息多选（BXYJ001-BXYJ010 预警规则编码；与后端 warningCodeList 配套）
+  warningCodeList: [],
   serviceProxyNo: '',
+  serviceProxyNoList: [],
   statementCode: '',
+  statementCodeList: [],
   applyStatus: '',
   repairItemTypeName: '',
   dealerCode: '',
@@ -553,6 +638,13 @@ const defaultForm = {
   // 其他清单专属查询字段
   otherCodeList: [],
   otherName: '',
+  // LP261855 套餐/商城订单/权益来源/结算时间 查询字段（跨页签共用；单值模糊/多值精确）
+  warrantySettleTime: '',
+  packageTypeList: [],
+  packageCodeList: [],
+  packageNameList: [],
+  mallOrderNoList: [],
+  rightsOrderSourceList: [],
   // 审批记录专属查询字段
   approverUserIdList: [],
   logApprovalTime: '',
@@ -586,6 +678,7 @@ export default {
     ApproveDialog,
     CancelDialog,
     WithdrawDialog,
+    NoReturnRuleDialog,
   },
   data () {
     return {
@@ -643,13 +736,27 @@ export default {
       submit: false,
       edit: false,
       detail: false,
+      // 不返件规则配置权限（对应后端 web:warrantyapply:warrantyNoReturnRule:*）
+      // 拆分为三个 boolean：view 控制入口按钮可见，edit/delete 控制弹窗内操作
+      noReturnRuleView: false,
+      noReturnRuleEdit: false,
+      noReturnRuleDelete: false,
       //
       rightsDialogVisible: false,
       vehicleProfileId: '',
       rowId: '',
+      noReturnRuleDialogVisible: false,
     };
   },
   computed: {
+    // 当前页签允许使用自定义视图(仅查询主表的三个页签)
+    customViewAllowed () {
+      return Object.prototype.hasOwnProperty.call(CUSTOM_VIEW_TAB_CODES, this.activeTab);
+    },
+    // 当前页签传给后端的标识;空串表示无页签固定条件
+    customViewTabCode () {
+      return CUSTOM_VIEW_TAB_CODES[this.activeTab] || '';
+    },
     optionObj () {
       if (this.activeTab === 'parts') return this.optionObjParts;
       if (this.activeTab === 'workhours') return this.optionObjWorkhours;
@@ -669,6 +776,13 @@ export default {
             visible: true,
             width: 200,
             // buttons: [{ type: 'primary' }],
+          },
+          {
+            props: 'warrantyWarningMsg',
+            label: '保修预警信息',
+            visible: true,
+            width: 220,
+            showOverflowTooltip: true
           },
           {
             props: 'applyNo',
@@ -796,6 +910,7 @@ export default {
           { props: 'troubleshootingFlow', label: '故障排查流程', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+          { props: 'warrantySettleTime', label: '保修结算时间', visible: true, width: 200 },
           {
             props: 'operate',
             label: '操作',
@@ -960,6 +1075,7 @@ export default {
         form: this.tableForm,
         dataProp: [
           { props: 'alarmLevelLabel', label: '三包预警', visible: true, width: 120 },
+          { props: 'warrantyWarningMsg', label: '保修预警信息', visible: true, width: 220, showOverflowTooltip: true },
           {
             props: 'applyNo',
             label: '保修申请单',
@@ -1080,6 +1196,12 @@ export default {
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
           { props: 'isMainPartLabel', label: '是否主因', visible: true, width: 100, align: 'center' },
           { props: 'oldPartUniqueCode', label: '旧件唯一码', visible: true, width: 180 },
+          { props: 'warrantySettleTime', label: '保修结算时间', visible: true, width: 200 },
+          { props: 'packageTypeLabel', label: '套餐类型', visible: true, width: 120 },
+          { props: 'packageCode', label: '套餐代码', visible: true, width: 180 },
+          { props: 'packageName', label: '套餐名称', visible: true, width: 200 },
+          { props: 'mallOrderNo', label: '商城订单号', visible: true, width: 200 },
+          { props: 'rightsOrderSourceLabel', label: '权益订单来源', visible: true, width: 140 },
           {
             props: 'partCode',
             label: '备件编码',
@@ -1140,6 +1262,7 @@ export default {
         form: this.tableForm,
         dataProp: [
           { props: 'alarmLevelLabel', label: '三包预警', visible: true, width: 120 },
+          { props: 'warrantyWarningMsg', label: '保修预警信息', visible: true, width: 220, showOverflowTooltip: true },
           {
             props: 'applyNo',
             label: '保修申请单',
@@ -1259,6 +1382,12 @@ export default {
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
           { props: 'isMainItemLabel', label: '是否主因', visible: true, width: 120, align: 'center' },
+          { props: 'warrantySettleTime', label: '保修结算时间', visible: true, width: 200 },
+          { props: 'packageTypeLabel', label: '套餐类型', visible: true, width: 120 },
+          { props: 'packageCode', label: '套餐代码', visible: true, width: 180 },
+          { props: 'packageName', label: '套餐名称', visible: true, width: 200 },
+          { props: 'mallOrderNo', label: '商城订单号', visible: true, width: 200 },
+          { props: 'rightsOrderSourceLabel', label: '权益订单来源', visible: true, width: 140 },
           {
             props: 'repairItemCode',
             label: '工时代码',
@@ -1288,6 +1417,7 @@ export default {
         form: this.tableForm,
         dataProp: [
           { props: 'alarmLevelLabel', label: '三包预警', visible: true, width: 120 },
+          { props: 'warrantyWarningMsg', label: '保修预警信息', visible: true, width: 220, showOverflowTooltip: true },
           {
             props: 'applyNo',
             label: '保修申请单',
@@ -1409,6 +1539,12 @@ export default {
           { props: 'otherCode', label: '其他代码', visible: true, width: 200 },
           { props: 'otherName', label: '其他名称', visible: true, width: 200 },
           { props: 'totalCostAmount', label: '其他明细总金额', visible: true, width: 160, align: 'right' },
+          { props: 'warrantySettleTime', label: '保修结算时间', visible: true, width: 200 },
+          { props: 'packageTypeLabel', label: '套餐类型', visible: true, width: 120 },
+          { props: 'packageCode', label: '套餐代码', visible: true, width: 180 },
+          { props: 'packageName', label: '套餐名称', visible: true, width: 200 },
+          { props: 'mallOrderNo', label: '商城订单号', visible: true, width: 200 },
+          { props: 'rightsOrderSourceLabel', label: '权益订单来源', visible: true, width: 140 },
           { props: 'remark', label: '其他明细备注', visible: true, width: 200 }
         ],
         total: this.tableTotal
@@ -1421,6 +1557,7 @@ export default {
         form: this.tableForm,
         dataProp: [
           { props: 'alarmLevelLabel', label: '三包预警', visible: true, width: 120 },
+          { props: 'warrantyWarningMsg', label: '保修预警信息', visible: true, width: 220, showOverflowTooltip: true },
           {
             props: 'applyNo',
             label: '保修申请单',
@@ -1539,6 +1676,7 @@ export default {
           { props: 'vehicleYearName', label: '年款', visible: true, width: 120 },
           { props: 'createTime', label: '订单创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '订单修改时间', visible: true, width: 200 },
+          { props: 'warrantySettleTime', label: '保修结算时间', visible: true, width: 200 },
           { props: 'approverUserName', label: '日志审批人', visible: true, width: 160 },
           { props: 'logApprovalTime', label: '日志审批时间', visible: true, width: 200 },
           { props: 'logApprovalResultLabel', label: '日志审批结果', visible: true, width: 140 },
@@ -1550,8 +1688,16 @@ export default {
       };
     },
   },
+  watch: {
+    activePresetId (val) {
+      // 选中视图后仅前三个页签可用;停留在明细页签时自动回到第一个页签
+      if (val && !this.customViewAllowed) this.activeTab = 'all';
+    },
+  },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
+    // 保修预警提醒弹窗跳转: 从 URL query 读取 applyNoList, 清空其他查询条件
+    this.applyWarningSearchParams();
     this.getData();
     this.cancel = this.permissions.has(`${this.moduleKey}-cancel`);
     this.applyReject = this.permissions.has(`${this.moduleKey}-applyReject`);
@@ -1562,8 +1708,63 @@ export default {
     this.submit = this.permissions.has(`${this.moduleKey}-submit`);
     this.edit = this.permissions.has(`${this.moduleKey}-addOrUpdate`);
     this.detail = this.permissions.has(`${this.moduleKey}-detail`);
+    // 不返件规则配置权限：按操作类型拆分
+    //   view   = 有任一查看类权限即可打开弹窗（page 或 get）
+    //   edit   = 有 addOrUpdate 权限才能新增/修改（控制 + tab + 确认按钮）
+    //   delete = 有 delete 权限才能删除（控制 tab × 关闭按钮）
+    // 后端 @ResourcePermission AOP 是否真拦截未经验证，因此前端必须按权限细分
+    this.noReturnRuleView = ['page', 'get'].some(
+      suffix => this.permissions.has(`${this.moduleKey}-noReturnRule-${suffix}`)
+    );
+    this.noReturnRuleEdit = this.permissions.has(`${this.moduleKey}-noReturnRule-addOrUpdate`);
+    this.noReturnRuleDelete = this.permissions.has(`${this.moduleKey}-noReturnRule-delete`);
   },
   methods: {
+    /**
+     * 保修预警提醒弹窗跳转: 从 URL query 读取 applyNoList/serviceProxyNoList/partCodeList,
+     * 清空其他查询条件, 重置分页
+     * <p>
+     * 由 edit.vue 跳来时携带 ?applyNoList=X1,X2,X3...&serviceProxyNoList=...&partCodeList=...
+     * 整体重置 form 为 defaultForm (避免 $options.data() 在 created 钩子时机的不确定性),
+     * 然后覆盖跳转携带的多选字段. Vue 2 响应式正确跟踪的前提是 defaultForm 中字段已显式声明.
+     * </p>
+     */
+    applyWarningSearchParams () {
+      const query = (this.$route && this.$route.query) || {};
+      // 1. 拆解 query 参数 (每个 *_List 都是逗号分隔或数组)
+      const parseListParam = (raw) => {
+        if (!raw) return null;
+        const arr = (typeof raw === 'string' ? raw.split(',') : raw)
+          .filter(x => x !== null && x !== undefined && String(x).trim() !== '');
+        return arr.length > 0 ? arr : null;
+      };
+      const applyNoList = parseListParam(query.applyNoList);
+      const serviceProxyNoList = parseListParam(query.serviceProxyNoList);
+      const partCodeList = parseListParam(query.partCodeList);
+      // 三个都没带 → 不是预警跳转, 不动 form
+      if (!applyNoList && !serviceProxyNoList && !partCodeList) return;
+      // 2. 整体重置 form 为 defaultForm (强制清空所有查询条件), 再覆盖多选字段
+      const tagParams = {};
+      if (applyNoList) tagParams.applyNoList = applyNoList;
+      if (serviceProxyNoList) tagParams.serviceProxyNoList = serviceProxyNoList;
+      if (partCodeList) tagParams.partCodeList = partCodeList;
+      this.form = { ...defaultForm, createTime: null, ...tagParams };
+      // TagInput 只用初始 value 渲染一次是不够的: 组件内部 tagList 只在 value 变化时才同步,
+      // created 中同步赋值发生在子组件首次渲染前, 回显会丢失. 挂载后再赋一次新数组引用,
+      // 触发 TagInput 的 value watcher, 让查询条件正常回显.
+      this.$nextTick(() => {
+        const remount = {};
+        Object.keys(tagParams).forEach(key => {
+          remount[key] = tagParams[key].slice();
+        });
+        this.form = { ...this.form, ...remount };
+      });
+      // 3. 重置分页, 避免老分页状态干扰
+      if (this.tableForm) {
+        this.tableForm.page = 1;
+        this.tableForm.size = pageSize;
+      }
+    },
     isRowPendingCurrentUserReview (row) {
       if (!row.isInApproval) return false;
       const list = row.currentApproverIdList?.map(id => Number(id));
@@ -1629,6 +1830,11 @@ export default {
           this.$message.warning('未查询到打印数据');
         }
       });
+    },
+    handleNoReturnRuleClick () {
+      console.log('[index.vue] handleNoReturnRuleClick, before:', this.noReturnRuleDialogVisible);
+      this.noReturnRuleDialogVisible = true;
+      console.log('[index.vue] handleNoReturnRuleClick, after:', this.noReturnRuleDialogVisible);
     },
     // 排序
     handleSortChange (value) {
@@ -1796,6 +2002,7 @@ export default {
       if (!this.validateDateSpan(this.form.warrantyStartdate, '保修开始日期')) return;
       if (!this.validateDateSpan(this.form.repairStartTime, '维修开始日期')) return;
       if (!this.validateDateSpan(this.form.updateTime, '订单修改时间')) return;
+      if (!this.validateDateSpan(this.form.warrantySettleTime, '保修结算时间')) return;
       if (!this.validateDateSpan(this.form.logApprovalTime, '日志审批时间')) return;
 
       sessionStorage.setItem(SEARCH_PARAMS_KEY, JSON.stringify(this.getFormData()));
@@ -1853,6 +2060,10 @@ export default {
       this.getData();
     }, 300),
     // ---- customViewMixin 字段适配(本页用 tableForm/tableDataList/tableTotal,非默认 optionObj 命名) ----
+    /** 视图查询附带页签标识,后端据此叠加页签固定条件 */
+    customViewQueryParams () {
+      return { tabCode: this.customViewTabCode };
+    },
     /** 分页对象引用(读写同一份,保持单一来源) */
     _cvPager () {
       return this.tableForm;
@@ -1944,6 +2155,16 @@ export default {
           data.updateTimeEnd = this.form.updateTime[1];
         }
       }
+      // LP261855 保修结算时间区间拆分
+      if (this.form.warrantySettleTime) {
+        delete data.warrantySettleTime;
+        if (this.form.warrantySettleTime.length > 1) {
+          data.warrantySettleTimeStart = this.form.warrantySettleTime[0];
+          data.warrantySettleTimeEnd = this.form.warrantySettleTime[1];
+        }
+      }
+
+      // LP261855 套餐名称改为 packageNameList（单值模糊/多值精确），后端直接消费，无需映射
 
       // 备件清单专属字段映射
       if (this.form.partName) {
@@ -1990,6 +2211,12 @@ export default {
       // partsPage/workhourPage 使用 dealerNameLike（模糊），与 dealerNameList 共存
       // 此处直接传递 dealerNameList，不做转换
 
+      // LP261855 套餐 5 字段仅明细页签(parts/workhours/other)传递，主表/审批页签不传
+      const packageOnlyKeys = ['packageTypeList', 'packageCodeList', 'packageNameList', 'mallOrderNoList', 'rightsOrderSourceList'];
+      if (!['parts', 'workhours', 'other'].includes(this.activeTab)) {
+        packageOnlyKeys.forEach(key => delete data[key]);
+      }
+
       // 按页签过滤专属参数，防止跨页签参数泄漏导致 SQL 报错
       const partsOnlyKeys = [
         'isMainPartList', 'oldPartUniqueCode', 'partCodeList', 'partNameLike',
@@ -2034,6 +2261,10 @@ export default {
       } else if (this.activeTab === 'gm') {
         data.isGeneralManagerApproval = 1;
       }
+
+      // 页签标识:随查询条件一起缓存到 sessionStorage,供 edit.vue 的「下一条」复用。
+      // 视图查询路径由 mixin 另行携带,这里存的是普通列表路径的同一份标识。
+      data.tabCode = this.customViewTabCode;
 
       return data;
     },

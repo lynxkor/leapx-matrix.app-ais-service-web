@@ -23,6 +23,21 @@
         <tag-input v-model="form.codeList" placeholder="请输入" />
       </el-form-item>
       <template v-if="show">
+        <el-form-item label="销售物料分类">
+          <fetch-select
+            :remote-method="getSalesCategoryList"
+            remote
+            reserve-keyword
+            v-model="form.categorySpareSalesIdList"
+            value-key="id"
+            label-key="name"
+            placeholder="请输入分类名称"
+            clearable
+            multiple
+            collapse-tags
+            filterable
+          />
+        </el-form-item>
         <el-form-item label="库位">
           <tag-input v-model="form.locationNameList" placeholder="请输入" />
         </el-form-item>
@@ -39,6 +54,36 @@
             multiple
             collapseTags
             filterable
+          />
+        </el-form-item>
+        <!-- 门店维度条件：值来自门店主数据（省/市/大区/经营状态(服务)），
+             后端翻译成门店编码集合后对 dealer_code 做 IN 过滤；维度间 AND、维度内 OR -->
+        <el-form-item label="省">
+          <relation-value-select
+            v-model="form.provinceCodeList"
+            column="province"
+            placeholder="请选择省"
+          />
+        </el-form-item>
+        <el-form-item label="市">
+          <relation-value-select
+            v-model="form.cityCodeList"
+            column="city"
+            placeholder="请选择市"
+          />
+        </el-form-item>
+        <el-form-item label="大区">
+          <relation-value-select
+            v-model="form.regionCodeList"
+            column="region"
+            placeholder="请选择大区"
+          />
+        </el-form-item>
+        <el-form-item label="经营状态(服务)">
+          <relation-value-select
+            v-model="form.serviceStatusList"
+            column="serviceStatusName"
+            placeholder="请选择经营状态(服务)"
           />
         </el-form-item>
         <el-form-item label="是否常备件" v-show="visibleCount === 3 || show">
@@ -203,6 +248,10 @@ import TagInput from '@/libs/components/TagInput';
 import TransferDialog from './TransferDialog.vue';
 import LaunchDialog from './LaunchDialog.vue';
 import ShelvesDialog from './ShelvesDialog.vue';
+import customViewMixin from '@/libs/mixins/customView';
+// 只读复用 libs 里个人视图做过的门店维度候选值组件（省/市/大区/经营状态(服务)）
+import RelationValueSelect from '@/libs/components/CustomView/RelationValueSelect';
+import { getSalesList } from '@/api/sparepart/basic/spareSalesCategory';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
@@ -215,6 +264,13 @@ const defaultForm = {
   latestOutboundTime: '',
   createTime: '',
   updateTime: '',
+  // 新增条件：全部初始化为数组，getFormData 里有 data[key].length 判断，
+  // 留 undefined 会在清空/重置后抛 "Cannot read property 'length' of undefined"
+  categorySpareSalesIdList: [],
+  provinceCodeList: [],
+  cityCodeList: [],
+  regionCodeList: [],
+  serviceStatusList: [],
 };
 
 const pageSize = 20;
@@ -223,7 +279,7 @@ const mockConfig = {
 };
 
 export default {
-  mixins: [responsiveSearchForm, permissions, commonMixins],
+  mixins: [responsiveSearchForm, permissions, commonMixins, customViewMixin],
   components: {
     PageSearchAction,
     LPVxeTable,
@@ -233,7 +289,8 @@ export default {
     TagInput,
     TransferDialog,
     LaunchDialog,
-    ShelvesDialog
+    ShelvesDialog,
+    RelationValueSelect
   },
   data () {
     return {
@@ -302,6 +359,7 @@ export default {
             }]
           },
           { props: 'partName', label: '备件名称', visible: true, width: 200 },
+          { props: 'categorySpareSalesName', label: '销售物料分类', visible: true, width: 180 },
           { props: 'salePrice', label: '销售价格', visible: true, align: 'right', width: 120 },
           { props: 'warehouseName', label: '仓库名称', visible: true, width: 200 },
           { props: 'warehouseStatusLabel', label: '仓库状态', visible: true, width: 120 },
@@ -319,11 +377,16 @@ export default {
             }]
           },
           { props: 'dealerName', label: '门店名称', visible: true, width: 180 },
+          { props: 'provinceName', label: '省', visible: true, width: 120 },
+          { props: 'cityName', label: '市', visible: true, width: 120 },
+          { props: 'regionName', label: '大区', visible: true, width: 140 },
+          { props: 'serviceStatusName', label: '经营状态(服务)', visible: true, width: 160 },
           { props: 'inTransitQty', label: '在途数量', visible: true, align: 'right', width: 120 },
           { props: 'availableQty', label: '可用数量', visible: true, align: 'right', width: 120 },
           { props: 'frozenQty', label: '冻结数量', visible: true, align: 'right', width: 120 },
           { props: 'sharedQty', label: '共享数量', visible: true, align: 'right', width: 120 },
           { props: 'totalQty', label: '库存总数', visible: true, align: 'right', width: 120 },
+          { props: 'returnPendingQty', label: '维修退料未入库数', visible: true, align: 'right', width: 170 },
           { props: 'inventoryDays', label: '库存天数', visible: true, align: 'right', width: 120 },
           { props: 'purchasePrice', label: '采购价格', visible: true, align: 'right', width: 120 },
           { props: 'costUnitPrice', label: '成本单价', visible: true, align: 'right', width: 120 },
@@ -398,6 +461,19 @@ export default {
       }
     },
 
+    /**
+     * 销售物料分类候选值。返回 LpOptionalResult（{ id, name }），
+     * id 与 spare_part.category_spare_sales_id 同源，正好作为筛选值。
+     */
+    async getSalesCategoryList (query) {
+      try {
+        return await getSalesList({ categoryNameLike: query });
+      } catch (error) {
+        console.error('Error fetching sales category list:', error);
+        return [];
+      }
+    },
+
     async getDealerList (query) {
       try {
         const res = await listOrgStoreInfoByParam({ orgCodeOrName: query });
@@ -426,9 +502,11 @@ export default {
       this.getData();
     },
     onReset () {
+      // 清除个人视图状态(选中/清空视图都会回到普通查询)
+      this.resetCustomView();
       this.form = { ...defaultForm };
       this.optionObj.form.page = 1;
-      this.optionObj.form.pageSize = pageSize;
+      this.optionObj.form.size = pageSize;
       this.getData();
     },
     exportExcel () {
@@ -438,6 +516,12 @@ export default {
         const ids = this.selectionList.map(item => item.id) || [];
         reqParams.ids = ids;
       }
+      // 通用导出微服务回调后端分页接口时不会自动补 pageNum/pageSize,
+      // 这里主动补上,否则自定义视图分支只会导出默认页数据。
+      reqParams.pageNum = reqParams.pageNum || 1;
+      reqParams.pageSize = reqParams.pageSize || 99999;
+      // 携带当前个人视图,导出结果与页面视图条件/排序保持一致
+      reqParams.viewId = this.activePresetId || null;
       exportTable({
         businessType: '门店备件库存',
         dataFetchPath: 'sp/web/warehouse/inventory/page',
@@ -465,6 +549,8 @@ export default {
       });
     },
     getData () {
+      // 视图锁定(有 activePresetId)时交给 mixin 走 executeQuery,否则走业务列表查询
+      if (this.fetchByCustomView()) return;
       this.loading = true;
       this.selectionList = [];
       console.log('类型' + this.$route.query.type);
@@ -481,6 +567,14 @@ export default {
         }).finally(() => {
           this.loading = false;
         });
+    },
+    // ---- customViewMixin 字段适配 ----
+    /** 视图取数结果 → 表格行(注入行级 deleteLoading,与业务列表保持一致) */
+    customViewListAdapter (records) {
+      return (records || []).map(item => ({
+        ...item,
+        deleteLoading: false
+      }));
     },
     // 需要防抖场景时使用
     debouncedGetData: debounce(function () {

@@ -66,3 +66,19 @@ export function executeDestroy (data) {
 export function approve (data) {
   return api.jsonPost(prefix + 'approve', data);
 }
+
+/**
+ * 自建销毁单添加明细
+ * @param {Object} data
+ */
+export function addDestroyDetail (data) {
+  return api.jsonPost(prefix + 'addDestroyDetail', data);
+}
+
+/**
+ * 自建销毁单移除明细
+ * @param {Object} data
+ */
+export function removeDestroyDetail (data) {
+  return api.jsonPost(prefix + 'removeDestroyDetail', data);
+}

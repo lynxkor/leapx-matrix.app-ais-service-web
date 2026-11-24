@@ -67,6 +67,18 @@
             end-placeholder="结束日期"
           />
         </el-form-item>
+        <el-form-item label="出库时间:">
+          <el-date-picker
+            v-model="form.outboundTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -137,6 +149,7 @@ const defaultForm = {
   logisticsTrackingNo: '',
   logisticsCompany: '',
   estimatedArrivalDate: '',
+  outboundTime: '',
 };
 
 const pageSize = 20;
@@ -202,6 +215,7 @@ export default {
           { props: 'logisticsTrackingNo', label: '物流单号', visible: true, width: 200 },
           { props: 'logisticsCompany', label: '物流商', visible: true, width: 120 },
           { props: 'estimatedArrivalDate', label: '预计到达日期', visible: true, width: 200 },
+          { props: 'outboundTime', label: '出库时间', visible: true, width: 200 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           {
             props: 'operate',
@@ -386,6 +400,13 @@ export default {
         if (this.form.estimatedArrivalDate.length > 1) {
           data.estimatedArrivalDateStart = this.form.estimatedArrivalDate[0];
           data.estimatedArrivalDateEnd = getEndOfDayString(formatDateTime(this.form.estimatedArrivalDate[1]));
+        }
+      }
+      if (this.form.outboundTime) {
+        delete data.outboundTime;
+        if (this.form.outboundTime.length > 1) {
+          data.outboundTimeStart = this.form.outboundTime[0];
+          data.outboundTimeEnd = getEndOfDayString(formatDateTime(this.form.outboundTime[1]));
         }
       }
 

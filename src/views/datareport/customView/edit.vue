@@ -145,6 +145,23 @@
                       <span v-else>{{ row.fieldEnum }}</span>
                     </template>
                   </el-table-column>
+                  <el-table-column prop="fieldRelation" label="关联对象" min-width="200">
+                    <template #default="{ row }">
+                      <el-cascader
+                        v-if="row._editing"
+                        v-model="row._relationPath"
+                        :options="relationOptions"
+                        :props="relationCascaderProps"
+                        size="small"
+                        clearable
+                        filterable
+                        separator="-"
+                        placeholder="请选择关联对象"
+                        @change="val => handleRelationChange(row, val)"
+                      />
+                      <span v-else>{{ row._relationLabel || row.fieldRelation }}</span>
+                    </template>
+                  </el-table-column>
                   <el-table-column v-if="editable" label="操作" width="160" align="center" fixed="right">
                     <template #default="{ row }">
                       <template v-if="row._editing">
@@ -224,6 +241,14 @@ import EditPageLayout from '@/libs/components/EditPageLayout/index.vue';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
+import {
+  RELATION_CASCADER_PROPS,
+  loadRelationOptions,
+  parseRelationPath,
+  formatRelationJson,
+  formatRelationLabel,
+  resolveRelationJson
+} from './relationDict';
 
 const FIELD_TYPE_OPTIONS = [
   { value: 'text', label: '文本' },
@@ -316,6 +341,9 @@ export default {
       },
       fieldTableData: [],
       fieldTypeOptions: FIELD_TYPE_OPTIONS,
+      // 关联对象两级联动字典树（后端下发）：同时用作 el-cascader options 与 label<->value 互转字典
+      relationOptions: [],
+      relationCascaderProps: RELATION_CASCADER_PROPS,
       form: { ...form },
       originalForm: { ...form },
       rules: {
@@ -333,7 +361,33 @@ export default {
   },
   mounted () {
   },
+  created () {
+    this.loadRelationOptions();
+  },
   methods: {
+    /**
+     * 拉取「关联对象」两级联动字典（后端 common_dict_value）
+     * 字典到达后需重算各行回显路径，故对已加载的行重新反解一次
+     */
+    async loadRelationOptions () {
+      try {
+        this.relationOptions = await loadRelationOptions();
+        this.fieldTableData.forEach(row => this.syncRelationPath(row));
+      } catch (err) {
+        console.error('加载关联对象字典失败:', err);
+        this.relationOptions = [];
+      }
+    },
+    /**
+     * 依据字典把行上的关联对象值反解成级联路径，并同步算出展示名
+     * 兼容两种库值：新格式 JSON（直接取 table/column）、旧格式「一级-二级」文本（按字典反查）
+     * @param {Object} row 字段行
+     */
+    syncRelationPath (row) {
+      const path = parseRelationPath(row.fieldRelation, this.relationOptions);
+      this.$set(row, '_relationPath', path);
+      this.$set(row, '_relationLabel', formatRelationLabel(path, this.relationOptions));
+    },
     detailRequest () {
       const id = this._id;
       if (id) {
@@ -355,7 +409,11 @@ export default {
       this.fieldLoading = true;
       list(bizKey)
         .then(res => {
-          this.fieldTableData = Array.isArray(res) ? res : [];
+          this.fieldTableData = (Array.isArray(res) ? res : []).map(item => ({
+            ...item,
+            fieldRelation: item.fieldRelation || ''
+          }));
+          this.fieldTableData.forEach(row => this.syncRelationPath(row));
         })
         .catch(err => {
           console.error('获取视图字段失败:', err);
@@ -378,13 +436,19 @@ export default {
         fieldName: '',
         fieldLabel: '',
         fieldType: 'text',
-        fieldEnum: ''
+        fieldEnum: '',
+        fieldRelation: '',
+        _relationPath: [],
+        _relationLabel: ''
       };
       this.fieldTableData.unshift(newRow);
     },
     handleEditField (row) {
       if (!this.editable) return;
       this.$set(row, '_snapshot', { ...row });
+      if (!Array.isArray(row._relationPath)) {
+        this.syncRelationPath(row);
+      }
       this.$set(row, '_editing', true);
     },
     handleCancelField (row) {
@@ -403,6 +467,17 @@ export default {
         row.fieldEnum = '';
       }
     },
+    /**
+     * 关联对象级联选择变化：把路径数组落成 JSON 字符串 {"table":"xxx","column":"xxx"}
+     * @param {Object} row 当前行
+     * @param {Array<String>|null} val 级联路径数组，清空时为 null
+     */
+    handleRelationChange (row, val) {
+      const path = Array.isArray(val) ? val : [];
+      this.$set(row, '_relationPath', path);
+      this.$set(row, '_relationLabel', formatRelationLabel(path, this.relationOptions));
+      row.fieldRelation = formatRelationJson(path);
+    },
     validateField (row) {
       if (!row.fieldName) {
         this.$message.warning('请输入字段名');
@@ -420,13 +495,20 @@ export default {
     },
     handleSaveField (row) {
       if (!this.validateField(row)) return;
+      // 关联对象统一归一化成 JSON：新格式直接用，旧格式「门店-大区」按字典反查后转 JSON
+      const relation = resolveRelationJson(row.fieldRelation, this.relationOptions);
+      if (relation === null) {
+        this.$message.warning('关联对象无法识别(字典未加载或数据非法),请重新选择后保存');
+        return;
+      }
       const payload = {
         id: row.id,
         bizKey: this.form.bizKey,
         fieldName: row.fieldName,
         fieldLabel: row.fieldLabel,
         fieldType: row.fieldType,
-        fieldEnum: row.fieldType === 'enum' ? (row.fieldEnum || '') : ''
+        fieldEnum: row.fieldType === 'enum' ? (row.fieldEnum || '') : '',
+        fieldRelation: relation
       };
       addOrUpdateField(payload).then(() => {
         this.$message.success(row.id ? '更新成功' : '新增成功');

@@ -14,6 +14,7 @@
     <template #extraButtons>
       <el-button :loading="printLoading" size="small" @click="handlePrint">打印标签</el-button>
       <el-button size="small" @click="handleViewRights">查看权益</el-button>
+      <el-button v-if="isOem" size="small" @click="handleViewWarrantyWarning">保修预警信息</el-button>
       <el-button v-if="canApplyReject && (isPendingCurrentUserReview || form.applyStatus === APPLY_STATUS.APPROVED)" size="small" @click="handleReject(true)">申请驳回</el-button>
       <el-button v-if="canWithdraw && WITHDRAWABLE_STATUSES.includes(form.applyStatus)" size="small" @click="handleWithdraw">撤回</el-button>
       <el-button v-if="canDeny && (isPendingCurrentUserReview || form.applyStatus === APPLY_STATUS.APPROVED)" plain size="small" @click="handleDeny">拒赔</el-button>
@@ -128,6 +129,16 @@
                 placeholder="选择日期时间">
               </el-date-picker>
             </el-form-item>
+            <el-form-item label="保修结算时间：" prop="warrantySettleTime">
+              <el-date-picker
+                v-model="form.warrantySettleTime"
+                type="datetime"
+                format="yyyy-MM-dd HH:mm:ss"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                disabled
+                placeholder="选择日期时间">
+              </el-date-picker>
+            </el-form-item>
             <el-form-item label="索赔追溯单：" prop="claimTrackNo">
               <el-input placeholder="" v-model="form.claimTrackNo" clearable disabled />
             </el-form-item>
@@ -196,6 +207,9 @@
             </el-form-item>
             <el-form-item label="保修付款时间：" prop="paymentTime">
               {{ form.paymentTime }}
+            </el-form-item>
+            <el-form-item label="保修结算时间：" prop="warrantySettleTime">
+              {{ form.warrantySettleTime }}
             </el-form-item>
             <el-form-item label="索赔追溯单：" prop="claimTrackNo">
               <el-link type="success" :href="`/service/claimreturn/claim/claimtrace/claimTraceOrder/edit?id=${form.claimTrackId}`" target="_blank">{{ form.claimTrackNo }}</el-link>
@@ -635,6 +649,133 @@
     :vehicleProfileId="form.vehicleProfileId"
     :id="_id"
   />
+
+  <!-- 保修预警提醒弹窗 (BXYJ006/007/008/009 命中时弹出) -->
+  <el-dialog
+    title="保修预警提醒"
+    :visible.sync="warningDialogVisible"
+    width="720px"
+    :close-on-click-modal="false"
+  >
+  <div v-if="warningDetailList.length === 0 && form.warrantyWarningMsg" style="padding: 8px 0;">
+    {{ form.warrantyWarningMsg }}
+  </div>
+  <div v-if="warningDetailList.length === 0 && !form.warrantyWarningMsg" style="padding: 32px 0; text-align: center; color: #909399;">
+    暂无保修预警信息
+  </div>
+  <div
+    v-for="(item, idx) in warningDetailList"
+    :key="idx"
+    style="
+      border: 1px solid #ebeef5;
+      border-radius: 4px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      background: #fafbfc;
+    "
+  >
+    <!-- 标题: 规则名 (加粗 + 底部虚线分隔) -->
+    <div style="
+      font-weight: 600;
+      font-size: 15px;
+      color: #303133;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #e4e7ed;
+    ">
+      {{ item.ruleName || '预警' }}
+    </div>
+    <!-- 内容: 完整提醒文案 (缩进+灰色+行高)
+         BXYJ010 (过度更换零件预警) 单独渲染:
+           格式 "此门店零件名称:{name1[link]}、{name2[link]}、{name3[link]}, 查看更多(N)更换数据异常"
+           零件名点击跳 sparePart 详情, "查看更多" 跳备件主数据列表(批量 partCodeList 查询) -->
+    <div v-if="item.ruleType === 'BXYJ010' && item.partCodes && item.partCodes.length"
+         style="
+           font-size: 13px;
+           color: #606266;
+           line-height: 1.8;
+           margin-bottom: 10px;
+           padding-left: 8px;
+           word-break: break-all;
+         ">
+      <span style="color: #606266;">此门店零件名称：</span>
+      <span v-for="(tok, ti) in buildBxyj010Tokens(item)" :key="'t' + idx + '-' + ti" style="display: inline;">
+        <el-link
+          v-if="tok.type === 'name'"
+          type="success"
+          :href="getPartDetailHref(tok.code)"
+          target="_blank"
+          style="margin-right: 4px; vertical-align: baseline;"
+        >{{ tok.name }}</el-link>
+        <span v-else-if="tok.type === 'sep'" style="color: #606266;">、</span>
+        <span v-else-if="tok.type === 'comma'" style="color: #606266; margin: 0 4px;">，</span>
+        <el-link
+          v-else-if="tok.type === 'more'"
+          type="primary"
+          :href="getPartListHref(item.partCodes)"
+          target="_blank"
+          style="vertical-align: baseline;"
+        >查看更多（{{ tok.count }}）</el-link>
+      </span>
+      <span style="color: #606266;">更换数据异常</span>
+    </div>
+    <div v-else-if="item.content" style="
+      font-size: 13px;
+      color: #606266;
+      line-height: 1.8;
+      margin-bottom: 10px;
+      padding-left: 8px;
+      word-break: break-all;
+    ">
+      {{ stripProxyNoSuffix(item.content, item.ruleType) }}
+    </div>
+    <!-- 保修单号 / 施工单号 列表 (点击可跳转详情, 超过 3 条时折叠 + "查看更多"跳列表页)
+         content 文案里已经拼了完整单号序列, 这里只渲染链接块, 不再重复 "保修单号:" 之类的 label,
+         避免与 content 重复感. (2026-08-26 用户纠正: 这个列表块不能删, 有跳转 + 查看更多 业务诉求) -->
+    <div v-if="item.applyNos && item.applyNos.length" style="padding-left: 8px; margin-top: 8px;">
+      <el-link
+        v-for="(applyNo, i) in item.applyNos.slice(0, 3)"
+        :key="'a' + idx + '-' + i"
+        type="success"
+        :href="getApplyDetailHref(applyNo)"
+        target="_blank"
+        style="margin-right: 8px;"
+      >{{ applyNo }}</el-link>
+      <el-link
+        v-if="item.applyNos.length > 3"
+        type="primary"
+        :href="getApplyListHref(item.applyNos)"
+        target="_blank"
+        style="margin-left: 4px;"
+      >查看更多 ({{ item.applyNos.length }})</el-link>
+    </div>
+    <!-- 施工单号 (BXYJ009 使用) -->
+    <div v-if="item.proxyNos && item.proxyNos.length" style="padding-left: 8px; margin-top: 8px;">
+      <el-link
+        v-for="(proxyNo, i) in item.proxyNos.slice(0, 3)"
+        :key="'p' + idx + '-' + i"
+        type="success"
+        :href="getProxyDetailHref(proxyNo)"
+        target="_blank"
+        style="margin-right: 8px;"
+      >{{ proxyNo }}</el-link>
+      <el-link
+        v-if="item.proxyNos.length > 3"
+        type="primary"
+        :href="getProxyListHref(item.proxyNos)"
+        target="_blank"
+        style="margin-left: 4px;"
+      >查看更多 ({{ item.proxyNos.length }})</el-link>
+    </div>
+    <!-- 零件编码块已废弃: BXYJ010 在上方特殊渲染中已展示零件名链接+查看更多,
+         此处保留空 div 仅作为兼容性占位 (避免未来新增预警误判). -->
+    <!-- (空, BXYJ010 走专属区块, 其他规则暂未用到 partCodes) -->
+  </div>
+  <div slot="footer">
+    <el-button @click="warningDialogVisible = false">关闭</el-button>
+  </div>
+</el-dialog>
+
 </div>
 </template>
 
@@ -643,11 +784,9 @@ import {
   getDetail,
   addOrUpdate,
   submit,
-  withdraw,
-  approve,
-  batchCancel,
   print,
-  getNextId
+  getNextId,
+  getList
 } from '@/api/claimreturn/claim/warrantyapply/index';
 import { serviceActivitySchemeGet, getDetail as getServiceActivityDetail } from '@/api/claimreturn/claim/basic/serviceActivity/index';
 import {
@@ -659,6 +798,7 @@ import {
 import FetchSelect from '@/libs/components/FetchSelect';
 import EditBaseContainer from '@/libs/components/EditBaseContainer';
 import { getEnum } from '@/api/common';
+import { loginUserGet } from '@/libs/api/common';
 import { YES_NO_ENUM } from '@/libs/constants';
 import routeGuard from '@/libs/mixins/routeGuard';
 import permissions from '@/libs/mixins/permissions';
@@ -680,7 +820,10 @@ import CancelDialog from './CancelDialog/index.vue';
 import WithdrawDialog from './WithdrawDialog/index.vue';
 // 旧件供应商
 import { getLists } from '@/api/sparepart/basic/sparePartSupplier/index';
-import { getSparePartFull } from '@/api/sparepart/basic/sparePart';
+// 接车施工单 (BXYJ009 跳转需要按 proxyNo 批量查 id, 详情页只接受 id 入参)
+import { getList as getServiceProxyList } from '@/api/maintain/sp/serviceProxy/index';
+// 备件主数据 (BXYJ010 跳转需要按 partCode 批量查 sparePartId, 详情页只接受 id 入参)
+import { getList as getSparePartList } from '@/api/sparepart/basic/sparePart';
 
 const SEARCH_PARAMS_KEY = 'WARRANTY_APPLY_SEARCH_PARAMS';
 const NO_OLD_PART = '10'; // 无旧件
@@ -736,6 +879,8 @@ const defaultForm = {
   errorCodeId: '',
   errorContent: '',
   paymentTime: '',
+  // LP261855 保修结算时间（只读，生成结算通知书置已结算时写入）
+  warrantySettleTime: '',
   claimTrackId: '',
   claimTrackNo: '',
   vin: '',
@@ -885,7 +1030,7 @@ export default {
     },
     remindContent () {
       return this.form.spRemindInfo;
-    }
+    },
   },
   watch: {
     id: {
@@ -944,6 +1089,8 @@ export default {
       canWithdraw: false,
       canDeny: false,
       canCancel: false,
+      // 是否主机厂账号（accountFlag=false 为主机厂，true 为门店），控制【保修预警信息】按钮仅厂端可见
+      isOem: false,
       printLoading: false,
       // 当前活动方案的"是否允许修改旧件"(1=是,0=否),用于控制备件明细的旧件编码列是否禁用
       allowModifyOldPart: '',
@@ -959,7 +1106,15 @@ export default {
       cancelIds: [],
       withdrawDialogVisible: false,
       withdrawIds: [],
-      rightsDialogVisible: false
+      rightsDialogVisible: false,
+      // 保修预警信息弹窗 (点击【保修预警信息】按钮触发)
+      warningDialogVisible: false,
+      warningDetailList: [],
+      applyNoToIdMap: {},
+      // BXYJ009: 施工单号 → id 映射 (详情页只接受 id 入参, 需要先批量查询)
+      proxyNoToIdMap: {},
+      // BXYJ010: 零件编码 → sparePartId 映射 (备件主数据详情页只接受 id 入参, 需要先批量查询)
+      partCodeToIdMap: {}
     };
   },
   created () {
@@ -970,6 +1125,10 @@ export default {
     this.canWithdraw = this.permissions.has(`${this.moduleKey}-withdraw`);
     this.canDeny = this.permissions.has(`${this.moduleKey}-deny`);
     this.canCancel = this.permissions.has(`${this.moduleKey}-cancel`);
+    // 获取当前登录账号类型：【保修预警信息】按钮仅厂端展示（写法参考 claimTraceOrder/edit.vue）
+    loginUserGet().then(data => {
+      this.isOem = !data.accountFlag;
+    });
   },
   mounted () {
     console.log('[DEBUG] warrantyAuditList mounted', this.permissions);
@@ -1043,18 +1202,248 @@ export default {
       });
     },
     detailRequest () {
-      return this.fetchDetail().then(res => {
-        const warningMsg = res?.warrantyWarningMsg;
-        if (warningMsg) {
-          this.$nextTick(() => {
-            this.$alert(warningMsg, '保修预警提醒', {
-              closeOnClickModal: false,
-              type: 'warning',
-            });
-          });
+      return this.fetchDetail();
+    },
+    /**
+     * 解析 warrantyWarningDetail JSON, 初始化预警列表数据并加载映射关系
+     * <p>由 handleViewWarrantyWarning 手动触发, 不再自动弹窗</p>
+     */
+    parseAndShowWarning (res) {
+      let list = [];
+      if (res?.warrantyWarningDetail) {
+        try {
+          list = JSON.parse(res.warrantyWarningDetail);
+        } catch (e) {
+          console.error('[保修预警] 解析 warrantyWarningDetail 失败', e);
+          list = [];
         }
-        return res;
+      }
+      this.warningDetailList = Array.isArray(list) ? list : [];
+      if (this.warningDetailList.length > 0) {
+        this.$nextTick(() => {
+          this.loadApplyNoIdMappings();
+          // BXYJ009: 同步加载施工单号 → id 映射, 用于点击单号跳详情
+          this.loadProxyNoIdMappings();
+          // BXYJ010: 同步加载零件编码 → sparePartId 映射, 用于点击零件名跳详情
+          this.loadPartCodeIdMappings();
+        });
+      }
+    },
+    /**
+     * 加载 applyNo → id 的映射, 用于点击单号跳详情
+     */
+    async loadApplyNoIdMappings () {
+      // 收集所有 applyNos
+      const applyNos = new Set();
+      this.warningDetailList.forEach(item => {
+        if (item && Array.isArray(item.applyNos)) {
+          item.applyNos.forEach(no => { if (no) applyNos.add(no); });
+        }
       });
+      if (applyNos.size === 0) return;
+      try {
+        const res = await getList({
+          pageNum: 1,
+          pageSize: applyNos.size,
+          applyNoList: Array.from(applyNos)
+        });
+        const map = {};
+        const records = res?.data?.records || res?.records || [];
+        records.forEach(r => { if (r.applyNo) map[r.applyNo] = r.id; });
+        this.applyNoToIdMap = map;
+      } catch (e) {
+        console.error('[保修预警] 批量查 applyNo→id 失败', e);
+      }
+    },
+    /**
+     * 加载 proxyNo → id 的映射 (BXYJ009)
+     */
+    async loadProxyNoIdMappings () {
+      const proxyNos = new Set();
+      this.warningDetailList.forEach(item => {
+        if (item && Array.isArray(item.proxyNos)) {
+          item.proxyNos.forEach(no => { if (no) proxyNos.add(no); });
+        }
+      });
+      if (proxyNos.size === 0) return;
+      try {
+        // codes: 接车施工单管理列表页的"单据编号"查询字段, 数组形式代表多值 IN 查询
+        // serviceProxy/page 直接返回 { records: [...], total: N } 结构, 没有 res.data 包装
+        const res = await getServiceProxyList({
+          pageNum: 1,
+          pageSize: proxyNos.size,
+          codes: Array.from(proxyNos)
+        });
+        const map = {};
+        const records = res?.data?.records || res?.records || [];
+        records.forEach(r => { if (r.code) map[r.code] = r.id; });
+        this.proxyNoToIdMap = map;
+      } catch (e) {
+        console.error('[保修预警] 批量查 proxyNo→id 失败', e);
+      }
+    },
+    /**
+     * 加载 partCode → sparePartId 的映射 (BXYJ010)
+     * <p>
+     * 备件主数据详情页 {@code /service/sparepart/basic/sparePart/edit} 只接受
+     * {@code ?id=} 入参, 不支持按 partCode 查询, 所以需要先批量查询
+     * sparePart 列表拿到 partCode → sparePartId 映射。
+     * </p>
+     */
+    async loadPartCodeIdMappings () {
+      const partCodes = new Set();
+      this.warningDetailList.forEach(item => {
+        if (item && Array.isArray(item.partCodes)) {
+          item.partCodes.forEach(c => { if (c) partCodes.add(c); });
+        }
+      });
+      if (partCodes.size === 0) return;
+      try {
+        // partCodeList 是 sparePart 列表支持的批量 partCode IN 查询字段,
+        //   接口返回 records 中包含 id (sparePartId) 与 partCode, 用于构造映射
+        const res = await getSparePartList({
+          pageNum: 1,
+          pageSize: partCodes.size,
+          partCodeList: Array.from(partCodes)
+        });
+        const map = {};
+        const records = res?.data?.records || res?.records || [];
+        records.forEach(r => { if (r.partCode && r.id) map[r.partCode] = r.id; });
+        this.partCodeToIdMap = map;
+      } catch (e) {
+        console.error('[保修预警] 批量查 partCode→sparePartId 失败', e);
+      }
+    },
+    /**
+     * 保修单详情链接: 优先用 id (详情页 ?id= 入参), 降级到 applyNo 跳列表
+     */
+    getApplyDetailHref (applyNo) {
+      const id = this.applyNoToIdMap[applyNo];
+      return id
+        ? `/service/claimreturn/claim/warrantyApply/edit?id=${id}`
+        : `/service/claimreturn/claim/warrantyApply?applyNo=${encodeURIComponent(applyNo)}`;
+    },
+    /**
+     * 保修单列表链接: 批量带入 applyNoList 过滤
+     */
+    getApplyListHref (applyNos) {
+      return `/service/claimreturn/claim/warrantyApply?applyNoList=${applyNos.map(encodeURIComponent).join(',')}`;
+    },
+    /**
+     * 施工单详情链接: 优先用 id, 降级到 proxyNo 跳列表页查询 (参考 BXYJ006-008 applyNos 实现)
+     * <p>
+     *   接车施工单详情页 {@code /maintain/sp/serviceProxy/edit} 的 {@code _id} 只接受
+     *   {@code ?id=} 入参, 不支持按 serviceProxyNo 查询, 所以需要先通过
+     *   {@link #loadProxyNoIdMappings} 把 proxyNo → id 映射加载好。
+     * </p>
+     */
+    getProxyDetailHref (proxyNo) {
+      const id = this.proxyNoToIdMap[proxyNo];
+      if (id) {
+        return `/service/maintain/sp/serviceProxy/edit?id=${id}`;
+      }
+      // 映射加载失败 / 找不到 → 降级跳列表 (带 codes 让用户在列表里筛选)
+      return `/service/maintain/sp/serviceProxy?codes=${encodeURIComponent(proxyNo)}`;
+    },
+    /**
+     * 施工单列表链接: 跳转到接车施工单管理列表页, 通过 {@code codes} 多值过滤。
+     * <p>
+     *   serviceProxy 列表页已实现 {@code applyWarningSearchParams},
+     *   会读取该参数重置 form.codes 并触发查询。
+     * </p>
+     */
+    getProxyListHref (proxyNos) {
+      return `/service/maintain/sp/serviceProxy?codes=${proxyNos.map(encodeURIComponent).join(',')}`;
+    },
+    /**
+     * 剥掉 BXYJ009 content 末尾内联的施工单号值，仅保留 "对应的施工单号：" 提示前缀。
+     * <p>
+     * 背景：remind_content 模板结尾是 {@code 此车最近${day}天内，存在事故维修记录的情况，对应的施工单号：}，
+     * 实际施工单号由 {@code item.proxyNos} 链接块单独渲染为可跳转链接。
+     * 但历史版本模板曾含 {@code ${proxyNos}} 占位符，存量 {@code warranty_warning_detail} 里
+     * 部分 BXYJ009 content 会以 {@code 对应的施工单号：WO-001,WO-002} 形式内联施工单号，
+     * 弹窗里就会视觉上看到同一施工单号出现两次（一次纯文本、一次可点击）。
+     * 这里在渲染前把前缀之后的内联施工单号值剥掉，前缀本身（"对应的施工单号" + 分隔符）保留。
+     * </p>
+     *
+     * @param {string} content 后端渲染后的 content 文本
+     * @param {string} ruleType 规则类型 (仅 BXYJ009 走剥除)
+     * @returns {string} 剥内联值后的文本；非 BXYJ009 或无前缀时原样返回
+     */
+    stripProxyNoSuffix (content, ruleType) {
+      if (!content || ruleType !== 'BXYJ009') {
+        return content;
+      }
+      const marker = '对应的施工单号';
+      const idx = content.indexOf(marker);
+      if (idx < 0) {
+        return content;
+      }
+      // 跳过 marker + 紧随的分隔符 ("：" / ":" / "为")
+      let sepEnd = idx + marker.length;
+      while (sepEnd < content.length) {
+        const ch = content.charAt(sepEnd);
+        if (ch === '：' || ch === ':' || ch === '为') {
+          sepEnd++;
+        } else {
+          break;
+        }
+      }
+      // 保留前缀部分 (含分隔符), 截掉内联的施工单号值
+      return content.substring(0, sepEnd);
+    },
+    /**
+     * 备件主数据详情链接 (BXYJ010 跳转)
+     * <p>
+     * sparePart 详情页只接受 {@code ?id=} (sparePartId) 入参, 所以优先用映射加载到的 id;
+     * 映射加载失败时降级到列表页查询 (按 partCode)。
+     * </p>
+     */
+    getPartDetailHref (partCode) {
+      const id = this.partCodeToIdMap[partCode];
+      return id
+        ? `/service/sparepart/basic/sparePart/edit?id=${id}&isEditing=false`
+        : `/service/sparepart/basic/sparePart?partCode=${encodeURIComponent(partCode)}`;
+    },
+    /**
+     * 备件主数据列表链接 (BXYJ010 "查看更多" 跳转)
+     * <p>
+     * 列表页已实现 {@code applyWarningSearchParams} 读取 URL 中的
+     * {@code partCodeList} 参数, 自动重置其他查询条件后只按这些 partCode 查询。
+     * </p>
+     */
+    getPartListHref (partCodes) {
+      return `/service/sparepart/basic/sparePart?partCodeList=${partCodes.map(encodeURIComponent).join(',')}`;
+    },
+    /**
+     * 构建 BXYJ010 预警的展示 token 列表
+     * <p>
+     * 按展示顺序扁平化为: name(零件链接)、sep("、")、comma("，")、more("查看更多"链接) 四种类型。
+     * 前 3 个零件名称用 name 类型渲染可点击链接; 超过 3 个时插入 more 类型"查看更多"。
+     * 用 token 数组而非 v-for 嵌套,避免 Vue 2 中 v-for 内部 scope 引用 i 的陷阱,渲染顺序确定。
+     * 容错: 若后端未下发 partNames (旧 detail JSON), 降级用 partCode 作为展示文本, 保证 "查看更多" 链接仍可显示.
+     * </p>
+     */
+    buildBxyj010Tokens (item) {
+      const tokens = [];
+      if (!item || !item.partCodes || !item.partCodes.length) return tokens;
+      const partCodes = item.partCodes;
+      // 兼容后端未下发 partNames 字段的旧 detail JSON
+      const partNames = Array.isArray(item.partNames) && item.partNames.length === partCodes.length
+        ? item.partNames
+        : partCodes;
+      const limit = Math.min(3, partCodes.length);
+      for (let i = 0; i < limit; i++) {
+        tokens.push({ type: 'name', code: partCodes[i], name: partNames[i] });
+        if (i < limit - 1) {
+          tokens.push({ type: 'sep' });
+        }
+      }
+      if (partCodes.length > 3) {
+        tokens.push({ type: 'comma' });
+        tokens.push({ type: 'more', count: partCodes.length });
+      }
+      return tokens;
     },
     async submitRequest () {
       const res = await addOrUpdate({ ...this.form });
@@ -1218,7 +1607,7 @@ export default {
       const editedEntries = Object.keys(this.form)
         .filter(k => JSON.stringify(this.form[k]) !== JSON.stringify(this.originalForm[k]))
         .map(k => [k, this.form[k]]);
-      // 2. 拉取服务端最新数据（不重复弹保修预警）
+      // 2. 拉取服务端最新数据
       const res = await this.fetchDetail();
       if (!res) return;
       // 3. 以服务端数据为基础，叠加用户未提交的修改
@@ -1301,6 +1690,11 @@ export default {
     // 查看权益
     handleViewRights () {
       this.rightsDialogVisible = true;
+    },
+    // 保修预警信息
+    handleViewWarrantyWarning () {
+      this.parseAndShowWarning(this.form);
+      this.warningDialogVisible = true;
     },
     // 对话框成功回调
     handleDialogSuccess () {

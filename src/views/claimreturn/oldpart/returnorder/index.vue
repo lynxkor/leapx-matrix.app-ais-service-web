@@ -44,6 +44,19 @@
             filterable
           />
         </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker
+            :default-time="['00:00:00', '23:59:59']"
+            v-model="form.createTime"
+            type="daterange"
+            unlink-panels
+            :picker-options="pickerOptions"
+            range-separator="至"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
       </template>
       <page-search-action
         v-if="canList"
@@ -57,6 +70,7 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <el-button v-if="canAddOrUpdate&&isFastReturn&&!isDealer" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button>
+      <el-button v-if="canImport&&isFastReturn&&!isDealer" size="small" @click="handleImport">导入</el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <el-button  v-if="canDelete"  size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button>
       <el-button  v-if="canSign"  size="small" :loading="signLoading" @click="handleBatchSign" :disabled="selectionList.length === 0">批量签收</el-button>
@@ -85,8 +99,9 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="'1'"
+      id="oldPartFastReturnOrderImportDetail"
       @close="handleUploadDialogClose"
+      @getData="getData"
     />
   </div>
 </template>
@@ -281,7 +296,7 @@ export default {
               popconfirmConfirmButtonType: 'danger',
               popconfirmConfirmButtonText: '删除',
               show: (row) => {
-                return row.returnStatus === '10' && this.canDelete;
+                return (row.returnStatus === '10' || row.returnStatus === '20') && this.canDelete;
               },
               popconfirmTitle: '此操作将永久删除, 是否继续?',
               click: (rowIndex, row) => {
@@ -473,12 +488,12 @@ export default {
     // 批量删除
     handleBatchDelete () {
       this.selectionList.forEach(item => {
-        if (item.returnStatus !== '10') {
+        if (item.returnStatus !== '10' && item.returnStatus !== '20') {
           this.$message({
             type: 'error',
-            message: '仅草稿状态数据允许删除!'
+            message: '仅草稿或待回运且无明细的数据允许删除!'
           });
-          throw new Error('仅草稿状态数据允许删除!');
+          throw new Error('仅草稿或待回运且无明细的数据允许删除!');
         }
       });
       const ids = this.selectionList.map(item => item.id) || [];

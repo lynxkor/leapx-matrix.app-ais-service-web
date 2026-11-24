@@ -565,12 +565,12 @@ export default {
         }
       }
       if (this.form.approvalTime) {
-          delete data.approvalTime;
-          if (this.form.approvalTime.length > 1) {
-            data.approvalTimeStart = this.form.approvalTime[0];
-            data.approvalTimeEnd = this.form.approvalTime[1];
-          }
+        delete data.approvalTime;
+        if (this.form.approvalTime.length > 1) {
+          data.approvalTimeStart = this.form.approvalTime[0];
+          data.approvalTimeEnd = this.form.approvalTime[1];
         }
+      }
 
       if (this.form.createTime) {
         delete data.createTime;

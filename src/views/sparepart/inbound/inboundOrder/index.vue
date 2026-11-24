@@ -107,6 +107,7 @@
         v-if="canList"
         v-model="show"
         is-expandable
+        :view-scope="activeName"
         :loading="loading"
         @submit="onSubmit"
         @reset="onReset"
@@ -539,7 +540,7 @@ export default {
     },
     onSubmit () {
       this.getActiveOption().form.page = 1;
-      this.getData();
+      this.debouncedGetData();
     },
     async getDealerList (query) {
       try {
@@ -568,7 +569,7 @@ export default {
       const option = this.getActiveOption();
       option.form.page = 1;
       option.form.size = pageSize;
-      this.getData();
+      this.debouncedGetData();
     },
     exportExcel () {
       this.exportLoading = true;

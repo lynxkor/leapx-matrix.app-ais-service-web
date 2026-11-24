@@ -50,6 +50,17 @@
           label-key="name"
         />
       </el-form-item>
+            <el-form-item label="来源：">
+              <fetch-select
+                :request="fetchOptions"
+                enumCode="old_part_destroy_source"
+                v-model="form.destroySourceList"
+                placeholder="请选择"
+                clearable
+                multiple
+                filterable
+              />
+            </el-form-item>
         <el-form-item label="销毁日期：">
           <el-date-picker
             v-model="form.destroyDate"
@@ -73,6 +84,7 @@
       />
     </el-form>
     <div class="ais-actions">
+      <el-button v-if="canAdd" size="small" type="primary" @click="handleAdd">新增</el-button>
     </div>
     <div
       class="ais-table-c"
@@ -125,6 +137,7 @@ const defaultForm = {
   dealerRegionCodeList: [],
   dealerName: '',
   destroyStatus: '',
+  destroySourceList: [],
   destroyDate: '',
 };
 
@@ -168,6 +181,10 @@ export default {
     };
   },
   computed: {
+    // 新增按钮权限：复用 permissions mixin 的 canAddOrUpdate（moduleKey-addOrUpdate）
+    canAdd () {
+      return this.canAddOrUpdate;
+    },
     optionObj () {
       return {
         id: this.moduleKey,
@@ -214,6 +231,8 @@ export default {
             }]
           },
           { props: 'destroyStatusLabel', label: '销毁单状态', visible: true, width: 140 },
+          { props: 'destroySourceLabel', label: '来源', visible: true, width: 120 },
+          { props: 'totalQuantity', label: '数量', visible: true, width: 100 },
           { props: 'destroyerName', label: '销毁人', visible: true, width: 120 },
           { props: 'destroyDate', label: '销毁日期', visible: true, width: 200 },
           { props: 'destroyRemark', label: '销毁说明', visible: true, width: 200 },
@@ -270,8 +289,12 @@ export default {
       this.uploadDialogVisible = false;
     },
     handleAdd () {
+      let path = '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit';
+      if (this.isDealer) {
+        path = '/claimreturn/oldpart/destroy/dealerOldPartDestroyOrder/edit';
+      }
       this.$router.push({
-        path: '/claimreturn/oldpart/destroy/oldPartDestroyOrder/edit'
+        path
       });
     },
     onSubmit () {
@@ -463,7 +486,7 @@ export default {
       // });
     },
     filterActivityType (options) {
-      return options.filter(item => !['10', '20', '30'].includes(item.code));
+      return options.filter(item => !['20', '30'].includes(item.code));
     }
   }
 };

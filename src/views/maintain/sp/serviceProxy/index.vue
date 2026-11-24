@@ -535,10 +535,27 @@ export default {
     };
   },
   created () {
+    // 保修预警提醒弹窗跳转: 从 URL query 读取 codes, 清空其他查询条件
+    this.applyWarningSearchParams();
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
     this.getData();
   },
   methods: {
+    applyWarningSearchParams () {
+      const query = this.$route.query || {};
+      const param = query.codes;
+      if (!param) return;
+      const codes = (typeof param === 'string' ? param.split(',') : param)
+        .filter(x => x && String(x).trim());
+      if (codes.length === 0) return;
+      // 覆盖 codes 字段, 并显式清空 createTime 时间窗口.
+      this.form = { ...defaultForm, codes, createTime: [] };
+      // TagInput 内部 tagList 只在 value 变化时同步, created 中的同步赋值不会回显;
+      // 挂载后再赋新数组引用触发 watcher, 让施工单号查询条件正常回显.
+      this.$nextTick(() => {
+        this.form = { ...this.form, codes: codes.slice() };
+      });
+    },
     handleListSelect (row) {
       this.clickItemId = row.id;
     },

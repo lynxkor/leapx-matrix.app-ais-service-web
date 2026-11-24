@@ -12,7 +12,7 @@
       <el-form-item label="代码">
         <el-input
           placeholder="请输入"
-          v-model="form.ruleCode"
+          v-model="form.ruleType"
           clearable
         />
       </el-form-item>
@@ -112,7 +112,7 @@ import commonMixins from '@/libs/mixins/commonMixins';
 
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  ruleCode: '',
+  ruleType: '',
   ruleName: '',
   status: '',
   createTime: '',
@@ -154,10 +154,10 @@ export default {
         },
         dataProp: [
           {
-            props: 'ruleCode',
+            props: 'ruleType',
             label: '代码',
             visible: true,
-            width: 200,
+            width: 140,
             fixed: 'left',
             buttons: [{
               click: (rowIndex, row) => {

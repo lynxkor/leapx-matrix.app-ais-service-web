@@ -336,8 +336,14 @@ export default {
     }
   },
   methods: {
-    loadAttachmentList () {
+    loadAttachmentList (signChannel) {
       if (!this.id) return;
+      // 线下（纸质）签字不产生签名图片，签字日期也需留空，避免打印时带出上一次线上签字的历史签名/日期
+      if (Number(signChannel) === 40) {
+        this.signUrl = '';
+        this.$set(this.info, 'signCompletedOn', '');
+        return;
+      }
       getFileList({ businessId: this.id, attachType: '制单签字' }).then(res => {
         const imgUrl = res?.[0]?.fileUrl;
         this.signUrl = imgUrl;
@@ -353,8 +359,8 @@ export default {
         }
         // 处理结算类型数据:保修、合同、内转不需要用户付钱,修改为0
         this.processCheckoutTypeData();
+        this.loadAttachmentList(res.signChannel);
       });
-      this.loadAttachmentList();
     },
     // 格式化金额
     formatAmount (value) {
