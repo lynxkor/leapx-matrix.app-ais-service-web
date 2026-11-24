@@ -549,6 +549,7 @@ import {
   validateBatchStatus,
   CUSTOM_VIEW_TAB_CODES,
 } from './constants';
+import { readApplyList } from './warningQueryCache';
 import {
   getTableConfig, tableAddOrUpdate, getEnum,
   sparePartList, exportTable, getAllRegion, userQuery
@@ -1721,16 +1722,19 @@ export default {
   },
   methods: {
     /**
-     * 保修预警提醒弹窗跳转: 从 URL query 读取 applyNoList/serviceProxyNoList/partCodeList,
-     * 清空其他查询条件, 重置分页
+     * 保修预警提醒弹窗跳转: 从 URL query / warnKey 读取预警过滤条件, 清空其他查询条件, 重置分页
      * <p>
-     * 由 edit.vue 跳来时携带 ?applyNoList=X1,X2,X3...&serviceProxyNoList=...&partCodeList=...
+     * 大列表 (>50 条) 由 edit.vue 只带 ?warnKey= (单号列表在 localStorage, 见 warningQueryCache.js);
+     * 小列表由 edit.vue 携带 ?applyNoList=X1,X2,X3...&serviceProxyNoList=...&partCodeList=...
      * 整体重置 form 为 defaultForm (避免 $options.data() 在 created 钩子时机的不确定性),
      * 然后覆盖跳转携带的多选字段. Vue 2 响应式正确跟踪的前提是 defaultForm 中字段已显式声明.
      * </p>
      */
     applyWarningSearchParams () {
       const query = (this.$route && this.$route.query) || {};
+      // 0. warnKey 分支: 大列表场景单号列表存 localStorage (见 warningQueryCache.js),
+      //    读回后赋给 applyNoList, 走与 URL 参数完全相同的回填流程
+      const cachedList = readApplyList(query.warnKey);
       // 1. 拆解 query 参数 (每个 *_List 都是逗号分隔或数组)
       const parseListParam = (raw) => {
         if (!raw) return null;
@@ -1738,7 +1742,7 @@ export default {
           .filter(x => x !== null && x !== undefined && String(x).trim() !== '');
         return arr.length > 0 ? arr : null;
       };
-      const applyNoList = parseListParam(query.applyNoList);
+      const applyNoList = cachedList || parseListParam(query.applyNoList);
       const serviceProxyNoList = parseListParam(query.serviceProxyNoList);
       const partCodeList = parseListParam(query.partCodeList);
       // 三个都没带 → 不是预警跳转, 不动 form
