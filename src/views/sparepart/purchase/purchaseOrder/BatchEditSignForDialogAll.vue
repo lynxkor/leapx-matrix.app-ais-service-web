@@ -15,6 +15,24 @@
               <el-input v-model="row.form.qty" type="number" placeholder="请输入签收数量" />
             </template>
           </vxe-column>
+          <vxe-column field="locationName" title="库位" min-width="180">
+            <template #default="{ row }">
+              <fetch-select
+                v-model="row.form.locationName"
+                remote
+                filterable
+                allow-create
+                default-first-option
+                value-key="name"
+                label-key="name"
+                :remote-method="(query) => searchLocation(query, row.receiveWarehouseId)"
+                :params="row.locationName"
+                placeholder="请输入库位名称"
+                clearable
+                @change="onLocationChange($event, row)"
+              />
+            </template>
+          </vxe-column>
           <vxe-column title="操作" width="120">
             <template #default="{ index }">
               <el-popconfirm title="确定删除吗？" v-if="tableData.length > 1" @confirm="handleDel(index)">
@@ -43,10 +61,15 @@
   </template>
 
 <script>
+import FetchSelect from '@/libs/components/FetchSelect';
 import { batchSign, pageWaitSign } from '@/api/sparepart/purchase/purchaseOrder/index';
+import { locationList } from '@/api/sparepart/warehouse/warehouse/index';
 
 export default {
   name: 'BatchEditSignForDialogAll',
+  components: {
+    FetchSelect
+  },
   props: {
     visible: {
       type: Boolean,
@@ -98,7 +121,8 @@ export default {
       this.tableData = (res.records || []).map(item => ({
         ...item,
         form: {
-          qty: item.operateQty
+          qty: item.operateQty,
+          locationName: item.locationName || '' // 回显库存最新库位
         }
       }));
       this.total = res.total || 0;
@@ -129,6 +153,21 @@ export default {
     handleDel (index) {
       this.tableData.splice(index, 1);
     },
+    // 库位联想：限当前行的收货仓库
+    async searchLocation (query, warehouseId) {
+      return locationList({ codeOrName: query || '', warehouseId: warehouseId });
+    },
+    // LP261751 联动默认：任一行选了库位，同仓库下库位为空的其他行立即填充相同值
+    onLocationChange (val, row) {
+      if (!val || !row.receiveWarehouseId) {
+        return;
+      }
+      this.tableData.forEach(other => {
+        if (other !== row && other.receiveWarehouseId === row.receiveWarehouseId && other.form && !other.form.locationName) {
+          other.form.locationName = val;
+        }
+      });
+    },
     async submit () {
       this.loading = true;
       const checkedRows = this.$refs.workTable ? this.$refs.workTable.getCheckboxRecords() : this.tableData;
@@ -147,7 +186,8 @@ export default {
       const params = {
         purchaseOrderSignList: checkedRows.map(item => ({
           purchaseOrderDetailId: item.id,
-          qty: Number(item.form.qty)
+          qty: Number(item.form.qty),
+          locationName: item.form.locationName || ''
         })),
         inbound: this.inbound
       };

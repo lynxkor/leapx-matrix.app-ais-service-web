@@ -19,6 +19,22 @@
             <el-form-item label="本次签收数：" prop="qty">
                 <el-input v-model="formData.qty" type="number" placeholder="请输入签收数量" />
             </el-form-item>
+            <el-form-item label="库位：">
+                <fetch-select
+                    v-model="formData.locationName"
+                    remote
+                    filterable
+                    allow-create
+                    default-first-option
+                    value-key="name"
+                    label-key="name"
+                    :remote-method="searchLocation"
+                    :params="detail.locationName"
+                    placeholder="请输入库位名称"
+                    clearable
+                    style="width: 100%;"
+                />
+            </el-form-item>
         </el-form>
         <!-- 底部按钮 -->
         <template v-slot:footer>
@@ -31,10 +47,15 @@
 </template>
 
 <script>
+import FetchSelect from '@/libs/components/FetchSelect';
 import { batchSign } from '@/api/sparepart/purchase/purchaseOrder/index';
+import { locationList } from '@/api/sparepart/warehouse/warehouse/index';
 
 export default {
   name: 'SignForDialogAll',
+  components: {
+    FetchSelect
+  },
   props: {
     visible: {
       type: Boolean,
@@ -49,7 +70,8 @@ export default {
     return {
       dialogVisible: this.visible,
       formData: {
-        qty: 0
+        qty: 0,
+        locationName: ''
       },
       detail: {},
       title: '签收'
@@ -63,6 +85,7 @@ export default {
       if (val) {
         this.title = val.inbound ? '入库签收' : '签收';
         this.formData.qty = Number(val.operateQty) || 0;
+        this.formData.locationName = val.locationName || '';
         this.detail = val;
       }
     }
@@ -70,6 +93,10 @@ export default {
   methods: {
     close () {
       this.$emit('close');
+    },
+    // 库位联想：限当前采购订单的收货仓库
+    async searchLocation (query) {
+      return locationList({ codeOrName: query || '', warehouseId: this.detail.receiveWarehouseId });
     },
     async submit () {
       const qty = parseInt(this.formData.qty, 10);
@@ -82,7 +109,8 @@ export default {
         purchaseOrderSignList: [
           {
             purchaseOrderDetailId: this.signForForm?.purchaseOrderDetailId,
-            qty: qty
+            qty: qty,
+            locationName: this.formData.locationName || ''
           }
         ],
         inbound: this.signForForm?.inbound,
@@ -90,6 +118,7 @@ export default {
       };
       await batchSign(params);
       this.formData.qty = '';
+      this.formData.locationName = '';
       this.$message.success(this.signForForm?.inbound ? '入库签收成功' : '签收成功');
       this.$emit('submit');
     },

@@ -14,6 +14,24 @@
             <el-input v-model="row.form.qty" type="number" placeholder="请输入签收数量" />
           </template>
         </vxe-column>
+        <vxe-column field="locationName" title="库位" min-width="180">
+          <template #default="{ row }">
+            <fetch-select
+              v-model="row.form.locationName"
+              remote
+              filterable
+              allow-create
+              default-first-option
+              value-key="name"
+              label-key="name"
+              :remote-method="(query) => searchLocation(query, row.receiveWarehouseId)"
+              :params="row.locationName"
+              placeholder="请输入库位名称"
+              clearable
+              @change="onLocationChange($event, row)"
+            />
+          </template>
+        </vxe-column>
         <vxe-column title="操作" width="120">
           <template #default="{ index }">
             <el-popconfirm title="确定删除吗？" v-if="tableData.length > 1" @confirm="handleDel(index)">
@@ -34,10 +52,15 @@
 </template>
 
 <script>
+import FetchSelect from '@/libs/components/FetchSelect';
 import { batchSign } from '@/api/sparepart/purchase/purchaseOrder/index';
+import { locationList } from '@/api/sparepart/warehouse/warehouse/index';
 
 export default {
   name: 'BatchSignForDialogAll',
+  components: {
+    FetchSelect
+  },
   props: {
     visible: {
       type: Boolean,
@@ -76,6 +99,7 @@ export default {
             ...item,
             form: {
               qty: item.operateQty, // 默认本次签收数
+              locationName: item.locationName || '' // 回显库存最新库位
             }
           }));
         }
@@ -92,6 +116,21 @@ export default {
       // 从 tableData 中移除当前行
       this.tableData.splice(index, 1);
     },
+    // 库位联想：限当前行的收货仓库
+    async searchLocation (query, warehouseId) {
+      return locationList({ codeOrName: query || '', warehouseId: warehouseId });
+    },
+    // LP261751 联动默认：任一行选了库位，同一收货仓库下库位为空的其他行立即填充相同值（仅展示辅助，用户可清空；后端不为空行兜底）
+    onLocationChange (val, row) {
+      if (!val || !row.receiveWarehouseId) {
+        return;
+      }
+      this.tableData.forEach(other => {
+        if (other !== row && other.receiveWarehouseId === row.receiveWarehouseId && !other.form.locationName) {
+          other.form.locationName = val;
+        }
+      });
+    },
     async submit () {
       // 校验索赔数量不得为 0 或负数
       const invalidQty = this.tableData.some(row => {
@@ -106,7 +145,8 @@ export default {
       const params = {
         purchaseOrderSignList: this.tableData.map(item => ({
           purchaseOrderDetailId: item.id, // 使用 batchForm 中的 id
-          qty: Number(item.form.qty) // 使用用户输入的数量
+          qty: Number(item.form.qty), // 使用用户输入的数量
+          locationName: item.form.locationName || ''
         })),
         inbound: this.inbound
       };
