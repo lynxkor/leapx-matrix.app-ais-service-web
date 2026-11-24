@@ -43,3 +43,11 @@ export function getDetail (data) {
 export function enableItem (data) {
   return api.jsonPost(prefix + 'enableOrDisable', data);
 }
+
+/**
+ * 可售/禁售（仅按备件模式）
+ * @param {Object} data { id, saleableIs: '1'-可售 / '0'-禁售 }
+ */
+export function changeSaleable (data) {
+  return api.jsonPost(prefix + 'changeSaleable', data);
+}
