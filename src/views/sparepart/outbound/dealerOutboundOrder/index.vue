@@ -102,6 +102,7 @@
         v-if="canList"
         v-model="show"
         is-expandable
+        :view-scope="activeName"
         :loading="loading"
         @submit="onSubmit"
         @reset="onReset"
@@ -416,7 +417,7 @@ export default {
             }, {
               name: '申请退料',
               show: (row) => {
-                return (row.orderStatus === '40' || row.outboundStatus === '60') && row.outboundStatus === '1' && this.permissions.has('AISPART-dealerOutboundOrder-applyReturn');
+                return (row.orderStatus === '40' || row.orderStatus === '60') && row.outboundStatus === '1' && this.permissions.has('AISPART-dealerOutboundOrder-applyReturn');
               },
               click: (rowIndex, row) => {
                 this.$prompt('请输入申请退料原因', '申请退料', {
@@ -686,7 +687,7 @@ export default {
     onSubmit () {
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
-      this.getData();
+      this.debouncedGetData();
     },
     onReset () {
       // 全部备件 tab：默认创建时间 = 最近一个月
@@ -699,7 +700,7 @@ export default {
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       optionObj.form.size = pageSize;
-      this.getData();
+      this.debouncedGetData();
     },
     getLastMonthRange () {
       const end = new Date();

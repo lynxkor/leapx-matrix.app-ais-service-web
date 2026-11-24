@@ -10,11 +10,7 @@
       class="ais-search-form"
     >
       <el-form-item label="账户编号">
-        <el-input
-          placeholder="请输入"
-          v-model="form.code"
-          clearable
-        />
+        <tag-input v-model="form.codeList" placeholder="请输入账户编号（精确批量）" />
       </el-form-item>
       <el-form-item label="公司">
         <fetch-select
@@ -140,6 +136,7 @@
         v-if="canList"
         v-model="show"
         is-expandable
+        :view-scope="activeName"
         :loading="loading"
         @submit="onSubmit"
         @reset="onReset"
@@ -148,7 +145,12 @@
     <div class="ais-actions">
       <!--  TIPS:根据产品增删功能按钮  -->
       <!-- <el-button v-if="canAddOrUpdate" size="small" type="primary" @click="handleAdd"><i class="iconfont icon-lxppc-plus"></i>新增</el-button> -->
-      <!-- <el-button v-if="canImport" size="small" @click="handleImport">导入</el-button> -->
+      <el-button v-if="canMarginImport && activeName === 'homePage'" size="small" @click="handleImport">
+        <i class="iconfont icon-lxppc-import"></i>预留资金额度导入
+      </el-button>
+      <el-button v-if="canAdjustMargin && activeName === 'homePage'" size="small" type="primary" @click="handleAdjustMarginQuota">
+        <i class="iconfont icon-lxppc-edit"></i>调整预留资金额度
+      </el-button>
       <el-button v-if="canExport" :loading="exportLoading" size="small" @click="exportExcel">导出</el-button>
       <!-- <el-button v-if="canDelete" size="small" @click="handleBatchDelete" :disabled="selectionList.length === 0">批量删除</el-button> -->
       <!-- <el-button v-if="canEnableOrDisable" size="small" @click="handleBatchEnable(1)" :disabled="selectionList.length === 0">批量启用</el-button>
@@ -203,8 +205,18 @@
     <!-- TIPS: 填入项目id即可 -->
     <Upload
       :visible="uploadDialogVisible"
-      :id="'1'"
+      id="sparePartMarginImport"
+      title="预留资金额度导入"
+      download-title="备件预留资金额度导入模板"
       @close="handleUploadDialogClose"
+      @getData="getData"
+    />
+
+    <!-- 调整预留资金额度 弹窗 -->
+    <AdjustMarginQuotaDialog
+      :visible.sync="adjustDialogVisible"
+      :selected-rows="adjustSelectedRows"
+      @success="onAdjustSuccess"
     />
   </div>
 </template>
@@ -224,10 +236,11 @@ import permissions from '@/libs/mixins/permissions';
 import { handleBatchStatusChange, downloadExcel, getEndOfDayString } from '@/libs/utils';
 import commonMixins from '@/libs/mixins/commonMixins';
 import EditPage from './edit.vue';
+import AdjustMarginQuotaDialog from './components/AdjustMarginQuotaDialog.vue';
 // console.log('类型' + this.$route.query.type);
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
-  code: '',
+  codeList: [],
   accountType: 'FUND',
   companyCodeList: [],
   createTime: '',
@@ -260,7 +273,8 @@ export default {
     FetchSelect,
     TagInput,
     EditPage,
-    Upload
+    Upload,
+    AdjustMarginQuotaDialog
   },
   data () {
     return {
@@ -277,6 +291,8 @@ export default {
       loading: false,
       exportLoading: false,
       uploadDialogVisible: false,
+      adjustDialogVisible: false,
+      adjustSelectedRows: [],
       clickItemId: '',
       activeName: 'homePage',
       optionObj: {
@@ -310,10 +326,12 @@ export default {
           { props: 'bankName', label: '开户银行', visible: true, width: 200 },
           { props: 'bankAccountHolder', label: '银行户主', visible: true, width: 200 },
           { props: 'bankAccount', label: '开户账户', visible: true, width: 200 },
-          { props: 'availableAmount', label: '可用资金', visible: true, align: 'right', width: 120 },
-          { props: 'frozenAmount', label: '冻结资金', visible: true, align: 'right', width: 120 },
-          { props: 'marginAmount', label: '保证资金', visible: true, align: 'right', width: 120 },
-          { props: 'totalAmount', label: '账户总额', visible: true, align: 'right', width: 120 },
+          { props: 'availableAmount', label: '可用资金', visible: true, width: 120 },
+          { props: 'frozenAmount', label: '冻结资金', visible: true, width: 120 },
+          { props: 'marginAmount', label: '预留资金', visible: true, width: 120 },
+          { props: 'marginQuota', label: '预留资金额度', visible: true, width: 140 },
+          { props: 'marginQuotaRemark', label: '预留资金额度调整说明', visible: true, width: 200 },
+          { props: 'totalAmount', label: '账户总额', visible: true, width: 120 },
           { props: 'createTime', label: '创建时间', visible: true, width: 200 },
           { props: 'updateTime', label: '修改时间', visible: true, width: 200 },
           // {
@@ -373,6 +391,9 @@ export default {
           { props: 'bankAccountNo', label: '开户账户', visible: true, width: 200 },
           { props: 'availableAmount', label: '可用资金', visible: true, width: 140, align: 'right' },
           { props: 'frozenAmount', label: '冻结资金', visible: true, width: 140, align: 'right' },
+          { props: 'marginAmount', label: '预留资金', visible: true, width: 140, align: 'right' },
+          { props: 'marginQuota', label: '预留资金额度', visible: true, width: 160, align: 'right' },
+          { props: 'marginQuotaRemark', label: '预留资金额度调整说明', visible: true, width: 220 },
           { props: 'totalAmount', label: '账户总额', visible: true, width: 140, align: 'right' },
           { props: 'accountCreateTime', label: '账户创建时间', visible: true, width: 200 },
           { props: 'accountUpdateTime', label: '账户修改时间', visible: true, width: 200 },
@@ -395,6 +416,16 @@ export default {
         total: 0
       },
     };
+  },
+  computed: {
+    // 调整预留资金额度 权限点：web:sp:account:adjustMargin
+    canAdjustMargin () {
+      return this.permissions && this.permissions.has('AISPART-account-adjustMargin');
+    },
+    // 预留资金额度导入 权限点：web:sp:account:marginImport
+    canMarginImport () {
+      return this.permissions && this.permissions.has('AISPART-account-marginImport');
+    }
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', [this.pageTitle]);
@@ -457,7 +488,7 @@ export default {
     onSubmit () {
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
-      this.getData();
+      this.debouncedGetData();
     },
     onReset () {
       // 全部备件 tab：默认流水创建时间 = 最近一个月
@@ -470,7 +501,7 @@ export default {
       const optionObj = this.getOptionObj();
       optionObj.form.page = 1;
       optionObj.form.size = pageSize;
-      this.getData();
+      this.debouncedGetData();
     },
     getLastMonthRange () {
       const end = new Date();
@@ -619,10 +650,10 @@ export default {
       // ===== 全部备件 tab：字段映射到 AccountFlowPageParam =====
       if (this.activeName === 'allSpareParts') {
         data.accountType = 'FUND';
-        // 账户编号 form.code -> data.accountCode（homePage API 用 code，detailPage 用 accountCode）
-        if (data.code) {
-          data.accountCode = data.code;
-          delete data.code;
+        // 账户编号（批量）form.codeList -> data.accountCodeList（detailPage 用 accountCodeList）
+        if (data.codeList && data.codeList.length > 0) {
+          data.accountCodeList = data.codeList;
+          delete data.codeList;
         }
         // 交易流水号批量 form.transactionNoList -> data.detailCodeList
         if (data.transactionNoList) {
@@ -662,10 +693,10 @@ export default {
       // ===== 全部备件 tab 默认条件校验 =====
       // 【公司】【账户编号】【流水创建时间】不允许全部为空
       // 全部备件 tab 默认查询 AccountFlow.create_time（getFormData 已映射为 createTimeStart/End）
-      // 注意：账户编号 form.code 已经映射为 data.accountCode，校验检查 data.accountCode。
+      // 注意：账户编号（批量）form.codeList 已经映射为 data.accountCodeList，校验检查 data.accountCodeList。
       if (this.activeName === 'allSpareParts') {
         const hasCompany = !!(data.companyCodeList && data.companyCodeList.length);
-        const hasAccountNo = !!(data.accountCode && data.accountCode.trim());
+        const hasAccountNo = !!(data.accountCodeList && data.accountCodeList.length > 0);
         const hasFlowCreateTime = !!(data.createTimeStart && data.createTimeEnd);
         if (!hasCompany && !hasAccountNo && !hasFlowCreateTime) {
           this.$message.warning('请至少填写【公司】【账户编号】【流水创建时间】中的任意一个');
@@ -712,6 +743,27 @@ export default {
         refreshFunc: this.getData
       });
     },
+    // 调整预留资金额度 弹窗
+    handleAdjustMarginQuota () {
+      if (!this.selectionList || this.selectionList.length === 0) {
+        this.$message.warning('请选择需要调整预留资金额度的记录');
+        return;
+      }
+      // 仅允许现金账户（FUND）行触发弹窗
+      const invalid = this.selectionList.filter(r => r.accountType && r.accountType !== 'FUND');
+      if (invalid.length > 0) {
+        this.$message.warning('仅资金账户支持调整预留资金额度');
+        return;
+      }
+      this.adjustSelectedRows = this.selectionList.map(item => ({ ...item }));
+      this.adjustDialogVisible = true;
+    },
+    // 弹窗成功回调，刷新列表
+    onAdjustSuccess () {
+      // 清空选中状态，避免再次点按钮时带入旧数据
+      this.selectionList = [];
+      this.getData();
+    },
     // 业务单号跳转（cash + rebate 共用同一套 bizType -> path 映射）
     async handleBizNoJump (row) {
       let path = '';
@@ -731,6 +783,12 @@ export default {
       } else if (row.bizType === 'REBATE_DEDUCTION') {
         path = '/sparepart/fund/accountOperateDeductionApply/edit';
         type = 'accountOperateDeductionApply';
+      } else if (row.bizType === 'PRODUCT_PURCHASE') {
+        window.open(`/serviceProduct/serviceProductOrder/wholesaleOrder?wholesaleOrderNo=${encodeURIComponent(row.bizNo)}`, '_blank');
+        return;
+      } else if (row.bizType === 'PRODUCT_RETURN') {
+        window.open(`/serviceProduct/serviceProductOrder/wholesaleOrderReturn?wholesaleReturnNo=${encodeURIComponent(row.bizNo)}`, '_blank');
+        return;
       } else {
         return;
       }

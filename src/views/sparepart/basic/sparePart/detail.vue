@@ -108,6 +108,16 @@
             <el-form-item label="是否关键件：" prop="keyPartIs">
               {{ info.keyPartIsLabel  }}
             </el-form-item>
+            <!-- 【LP260102】新增字段：门店账号不可见（前端隐藏 + 后端同时置空，双保险） -->
+            <el-form-item label="分库是否备货：" prop="subLibraryStockIs" v-if="oem">
+              {{ info.subLibraryStockIsLabel  }}
+            </el-form-item>
+            <el-form-item label="是否EOP产品：" prop="eopProductIs" v-if="oem">
+              {{ info.eopProductIsLabel  }}
+            </el-form-item>
+            <el-form-item label="是否一次性备货：" prop="oneTimeStockIs" v-if="oem">
+              {{ info.oneTimeStockIsLabel  }}
+            </el-form-item>
             <el-form-item label="国内包装前长（mm）：" prop="domesticPrePackageLengthMm">
               {{ info.domesticPrePackageLengthMm  }}
             </el-form-item>
@@ -207,6 +217,7 @@
 
 <script>
 import { getDetail } from '@/api/sparepart/basic/sparePart/index';
+import { getLoginUser } from '@/api/common';
 import { YES_NO_ENUM_MAP } from '@/libs/constants';
 import permissions from '@/libs/mixins/permissions';
 import commonMixins from '@/libs/mixins/commonMixins';
@@ -226,6 +237,8 @@ export default {
       moduleKey: 'AISPART-sparePart',
       loading: true,
       info: {},
+      // 厂端账号 = true（显示 oem 备注 + 【LP260102】3 个字段）；门店账号 = false（隐藏）
+      oem: false,
       modelData: [], // 车型信息
       supplierData: [], // 供应商信息
       replacementData: [], // 替换件信息
@@ -285,9 +298,24 @@ export default {
   },
   created () {
     this.$store.commit('SET_ACTIVE_BREADCRUMB', ['备件主数据', '详情']);
+    // 取当前账号（accountFlag）区分厂端/门店账号，控制【LP260102】3 个字段的可见性
+    this.getLoginUser();
     this.getData();
   },
   methods: {
+    /**
+     * 取当前登录账号：accountFlag=true 为门店账号，false 为厂端账号
+     * 门店账号不可见【LP260102】分库是否备货/是否EOP产品/是否一次性备货（后端同时会把这 3 个字段置空）
+     */
+    async getLoginUser () {
+      try {
+        const res = await getLoginUser();
+        this.oem = !res.accountFlag;
+      } catch (error) {
+        console.error('Error fetching login user:', error);
+      }
+    },
+
     handleEdit () {
       this.$router.push({
         path: '/sparepart/basic/sparePart/edit',

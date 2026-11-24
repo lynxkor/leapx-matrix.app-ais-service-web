@@ -463,7 +463,7 @@ export default {
           key: 'applyReturnMaterial',
           label: '申请退料',
           action: 'applyReturnMaterial',
-          visible: this._id && (this.form.orderStatus === '40' || this.form.outboundStatus === '60') && this.form.outboundStatus === '1' && this.permissions.has('AISPART-dealerOutboundOrder-applyReturn')
+          visible: this._id && (this.form.orderStatus === '40' || this.form.orderStatus === '60') && this.form.outboundStatus === '1' && this.permissions.has('AISPART-dealerOutboundOrder-applyReturn')
         },
         {
           key: 'approveReturnMaterialApproval',

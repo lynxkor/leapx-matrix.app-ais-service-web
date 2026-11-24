@@ -3,6 +3,9 @@ import { SPARE_PREFIX } from '../../spareurl';
 // 根据项目名称（如maintain代表维保项目）手动修改前缀
 const prefix = SPARE_PREFIX + '/web/maintenance/maintenanceOutboundOrder/';
 const prefixDetail = SPARE_PREFIX + '/web/maintenance/maintenanceOutboundOrderDetail/';
+const settingDetail = SPARE_PREFIX + '/web/maintenance/maintenanceOutboundPrintSetting/';
+const returnDetail = SPARE_PREFIX + '/web/maintenance/maintenanceOutboundReturnDetail/';
+
 /**
  * 查询列表
  * @param {Object} data
@@ -56,7 +59,7 @@ export function collarPage (data) {
  * @param {Object} data
  */
 export function goPage (data) {
-  return api.jsonPost('sp/web/maintenance/maintenanceOutboundReturnDetail/page', data);
+  return api.jsonPost(returnDetail + 'page', data);
 }
 
 /**
@@ -72,7 +75,7 @@ export function OutboundPeople (data) {
  * @param {Object} data
  */
 export function getCurrentUserSet (data) {
-  return api.jsonPost('sp/web/maintenance/maintenanceOutboundPrintSetting/getCurrentUserSet', data);
+  return api.jsonPost(settingDetail + 'getCurrentUserSet', data);
 }
 
 /**
@@ -80,7 +83,7 @@ export function getCurrentUserSet (data) {
  * @param {Object} data
  */
 export function settingUpdate (data) {
-  return api.jsonPost('sp/web/maintenance/maintenanceOutboundPrintSetting/addOrUpdate', data);
+  return api.jsonPost(settingDetail + 'addOrUpdate', data);
 }
 
 /**

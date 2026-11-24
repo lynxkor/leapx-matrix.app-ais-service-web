@@ -213,6 +213,9 @@ export default {
           equityCode: this.selectedItem.rightsCode,
           equityName: this.selectedItem.rightsName,
           suggestedSpreadPrice: this.selectedItem.suggestedSpreadPrice,
+          // 权益中心V4.5 新增：透传权益发放来源与发放订单号，供 sp_equity 落库及详情展示
+          grantSource: this.selectedItem.grantSource,
+          grantOrderId: this.selectedItem.grantOrderId,
           repairItemList: this.selectedItem.repairItemList,
           repairPartList: this.selectedItem.repairPartList,
         });

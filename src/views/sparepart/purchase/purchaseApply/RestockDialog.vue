@@ -272,13 +272,13 @@ export default {
       this.loading = true;
       purchaseApplyGetCouponPage({ ...this.getFormData(), orderId: this.id, pageNum: this.current, pageSize: this.pageSize })
         .then(res => {
-          this.tableData = (res && res.records || []).map(item => {
+          this.tableData = ((res && res.records) || []).map(item => {
             return {
               ...item,
               checked: true, // 默认选中
             };
           });
-          this.total = res && res.total || 0;
+          this.total = (res && res.total) || 0;
           this.selectedRows = [...this.tableData]; // 默认选中所有数据
         }).finally(() => {
           this.loading = false;

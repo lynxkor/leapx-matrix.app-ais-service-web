@@ -19,6 +19,12 @@
           clearable
         />
       </el-form-item>
+      <el-form-item label="活动是否结束">
+        <el-select v-model="form.activityEnded" placeholder="请选择">
+          <el-option label="否" :value="false"/>
+          <el-option label="是" :value="true"/>
+        </el-select>
+      </el-form-item>
       <el-form-item label="活动名称"  v-show="this.visibleCount === 3 || show">
         <el-input
           placeholder="请输入"
@@ -241,6 +247,8 @@ import EditPage from './edit.vue';
 const defaultForm = {
   // TIPS:多选时字段名称会有变化，自行校对
   activityCode: '',
+  // 活动是否结束：默认"否"（只查未结束的活动）
+  activityEnded: false,
   vin: '',
   activityName: '',
   activityType: '',

@@ -14,8 +14,8 @@
       >
         <template #extraButtons>
           <el-button @click="onPrint" size="small">打印标签</el-button>
-          <!-- 验收不合格的单子才展示 -->
-          <el-button v-if="canAddOrUpdate && form.oemStatus === '800'" @click="onSecondAcceptance" size="small">二次验收</el-button>
+          <!-- 主机厂入库、验收不合格的单子都可二次验收，不限制修改次数 -->
+          <el-button v-if="canAddOrUpdate && ['700', '800'].includes(form.oemStatus)" @click="onSecondAcceptance" size="small">二次验收</el-button>
         </template>
         <el-main>
           <section class="common-section">
@@ -45,6 +45,9 @@
                 <el-form-item label="数量：" prop="oldPartQuantity">
                   <el-input placeholder="请输入" v-model="form.oldPartQuantity" disabled />
                 </el-form-item>
+                <el-form-item label="零件单价：" prop="partUnitPrice">
+                  <el-input placeholder="请输入" v-model="form.partUnitPrice" disabled />
+                </el-form-item>
                 <el-form-item label="主机厂库存状态：" prop="oemStatusLabel">
                   <el-input placeholder="请输入" v-model="form.oemStatusLabel" disabled />
                 </el-form-item>
@@ -68,6 +71,15 @@
                 </el-form-item>
                 <el-form-item label="维修开始日期：" prop="repairStartTime">
                   <el-input placeholder="请输入" v-model="form.repairStartTime" disabled />
+                </el-form-item>
+                <el-form-item label="VDC入库日期：" prop="vdcStorageDate">
+                  <el-input placeholder="请输入" v-model="form.vdcStorageDate" disabled />
+                </el-form-item>
+                <el-form-item label="生产日期：" prop="produceDate">
+                  <el-input placeholder="请输入" v-model="form.produceDate" disabled />
+                </el-form-item>
+                <el-form-item label="保修开始日期：" prop="warrantyStartDate">
+                  <el-input placeholder="请输入" v-model="form.warrantyStartDate" disabled />
                 </el-form-item>
                 <el-form-item label="活动编号：" prop="serviceActivityCode">
                   <el-input placeholder="请输入" v-model="form.serviceActivityCode" disabled />
@@ -104,6 +116,9 @@
                 </el-form-item>
                 <el-form-item label="旧件名称：" prop="oldPartName">
                   {{form.oldPartName}}
+                </el-form-item>
+                <el-form-item label="零件单价：" prop="partUnitPrice">
+                  {{form.partUnitPrice}}
                 </el-form-item>
                 <el-form-item label="旧件返还类型：" prop="returnTypeLabel">
                   {{form.returnTypeLabel}}
@@ -153,6 +168,9 @@
                     <span>{{ form.vin }}</span>
                     <span @click="onDecryptVin" class="eye-icon iconfont icon-lxppc-eye"></span>
                   </template>
+                </el-form-item>
+                <el-form-item label="VDC入库日期：" prop="vdcStorageDate">
+                     {{form.vdcStorageDate}}
                 </el-form-item>
                 <el-form-item label="门店名称：" prop="dealerName">
                   <el-button class="link"
@@ -226,6 +244,12 @@
                 <el-form-item label="审批通过时间：" prop="warrantyApproveTime">
                   {{form.warrantyApproveTime}}
                 </el-form-item>
+                <el-form-item label="生产日期：" prop="produceDate">
+                  {{form.produceDate}}
+                </el-form-item>
+                <el-form-item label="保修开始日期：" prop="warrantyStartDate">
+                  {{form.warrantyStartDate}}
+                </el-form-item>
                 <el-form-item label="VRT：" prop="vrtName">
                   {{form.vrtName}}
                 </el-form-item>
@@ -281,7 +305,7 @@
                     class="link"
                     @click="$router.push('/claimreturn/oldpart/returnorder/edit?id=' + item.returnOrderId)"
                     type="text">
-                    {{ form.returnOrderNo }}
+                    {{ item.returnOrderNo }}
                     <span v-if="index !== form.returnOrderHisList.length - 1">,</span>
                   </el-button>
                 </el-form-item>
@@ -439,6 +463,10 @@ const defaultForm = {
   vehicleModelName: '',
   mileage: '',
   repairStartTime: '',
+  partUnitPrice: '',
+  vdcStorageDate: '',
+  produceDate: '',
+  warrantyStartDate: '',
   serviceActivityCode: '',
   repairItemTypeName: '',
   faultPhenomenon: '',
